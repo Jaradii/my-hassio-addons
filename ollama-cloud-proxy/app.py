@@ -1,10 +1,10 @@
 import json
+from datetime import datetime, timezone
 from typing import Any
 
 import httpx
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse, PlainTextResponse, StreamingResponse
-from starlette.background import BackgroundTask
+from fastapi.responses import JSONResponse, PlainTextResponse, Response
 
 OPTIONS_PATH = "/data/options.json"
 DEFAULT_BASE_URL = "https://ollama.com/api"
@@ -66,7 +66,10 @@ def get_config() -> dict[str, Any]:
 def auth_headers(api_key: str) -> dict[str, str]:
     if not api_key:
         raise HTTPException(status_code=500, detail="Kein API-Key konfiguriert")
-    return {"Authorization": f"Bearer {api_key}"}
+    return {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
 
 
 def response_model_item(name: str) -> dict[str, Any]:
@@ -89,41 +92,21 @@ def map_model_name(name: str, cfg: dict[str, Any]) -> str:
     return name
 
 
-def rewrite_model_field(raw_body: bytes, cfg: dict[str, Any]) -> bytes:
-    try:
-        payload = json.loads(raw_body.decode("utf-8"))
-    except Exception:
-        return raw_body
-
-    if isinstance(payload, dict) and "model" in payload:
-        payload["model"] = map_model_name(str(payload.get("model", "")), cfg)
-        return json.dumps(payload).encode("utf-8")
-
-    return raw_body
+def now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
-def filtered_forward_headers(request: Request, api_key: str) -> dict[str, str]:
-    headers: dict[str, str] = {}
-    for key, value in request.headers.items():
-        if key.lower() in HOP_BY_HOP_HEADERS:
-            continue
-        if key.lower() == "authorization":
-            continue
-        headers[key] = value
-    headers.update(auth_headers(api_key))
-    return headers
+def json_response_or_error(resp: httpx.Response) -> JSONResponse:
+    content_type = resp.headers.get("content-type", "")
+    if content_type.startswith("application/json"):
+        try:
+            return JSONResponse(status_code=resp.status_code, content=resp.json())
+        except Exception:
+            return JSONResponse(status_code=502, content={"error": "Ungueltige JSON-Antwort upstream"})
+    return JSONResponse(status_code=resp.status_code, content={"error": resp.text})
 
 
-def filter_response_headers(headers: httpx.Headers) -> dict[str, str]:
-    out: dict[str, str] = {}
-    for key, value in headers.items():
-        if key.lower() in HOP_BY_HOP_HEADERS:
-            continue
-        out[key] = value
-    return out
-
-
-app = FastAPI(title="Ollama Cloud Proxy", version="2.1.1")
+app = FastAPI(title="Ollama Cloud Proxy", version="2.2.0")
 
 
 @app.get("/")
@@ -146,7 +129,7 @@ async def health() -> JSONResponse:
 
 @app.get("/api/version")
 async def api_version() -> JSONResponse:
-    return JSONResponse({"version": "cloud-proxy-2.1.1"})
+    return JSONResponse({"version": "cloud-proxy-2.2.0"})
 
 
 @app.get("/api/tags")
@@ -154,21 +137,14 @@ async def api_tags() -> JSONResponse:
     cfg = get_config()
 
     if cfg["visible_models"]:
-        return JSONResponse(
-            {
-                "models": [response_model_item(name) for name in cfg["visible_models"]]
-            }
-        )
+        return JSONResponse({"models": [response_model_item(name) for name in cfg["visible_models"]]})
 
-    url = f"{cfg['base_url']}/tags"
     async with httpx.AsyncClient(timeout=cfg["request_timeout"]) as client:
-        response = await client.get(url, headers=auth_headers(cfg["api_key"]))
-
-    content_type = response.headers.get("content-type", "")
-    if content_type.startswith("application/json"):
-        return JSONResponse(status_code=response.status_code, content=response.json())
-
-    return JSONResponse(status_code=response.status_code, content={"error": response.text})
+        resp = await client.get(
+            f"{cfg['base_url']}/tags",
+            headers=auth_headers(cfg["api_key"]),
+        )
+    return json_response_or_error(resp)
 
 
 @app.post("/api/pull")
@@ -221,6 +197,135 @@ async def api_show(request: Request) -> JSONResponse:
     )
 
 
+@app.post("/api/chat")
+async def api_chat(request: Request) -> Response:
+    cfg = get_config()
+    raw_body = await request.body()
+
+    try:
+        payload = json.loads(raw_body.decode("utf-8")) if raw_body else {}
+    except Exception:
+        return JSONResponse(status_code=400, content={"error": "Ungueltiger JSON-Body"})
+
+    if not isinstance(payload, dict):
+        return JSONResponse(status_code=400, content={"error": "Ungueltiger JSON-Body"})
+
+    requested_model = str(payload.get("model", "") or "").strip()
+    mapped_model = map_model_name(requested_model, cfg)
+    stream_requested = bool(payload.get("stream", False))
+
+    payload["model"] = mapped_model
+    payload["stream"] = False
+
+    async with httpx.AsyncClient(timeout=cfg["request_timeout"]) as client:
+        resp = await client.post(
+            f"{cfg['base_url']}/chat",
+            headers=auth_headers(cfg["api_key"]),
+            json=payload,
+        )
+
+    if resp.status_code >= 400:
+        return json_response_or_error(resp)
+
+    try:
+        data = resp.json()
+    except Exception:
+        return JSONResponse(status_code=502, content={"error": "Ungueltige JSON-Antwort upstream"})
+
+    if not stream_requested:
+        return JSONResponse(content=data)
+
+    message = data.get("message", {})
+    if not isinstance(message, dict):
+        message = {"role": "assistant", "content": ""}
+
+    content = str(message.get("content", "") or "")
+
+    chunk = {
+        "model": requested_model or mapped_model,
+        "created_at": data.get("created_at", now_iso()),
+        "message": {
+            "role": "assistant",
+            "content": content,
+        },
+        "done": True,
+        "done_reason": data.get("done_reason", "stop"),
+        "total_duration": data.get("total_duration", 0),
+        "load_duration": data.get("load_duration", 0),
+        "prompt_eval_count": data.get("prompt_eval_count", 0),
+        "prompt_eval_duration": data.get("prompt_eval_duration", 0),
+        "eval_count": data.get("eval_count", 0),
+        "eval_duration": data.get("eval_duration", 0),
+    }
+
+    ndjson = json.dumps(chunk, ensure_ascii=False) + "\n"
+    return Response(
+        content=ndjson,
+        media_type="application/x-ndjson",
+    )
+
+
+@app.post("/api/generate")
+async def api_generate(request: Request) -> Response:
+    cfg = get_config()
+    raw_body = await request.body()
+
+    try:
+        payload = json.loads(raw_body.decode("utf-8")) if raw_body else {}
+    except Exception:
+        return JSONResponse(status_code=400, content={"error": "Ungueltiger JSON-Body"})
+
+    if not isinstance(payload, dict):
+        return JSONResponse(status_code=400, content={"error": "Ungueltiger JSON-Body"})
+
+    requested_model = str(payload.get("model", "") or "").strip()
+    mapped_model = map_model_name(requested_model, cfg)
+    stream_requested = bool(payload.get("stream", False))
+
+    payload["model"] = mapped_model
+    payload["stream"] = False
+
+    async with httpx.AsyncClient(timeout=cfg["request_timeout"]) as client:
+        resp = await client.post(
+            f"{cfg['base_url']}/generate",
+            headers=auth_headers(cfg["api_key"]),
+            json=payload,
+        )
+
+    if resp.status_code >= 400:
+        return json_response_or_error(resp)
+
+    try:
+        data = resp.json()
+    except Exception:
+        return JSONResponse(status_code=502, content={"error": "Ungueltige JSON-Antwort upstream"})
+
+    if not stream_requested:
+        return JSONResponse(content=data)
+
+    response_text = str(data.get("response", "") or "")
+
+    chunk = {
+        "model": requested_model or mapped_model,
+        "created_at": data.get("created_at", now_iso()),
+        "response": response_text,
+        "done": True,
+        "done_reason": data.get("done_reason", "stop"),
+        "total_duration": data.get("total_duration", 0),
+        "load_duration": data.get("load_duration", 0),
+        "prompt_eval_count": data.get("prompt_eval_count", 0),
+        "prompt_eval_duration": data.get("prompt_eval_duration", 0),
+        "eval_count": data.get("eval_count", 0),
+        "eval_duration": data.get("eval_duration", 0),
+    }
+
+    ndjson = json.dumps(chunk, ensure_ascii=False) + "\n"
+    return Response(
+        content=ndjson,
+        media_type="application/x-ndjson",
+    )
+
+
 @app.api_route("/api/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
 async def proxy_api(path: str, request: Request):
     cfg = get_config()
@@ -229,37 +334,38 @@ async def proxy_api(path: str, request: Request):
         return JSONResponse(status_code=500, content={"error": "Kein API-Key konfiguriert"})
 
     raw_body = await request.body()
-    body = rewrite_model_field(raw_body, cfg)
+    body = raw_body
 
-    url = f"{cfg['base_url']}/{path.lstrip('/')}"
-    headers = filtered_forward_headers(request, cfg["api_key"])
+    if raw_body:
+        try:
+            payload = json.loads(raw_body.decode("utf-8"))
+            if isinstance(payload, dict) and "model" in payload:
+                payload["model"] = map_model_name(str(payload.get("model", "")), cfg)
+                body = json.dumps(payload).encode("utf-8")
+        except Exception:
+            body = raw_body
 
-    async with httpx.AsyncClient(timeout=None) as client:
-        upstream_request = client.build_request(
+    headers = {}
+    for key, value in request.headers.items():
+        if key.lower() in HOP_BY_HOP_HEADERS:
+            continue
+        if key.lower() == "authorization":
+            continue
+        headers[key] = value
+    headers.update(auth_headers(cfg["api_key"]))
+
+    async with httpx.AsyncClient(timeout=cfg["request_timeout"]) as client:
+        resp = await client.request(
             method=request.method,
-            url=url,
+            url=f"{cfg['base_url']}/{path.lstrip('/')}",
             headers=headers,
             params=request.query_params,
             content=body,
         )
-        upstream_response = await client.send(upstream_request, stream=True)
 
-    response_headers = filter_response_headers(upstream_response.headers)
-
-    return StreamingResponse(
-        upstream_response.aiter_raw(),
-        status_code=upstream_response.status_code,
-        headers=response_headers,
-        background=BackgroundTask(upstream_response.aclose),
-    )
+    return json_response_or_error(resp)
 
 
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(_: Request, exc: Exception):
     return PlainTextResponse(str(exc), status_code=500)
-
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run("app:app", host="0.0.0.0", port=11434, log_level="info")
