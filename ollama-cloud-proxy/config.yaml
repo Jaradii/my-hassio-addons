@@ -1,7 +1,7 @@
 name: "Ollama Cloud Proxy"
-version: "2.1.0"
+version: "2.1.1"
 slug: "ollama_cloud_proxy"
-description: "Ollama-kompatibler Proxy für Home Assistant zur Nutzung von Ollama Cloud mit API-Key"
+description: "Ollama-kompatibler Proxy fuer Home Assistant zur Nutzung von Ollama Cloud mit API-Key"
 startup: services
 boot: auto
 init: false
@@ -19,7 +19,6 @@ options:
   base_url: "https://ollama.com/api"
   force_model: ""
   visible_models: []
-  model_aliases: {}
   request_timeout: 600
 
 schema:
@@ -28,5 +27,4 @@ schema:
   force_model: str?
   visible_models:
     - str?
-  model_aliases: dict?
   request_timeout: int?
