@@ -1,6 +1,32 @@
-api_key: "DEIN_OLLAMA_API_KEY"
-base_url: "https://ollama.com/api"
-force_model: "gpt-oss:120b-cloud"
-visible_models:
-  - "gpt-oss:120b-cloud"
-request_timeout: 600
+name: "Ollama Cloud Proxy"
+version: "2.1.0"
+slug: "ollama_cloud_proxy"
+description: "Ollama-kompatibler Proxy für Home Assistant zur Nutzung von Ollama Cloud mit API-Key"
+startup: services
+boot: auto
+init: false
+arch:
+  - aarch64
+  - amd64
+
+ports:
+  11434/tcp: 11434
+
+watchdog: "tcp://[HOST]:[PORT:11434]"
+
+options:
+  api_key: ""
+  base_url: "https://ollama.com/api"
+  force_model: ""
+  visible_models: []
+  model_aliases: {}
+  request_timeout: 600
+
+schema:
+  api_key: password
+  base_url: str
+  force_model: str?
+  visible_models:
+    - str?
+  model_aliases: dict?
+  request_timeout: int?
