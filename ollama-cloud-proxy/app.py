@@ -54,22 +54,11 @@ def get_config() -> dict[str, Any]:
 
     visible_models = [str(m).strip() for m in visible_models_raw if str(m).strip()]
 
-    model_aliases_raw = options.get("model_aliases", {})
-    if not isinstance(model_aliases_raw, dict):
-        model_aliases_raw = {}
-
-    model_aliases = {
-        str(k).strip(): str(v).strip()
-        for k, v in model_aliases_raw.items()
-        if str(k).strip() and str(v).strip()
-    }
-
     return {
         "api_key": api_key,
         "base_url": base_url,
         "force_model": force_model,
         "visible_models": visible_models,
-        "model_aliases": model_aliases,
         "request_timeout": request_timeout,
     }
 
@@ -95,7 +84,9 @@ def map_model_name(name: str, cfg: dict[str, Any]) -> str:
     name = (name or "").strip()
     if cfg["force_model"]:
         return cfg["force_model"]
-    return cfg["model_aliases"].get(name, name)
+    if name.endswith("-cloud"):
+        return name[:-6]
+    return name
 
 
 def rewrite_model_field(raw_body: bytes, cfg: dict[str, Any]) -> bytes:
@@ -132,7 +123,7 @@ def filter_response_headers(headers: httpx.Headers) -> dict[str, str]:
     return out
 
 
-app = FastAPI(title="Ollama Cloud Proxy", version="2.1.0")
+app = FastAPI(title="Ollama Cloud Proxy", version="2.1.1")
 
 
 @app.get("/")
@@ -144,7 +135,6 @@ async def root() -> JSONResponse:
             "base_url": cfg["base_url"],
             "force_model": cfg["force_model"],
             "visible_models": cfg["visible_models"],
-            "model_aliases": cfg["model_aliases"],
         }
     )
 
@@ -156,7 +146,7 @@ async def health() -> JSONResponse:
 
 @app.get("/api/version")
 async def api_version() -> JSONResponse:
-    return JSONResponse({"version": "cloud-proxy-2.1.0"})
+    return JSONResponse({"version": "cloud-proxy-2.1.1"})
 
 
 @app.get("/api/tags")
@@ -174,10 +164,11 @@ async def api_tags() -> JSONResponse:
     async with httpx.AsyncClient(timeout=cfg["request_timeout"]) as client:
         response = await client.get(url, headers=auth_headers(cfg["api_key"]))
 
-    return JSONResponse(
-        status_code=response.status_code,
-        content=response.json() if response.headers.get("content-type", "").startswith("application/json") else {"error": response.text},
-    )
+    content_type = response.headers.get("content-type", "")
+    if content_type.startswith("application/json"):
+        return JSONResponse(status_code=response.status_code, content=response.json())
+
+    return JSONResponse(status_code=response.status_code, content={"error": response.text})
 
 
 @app.post("/api/pull")
