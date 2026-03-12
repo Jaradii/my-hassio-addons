@@ -1,6 +1,5 @@
 import json
-import os
-from typing import Any
+from typing import Any, AsyncIterator
 
 import httpx
 from fastapi import FastAPI, HTTPException, Request
@@ -29,11 +28,7 @@ def load_options() -> dict[str, Any]:
     try:
         with open(OPTIONS_PATH, "r", encoding="utf-8") as f:
             data = json.load(f)
-            if not isinstance(data, dict):
-                return {}
-            return data
-    except FileNotFoundError:
-        return {}
+            return data if isinstance(data, dict) else {}
     except Exception:
         return {}
 
@@ -96,27 +91,56 @@ def model_item(name: str) -> dict[str, Any]:
         "modified_at": "1970-01-01T00:00:00Z",
         "size": 0,
         "digest": "",
-        "details": {},
+        "details": {
+            "format": "cloud",
+            "family": "cloud",
+            "families": ["cloud"],
+            "parameter_size": "",
+            "quantization_level": "",
+        },
     }
 
 
-def rewrite_model_if_needed(raw_body: bytes, force_model: str) -> bytes:
-    if not force_model:
-        return raw_body
+def get_effective_model(requested_model: str | None, cfg: dict[str, Any]) -> str:
+    requested_model = (requested_model or "").strip()
+    if cfg["force_model"]:
+        return cfg["force_model"]
+    if requested_model:
+        return requested_model
+    if cfg["visible_models"]:
+        return cfg["visible_models"][0]
+    return ""
 
+
+def rewrite_model_if_needed(raw_body: bytes, cfg: dict[str, Any]) -> tuple[bytes, str]:
     try:
-        payload = json.loads(raw_body.decode("utf-8"))
+        payload = json.loads(raw_body.decode("utf-8")) if raw_body else {}
     except Exception:
-        return raw_body
+        payload = {}
 
-    if isinstance(payload, dict):
-        payload["model"] = force_model
-        return json.dumps(payload).encode("utf-8")
+    requested_model = payload.get("model") if isinstance(payload, dict) else None
+    effective_model = get_effective_model(requested_model, cfg)
 
-    return raw_body
+    if isinstance(payload, dict) and effective_model:
+        payload["model"] = effective_model
+        return json.dumps(payload).encode("utf-8"), effective_model
+
+    return raw_body, effective_model
 
 
-app = FastAPI(title="Ollama Cloud Proxy", version="2.0.0")
+async def fake_pull_stream(model: str) -> AsyncIterator[bytes]:
+    steps = [
+        {"status": f"pulling manifest for {model}"},
+        {"status": "verifying sha256 digest"},
+        {"status": "writing manifest"},
+        {"status": "removing any unused layers"},
+        {"status": "success"},
+    ]
+    for step in steps:
+        yield (json.dumps(step) + "\n").encode("utf-8")
+
+
+app = FastAPI(title="Ollama Cloud Proxy", version="2.1.0")
 
 
 @app.get("/")
@@ -139,7 +163,7 @@ async def health() -> JSONResponse:
 
 @app.get("/api/version")
 async def api_version() -> JSONResponse:
-    return JSONResponse({"version": "cloud-proxy-2.0.0"})
+    return JSONResponse({"version": "cloud-proxy-2.1.0"})
 
 
 @app.get("/api/tags")
@@ -148,6 +172,9 @@ async def api_tags() -> JSONResponse:
 
     if cfg["force_model"]:
         return JSONResponse({"models": [model_item(cfg["force_model"])]})
+
+    if cfg["visible_models"]:
+        return JSONResponse({"models": [model_item(name) for name in cfg["visible_models"]]})
 
     url = f"{cfg['base_url']}/tags"
 
@@ -163,31 +190,62 @@ async def api_tags() -> JSONResponse:
             content={"error": response.text},
         )
 
+    return JSONResponse(content=response.json())
+
+
+@app.post("/api/pull")
+async def api_pull(request: Request):
+    cfg = get_config()
+    raw_body = await request.body()
+
     try:
-        data = response.json()
+        payload = json.loads(raw_body.decode("utf-8")) if raw_body else {}
     except Exception:
-        return JSONResponse(status_code=502, content={"error": "Ungueltige Antwort von Ollama Cloud"})
+        payload = {}
 
-    if cfg["visible_models"]:
-        remote_models = data.get("models", [])
-        if not isinstance(remote_models, list):
-            remote_models = []
+    model = get_effective_model(payload.get("model"), cfg)
+    stream = bool(payload.get("stream", True))
 
-        remote_by_name = {}
-        for item in remote_models:
-            if isinstance(item, dict) and item.get("name"):
-                remote_by_name[str(item["name"])] = item
+    if not model:
+        return JSONResponse(status_code=400, content={"error": "Kein Modell angegeben"})
 
-        filtered = []
-        for name in cfg["visible_models"]:
-            if name in remote_by_name:
-                filtered.append(remote_by_name[name])
-            else:
-                filtered.append(model_item(name))
+    # HA erwartet bei lokalen Ollama-Hosts, dass ein Pull möglich ist.
+    # Für Cloud emulieren wir den Pull erfolgreich.
+    if stream:
+        return StreamingResponse(
+            fake_pull_stream(model),
+            media_type="application/x-ndjson",
+        )
 
-        data["models"] = filtered
+    return JSONResponse({"status": "success"})
 
-    return JSONResponse(content=data)
+
+@app.post("/api/show")
+async def api_show(request: Request):
+    cfg = get_config()
+    raw_body = await request.body()
+
+    try:
+        payload = json.loads(raw_body.decode("utf-8")) if raw_body else {}
+    except Exception:
+        payload = {}
+
+    model = get_effective_model(payload.get("model"), cfg)
+    if not model:
+        return JSONResponse(status_code=400, content={"error": "Kein Modell angegeben"})
+
+    return JSONResponse(
+        {
+            "license": "",
+            "modelfile": f"FROM {model}",
+            "parameters": "",
+            "template": "",
+            "details": model_item(model)["details"],
+            "model_info": {},
+            "messages": [],
+            "capabilities": ["completion", "tools"],
+        }
+    )
 
 
 @app.api_route("/api/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
@@ -195,16 +253,12 @@ async def proxy_api(path: str, request: Request):
     cfg = get_config()
 
     if not cfg["api_key"]:
-        return JSONResponse(
-            status_code=500,
-            content={"error": "Kein API-Key konfiguriert"},
-        )
+        return JSONResponse(status_code=500, content={"error": "Kein API-Key konfiguriert"})
 
     url = f"{cfg['base_url']}/{path.lstrip('/')}"
 
     raw_body = await request.body()
-    body = rewrite_model_if_needed(raw_body, cfg["force_model"])
-
+    body, _effective_model = rewrite_model_if_needed(raw_body, cfg)
     headers = filtered_forward_headers(request, cfg["api_key"])
 
     async with httpx.AsyncClient(timeout=None) as client:
