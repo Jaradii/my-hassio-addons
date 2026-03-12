@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 import httpx
+import uvicorn
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, PlainTextResponse, Response
 
@@ -106,7 +107,7 @@ def json_response_or_error(resp: httpx.Response) -> JSONResponse:
     return JSONResponse(status_code=resp.status_code, content={"error": resp.text})
 
 
-app = FastAPI(title="Ollama Cloud Proxy", version="2.2.0")
+app = FastAPI(title="Ollama Cloud Proxy", version="2.2.1")
 
 
 @app.get("/")
@@ -129,7 +130,7 @@ async def health() -> JSONResponse:
 
 @app.get("/api/version")
 async def api_version() -> JSONResponse:
-    return JSONResponse({"version": "cloud-proxy-2.2.0"})
+    return JSONResponse({"version": "cloud-proxy-2.2.1"})
 
 
 @app.get("/api/tags")
@@ -369,3 +370,12 @@ async def proxy_api(path: str, request: Request):
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(_: Request, exc: Exception):
     return PlainTextResponse(str(exc), status_code=500)
+
+
+if __name__ == "__main__":
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=11434,
+        log_level="info",
+    )
