@@ -1,5 +1,5 @@
 import json
-from typing import Any, AsyncIterator
+from typing import Any
 
 import httpx
 from fastapi import FastAPI, HTTPException, Request
@@ -28,39 +28,87 @@ def load_options() -> dict[str, Any]:
     try:
         with open(OPTIONS_PATH, "r", encoding="utf-8") as f:
             data = json.load(f)
-            return data if isinstance(data, dict) else {}
+            if isinstance(data, dict):
+                return data
     except Exception:
-        return {}
+        pass
+    return {}
 
 
 def get_config() -> dict[str, Any]:
     options = load_options()
+
     api_key = str(options.get("api_key", "") or "").strip()
     base_url = str(options.get("base_url", DEFAULT_BASE_URL) or DEFAULT_BASE_URL).rstrip("/")
     force_model = str(options.get("force_model", "") or "").strip()
-    visible_models = options.get("visible_models", [])
-    if not isinstance(visible_models, list):
-        visible_models = []
-    visible_models = [str(m).strip() for m in visible_models if str(m).strip()]
     request_timeout = options.get("request_timeout", DEFAULT_TIMEOUT)
+
     try:
         request_timeout = int(request_timeout)
     except Exception:
         request_timeout = DEFAULT_TIMEOUT
+
+    visible_models_raw = options.get("visible_models", [])
+    if not isinstance(visible_models_raw, list):
+        visible_models_raw = []
+
+    visible_models = [str(m).strip() for m in visible_models_raw if str(m).strip()]
+
+    model_aliases_raw = options.get("model_aliases", {})
+    if not isinstance(model_aliases_raw, dict):
+        model_aliases_raw = {}
+
+    model_aliases = {
+        str(k).strip(): str(v).strip()
+        for k, v in model_aliases_raw.items()
+        if str(k).strip() and str(v).strip()
+    }
 
     return {
         "api_key": api_key,
         "base_url": base_url,
         "force_model": force_model,
         "visible_models": visible_models,
+        "model_aliases": model_aliases,
         "request_timeout": request_timeout,
     }
 
 
-def build_auth_headers(api_key: str) -> dict[str, str]:
+def auth_headers(api_key: str) -> dict[str, str]:
     if not api_key:
         raise HTTPException(status_code=500, detail="Kein API-Key konfiguriert")
     return {"Authorization": f"Bearer {api_key}"}
+
+
+def response_model_item(name: str) -> dict[str, Any]:
+    return {
+        "name": name,
+        "model": name,
+        "modified_at": "1970-01-01T00:00:00Z",
+        "size": 0,
+        "digest": "",
+        "details": {},
+    }
+
+
+def map_model_name(name: str, cfg: dict[str, Any]) -> str:
+    name = (name or "").strip()
+    if cfg["force_model"]:
+        return cfg["force_model"]
+    return cfg["model_aliases"].get(name, name)
+
+
+def rewrite_model_field(raw_body: bytes, cfg: dict[str, Any]) -> bytes:
+    try:
+        payload = json.loads(raw_body.decode("utf-8"))
+    except Exception:
+        return raw_body
+
+    if isinstance(payload, dict) and "model" in payload:
+        payload["model"] = map_model_name(str(payload.get("model", "")), cfg)
+        return json.dumps(payload).encode("utf-8")
+
+    return raw_body
 
 
 def filtered_forward_headers(request: Request, api_key: str) -> dict[str, str]:
@@ -71,7 +119,7 @@ def filtered_forward_headers(request: Request, api_key: str) -> dict[str, str]:
         if key.lower() == "authorization":
             continue
         headers[key] = value
-    headers.update(build_auth_headers(api_key))
+    headers.update(auth_headers(api_key))
     return headers
 
 
@@ -82,62 +130,6 @@ def filter_response_headers(headers: httpx.Headers) -> dict[str, str]:
             continue
         out[key] = value
     return out
-
-
-def model_item(name: str) -> dict[str, Any]:
-    return {
-        "name": name,
-        "model": name,
-        "modified_at": "1970-01-01T00:00:00Z",
-        "size": 0,
-        "digest": "",
-        "details": {
-            "format": "cloud",
-            "family": "cloud",
-            "families": ["cloud"],
-            "parameter_size": "",
-            "quantization_level": "",
-        },
-    }
-
-
-def get_effective_model(requested_model: str | None, cfg: dict[str, Any]) -> str:
-    requested_model = (requested_model or "").strip()
-    if cfg["force_model"]:
-        return cfg["force_model"]
-    if requested_model:
-        return requested_model
-    if cfg["visible_models"]:
-        return cfg["visible_models"][0]
-    return ""
-
-
-def rewrite_model_if_needed(raw_body: bytes, cfg: dict[str, Any]) -> tuple[bytes, str]:
-    try:
-        payload = json.loads(raw_body.decode("utf-8")) if raw_body else {}
-    except Exception:
-        payload = {}
-
-    requested_model = payload.get("model") if isinstance(payload, dict) else None
-    effective_model = get_effective_model(requested_model, cfg)
-
-    if isinstance(payload, dict) and effective_model:
-        payload["model"] = effective_model
-        return json.dumps(payload).encode("utf-8"), effective_model
-
-    return raw_body, effective_model
-
-
-async def fake_pull_stream(model: str) -> AsyncIterator[bytes]:
-    steps = [
-        {"status": f"pulling manifest for {model}"},
-        {"status": "verifying sha256 digest"},
-        {"status": "writing manifest"},
-        {"status": "removing any unused layers"},
-        {"status": "success"},
-    ]
-    for step in steps:
-        yield (json.dumps(step) + "\n").encode("utf-8")
 
 
 app = FastAPI(title="Ollama Cloud Proxy", version="2.1.0")
@@ -152,6 +144,7 @@ async def root() -> JSONResponse:
             "base_url": cfg["base_url"],
             "force_model": cfg["force_model"],
             "visible_models": cfg["visible_models"],
+            "model_aliases": cfg["model_aliases"],
         }
     )
 
@@ -170,31 +163,25 @@ async def api_version() -> JSONResponse:
 async def api_tags() -> JSONResponse:
     cfg = get_config()
 
-    if cfg["force_model"]:
-        return JSONResponse({"models": [model_item(cfg["force_model"])]})
-
     if cfg["visible_models"]:
-        return JSONResponse({"models": [model_item(name) for name in cfg["visible_models"]]})
+        return JSONResponse(
+            {
+                "models": [response_model_item(name) for name in cfg["visible_models"]]
+            }
+        )
 
     url = f"{cfg['base_url']}/tags"
-
     async with httpx.AsyncClient(timeout=cfg["request_timeout"]) as client:
-        response = await client.get(
-            url,
-            headers=build_auth_headers(cfg["api_key"]),
-        )
+        response = await client.get(url, headers=auth_headers(cfg["api_key"]))
 
-    if response.status_code >= 400:
-        return JSONResponse(
-            status_code=response.status_code,
-            content={"error": response.text},
-        )
-
-    return JSONResponse(content=response.json())
+    return JSONResponse(
+        status_code=response.status_code,
+        content=response.json() if response.headers.get("content-type", "").startswith("application/json") else {"error": response.text},
+    )
 
 
 @app.post("/api/pull")
-async def api_pull(request: Request):
+async def api_pull(request: Request) -> JSONResponse:
     cfg = get_config()
     raw_body = await request.body()
 
@@ -203,25 +190,21 @@ async def api_pull(request: Request):
     except Exception:
         payload = {}
 
-    model = get_effective_model(payload.get("model"), cfg)
-    stream = bool(payload.get("stream", True))
+    requested_model = str(payload.get("model", "") or "").strip()
+    mapped_model = map_model_name(requested_model, cfg)
 
-    if not model:
-        return JSONResponse(status_code=400, content={"error": "Kein Modell angegeben"})
-
-    # HA erwartet bei lokalen Ollama-Hosts, dass ein Pull möglich ist.
-    # Für Cloud emulieren wir den Pull erfolgreich.
-    if stream:
-        return StreamingResponse(
-            fake_pull_stream(model),
-            media_type="application/x-ndjson",
-        )
-
-    return JSONResponse({"status": "success"})
+    return JSONResponse(
+        {
+            "status": "success",
+            "detail": "Model considered available via cloud proxy",
+            "requested_model": requested_model,
+            "mapped_model": mapped_model,
+        }
+    )
 
 
 @app.post("/api/show")
-async def api_show(request: Request):
+async def api_show(request: Request) -> JSONResponse:
     cfg = get_config()
     raw_body = await request.body()
 
@@ -230,20 +213,19 @@ async def api_show(request: Request):
     except Exception:
         payload = {}
 
-    model = get_effective_model(payload.get("model"), cfg)
-    if not model:
-        return JSONResponse(status_code=400, content={"error": "Kein Modell angegeben"})
+    requested_model = str(payload.get("model", "") or "").strip()
+    mapped_model = map_model_name(requested_model, cfg)
 
     return JSONResponse(
         {
             "license": "",
-            "modelfile": f"FROM {model}",
+            "modelfile": f"FROM {mapped_model}",
             "parameters": "",
             "template": "",
-            "details": model_item(model)["details"],
+            "details": {},
             "model_info": {},
-            "messages": [],
             "capabilities": ["completion", "tools"],
+            "modified_at": "1970-01-01T00:00:00Z",
         }
     )
 
@@ -255,10 +237,10 @@ async def proxy_api(path: str, request: Request):
     if not cfg["api_key"]:
         return JSONResponse(status_code=500, content={"error": "Kein API-Key konfiguriert"})
 
-    url = f"{cfg['base_url']}/{path.lstrip('/')}"
-
     raw_body = await request.body()
-    body, _effective_model = rewrite_model_if_needed(raw_body, cfg)
+    body = rewrite_model_field(raw_body, cfg)
+
+    url = f"{cfg['base_url']}/{path.lstrip('/')}"
     headers = filtered_forward_headers(request, cfg["api_key"])
 
     async with httpx.AsyncClient(timeout=None) as client:
@@ -289,9 +271,4 @@ async def unhandled_exception_handler(_: Request, exc: Exception):
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(
-        "app:app",
-        host="0.0.0.0",
-        port=11434,
-        log_level="info",
-    )
+    uvicorn.run("app:app", host="0.0.0.0", port=11434, log_level="info")
