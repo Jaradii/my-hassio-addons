@@ -1,7 +1,7 @@
 name: "Ollama iPhone Webapp"
-version: "1.2.1"
+version: "1.3.0"
 slug: "ollama_iphone_webapp"
-description: "Chat Webapp für Ollama Cloud direkt in Home Assistant"
+description: "Chat Webapp für Ollama Cloud direkt in Home Assistant mit Brave Websuche und Chat Historie"
 url: "https://github.com/Jaradii/my-hassio-addons"
 startup: application
 boot: auto
@@ -25,13 +25,21 @@ ports_description: {}
 options:
   ollama_base_url: "https://ollama.com/api"
   api_key: ""
+  brave_api_key: ""
   default_model: "qwen3.5:397b-cloud"
   keep_alive: "5m"
   request_timeout: 180
+  brave_country: "de"
+  brave_search_lang: "de"
+  brave_result_count: 5
 
 schema:
   ollama_base_url: str
   api_key: password
+  brave_api_key: password
   default_model: str?
   keep_alive: str
   request_timeout: int
+  brave_country: str
+  brave_search_lang: str
+  brave_result_count: int
