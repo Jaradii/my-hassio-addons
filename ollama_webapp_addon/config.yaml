@@ -1,13 +1,20 @@
-name: Ollama iPhone Webapp
+name: "Ollama iPhone Webapp"
 version: "1.0.0"
-slug: ollama_iphone_webapp
-description: Chat-Webapp für Ollama direkt in Home Assistant mit optionaler Websuche
-url: https://example.invalid
+slug: "ollama_iphone_webapp"
+description: "Chat-Webapp für Ollama direkt in Home Assistant mit optionaler Websuche"
+url: "https://github.com/Jaradii/my-hassio-addons"
 startup: application
 boot: auto
 init: false
+arch:
+  - aarch64
+  - amd64
+  - armv7
+  - armhf
+  - i386
+
 panel_icon: mdi:robot-outline
-panel_title: Ollama Chat
+panel_title: "Ollama Chat"
 ingress: true
 ingress_port: 8099
 homeassistant_api: false
@@ -22,6 +29,7 @@ options:
   keep_alive: "-1"
   request_timeout: 180
   web_search_enabled: true
+
 schema:
   ollama_base_url: str
   searxng_base_url: str?
