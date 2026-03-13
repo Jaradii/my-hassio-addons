@@ -2,6 +2,7 @@
 set -euo pipefail
 
 export OLLAMA_BASE_URL="$(bashio::config 'ollama_base_url')"
+export OLLAMA_API_KEY="$(bashio::config 'api_key')"
 export DEFAULT_MODEL="$(bashio::config 'default_model')"
 export DEFAULT_KEEP_ALIVE="$(bashio::config 'keep_alive')"
 export REQUEST_TIMEOUT="$(bashio::config 'request_timeout')"
