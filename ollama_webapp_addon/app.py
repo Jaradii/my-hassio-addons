@@ -20,6 +20,9 @@ BRAVE_COUNTRY = os.getenv("BRAVE_COUNTRY", "de").strip() or "de"
 BRAVE_SEARCH_LANG = os.getenv("BRAVE_SEARCH_LANG", "de").strip() or "de"
 BRAVE_RESULT_COUNT = int(os.getenv("BRAVE_RESULT_COUNT", "5"))
 
+SYSTEM_PROMPT = """Du bist ein Experte, der Dinge doppelt überprüft, du bist skeptisch und recherchierst.
+Ich habe nicht immer Recht. Du auch nicht, aber wir beide streben nach Genauigkeit."""
+
 DATA_DIR = "/data"
 CHATS_FILE = os.path.join(DATA_DIR, "chats.json")
 STORE_LOCK = threading.Lock()
@@ -73,9 +76,11 @@ INDEX_HTML = r"""<!DOCTYPE html>
       --accent: #4fd1c5;
       --accent-2: #2c7a7b;
       --danger: #ff6b6b;
+      --danger-bg: #3a1f24;
       --border: rgba(255,255,255,.08);
-      --shadow: 0 10px 30px rgba(0,0,0,.28);
-      --radius: 20px;
+      --shadow: 0 8px 18px rgba(0,0,0,.18);
+      --radius: 18px;
+      --btn-radius: 10px;
       --safe-top: env(safe-area-inset-top);
       --safe-bottom: env(safe-area-inset-bottom);
     }
@@ -91,12 +96,13 @@ INDEX_HTML = r"""<!DOCTYPE html>
       background: var(--bg);
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      min-height: 100%;
+      height: 100%;
+      overflow: hidden;
     }
 
     body {
       min-height: 100dvh;
-      overflow-x: hidden;
+      overflow: hidden;
     }
 
     .mobile-sidebar-backdrop {
@@ -106,28 +112,27 @@ INDEX_HTML = r"""<!DOCTYPE html>
     .layout {
       max-width: 1320px;
       margin: 0 auto;
-      min-height: 100dvh;
+      height: 100dvh;
       display: grid;
       grid-template-columns: 280px minmax(0, 1fr);
       gap: 14px;
       padding: calc(var(--safe-top) + 12px) 12px calc(var(--safe-bottom) + 12px) 12px;
+      overflow: hidden;
     }
 
     .sidebar {
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      background: rgba(11, 15, 20, 0.88);
+      background: rgba(11, 15, 20, 0.9);
       backdrop-filter: blur(18px);
       box-shadow: var(--shadow);
       padding: 12px;
       display: grid;
       grid-template-rows: auto auto 1fr;
       gap: 10px;
-      min-height: calc(100dvh - 24px - var(--safe-top) - var(--safe-bottom));
-      position: sticky;
-      top: calc(var(--safe-top) + 12px);
-      overflow: hidden;
       min-width: 0;
+      overflow: hidden;
+      height: 100%;
     }
 
     .sidebar-header {
@@ -136,23 +141,22 @@ INDEX_HTML = r"""<!DOCTYPE html>
     }
 
     .app {
-      min-height: calc(100dvh - 24px - var(--safe-top) - var(--safe-bottom));
+      height: 100%;
       display: grid;
-      grid-template-rows: auto auto 1fr auto;
+      grid-template-rows: auto auto minmax(0, 1fr) auto;
       gap: 10px;
       min-width: 0;
+      overflow: hidden;
     }
 
     .topbar {
-      position: sticky;
-      top: calc(var(--safe-top) + 12px);
-      z-index: 20;
-      background: rgba(11, 15, 20, 0.88);
+      background: rgba(11, 15, 20, 0.9);
       backdrop-filter: blur(18px);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       padding: 10px 12px;
+      flex: 0 0 auto;
     }
 
     .topbar-row {
@@ -189,10 +193,11 @@ INDEX_HTML = r"""<!DOCTYPE html>
     .settings-card {
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      background: rgba(11, 15, 20, 0.88);
+      background: rgba(11, 15, 20, 0.9);
       backdrop-filter: blur(18px);
       box-shadow: var(--shadow);
       padding: 10px;
+      flex: 0 0 auto;
     }
 
     details.settings-panel summary {
@@ -251,12 +256,13 @@ INDEX_HTML = r"""<!DOCTYPE html>
       border: 1px solid var(--border);
       background: var(--panel);
       color: var(--text);
-      border-radius: 14px;
+      border-radius: 10px;
       padding: 10px;
       cursor: pointer;
       text-align: left;
       width: 100%;
       transition: border-color .15s ease, transform .15s ease;
+      box-shadow: none;
     }
 
     .history-item:active {
@@ -265,7 +271,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
 
     .history-item.active {
       border-color: rgba(79, 209, 197, 0.45);
-      box-shadow: 0 0 0 3px rgba(79, 209, 197, 0.12);
+      box-shadow: 0 0 0 2px rgba(79, 209, 197, 0.10);
     }
 
     .history-title {
@@ -286,27 +292,29 @@ INDEX_HTML = r"""<!DOCTYPE html>
     select, textarea, button, input[type="text"] {
       width: 100%;
       border: 1px solid var(--border);
-      border-radius: 14px;
+      border-radius: var(--btn-radius);
       background: var(--panel);
       color: var(--text);
       padding: 11px 12px;
       font-size: 16px;
       outline: none;
       min-height: 44px;
+      box-shadow: none;
     }
 
     select:focus, textarea:focus, input[type="text"]:focus {
       border-color: rgba(79, 209, 197, 0.55);
-      box-shadow: 0 0 0 4px rgba(79, 209, 197, 0.14);
+      box-shadow: 0 0 0 3px rgba(79, 209, 197, 0.12);
     }
 
     button {
       cursor: pointer;
       font-weight: 650;
-      background: linear-gradient(180deg, var(--accent), var(--accent-2));
+      background: var(--accent);
       color: #071014;
-      border: none;
+      border: 1px solid transparent;
       min-height: 44px;
+      box-shadow: none;
     }
 
     button.secondary {
@@ -316,9 +324,9 @@ INDEX_HTML = r"""<!DOCTYPE html>
     }
 
     button.danger {
-      background: #3a1f24;
+      background: var(--danger-bg);
       color: #ffd2d2;
-      border: 1px solid rgba(255,107,107,.25);
+      border: 1px solid rgba(255,107,107,.20);
     }
 
     .icon-btn {
@@ -332,6 +340,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       justify-content: center;
       font-size: 18px;
       line-height: 1;
+      border-radius: var(--btn-radius);
     }
 
     .toggle-icon-btn {
@@ -343,13 +352,14 @@ INDEX_HTML = r"""<!DOCTYPE html>
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      border-radius: 14px;
+      border-radius: var(--btn-radius);
       border: 1px solid var(--border);
       background: var(--panel);
       color: var(--text);
       cursor: pointer;
       position: relative;
-      font-size: 19px;
+      font-size: 18px;
+      box-shadow: none;
     }
 
     .toggle-icon-btn input {
@@ -361,7 +371,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
     }
 
     .toggle-icon-btn.is-on {
-      background: linear-gradient(180deg, var(--accent), var(--accent-2));
+      background: var(--accent);
       color: #071014;
       border-color: transparent;
     }
@@ -387,9 +397,11 @@ INDEX_HTML = r"""<!DOCTYPE html>
       display: flex;
       flex-direction: column;
       gap: 12px;
-      overflow: auto;
+      overflow-y: auto;
+      overflow-x: hidden;
       padding: 2px;
       min-height: 0;
+      height: 100%;
     }
 
     .empty {
@@ -430,7 +442,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
     }
 
     .user .bubble {
-      background: linear-gradient(180deg, #1f9a91, #166d67);
+      background: var(--accent-2);
       color: white;
       border-bottom-right-radius: 8px;
     }
@@ -464,21 +476,19 @@ INDEX_HTML = r"""<!DOCTYPE html>
       border: 1px solid var(--border);
       background: var(--panel-2);
       padding: 9px 11px;
-      border-radius: 999px;
+      border-radius: 10px;
       font-size: 13px;
       max-width: 100%;
     }
 
     .composer {
-      position: sticky;
-      bottom: calc(var(--safe-bottom) + 12px);
       background: rgba(11,15,20,.9);
       backdrop-filter: blur(16px);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       padding: 10px;
-      z-index: 15;
+      flex: 0 0 auto;
     }
 
     textarea {
@@ -573,25 +583,11 @@ INDEX_HTML = r"""<!DOCTYPE html>
       }
 
       .app {
-        grid-template-rows: auto auto 1fr auto;
-      }
-
-      .topbar {
-        top: calc(var(--safe-top) + 8px);
-        padding: 10px;
+        grid-template-rows: auto auto minmax(0, 1fr) auto;
       }
 
       .topbar-row {
         grid-template-columns: auto minmax(0, 1fr) auto auto;
-      }
-
-      .topbar-actions {
-        gap: 8px;
-      }
-
-      .composer {
-        bottom: calc(var(--safe-bottom) + 8px);
-        padding: 10px;
       }
 
       .settings-grid,
@@ -619,7 +615,6 @@ INDEX_HTML = r"""<!DOCTYPE html>
 
       .source-chip {
         width: 100%;
-        border-radius: 14px;
       }
     }
 
@@ -974,17 +969,13 @@ INDEX_HTML = r"""<!DOCTYPE html>
     }
 
     async function loadModels() {
-      try {
-        modelSelectEl.innerHTML = "";
-        const opt = document.createElement("option");
-        opt.value = "qwen3.5:397b-cloud";
-        opt.textContent = "qwen3.5:397b-cloud";
-        modelSelectEl.appendChild(opt);
-        modelSelectEl.value = "qwen3.5:397b-cloud";
-        renderHeaderFields();
-      } catch (_) {
-        serverInfoEl.textContent = "Verbindung fehlgeschlagen";
-      }
+      modelSelectEl.innerHTML = "";
+      const opt = document.createElement("option");
+      opt.value = "qwen3.5:397b-cloud";
+      opt.textContent = "qwen3.5:397b-cloud";
+      modelSelectEl.appendChild(opt);
+      modelSelectEl.value = "qwen3.5:397b-cloud";
+      renderHeaderFields();
     }
 
     async function sendMessage() {
@@ -1571,28 +1562,21 @@ async def chat(req: ChatRequest) -> ChatResponse:
     sources: List[SearchSource] = []
 
     try:
-        system_content = (
-            "Du bist ein hilfreicher lokaler Assistent in Home Assistant.\n"
-            "Antworte immer auf Deutsch.\n"
-            "Antworte klar, präzise und ehrlich.\n"
-            "Wenn du etwas nicht sicher weißt, sage das offen.\n"
-            "Wenn Websuchquellen vorhanden sind, nutze sie nur zur Stützung aktueller Fakten und nenne sie knapp.\n"
-            "Verwende saubere Absätze statt unnötig vieler Listen."
-        )
+        user_content = user_message
 
         if req.use_web_search:
             sources = await brave_search(user_message)
             if sources:
-                system_content = (
-                    system_content
-                    + "\n\nNutze die folgenden Websuchquellen nur zur Stützung aktueller Fakten.\n"
-                    + build_web_context(sources)
+                user_content = (
+                    f"Frage:\n{user_message}\n\n"
+                    f"Websuchquellen:\n{build_web_context(sources)}\n\n"
+                    "Nutze die Websuchquellen nur zur Stützung aktueller Fakten."
                 )
 
         messages = [
-            {"role": "system", "content": system_content},
+            {"role": "system", "content": SYSTEM_PROMPT},
             *history[:-1],
-            {"role": "user", "content": user_message},
+            {"role": "user", "content": user_content},
         ]
 
         answer = await ask_upstream(DEFAULT_MODEL, messages, user_message)
