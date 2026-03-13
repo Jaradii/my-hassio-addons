@@ -14,4 +14,4 @@ echo "SEARXNG_BASE_URL=${SEARXNG_BASE_URL}"
 echo "DEFAULT_MODEL=${DEFAULT_MODEL}"
 echo "WEB_SEARCH_ENABLED=${WEB_SEARCH_ENABLED}"
 
-exec python3 -m uvicorn app:app --host 0.0.0.0 --port 8099
+exec /opt/venv/bin/python -m uvicorn app:app --host 0.0.0.0 --port 8099
