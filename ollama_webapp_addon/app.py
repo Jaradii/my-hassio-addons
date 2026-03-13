@@ -39,6 +39,9 @@ INDEX_HTML = r"""<!DOCTYPE html>
       --danger: #ff6b6b;
       --border: rgba(255,255,255,.08);
       --shadow: 0 10px 30px rgba(0,0,0,.28);
+      --radius: 22px;
+      --safe-top: env(safe-area-inset-top);
+      --safe-bottom: env(safe-area-inset-bottom);
     }
 
     * {
@@ -60,45 +63,47 @@ INDEX_HTML = r"""<!DOCTYPE html>
     }
 
     .layout {
-      max-width: 1280px;
+      max-width: 1320px;
       margin: 0 auto;
       min-height: 100dvh;
       display: grid;
       grid-template-columns: 300px 1fr;
       gap: 14px;
-      padding: env(safe-area-inset-top) 14px env(safe-area-inset-bottom) 14px;
+      padding: calc(var(--safe-top) + 14px) 14px calc(var(--safe-bottom) + 14px) 14px;
     }
 
     .sidebar {
       border: 1px solid var(--border);
-      border-radius: 22px;
-      background: rgba(11, 15, 20, 0.82);
+      border-radius: var(--radius);
+      background: rgba(11, 15, 20, 0.86);
       backdrop-filter: blur(18px);
       box-shadow: var(--shadow);
       padding: 12px;
       display: grid;
       grid-template-rows: auto auto 1fr;
       gap: 12px;
-      min-height: calc(100dvh - 28px);
+      min-height: calc(100dvh - 28px - var(--safe-top) - var(--safe-bottom));
       position: sticky;
-      top: 14px;
+      top: calc(var(--safe-top) + 14px);
+      overflow: hidden;
     }
 
     .app {
-      min-height: calc(100dvh - 28px);
+      min-height: calc(100dvh - 28px - var(--safe-top) - var(--safe-bottom));
       display: grid;
       grid-template-rows: auto 1fr auto;
       gap: 12px;
+      min-width: 0;
     }
 
     .topbar {
       position: sticky;
-      top: 14px;
-      z-index: 10;
-      background: rgba(11, 15, 20, 0.82);
+      top: calc(var(--safe-top) + 14px);
+      z-index: 20;
+      background: rgba(11, 15, 20, 0.86);
       backdrop-filter: blur(18px);
       border: 1px solid var(--border);
-      border-radius: 22px;
+      border-radius: var(--radius);
       box-shadow: var(--shadow);
       padding: 12px;
     }
@@ -107,6 +112,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       margin: 0 0 10px 0;
       font-size: 18px;
       font-weight: 700;
+      letter-spacing: 0.2px;
     }
 
     .controls {
@@ -130,7 +136,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
 
     .row3 {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr auto;
       gap: 10px;
       align-items: center;
     }
@@ -141,6 +147,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       flex-direction: column;
       gap: 8px;
       padding-right: 2px;
+      min-height: 0;
     }
 
     .history-item {
@@ -152,6 +159,11 @@ INDEX_HTML = r"""<!DOCTYPE html>
       cursor: pointer;
       text-align: left;
       width: 100%;
+      transition: border-color .15s ease, transform .15s ease;
+    }
+
+    .history-item:active {
+      transform: scale(0.995);
     }
 
     .history-item.active {
@@ -182,6 +194,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       padding: 12px 14px;
       font-size: 16px;
       outline: none;
+      min-height: 48px;
     }
 
     select:focus, textarea:focus, input[type="text"]:focus {
@@ -221,12 +234,14 @@ INDEX_HTML = r"""<!DOCTYPE html>
       min-height: 48px;
       user-select: none;
       white-space: nowrap;
+      width: 100%;
     }
 
     .toggle input {
       width: 20px;
       height: 20px;
       accent-color: var(--accent);
+      flex: 0 0 auto;
     }
 
     .pill {
@@ -239,6 +254,11 @@ INDEX_HTML = r"""<!DOCTYPE html>
       padding: 8px 10px;
       border-radius: 999px;
       font-size: 12px;
+      min-height: 38px;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .chat {
@@ -247,6 +267,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       gap: 12px;
       overflow: auto;
       padding: 2px;
+      min-height: 0;
     }
 
     .empty {
@@ -282,6 +303,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       line-height: 1.55;
       white-space: pre-wrap;
       word-wrap: break-word;
+      overflow-wrap: anywhere;
       box-shadow: var(--shadow);
     }
 
@@ -327,13 +349,14 @@ INDEX_HTML = r"""<!DOCTYPE html>
 
     .composer {
       position: sticky;
-      bottom: 14px;
-      background: rgba(11,15,20,.84);
+      bottom: calc(var(--safe-bottom) + 14px);
+      background: rgba(11,15,20,.88);
       backdrop-filter: blur(16px);
       border: 1px solid var(--border);
-      border-radius: 22px;
+      border-radius: var(--radius);
       box-shadow: var(--shadow);
       padding: 12px;
+      z-index: 15;
     }
 
     textarea {
@@ -354,6 +377,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       color: var(--muted);
       font-size: 13px;
       padding: 0 2px;
+      min-width: 0;
     }
 
     .spinner {
@@ -368,23 +392,144 @@ INDEX_HTML = r"""<!DOCTYPE html>
       margin-right: 8px;
     }
 
+    .mobile-sidebar-backdrop {
+      display: none;
+    }
+
+    .mobile-history-toggle {
+      display: none;
+    }
+
     @media (max-width: 980px) {
       .layout {
         grid-template-columns: 1fr;
       }
 
       .sidebar {
-        position: static;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: min(88vw, 360px);
+        min-height: 100dvh;
+        border-radius: 0 22px 22px 0;
+        z-index: 60;
+        transform: translateX(-105%);
+        transition: transform .22s ease;
+        padding-top: calc(var(--safe-top) + 14px);
+        padding-bottom: calc(var(--safe-bottom) + 14px);
+      }
+
+      body.sidebar-open .sidebar {
+        transform: translateX(0);
+      }
+
+      .mobile-sidebar-backdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.45);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .2s ease;
+        z-index: 50;
+      }
+
+      body.sidebar-open .mobile-sidebar-backdrop {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .app {
         min-height: auto;
       }
 
-      .topbar, .composer {
-        top: 0;
-        bottom: 0;
+      .topbar {
+        top: calc(var(--safe-top) + 8px);
+        padding: 10px;
+      }
+
+      .composer {
+        bottom: calc(var(--safe-bottom) + 8px);
+        padding: 10px;
       }
 
       .row, .row2, .row3 {
         grid-template-columns: 1fr;
+      }
+
+      .title {
+        font-size: 17px;
+        margin-bottom: 8px;
+      }
+
+      .mobile-history-toggle {
+        display: inline-flex;
+      }
+
+      .chat {
+        padding-bottom: 2px;
+      }
+
+      .bubble {
+        max-width: 92%;
+        font-size: 15px;
+        line-height: 1.5;
+      }
+
+      textarea {
+        min-height: 96px;
+        max-height: 220px;
+      }
+
+      .composer-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .status {
+        order: 2;
+      }
+
+      .composer-actions button {
+        order: 1;
+      }
+
+      .source-chip {
+        width: 100%;
+        border-radius: 14px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .layout {
+        padding: calc(var(--safe-top) + 8px) 8px calc(var(--safe-bottom) + 8px) 8px;
+        gap: 8px;
+      }
+
+      .topbar, .composer {
+        border-radius: 18px;
+      }
+
+      .section-title, .title {
+        font-size: 16px;
+      }
+
+      select, textarea, button, input[type="text"] {
+        font-size: 16px;
+        padding: 12px;
+      }
+
+      .history-item {
+        padding: 10px;
+      }
+
+      .bubble {
+        max-width: 96%;
+        padding: 13px 14px;
+      }
+
+      .pill {
+        font-size: 11px;
       }
     }
 
@@ -399,8 +544,10 @@ INDEX_HTML = r"""<!DOCTYPE html>
   </style>
 </head>
 <body>
+  <div class="mobile-sidebar-backdrop" id="sidebarBackdrop"></div>
+
   <div class="layout">
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
       <div>
         <div class="section-title">Verläufe</div>
         <button id="newChatBtn" type="button">Neuer Chat</button>
@@ -418,21 +565,21 @@ INDEX_HTML = r"""<!DOCTYPE html>
         <div class="title">Ollama Chat</div>
         <div class="controls">
           <div class="row">
+            <button id="mobileHistoryToggle" class="secondary mobile-history-toggle" type="button">Verläufe</button>
             <select id="modelSelect"></select>
+            <button id="reloadModelsBtn" class="secondary" type="button">Modelle laden</button>
+          </div>
+          <div class="row2">
             <label class="toggle">
               <input id="webSearchToggle" type="checkbox" />
               <span>Brave Websuche</span>
             </label>
-            <button id="reloadModelsBtn" class="secondary" type="button">Modelle laden</button>
-          </div>
-          <div class="row2">
             <input id="chatTitleInput" type="text" placeholder="Chat Titel" />
             <button id="renameBtn" class="secondary" type="button">Titel speichern</button>
-            <button id="deleteChatBtn" class="danger" type="button">Diesen Chat löschen</button>
           </div>
           <div class="row3">
             <div class="pill" id="serverInfo">Verbinde…</div>
-            <div class="pill" id="modeInfo">Ollama Cloud + Brave Search</div>
+            <button id="deleteChatBtn" class="danger" type="button">Diesen Chat löschen</button>
           </div>
         </div>
       </div>
@@ -464,9 +611,11 @@ INDEX_HTML = r"""<!DOCTYPE html>
     const renameBtn = document.getElementById("renameBtn");
     const searchChatsInput = document.getElementById("searchChatsInput");
     const webSearchToggleEl = document.getElementById("webSearchToggle");
+    const mobileHistoryToggle = document.getElementById("mobileHistoryToggle");
+    const sidebarBackdrop = document.getElementById("sidebarBackdrop");
 
-    const CHATS_KEY = "ha_ollama_webapp_chats_v1";
-    const SETTINGS_KEY = "ha_ollama_webapp_settings_v6";
+    const CHATS_KEY = "ha_ollama_webapp_chats_v2";
+    const SETTINGS_KEY = "ha_ollama_webapp_settings_v7";
 
     let chats = [];
     let currentChatId = null;
@@ -558,6 +707,20 @@ INDEX_HTML = r"""<!DOCTYPE html>
       }
     }
 
+    function openSidebar() {
+      document.body.classList.add("sidebar-open");
+    }
+
+    function closeSidebar() {
+      document.body.classList.remove("sidebar-open");
+    }
+
+    function maybeCloseSidebarOnMobile() {
+      if (window.innerWidth <= 980) {
+        closeSidebar();
+      }
+    }
+
     function renderHistoryList() {
       const q = (searchChatsInput.value || "").trim().toLowerCase();
       historyListEl.innerHTML = "";
@@ -590,6 +753,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
           currentChatId = chat.id;
           renderAll();
           saveState();
+          maybeCloseSidebarOnMobile();
         });
 
         historyListEl.appendChild(btn);
@@ -814,6 +978,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       renderAll();
       saveState();
       promptEl.focus();
+      maybeCloseSidebarOnMobile();
     }
 
     function deleteCurrentChat() {
@@ -826,6 +991,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       }
       renderAll();
       saveState();
+      maybeCloseSidebarOnMobile();
     }
 
     function renameCurrentChat() {
@@ -857,6 +1023,14 @@ INDEX_HTML = r"""<!DOCTYPE html>
     searchChatsInput.addEventListener("input", renderHistoryList);
     modelSelectEl.addEventListener("change", saveState);
     webSearchToggleEl.addEventListener("change", saveState);
+    mobileHistoryToggle.addEventListener("click", openSidebar);
+    sidebarBackdrop.addEventListener("click", closeSidebar);
+
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 980) {
+        closeSidebar();
+      }
+    });
 
     loadState();
     renderAll();
@@ -871,7 +1045,7 @@ SYSTEM_PROMPT = """Du bist ein hilfreicher lokaler Assistent in Home Assistant.
 Antworte immer auf Deutsch.
 Antworte klar, präzise und ehrlich.
 Wenn du etwas nicht sicher weißt, sage das offen.
-Wenn Websuchquellen vorhanden sind, nutze sie nur zur Stützung von Fakten und nenne sie knapp.
+Wenn Websuchquellen vorhanden sind, nutze sie nur zur Stützung aktueller Fakten und nenne sie knapp.
 Verwende saubere Absätze statt unnötig vieler Listen.
 """
 
