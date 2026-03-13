@@ -8,7 +8,8 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
 APP_TITLE = "Ollama Chat"
-OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://192.168.178.150:11434").rstrip("/")
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "https://ollama.com/api").rstrip("/")
+OLLAMA_API_KEY = os.getenv("OLLAMA_API_KEY", "").strip()
 DEFAULT_MODEL = os.getenv("DEFAULT_MODEL", "").strip()
 DEFAULT_KEEP_ALIVE = os.getenv("DEFAULT_KEEP_ALIVE", "-1").strip()
 REQUEST_TIMEOUT = float(os.getenv("REQUEST_TIMEOUT", "180"))
@@ -282,7 +283,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
         </div>
         <div class="row2">
           <div class="pill" id="serverInfo">Verbinde…</div>
-          <div class="pill" id="modeInfo">Direkt zu 192.168.178.150:11434</div>
+          <div class="pill" id="modeInfo">Direkt zu ollama.com/api</div>
         </div>
       </div>
     </div>
@@ -308,8 +309,8 @@ INDEX_HTML = r"""<!DOCTYPE html>
     const reloadModelsBtn = document.getElementById("reloadModelsBtn");
     const serverInfoEl = document.getElementById("serverInfo");
 
-    const STORAGE_KEY = "ha_ollama_webapp_chat_v3";
-    const SETTINGS_KEY = "ha_ollama_webapp_settings_v3";
+    const STORAGE_KEY = "ha_ollama_webapp_chat_v4";
+    const SETTINGS_KEY = "ha_ollama_webapp_settings_v4";
 
     let messages = [];
     let busy = false;
@@ -416,7 +417,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
         saveState();
       } catch (err) {
         serverInfoEl.textContent = "Verbindung fehlgeschlagen";
-        alert("Modelle konnten nicht geladen werden. Prüfe das Add-on-Log und die Ollama-URL.");
+        alert("Modelle konnten nicht geladen werden. Prüfe API-Key, Add-on-Log und Base URL.");
       }
     }
 
@@ -547,6 +548,14 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     answer: str
 
+def auth_headers() -> Dict[str, str]:
+    headers: Dict[str, str] = {
+        "Accept": "application/json, application/x-ndjson, text/plain, */*"
+    }
+    if OLLAMA_API_KEY:
+        headers["Authorization"] = f"Bearer {OLLAMA_API_KEY}"
+    return headers
+
 def sanitize_history(history: List[ChatMessage], limit: int = 12) -> List[Dict[str, str]]:
     cleaned: List[Dict[str, str]] = []
     for item in history[-limit:]:
@@ -642,7 +651,7 @@ async def fetch_json_or_text(
     url: str,
     json_body: Optional[Dict[str, Any]] = None,
 ) -> Any:
-    async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT) as client:
+    async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT, headers=auth_headers()) as client:
         resp = await client.request(method=method, url=url, json=json_body)
         resp.raise_for_status()
 
@@ -664,22 +673,22 @@ async def fetch_json_or_text(
             return text
 
 async def fetch_models() -> List[Dict[str, Any]]:
-    data = await fetch_json_or_text("GET", f"{OLLAMA_BASE_URL}/api/tags")
+    data = await fetch_json_or_text("GET", f"{OLLAMA_BASE_URL}/tags")
     return extract_models(data)
 
 def history_to_prompt(history: List[Dict[str, str]], user_message: str) -> str:
     lines: List[str] = []
     for item in history:
-        role = item.get("role", "")
-        content = item.get("content", "")
-        if not content:
-            continue
-        if role == "system":
-            lines.append(f"System:\n{content}\n")
-        elif role == "assistant":
-            lines.append(f"Assistant:\n{content}\n")
-        else:
-            lines.append(f"Nutzer:\n{content}\n")
+      role = item.get("role", "")
+      content = item.get("content", "")
+      if not content:
+          continue
+      if role == "system":
+          lines.append(f"System:\n{content}\n")
+      elif role == "assistant":
+          lines.append(f"Assistant:\n{content}\n")
+      else:
+          lines.append(f"Nutzer:\n{content}\n")
     lines.append(f"Nutzer:\n{user_message}\n")
     lines.append("Assistant:\n")
     return "\n".join(lines)
@@ -691,7 +700,7 @@ async def try_chat_endpoint(model: str, messages: List[Dict[str, str]]) -> Optio
         "stream": False,
         "keep_alive": DEFAULT_KEEP_ALIVE,
     }
-    data = await fetch_json_or_text("POST", f"{OLLAMA_BASE_URL}/api/chat", json_body=payload)
+    data = await fetch_json_or_text("POST", f"{OLLAMA_BASE_URL}/chat", json_body=payload)
     return extract_text_from_response(data)
 
 async def try_generate_endpoint(model: str, messages: List[Dict[str, str]], user_message: str) -> Optional[str]:
@@ -702,25 +711,15 @@ async def try_generate_endpoint(model: str, messages: List[Dict[str, str]], user
         "stream": False,
         "keep_alive": DEFAULT_KEEP_ALIVE,
     }
-    data = await fetch_json_or_text("POST", f"{OLLAMA_BASE_URL}/api/generate", json_body=payload)
-    return extract_text_from_response(data)
-
-async def try_openai_endpoint(model: str, messages: List[Dict[str, str]]) -> Optional[str]:
-    payload = {
-        "model": model,
-        "messages": messages,
-        "stream": False,
-    }
-    data = await fetch_json_or_text("POST", f"{OLLAMA_BASE_URL}/v1/chat/completions", json_body=payload)
+    data = await fetch_json_or_text("POST", f"{OLLAMA_BASE_URL}/generate", json_body=payload)
     return extract_text_from_response(data)
 
 async def ask_upstream(model: str, messages: List[Dict[str, str]], user_message: str) -> str:
     attempts: List[str] = []
 
     for label, func in [
-        ("api/chat", lambda: try_chat_endpoint(model, messages)),
-        ("api/generate", lambda: try_generate_endpoint(model, messages, user_message)),
-        ("v1/chat/completions", lambda: try_openai_endpoint(model, messages)),
+        ("chat", lambda: try_chat_endpoint(model, messages)),
+        ("generate", lambda: try_generate_endpoint(model, messages, user_message)),
     ]:
         try:
             answer = await func()
@@ -737,10 +736,7 @@ async def ask_upstream(model: str, messages: List[Dict[str, str]], user_message:
         except Exception as exc:
             attempts.append(f"{label}: {exc}")
 
-    raise HTTPException(
-        status_code=502,
-        detail=" | ".join(attempts)[:1500],
-    )
+    raise HTTPException(status_code=502, detail=" | ".join(attempts)[:1500])
 
 @app.get("/", response_class=HTMLResponse)
 async def index() -> HTMLResponse:
