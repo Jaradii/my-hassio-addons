@@ -3,9 +3,15 @@ FROM ${BUILD_FROM}
 
 ENV PYTHONUNBUFFERED=1
 ENV VENV_PATH=/opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
+ENV PATH="/opt/venv/bin:${PATH}"
 
-RUN apk add --no-cache python3 py3-pip bash
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+      python3 \
+      python3-venv \
+      python3-pip \
+      bash && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
