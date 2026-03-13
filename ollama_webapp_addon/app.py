@@ -106,7 +106,8 @@ INDEX_HTML = r"""<!DOCTYPE html>
       overflow: hidden;
     }
 
-    .mobile-sidebar-backdrop {
+    .mobile-sidebar-backdrop,
+    .modal-backdrop {
       display: none;
     }
 
@@ -144,7 +145,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
     .app {
       height: 100%;
       display: grid;
-      grid-template-rows: auto auto minmax(0, 1fr) auto;
+      grid-template-rows: auto minmax(0, 1fr) auto;
       gap: 10px;
       min-width: 0;
       overflow: hidden;
@@ -189,57 +190,6 @@ INDEX_HTML = r"""<!DOCTYPE html>
       font-size: 12px;
       color: var(--muted);
       margin-top: 2px;
-    }
-
-    .settings-card {
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      background: rgba(11, 15, 20, 0.9);
-      backdrop-filter: blur(18px);
-      box-shadow: var(--shadow);
-      padding: 10px;
-      flex: 0 0 auto;
-    }
-
-    .settings-card.hidden {
-      display: none;
-    }
-
-    details.settings-panel summary {
-      list-style: none;
-      cursor: pointer;
-      user-select: none;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      padding: 4px 2px;
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    details.settings-panel summary::-webkit-details-marker {
-      display: none;
-    }
-
-    .settings-content {
-      display: grid;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .settings-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .settings-grid-2 {
-      display: grid;
-      grid-template-columns: 1fr auto auto;
-      gap: 10px;
-      align-items: center;
     }
 
     .section-title {
@@ -403,21 +353,13 @@ INDEX_HTML = r"""<!DOCTYPE html>
       border-color: transparent;
     }
 
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      border: 1px solid var(--border);
-      background: var(--panel);
-      color: var(--muted);
-      padding: 8px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      min-height: 34px;
-      min-width: 0;
+    .chat-wrap {
+      min-height: 0;
+      height: 100%;
       overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
     }
 
     .chat {
@@ -438,7 +380,8 @@ INDEX_HTML = r"""<!DOCTYPE html>
       color: var(--muted);
       background: rgba(255,255,255,.02);
       text-align: center;
-      margin-top: 12px;
+      margin-top: auto;
+      margin-bottom: 0;
     }
 
     .msg {
@@ -516,6 +459,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       box-shadow: var(--shadow);
       padding: 10px;
       flex: 0 0 auto;
+      position: relative;
     }
 
     textarea {
@@ -557,6 +501,66 @@ INDEX_HTML = r"""<!DOCTYPE html>
 
     .mobile-only {
       display: none;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.46);
+      z-index: 120;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease;
+    }
+
+    .modal-backdrop.open {
+      display: block;
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .settings-modal {
+      position: fixed;
+      z-index: 130;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      pointer-events: none;
+    }
+
+    .settings-modal.open {
+      display: flex;
+      pointer-events: auto;
+    }
+
+    .settings-modal-card {
+      width: min(560px, 100%);
+      background: rgba(11, 15, 20, 0.96);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.35);
+      padding: 14px;
+    }
+
+    .settings-modal-header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .settings-modal-title {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .settings-modal-content {
+      display: grid;
+      gap: 10px;
     }
 
     @media (max-width: 980px) {
@@ -609,23 +613,8 @@ INDEX_HTML = r"""<!DOCTYPE html>
         pointer-events: auto;
       }
 
-      .app {
-        grid-template-rows: auto auto minmax(0, 1fr) auto;
-      }
-
       .topbar-row {
         grid-template-columns: auto minmax(0, 1fr) auto auto auto;
-      }
-
-      .settings-grid,
-      .settings-grid-2 {
-        grid-template-columns: 1fr;
-      }
-
-      .bubble {
-        max-width: 96%;
-        font-size: 15px;
-        line-height: 1.5;
       }
 
       .composer-actions {
@@ -643,6 +632,16 @@ INDEX_HTML = r"""<!DOCTYPE html>
       .source-chip {
         width: 100%;
       }
+
+      .settings-modal {
+        align-items: flex-end;
+        padding: 8px;
+      }
+
+      .settings-modal-card {
+        width: 100%;
+        border-radius: 18px 18px 12px 12px;
+      }
     }
 
     @media (max-width: 560px) {
@@ -650,7 +649,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
         padding: calc(var(--safe-top) + 8px) 8px calc(var(--safe-bottom) + 8px) 8px;
       }
 
-      .topbar, .settings-card, .composer {
+      .topbar, .composer {
         border-radius: 18px;
       }
 
@@ -705,6 +704,22 @@ INDEX_HTML = r"""<!DOCTYPE html>
 </head>
 <body>
   <div class="mobile-sidebar-backdrop" id="sidebarBackdrop"></div>
+  <div class="modal-backdrop" id="modalBackdrop"></div>
+
+  <div class="settings-modal" id="settingsModal">
+    <div class="settings-modal-card">
+      <div class="settings-modal-header">
+        <div class="settings-modal-title">Einstellungen</div>
+        <button id="closeSettingsBtn" class="secondary icon-btn" type="button" title="Schließen">✕</button>
+      </div>
+      <div class="settings-modal-content">
+        <select id="modelSelect"></select>
+        <input id="chatTitleInput" type="text" placeholder="Chat Titel" />
+        <button id="renameBtn" class="secondary" type="button">Speichern</button>
+        <button id="deleteChatBtn" class="danger" type="button">Aktuellen Chat löschen</button>
+      </div>
+    </div>
+  </div>
 
   <div class="layout">
     <aside class="sidebar" id="sidebar">
@@ -730,7 +745,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
             <div class="title-sub" id="serverInfo">Verbinde…</div>
           </div>
 
-          <button id="toggleSettingsBtn" class="secondary icon-btn" type="button" title="Einstellungen einblenden oder ausblenden">⚙</button>
+          <button id="openSettingsBtn" class="secondary icon-btn" type="button" title="Einstellungen">⚙</button>
 
           <div class="topbar-actions">
             <label id="webSearchToggleBtn" class="toggle-icon-btn" title="Brave Websuche">
@@ -745,27 +760,9 @@ INDEX_HTML = r"""<!DOCTYPE html>
         </div>
       </div>
 
-      <div class="settings-card hidden" id="settingsCard">
-        <details class="settings-panel" id="settingsPanel">
-          <summary>
-            <span>Einstellungen</span>
-            <span>▾</span>
-          </summary>
-          <div class="settings-content">
-            <div class="settings-grid">
-              <select id="modelSelect"></select>
-            </div>
-
-            <div class="settings-grid-2">
-              <input id="chatTitleInput" type="text" placeholder="Chat Titel" />
-              <button id="renameBtn" class="secondary" type="button">Speichern</button>
-              <button id="deleteChatBtn" class="danger" type="button">Löschen</button>
-            </div>
-          </div>
-        </details>
+      <div class="chat-wrap">
+        <div class="chat" id="chat"></div>
       </div>
-
-      <div class="chat" id="chat"></div>
 
       <div class="composer">
         <textarea id="prompt" placeholder="Schreibe deine Nachricht…"></textarea>
@@ -796,10 +793,12 @@ INDEX_HTML = r"""<!DOCTYPE html>
     const webSearchToggleBtnEl = document.getElementById("webSearchToggleBtn");
     const mobileHistoryToggle = document.getElementById("mobileHistoryToggle");
     const sidebarBackdrop = document.getElementById("sidebarBackdrop");
-    const settingsCardEl = document.getElementById("settingsCard");
-    const toggleSettingsBtnEl = document.getElementById("toggleSettingsBtn");
+    const openSettingsBtnEl = document.getElementById("openSettingsBtn");
+    const closeSettingsBtnEl = document.getElementById("closeSettingsBtn");
+    const settingsModalEl = document.getElementById("settingsModal");
+    const modalBackdropEl = document.getElementById("modalBackdrop");
 
-    const SETTINGS_KEY = "ha_ollama_webapp_settings_v_server_user_2";
+    const SETTINGS_KEY = "ha_ollama_webapp_settings_v_server_user_3";
 
     let chats = [];
     let currentChatId = null;
@@ -810,17 +809,20 @@ INDEX_HTML = r"""<!DOCTYPE html>
       webSearchToggleBtnEl.classList.toggle("is-on", webSearchToggleTopEl.checked);
     }
 
-    function updateSettingsVisibility(isVisible) {
-      settingsCardEl.classList.toggle("hidden", !isVisible);
-      toggleSettingsBtnEl.textContent = isVisible ? "✕" : "⚙";
-      toggleSettingsBtnEl.title = isVisible ? "Einstellungen ausblenden" : "Einstellungen einblenden";
+    function openSettingsModal() {
+      settingsModalEl.classList.add("open");
+      modalBackdropEl.classList.add("open");
+    }
+
+    function closeSettingsModal() {
+      settingsModalEl.classList.remove("open");
+      modalBackdropEl.classList.remove("open");
     }
 
     function saveLocalSettings() {
       localStorage.setItem(SETTINGS_KEY, JSON.stringify({
         currentChatId,
-        useWebSearch: webSearchToggleTopEl.checked,
-        settingsVisible: !settingsCardEl.classList.contains("hidden")
+        useWebSearch: webSearchToggleTopEl.checked
       }));
       updateWebToggleVisual();
     }
@@ -834,14 +836,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
         if (typeof settings.useWebSearch === "boolean") {
           webSearchToggleTopEl.checked = settings.useWebSearch;
         }
-        if (typeof settings.settingsVisible === "boolean") {
-          updateSettingsVisibility(settings.settingsVisible);
-        } else {
-          updateSettingsVisibility(false);
-        }
-      } catch (_) {
-        updateSettingsVisibility(false);
-      }
+      } catch (_) {}
       updateWebToggleVisual();
     }
 
@@ -1217,6 +1212,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       if (!chat) return;
       await deleteChatById(chat.id);
       maybeCloseSidebarOnMobile();
+      closeSettingsModal();
     }
 
     async function renameCurrentChat() {
@@ -1231,6 +1227,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       });
 
       await loadChats();
+      closeSettingsModal();
     }
 
     promptEl.addEventListener("input", autoResize);
@@ -1256,15 +1253,19 @@ INDEX_HTML = r"""<!DOCTYPE html>
     webSearchToggleTopEl.addEventListener("change", saveLocalSettings);
     mobileHistoryToggle.addEventListener("click", openSidebar);
     sidebarBackdrop.addEventListener("click", closeSidebar);
-    toggleSettingsBtnEl.addEventListener("click", () => {
-      const willShow = settingsCardEl.classList.contains("hidden");
-      updateSettingsVisibility(willShow);
-      saveLocalSettings();
-    });
+    openSettingsBtnEl.addEventListener("click", openSettingsModal);
+    closeSettingsBtnEl.addEventListener("click", closeSettingsModal);
+    modalBackdropEl.addEventListener("click", closeSettingsModal);
 
     window.addEventListener("resize", () => {
       if (window.innerWidth > 980) {
         closeSidebar();
+      }
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        closeSettingsModal();
       }
     });
 
