@@ -10,9 +10,13 @@ from pydantic import BaseModel
 APP_TITLE = "Ollama Chat"
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "https://ollama.com/api").rstrip("/")
 OLLAMA_API_KEY = os.getenv("OLLAMA_API_KEY", "").strip()
+BRAVE_API_KEY = os.getenv("BRAVE_API_KEY", "").strip()
 DEFAULT_MODEL = os.getenv("DEFAULT_MODEL", "").strip()
 DEFAULT_KEEP_ALIVE = os.getenv("DEFAULT_KEEP_ALIVE", "5m").strip()
 REQUEST_TIMEOUT = float(os.getenv("REQUEST_TIMEOUT", "180"))
+BRAVE_COUNTRY = os.getenv("BRAVE_COUNTRY", "de").strip() or "de"
+BRAVE_SEARCH_LANG = os.getenv("BRAVE_SEARCH_LANG", "de").strip() or "de"
+BRAVE_RESULT_COUNT = int(os.getenv("BRAVE_RESULT_COUNT", "5"))
 
 app = FastAPI(title=APP_TITLE)
 
@@ -27,6 +31,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       --bg: #0b0f14;
       --panel: #121822;
       --panel-2: #182232;
+      --panel-3: #0f141d;
       --text: #eef3fb;
       --muted: #9fb0c7;
       --accent: #4fd1c5;
@@ -54,29 +59,51 @@ INDEX_HTML = r"""<!DOCTYPE html>
       min-height: 100dvh;
     }
 
-    .app {
-      max-width: 920px;
+    .layout {
+      max-width: 1280px;
       margin: 0 auto;
       min-height: 100dvh;
       display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 14px;
+      padding: env(safe-area-inset-top) 14px env(safe-area-inset-bottom) 14px;
+    }
+
+    .sidebar {
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: rgba(11, 15, 20, 0.82);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+      padding: 12px;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 12px;
+      min-height: calc(100dvh - 28px);
+      position: sticky;
+      top: 14px;
+    }
+
+    .app {
+      min-height: calc(100dvh - 28px);
+      display: grid;
       grid-template-rows: auto 1fr auto;
       gap: 12px;
-      padding: env(safe-area-inset-top) 14px env(safe-area-inset-bottom) 14px;
     }
 
     .topbar {
       position: sticky;
-      top: 0;
+      top: 14px;
       z-index: 10;
       background: rgba(11, 15, 20, 0.82);
       backdrop-filter: blur(18px);
       border: 1px solid var(--border);
-      border-radius: 20px;
+      border-radius: 22px;
       box-shadow: var(--shadow);
       padding: 12px;
     }
 
-    .title {
+    .section-title, .title {
       margin: 0 0 10px 0;
       font-size: 18px;
       font-weight: 700;
@@ -96,18 +123,57 @@ INDEX_HTML = r"""<!DOCTYPE html>
 
     .row2 {
       display: grid;
-      grid-template-columns: 1fr auto;
+      grid-template-columns: 1fr auto auto;
       gap: 10px;
       align-items: center;
     }
 
-    @media (max-width: 720px) {
-      .row, .row2 {
-        grid-template-columns: 1fr;
-      }
+    .row3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      align-items: center;
     }
 
-    select, textarea, button {
+    .history-list {
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-right: 2px;
+    }
+
+    .history-item {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      border-radius: 16px;
+      padding: 12px;
+      cursor: pointer;
+      text-align: left;
+      width: 100%;
+    }
+
+    .history-item.active {
+      border-color: rgba(79, 209, 197, 0.45);
+      box-shadow: 0 0 0 3px rgba(79, 209, 197, 0.12);
+    }
+
+    .history-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .history-sub {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    select, textarea, button, input[type="text"] {
       width: 100%;
       border: 1px solid var(--border);
       border-radius: 16px;
@@ -118,7 +184,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       outline: none;
     }
 
-    select:focus, textarea:focus {
+    select:focus, textarea:focus, input[type="text"]:focus {
       border-color: rgba(79, 209, 197, 0.55);
       box-shadow: 0 0 0 4px rgba(79, 209, 197, 0.14);
     }
@@ -144,6 +210,25 @@ INDEX_HTML = r"""<!DOCTYPE html>
       border: 1px solid rgba(255,107,107,.25);
     }
 
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      min-height: 48px;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .toggle input {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--accent);
+    }
+
     .pill {
       display: inline-flex;
       align-items: center;
@@ -161,7 +246,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       flex-direction: column;
       gap: 12px;
       overflow: auto;
-      padding: 2px 2px 10px 2px;
+      padding: 2px;
     }
 
     .empty {
@@ -191,7 +276,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
 
     .bubble {
       width: fit-content;
-      max-width: min(100%, 760px);
+      max-width: min(100%, 820px);
       padding: 14px 16px;
       border-radius: 20px;
       line-height: 1.55;
@@ -218,21 +303,43 @@ INDEX_HTML = r"""<!DOCTYPE html>
       padding: 0 6px;
     }
 
+    .sources {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+      max-width: min(100%, 820px);
+    }
+
+    .source-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: var(--text);
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      padding: 10px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      max-width: 100%;
+    }
+
     .composer {
       position: sticky;
-      bottom: 0;
+      bottom: 14px;
       background: rgba(11,15,20,.84);
       backdrop-filter: blur(16px);
       border: 1px solid var(--border);
-      border-radius: 20px;
+      border-radius: 22px;
       box-shadow: var(--shadow);
       padding: 12px;
     }
 
     textarea {
       resize: none;
-      min-height: 96px;
-      max-height: 240px;
+      min-height: 110px;
+      max-height: 260px;
     }
 
     .composer-actions {
@@ -261,6 +368,26 @@ INDEX_HTML = r"""<!DOCTYPE html>
       margin-right: 8px;
     }
 
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+        min-height: auto;
+      }
+
+      .topbar, .composer {
+        top: 0;
+        bottom: 0;
+      }
+
+      .row, .row2, .row3 {
+        grid-template-columns: 1fr;
+      }
+    }
+
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
@@ -272,66 +399,143 @@ INDEX_HTML = r"""<!DOCTYPE html>
   </style>
 </head>
 <body>
-  <div class="app">
-    <div class="topbar">
-      <div class="title">Ollama Chat</div>
-      <div class="controls">
-        <div class="row">
-          <select id="modelSelect"></select>
-          <button id="reloadModelsBtn" class="secondary" type="button">Modelle laden</button>
-          <button id="clearBtn" class="danger" type="button">Chat leeren</button>
-        </div>
-        <div class="row2">
-          <div class="pill" id="serverInfo">Verbinde…</div>
-          <div class="pill" id="modeInfo">Direkt zu ollama.com/api</div>
+  <div class="layout">
+    <aside class="sidebar">
+      <div>
+        <div class="section-title">Verläufe</div>
+        <button id="newChatBtn" type="button">Neuer Chat</button>
+      </div>
+
+      <div>
+        <input id="searchChatsInput" type="text" placeholder="Verläufe durchsuchen…" />
+      </div>
+
+      <div class="history-list" id="historyList"></div>
+    </aside>
+
+    <main class="app">
+      <div class="topbar">
+        <div class="title">Ollama Chat</div>
+        <div class="controls">
+          <div class="row">
+            <select id="modelSelect"></select>
+            <label class="toggle">
+              <input id="webSearchToggle" type="checkbox" />
+              <span>Brave Websuche</span>
+            </label>
+            <button id="reloadModelsBtn" class="secondary" type="button">Modelle laden</button>
+          </div>
+          <div class="row2">
+            <input id="chatTitleInput" type="text" placeholder="Chat Titel" />
+            <button id="renameBtn" class="secondary" type="button">Titel speichern</button>
+            <button id="deleteChatBtn" class="danger" type="button">Diesen Chat löschen</button>
+          </div>
+          <div class="row3">
+            <div class="pill" id="serverInfo">Verbinde…</div>
+            <div class="pill" id="modeInfo">Ollama Cloud + Brave Search</div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="chat" id="chat"></div>
+      <div class="chat" id="chat"></div>
 
-    <div class="composer">
-      <textarea id="prompt" placeholder="Schreibe deine Nachricht…"></textarea>
-      <div class="composer-actions">
-        <div class="status" id="status">Bereit</div>
-        <button id="sendBtn" type="button">Senden</button>
+      <div class="composer">
+        <textarea id="prompt" placeholder="Schreibe deine Nachricht…"></textarea>
+        <div class="composer-actions">
+          <div class="status" id="status">Bereit</div>
+          <button id="sendBtn" type="button">Senden</button>
+        </div>
       </div>
-    </div>
+    </main>
   </div>
 
   <script>
     const chatEl = document.getElementById("chat");
     const promptEl = document.getElementById("prompt");
     const sendBtn = document.getElementById("sendBtn");
-    const clearBtn = document.getElementById("clearBtn");
     const statusEl = document.getElementById("status");
     const modelSelectEl = document.getElementById("modelSelect");
     const reloadModelsBtn = document.getElementById("reloadModelsBtn");
     const serverInfoEl = document.getElementById("serverInfo");
+    const historyListEl = document.getElementById("historyList");
+    const newChatBtn = document.getElementById("newChatBtn");
+    const deleteChatBtn = document.getElementById("deleteChatBtn");
+    const chatTitleInput = document.getElementById("chatTitleInput");
+    const renameBtn = document.getElementById("renameBtn");
+    const searchChatsInput = document.getElementById("searchChatsInput");
+    const webSearchToggleEl = document.getElementById("webSearchToggle");
 
-    const STORAGE_KEY = "ha_ollama_webapp_chat_v5";
-    const SETTINGS_KEY = "ha_ollama_webapp_settings_v5";
+    const CHATS_KEY = "ha_ollama_webapp_chats_v1";
+    const SETTINGS_KEY = "ha_ollama_webapp_settings_v6";
 
-    let messages = [];
+    let chats = [];
+    let currentChatId = null;
     let busy = false;
 
+    function uid() {
+      return Math.random().toString(36).slice(2) + Date.now().toString(36);
+    }
+
+    function nowIso() {
+      return new Date().toISOString();
+    }
+
+    function defaultTitle() {
+      const d = new Date();
+      return "Neuer Chat " + d.toLocaleDateString() + " " + d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    }
+
+    function createEmptyChat() {
+      return {
+        id: uid(),
+        title: defaultTitle(),
+        createdAt: nowIso(),
+        updatedAt: nowIso(),
+        messages: []
+      };
+    }
+
     function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+      localStorage.setItem(CHATS_KEY, JSON.stringify(chats));
       localStorage.setItem(SETTINGS_KEY, JSON.stringify({
-        model: modelSelectEl.value
+        currentChatId,
+        model: modelSelectEl.value,
+        useWebSearch: webSearchToggleEl.checked
       }));
     }
 
     function loadState() {
       try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-        if (Array.isArray(saved)) messages = saved;
+        const savedChats = JSON.parse(localStorage.getItem(CHATS_KEY) || "[]");
+        if (Array.isArray(savedChats) && savedChats.length) {
+          chats = savedChats;
+        }
       } catch (_) {}
+
+      if (!chats.length) {
+        chats = [createEmptyChat()];
+      }
 
       try {
         const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}");
-        if (typeof settings.model === "string") modelSelectEl.dataset.savedValue = settings.model;
+        if (typeof settings.currentChatId === "string") {
+          currentChatId = settings.currentChatId;
+        }
+        if (typeof settings.model === "string") {
+          modelSelectEl.dataset.savedValue = settings.model;
+        }
+        if (typeof settings.useWebSearch === "boolean") {
+          webSearchToggleEl.checked = settings.useWebSearch;
+        }
       } catch (_) {}
+
+      if (!currentChatId || !chats.find(c => c.id === currentChatId)) {
+        currentChatId = chats[0].id;
+      }
+    }
+
+    function currentChat() {
+      return chats.find(c => c.id === currentChatId) || chats[0];
     }
 
     function escapeHtml(text) {
@@ -339,6 +543,57 @@ INDEX_HTML = r"""<!DOCTYPE html>
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;");
+    }
+
+    function formatDate(iso) {
+      try {
+        return new Date(iso).toLocaleString([], {
+          day: "2-digit",
+          month: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+      } catch (_) {
+        return "";
+      }
+    }
+
+    function renderHistoryList() {
+      const q = (searchChatsInput.value || "").trim().toLowerCase();
+      historyListEl.innerHTML = "";
+
+      const sorted = [...chats].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+      const filtered = sorted.filter(chat => {
+        if (!q) return true;
+        const hay = [
+          chat.title || "",
+          ...(chat.messages || []).map(m => m.content || "")
+        ].join(" ").toLowerCase();
+        return hay.includes(q);
+      });
+
+      for (const chat of filtered) {
+        const btn = document.createElement("button");
+        btn.className = "history-item" + (chat.id === currentChatId ? " active" : "");
+        btn.type = "button";
+
+        const lastAssistant = [...(chat.messages || [])].reverse().find(m => m.role === "assistant");
+        const preview = lastAssistant?.content || chat.messages?.[0]?.content || "Noch keine Nachrichten";
+
+        btn.innerHTML = `
+          <div class="history-title">${escapeHtml(chat.title || "Ohne Titel")}</div>
+          <div class="history-sub">${escapeHtml(preview)}</div>
+          <div class="history-sub">${escapeHtml(formatDate(chat.updatedAt))}</div>
+        `;
+
+        btn.addEventListener("click", () => {
+          currentChatId = chat.id;
+          renderAll();
+          saveState();
+        });
+
+        historyListEl.appendChild(btn);
+      }
     }
 
     function renderMessage(msg) {
@@ -355,13 +610,33 @@ INDEX_HTML = r"""<!DOCTYPE html>
       meta.textContent = `${msg.role === "user" ? "Du" : "Assistant"} • ${ts.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
 
       wrapper.appendChild(bubble);
+
+      if (msg.sources && Array.isArray(msg.sources) && msg.sources.length > 0) {
+        const sources = document.createElement("div");
+        sources.className = "sources";
+
+        for (const source of msg.sources) {
+          const a = document.createElement("a");
+          a.className = "source-chip";
+          a.href = source.url;
+          a.target = "_blank";
+          a.rel = "noopener noreferrer";
+          a.textContent = source.title || source.url;
+          sources.appendChild(a);
+        }
+
+        wrapper.appendChild(sources);
+      }
+
       wrapper.appendChild(meta);
       return wrapper;
     }
 
     function renderChat() {
+      const chat = currentChat();
       chatEl.innerHTML = "";
-      if (!messages.length) {
+
+      if (!chat.messages || !chat.messages.length) {
         const empty = document.createElement("div");
         empty.className = "empty";
         empty.innerHTML = "Noch kein Verlauf.<br>Wähle ein Modell und schreibe deine erste Nachricht.";
@@ -369,11 +644,33 @@ INDEX_HTML = r"""<!DOCTYPE html>
         return;
       }
 
-      for (const msg of messages) {
+      for (const msg of chat.messages) {
         chatEl.appendChild(renderMessage(msg));
       }
 
       chatEl.scrollTop = chatEl.scrollHeight;
+    }
+
+    function renderHeaderFields() {
+      const chat = currentChat();
+      chatTitleInput.value = chat.title || "";
+    }
+
+    function renderAll() {
+      renderHistoryList();
+      renderHeaderFields();
+      renderChat();
+      autoResize();
+    }
+
+    function ensureAutoTitle(chat) {
+      if (!chat || !chat.messages || !chat.messages.length) return;
+      const firstUser = chat.messages.find(m => m.role === "user" && m.content);
+      if (!firstUser) return;
+
+      if ((chat.title || "").startsWith("Neuer Chat")) {
+        chat.title = firstUser.content.trim().slice(0, 40) || chat.title;
+      }
     }
 
     async function loadModels() {
@@ -417,7 +714,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
         saveState();
       } catch (err) {
         serverInfoEl.textContent = "Verbindung fehlgeschlagen";
-        alert("Modelle konnten nicht geladen werden. Prüfe API-Key, Add-on-Log und Base URL.");
+        alert("Modelle konnten nicht geladen werden. Prüfe API-Key, Brave-Key, Add-on-Log und Base URL.");
       }
     }
 
@@ -426,6 +723,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
 
       const prompt = promptEl.value.trim();
       const model = modelSelectEl.value;
+      const chat = currentChat();
 
       if (!prompt) return;
       if (!model) {
@@ -444,9 +742,12 @@ INDEX_HTML = r"""<!DOCTYPE html>
         ts: Date.now()
       };
 
-      messages.push(userMsg);
-      renderChat();
+      chat.messages.push(userMsg);
+      chat.updatedAt = nowIso();
+      ensureAutoTitle(chat);
+      renderAll();
       saveState();
+
       promptEl.value = "";
       autoResize();
 
@@ -457,7 +758,8 @@ INDEX_HTML = r"""<!DOCTYPE html>
           body: JSON.stringify({
             model,
             message: prompt,
-            history: messages
+            use_web_search: webSearchToggleEl.checked,
+            history: chat.messages
               .filter(m => m.role === "user" || m.role === "assistant")
               .slice(-12)
               .map(m => ({ role: m.role, content: m.content }))
@@ -470,22 +772,26 @@ INDEX_HTML = r"""<!DOCTYPE html>
           throw new Error(data.detail || "Unbekannter Fehler");
         }
 
-        messages.push({
+        chat.messages.push({
           role: "assistant",
           content: data.answer || "Keine Antwort erhalten.",
+          sources: data.sources || [],
           ts: Date.now()
         });
+        chat.updatedAt = nowIso();
 
-        renderChat();
+        renderAll();
         saveState();
         statusEl.textContent = "Bereit";
       } catch (err) {
-        messages.push({
+        chat.messages.push({
           role: "assistant",
           content: "Fehler: " + (err.message || "Die Anfrage konnte nicht verarbeitet werden."),
           ts: Date.now()
         });
-        renderChat();
+        chat.updatedAt = nowIso();
+
+        renderAll();
         saveState();
         statusEl.textContent = "Fehler";
       } finally {
@@ -498,7 +804,38 @@ INDEX_HTML = r"""<!DOCTYPE html>
 
     function autoResize() {
       promptEl.style.height = "auto";
-      promptEl.style.height = Math.min(promptEl.scrollHeight, 240) + "px";
+      promptEl.style.height = Math.min(promptEl.scrollHeight, 260) + "px";
+    }
+
+    function newChat() {
+      const chat = createEmptyChat();
+      chats.unshift(chat);
+      currentChatId = chat.id;
+      renderAll();
+      saveState();
+      promptEl.focus();
+    }
+
+    function deleteCurrentChat() {
+      if (chats.length === 1) {
+        chats = [createEmptyChat()];
+        currentChatId = chats[0].id;
+      } else {
+        chats = chats.filter(c => c.id !== currentChatId);
+        currentChatId = chats[0].id;
+      }
+      renderAll();
+      saveState();
+    }
+
+    function renameCurrentChat() {
+      const chat = currentChat();
+      const value = chatTitleInput.value.trim();
+      if (!value) return;
+      chat.title = value;
+      chat.updatedAt = nowIso();
+      renderAll();
+      saveState();
     }
 
     promptEl.addEventListener("input", autoResize);
@@ -511,17 +848,18 @@ INDEX_HTML = r"""<!DOCTYPE html>
 
     sendBtn.addEventListener("click", sendMessage);
     reloadModelsBtn.addEventListener("click", loadModels);
-    clearBtn.addEventListener("click", () => {
-      if (!confirm("Den kompletten Chatverlauf im Browser löschen?")) return;
-      messages = [];
-      saveState();
-      renderChat();
+    newChatBtn.addEventListener("click", newChat);
+    deleteChatBtn.addEventListener("click", () => {
+      if (!confirm("Diesen Chat wirklich löschen?")) return;
+      deleteCurrentChat();
     });
-
+    renameBtn.addEventListener("click", renameCurrentChat);
+    searchChatsInput.addEventListener("input", renderHistoryList);
     modelSelectEl.addEventListener("change", saveState);
+    webSearchToggleEl.addEventListener("change", saveState);
 
     loadState();
-    renderChat();
+    renderAll();
     autoResize();
     loadModels();
   </script>
@@ -533,6 +871,7 @@ SYSTEM_PROMPT = """Du bist ein hilfreicher lokaler Assistent in Home Assistant.
 Antworte immer auf Deutsch.
 Antworte klar, präzise und ehrlich.
 Wenn du etwas nicht sicher weißt, sage das offen.
+Wenn Websuchquellen vorhanden sind, nutze sie nur zur Stützung von Fakten und nenne sie knapp.
 Verwende saubere Absätze statt unnötig vieler Listen.
 """
 
@@ -543,10 +882,17 @@ class ChatMessage(BaseModel):
 class ChatRequest(BaseModel):
     model: str
     message: str
+    use_web_search: bool = False
     history: List[ChatMessage] = []
+
+class SearchSource(BaseModel):
+    title: str
+    url: str
+    description: Optional[str] = None
 
 class ChatResponse(BaseModel):
     answer: str
+    sources: List[SearchSource] = []
 
 def auth_headers() -> Dict[str, str]:
     headers: Dict[str, str] = {
@@ -663,8 +1009,10 @@ async def fetch_json_or_text(
     method: str,
     url: str,
     json_body: Optional[Dict[str, Any]] = None,
+    headers: Optional[Dict[str, str]] = None,
 ) -> Any:
-    async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT, headers=auth_headers()) as client:
+    merged_headers = dict(headers or {})
+    async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT, headers=merged_headers) as client:
         resp = await client.request(method=method, url=url, json=json_body)
         resp.raise_for_status()
 
@@ -686,8 +1034,69 @@ async def fetch_json_or_text(
             return text
 
 async def fetch_models() -> List[Dict[str, Any]]:
-    data = await fetch_json_or_text("GET", f"{OLLAMA_BASE_URL}/tags")
+    data = await fetch_json_or_text(
+        "GET",
+        f"{OLLAMA_BASE_URL}/tags",
+        headers=auth_headers(),
+    )
     return extract_models(data)
+
+async def brave_search(query: str) -> List[SearchSource]:
+    if not BRAVE_API_KEY:
+        return []
+
+    params = {
+        "q": query,
+        "count": min(max(BRAVE_RESULT_COUNT, 1), 20),
+        "country": BRAVE_COUNTRY,
+        "search_lang": BRAVE_SEARCH_LANG,
+        "safesearch": "moderate",
+        "text_decorations": False,
+        "spellcheck": True,
+    }
+
+    headers = {
+        "Accept": "application/json",
+        "Accept-Encoding": "gzip",
+        "X-Subscription-Token": BRAVE_API_KEY,
+    }
+
+    async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT, headers=headers) as client:
+        resp = await client.get("https://api.search.brave.com/res/v1/web/search", params=params)
+        resp.raise_for_status()
+        data = resp.json()
+
+    results = data.get("web", {}).get("results", [])
+    sources: List[SearchSource] = []
+
+    for item in results[:BRAVE_RESULT_COUNT]:
+        url = item.get("url") or ""
+        title = item.get("title") or url
+        description = item.get("description") or item.get("snippet") or ""
+        if not url:
+            continue
+        sources.append(
+            SearchSource(
+                title=title,
+                url=url,
+                description=description,
+            )
+        )
+    return sources
+
+def build_web_context(sources: List[SearchSource]) -> str:
+    if not sources:
+        return "Keine Websuchergebnisse gefunden."
+
+    parts: List[str] = []
+    for idx, source in enumerate(sources, start=1):
+        parts.append(
+            f"[Quelle {idx}]\n"
+            f"Titel: {source.title}\n"
+            f"URL: {source.url}\n"
+            f"Beschreibung: {source.description or 'Keine Beschreibung verfügbar.'}"
+        )
+    return "\n\n".join(parts)
 
 def history_to_prompt(history: List[Dict[str, str]], user_message: str) -> str:
     lines: List[str] = []
@@ -713,7 +1122,12 @@ async def try_chat_endpoint(model: str, messages: List[Dict[str, str]]) -> Optio
         "stream": False,
         "keep_alive": normalize_keep_alive(DEFAULT_KEEP_ALIVE),
     }
-    data = await fetch_json_or_text("POST", f"{OLLAMA_BASE_URL}/chat", json_body=payload)
+    data = await fetch_json_or_text(
+        "POST",
+        f"{OLLAMA_BASE_URL}/chat",
+        json_body=payload,
+        headers=auth_headers(),
+    )
     return extract_text_from_response(data)
 
 async def try_generate_endpoint(model: str, messages: List[Dict[str, str]], user_message: str) -> Optional[str]:
@@ -724,7 +1138,12 @@ async def try_generate_endpoint(model: str, messages: List[Dict[str, str]], user
         "stream": False,
         "keep_alive": normalize_keep_alive(DEFAULT_KEEP_ALIVE),
     }
-    data = await fetch_json_or_text("POST", f"{OLLAMA_BASE_URL}/generate", json_body=payload)
+    data = await fetch_json_or_text(
+        "POST",
+        f"{OLLAMA_BASE_URL}/generate",
+        json_body=payload,
+        headers=auth_headers(),
+    )
     return extract_text_from_response(data)
 
 async def ask_upstream(model: str, messages: List[Dict[str, str]], user_message: str) -> str:
@@ -774,15 +1193,27 @@ async def chat(req: ChatRequest) -> ChatResponse:
         raise HTTPException(status_code=400, detail="Leere Nachricht.")
 
     history = sanitize_history(req.history, limit=12)
+    sources: List[SearchSource] = []
 
     try:
+        system_content = SYSTEM_PROMPT
+
+        if req.use_web_search:
+            sources = await brave_search(user_message)
+            if sources:
+                system_content = (
+                    SYSTEM_PROMPT
+                    + "\n\nNutze die folgenden Websuchquellen nur zur Stützung aktueller Fakten.\n"
+                    + build_web_context(sources)
+                )
+
         messages = [
-            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "system", "content": system_content},
             *history[:-1],
             {"role": "user", "content": user_message},
         ]
         answer = await ask_upstream(req.model, messages, user_message)
-        return ChatResponse(answer=answer)
+        return ChatResponse(answer=answer, sources=sources)
 
     except HTTPException:
         raise
