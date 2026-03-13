@@ -2,11 +2,11 @@ import json
 import os
 import threading
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, AsyncGenerator, Dict, List, Optional, Union
 
 import httpx
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
 from pydantic import BaseModel
 
 APP_TITLE = "Ollama Chat"
@@ -21,7 +21,8 @@ BRAVE_SEARCH_LANG = os.getenv("BRAVE_SEARCH_LANG", "de").strip() or "de"
 BRAVE_RESULT_COUNT = int(os.getenv("BRAVE_RESULT_COUNT", "5"))
 
 SYSTEM_PROMPT = """Du bist ein Experte, der Dinge doppelt überprüft, du bist skeptisch und recherchierst.
-Ich habe nicht immer Recht. Du auch nicht, aber wir beide streben nach Genauigkeit."""
+Ich habe nicht immer Recht. Du auch nicht, aber wir beide streben nach Genauigkeit.
+Verwende keine Sternchenzeichen in deinen Antworten."""
 
 DATA_DIR = "/data"
 CHATS_FILE = os.path.join(DATA_DIR, "chats.json")
@@ -767,11 +768,12 @@ INDEX_HTML = r"""<!DOCTYPE html>
     const mobileHistoryToggle = document.getElementById("mobileHistoryToggle");
     const sidebarBackdrop = document.getElementById("sidebarBackdrop");
 
-    const SETTINGS_KEY = "ha_ollama_webapp_settings_v_server_1";
+    const SETTINGS_KEY = "ha_ollama_webapp_settings_v_server_2";
 
     let chats = [];
     let currentChatId = null;
     let busy = false;
+    let tempChatId = null;
 
     function updateWebToggleVisual() {
       webSearchToggleBtnEl.classList.toggle("is-on", webSearchToggleTopEl.checked);
@@ -846,6 +848,24 @@ INDEX_HTML = r"""<!DOCTYPE html>
       if (window.innerWidth <= 980) {
         closeSidebar();
       }
+    }
+
+    function ensureTempChat() {
+      let chat = currentChat();
+      if (chat) return chat;
+
+      const now = new Date().toISOString();
+      const temp = {
+        id: "temp_" + Date.now(),
+        title: "Neuer Chat",
+        created_at: now,
+        updated_at: now,
+        messages: []
+      };
+      tempChatId = temp.id;
+      chats.unshift(temp);
+      currentChatId = temp.id;
+      return temp;
     }
 
     function renderHistoryList() {
@@ -964,6 +984,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       } else if (!currentChatId || !chats.find(c => c.id === currentChatId)) {
         currentChatId = chats[0].id;
       }
+      tempChatId = null;
       renderAll();
       saveLocalSettings();
     }
@@ -978,6 +999,38 @@ INDEX_HTML = r"""<!DOCTYPE html>
       renderHeaderFields();
     }
 
+    function processStreamLine(line, assistantMsg) {
+      if (!line) return;
+      let obj;
+      try {
+        obj = JSON.parse(line);
+      } catch (_) {
+        return;
+      }
+
+      if (obj.type === "chat_id" && obj.chat_id) {
+        currentChatId = obj.chat_id;
+        saveLocalSettings();
+        return;
+      }
+
+      if (obj.type === "token") {
+        assistantMsg.content += obj.content || "";
+        renderChat();
+        return;
+      }
+
+      if (obj.type === "sources" && Array.isArray(obj.sources)) {
+        assistantMsg.sources = obj.sources;
+        renderChat();
+        return;
+      }
+
+      if (obj.type === "error") {
+        throw new Error(obj.detail || "Streaming-Fehler");
+      }
+    }
+
     async function sendMessage() {
       if (busy) return;
 
@@ -986,37 +1039,86 @@ INDEX_HTML = r"""<!DOCTYPE html>
 
       if (!prompt) return;
 
+      const existingChat = currentChat();
+      const historyForRequest = (existingChat?.messages || [])
+        .filter(m => m.role === "user" || m.role === "assistant")
+        .slice(-12)
+        .map(m => ({ role: m.role, content: m.content }));
+
+      const chat = ensureTempChat();
+      const userMsg = {
+        role: "user",
+        content: prompt,
+        ts: Date.now()
+      };
+      const assistantMsg = {
+        role: "assistant",
+        content: "",
+        ts: Date.now(),
+        sources: []
+      };
+
+      chat.messages.push(userMsg);
+      chat.messages.push(assistantMsg);
+      chat.updated_at = new Date().toISOString();
+
+      promptEl.value = "";
+      autoResize();
+      renderAll();
+
       busy = true;
       sendBtn.disabled = true;
       promptEl.disabled = true;
-      statusEl.innerHTML = '<span class="spinner"></span>Sende Anfrage…';
+      statusEl.innerHTML = '<span class="spinner"></span>Antwort wird gestreamt…';
 
       try {
-        const chat = currentChat();
-        const res = await api("./api/chat", {
+        const response = await fetch("./api/chat/stream", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            chat_id: chat ? chat.id : null,
+            chat_id: existingChat?.id || null,
             model,
             message: prompt,
             use_web_search: webSearchToggleTopEl.checked,
-            history: (chat?.messages || [])
-              .filter(m => m.role === "user" || m.role === "assistant")
-              .slice(-12)
-              .map(m => ({ role: m.role, content: m.content }))
+            history: historyForRequest
           })
         });
 
-        promptEl.value = "";
-        autoResize();
-        currentChatId = res.chat_id || currentChatId;
+        if (!response.ok || !response.body) {
+          let data = {};
+          try {
+            data = await response.json();
+          } catch (_) {}
+          throw new Error(data.detail || "Unbekannter Fehler");
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+
+          for (const line of lines) {
+            processStreamLine(line.trim(), assistantMsg);
+          }
+        }
+
+        if (buffer.trim()) {
+          processStreamLine(buffer.trim(), assistantMsg);
+        }
 
         await loadChats();
         statusEl.textContent = "Bereit";
       } catch (err) {
+        assistantMsg.content = "Fehler: " + (err.message || "Die Anfrage konnte nicht verarbeitet werden.");
+        renderChat();
         statusEl.textContent = "Fehler";
-        alert(err.message || "Die Anfrage konnte nicht verarbeitet werden.");
       } finally {
         busy = false;
         sendBtn.disabled = false;
@@ -1232,80 +1334,22 @@ def extract_models(data: Any) -> List[Dict[str, Any]]:
     return [{"name": DEFAULT_MODEL}]
 
 
-def join_ndjson_chunks(text: str) -> Optional[str]:
-    parts: List[str] = []
-    for raw_line in text.splitlines():
-        line = raw_line.strip()
-        if not line:
-            continue
-        try:
-            obj = json.loads(line)
-        except Exception:
-            continue
+def extract_chunk_from_obj(obj: Dict[str, Any]) -> str:
+    message = obj.get("message")
+    if isinstance(message, dict):
+        content = message.get("content")
+        if isinstance(content, str):
+            return content
 
-        if isinstance(obj, dict):
-            message = obj.get("message")
-            if isinstance(message, dict):
-                content = message.get("content")
-                if isinstance(content, str) and content:
-                    parts.append(content)
+    response = obj.get("response")
+    if isinstance(response, str):
+        return response
 
-            response = obj.get("response")
-            if isinstance(response, str) and response:
-                parts.append(response)
+    content = obj.get("content")
+    if isinstance(content, str):
+        return content
 
-            content = obj.get("content")
-            if isinstance(content, str) and content:
-                parts.append(content)
-
-    joined = "".join(parts).strip()
-    return joined or None
-
-
-def extract_text_from_response(data: Any) -> Optional[str]:
-    if isinstance(data, dict):
-        message = data.get("message")
-        if isinstance(message, dict):
-            content = message.get("content")
-            if isinstance(content, str) and content.strip():
-                return content.strip()
-
-        response = data.get("response")
-        if isinstance(response, str) and response.strip():
-            return response.strip()
-
-        content = data.get("content")
-        if isinstance(content, str) and content.strip():
-            return content.strip()
-
-        choices = data.get("choices")
-        if isinstance(choices, list) and choices:
-            first = choices[0]
-            if isinstance(first, dict):
-                msg = first.get("message")
-                if isinstance(msg, dict):
-                    c = msg.get("content")
-                    if isinstance(c, str) and c.strip():
-                        return c.strip()
-
-                text = first.get("text")
-                if isinstance(text, str) and text.strip():
-                    return text.strip()
-
-        error = data.get("error")
-        if isinstance(error, str) and error.strip():
-            return f"Upstream-Fehler: {error.strip()}"
-
-    if isinstance(data, str):
-        ndjson_joined = join_ndjson_chunks(data)
-        if ndjson_joined:
-            return ndjson_joined
-
-        stripped = data.strip()
-        if stripped:
-            return stripped
-
-    return None
+    return ""
 
 
 async def fetch_json_or_text(
@@ -1399,80 +1443,28 @@ def build_web_context(sources: List[SearchSource]) -> str:
     return "\n\n".join(parts)
 
 
-def history_to_prompt(history: List[Dict[str, str]], user_message: str) -> str:
-    lines: List[str] = []
-    for item in history:
-        role = item.get("role", "")
-        content = item.get("content", "")
-        if not content:
-            continue
-        if role == "system":
-            lines.append(f"System:\n{content}\n")
-        elif role == "assistant":
-            lines.append(f"Assistant:\n{content}\n")
-        else:
-            lines.append(f"Nutzer:\n{content}\n")
-    lines.append(f"Nutzer:\n{user_message}\n")
-    lines.append("Assistant:\n")
-    return "\n".join(lines)
-
-
-async def try_chat_endpoint(model: str, messages: List[Dict[str, str]]) -> Optional[str]:
+async def stream_upstream_chat(messages: List[Dict[str, str]]) -> AsyncGenerator[str, None]:
     payload = {
         "model": DEFAULT_MODEL,
         "messages": messages,
-        "stream": False,
+        "stream": True,
         "keep_alive": normalize_keep_alive(DEFAULT_KEEP_ALIVE),
     }
-    data = await fetch_json_or_text(
-        "POST",
-        f"{OLLAMA_BASE_URL}/chat",
-        json_body=payload,
-        headers=auth_headers(),
-    )
-    return extract_text_from_response(data)
 
-
-async def try_generate_endpoint(model: str, messages: List[Dict[str, str]], user_message: str) -> Optional[str]:
-    prompt = history_to_prompt(messages, user_message)
-    payload = {
-        "model": DEFAULT_MODEL,
-        "prompt": prompt,
-        "stream": False,
-        "keep_alive": normalize_keep_alive(DEFAULT_KEEP_ALIVE),
-    }
-    data = await fetch_json_or_text(
-        "POST",
-        f"{OLLAMA_BASE_URL}/generate",
-        json_body=payload,
-        headers=auth_headers(),
-    )
-    return extract_text_from_response(data)
-
-
-async def ask_upstream(model: str, messages: List[Dict[str, str]], user_message: str) -> str:
-    attempts: List[str] = []
-
-    for label, func in [
-        ("chat", lambda: try_chat_endpoint(model, messages)),
-        ("generate", lambda: try_generate_endpoint(model, messages, user_message)),
-    ]:
-        try:
-            answer = await func()
-            if answer and answer.strip():
-                return answer
-            attempts.append(f"{label}: leere oder nicht auswertbare Antwort")
-        except httpx.HTTPStatusError as exc:
-            body = ""
-            try:
-                body = exc.response.text[:400]
-            except Exception:
-                pass
-            attempts.append(f"{label}: HTTP {exc.response.status_code} {body}")
-        except Exception as exc:
-            attempts.append(f"{label}: {exc}")
-
-    raise HTTPException(status_code=502, detail=" | ".join(attempts)[:1500])
+    async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT, headers=auth_headers()) as client:
+        async with client.stream("POST", f"{OLLAMA_BASE_URL}/chat", json=payload) as resp:
+            resp.raise_for_status()
+            async for line in resp.aiter_lines():
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                except Exception:
+                    continue
+                chunk = extract_chunk_from_obj(obj)
+                if chunk:
+                    yield chunk
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -1539,8 +1531,8 @@ async def delete_chat(chat_id: str) -> Dict[str, Any]:
     return {"ok": True, "chats": data["chats"]}
 
 
-@app.post("/api/chat", response_model=ChatResponse)
-async def chat(req: ChatRequest) -> ChatResponse:
+@app.post("/api/chat/stream")
+async def chat_stream(req: ChatRequest):
     user_message = req.message.strip()
     if not user_message:
         raise HTTPException(status_code=400, detail="Leere Nachricht.")
@@ -1557,54 +1549,87 @@ async def chat(req: ChatRequest) -> ChatResponse:
 
     append_message(chat_obj, "user", user_message)
     maybe_autotitle(chat_obj)
+    sort_chats(data)
+    save_store(data)
 
     history = sanitize_history(req.history, limit=12)
     sources: List[SearchSource] = []
 
-    try:
-        user_content = user_message
+    user_content = user_message
+    if req.use_web_search:
+        sources = await brave_search(user_message)
+        if sources:
+            user_content = (
+                f"Frage:\n{user_message}\n\n"
+                f"Websuchquellen:\n{build_web_context(sources)}\n\n"
+                "Nutze die Websuchquellen nur zur Stützung aktueller Fakten."
+            )
 
-        if req.use_web_search:
-            sources = await brave_search(user_message)
+    messages = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        *history,
+        {"role": "user", "content": user_content},
+    ]
+
+    async def event_stream() -> AsyncGenerator[bytes, None]:
+        assistant_text = ""
+        try:
+            yield (json.dumps({"type": "chat_id", "chat_id": chat_obj["id"]}, ensure_ascii=False) + "\n").encode("utf-8")
+
             if sources:
-                user_content = (
-                    f"Frage:\n{user_message}\n\n"
-                    f"Websuchquellen:\n{build_web_context(sources)}\n\n"
-                    "Nutze die Websuchquellen nur zur Stützung aktueller Fakten."
-                )
+                yield (
+                    json.dumps(
+                        {"type": "sources", "sources": [s.model_dump() for s in sources]},
+                        ensure_ascii=False,
+                    ) + "\n"
+                ).encode("utf-8")
 
-        messages = [
-            {"role": "system", "content": SYSTEM_PROMPT},
-            *history[:-1],
-            {"role": "user", "content": user_content},
-        ]
+            async for chunk in stream_upstream_chat(messages):
+                assistant_text += chunk
+                yield (json.dumps({"type": "token", "content": chunk}, ensure_ascii=False) + "\n").encode("utf-8")
 
-        answer = await ask_upstream(DEFAULT_MODEL, messages, user_message)
-        append_message(
-            chat_obj,
-            "assistant",
-            answer,
-            sources=[s.model_dump() for s in sources] if sources else None,
-        )
-        maybe_autotitle(chat_obj)
+            append_message(
+                chat_obj,
+                "assistant",
+                assistant_text.strip(),
+                sources=[s.model_dump() for s in sources] if sources else None,
+            )
+            maybe_autotitle(chat_obj)
+            fresh = load_store()
+            stored_chat = find_chat(fresh, chat_obj["id"])
+            if stored_chat is None:
+                fresh.setdefault("chats", []).insert(0, chat_obj)
+            else:
+                stored_chat.update(chat_obj)
+            sort_chats(fresh)
+            save_store(fresh)
 
-        sort_chats(data)
-        save_store(data)
+            yield (json.dumps({"type": "done"}, ensure_ascii=False) + "\n").encode("utf-8")
 
-        return ChatResponse(answer=answer, sources=sources, chat_id=chat_obj["id"])
+        except httpx.RequestError as exc:
+            error_text = f"Fehler: Netzwerkfehler: {exc}"
+            append_message(chat_obj, "assistant", error_text)
+            fresh = load_store()
+            stored_chat = find_chat(fresh, chat_obj["id"])
+            if stored_chat is None:
+                fresh.setdefault("chats", []).insert(0, chat_obj)
+            else:
+                stored_chat.update(chat_obj)
+            sort_chats(fresh)
+            save_store(fresh)
+            yield (json.dumps({"type": "error", "detail": str(exc)}, ensure_ascii=False) + "\n").encode("utf-8")
 
-    except HTTPException:
-        append_message(chat_obj, "assistant", "Fehler: Anfrage konnte nicht verarbeitet werden.")
-        sort_chats(data)
-        save_store(data)
-        raise
-    except httpx.RequestError as exc:
-        append_message(chat_obj, "assistant", f"Fehler: Netzwerkfehler: {exc}")
-        sort_chats(data)
-        save_store(data)
-        raise HTTPException(status_code=502, detail=f"Netzwerkfehler: {exc}") from exc
-    except Exception as exc:
-        append_message(chat_obj, "assistant", f"Fehler: Interner Fehler: {exc}")
-        sort_chats(data)
-        save_store(data)
-        raise HTTPException(status_code=500, detail=f"Interner Fehler: {exc}") from exc
+        except Exception as exc:
+            error_text = f"Fehler: Interner Fehler: {exc}"
+            append_message(chat_obj, "assistant", error_text)
+            fresh = load_store()
+            stored_chat = find_chat(fresh, chat_obj["id"])
+            if stored_chat is None:
+                fresh.setdefault("chats", []).insert(0, chat_obj)
+            else:
+                stored_chat.update(chat_obj)
+            sort_chats(fresh)
+            save_store(fresh)
+            yield (json.dumps({"type": "error", "detail": str(exc)}, ensure_ascii=False) + "\n").encode("utf-8")
+
+    return StreamingResponse(event_stream(), media_type="application/x-ndjson")
