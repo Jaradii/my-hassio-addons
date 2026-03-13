@@ -121,9 +121,16 @@ INDEX_HTML = r"""<!DOCTYPE html>
 
     .topbar-row {
       display: grid;
-      grid-template-columns: auto 1fr auto auto auto;
+      grid-template-columns: auto minmax(0, 1fr) auto auto auto;
       gap: 8px;
       align-items: center;
+    }
+
+    .topbar-actions {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      justify-self: end;
     }
 
     .title {
@@ -291,31 +298,36 @@ INDEX_HTML = r"""<!DOCTYPE html>
       line-height: 1;
     }
 
-    .toggle {
+    .toggle-icon-btn {
+      width: 44px;
+      min-width: 44px;
+      max-width: 44px;
+      min-height: 44px;
+      padding: 0;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 0 12px;
+      justify-content: center;
       border-radius: 14px;
       border: 1px solid var(--border);
       background: var(--panel);
-      min-height: 44px;
-      user-select: none;
-      white-space: nowrap;
-      width: auto;
-      min-width: 44px;
-      justify-content: center;
+      color: var(--text);
+      cursor: pointer;
+      position: relative;
+      font-size: 19px;
     }
 
-    .toggle.compact span {
-      display: none;
+    .toggle-icon-btn input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      margin: 0;
     }
 
-    .toggle input {
-      width: 18px;
-      height: 18px;
-      accent-color: var(--accent);
-      flex: 0 0 auto;
+    .toggle-icon-btn.is-on {
+      background: linear-gradient(180deg, var(--accent), var(--accent-2));
+      color: #071014;
+      border-color: transparent;
     }
 
     .pill {
@@ -534,7 +546,11 @@ INDEX_HTML = r"""<!DOCTYPE html>
       }
 
       .topbar-row {
-        grid-template-columns: auto 1fr auto auto;
+        grid-template-columns: auto minmax(0, 1fr) auto auto;
+      }
+
+      .topbar-actions {
+        gap: 8px;
       }
 
       .composer {
@@ -594,7 +610,8 @@ INDEX_HTML = r"""<!DOCTYPE html>
         min-height: 42px;
       }
 
-      .icon-btn {
+      .icon-btn,
+      .toggle-icon-btn {
         width: 42px;
         min-width: 42px;
         max-width: 42px;
@@ -648,16 +665,22 @@ INDEX_HTML = r"""<!DOCTYPE html>
       <div class="topbar">
         <div class="topbar-row">
           <button id="mobileHistoryToggle" class="secondary icon-btn mobile-only" type="button">☰</button>
+
           <div>
             <div class="title">Ollama Chat</div>
             <div class="title-sub" id="serverInfo">Verbinde…</div>
           </div>
-          <label class="toggle compact" title="Brave Websuche">
-            <input id="webSearchToggleTop" type="checkbox" />
-            <span>Websuche</span>
-          </label>
-          <button id="reloadModelsBtn" class="secondary icon-btn" type="button" title="Modelle laden">↻</button>
-          <button id="newChatBtnTop" class="secondary icon-btn desktop-only" type="button" title="Neuer Chat">＋</button>
+
+          <div class="topbar-actions">
+            <label id="webSearchToggleBtn" class="toggle-icon-btn" title="Brave Websuche">
+              <input id="webSearchToggleTop" type="checkbox" />
+              🌐
+            </label>
+
+            <button id="reloadModelsBtn" class="secondary icon-btn" type="button" title="Modelle laden">↻</button>
+
+            <button id="newChatBtnTop" class="secondary icon-btn desktop-only" type="button" title="Neuer Chat">＋</button>
+          </div>
         </div>
       </div>
 
@@ -709,11 +732,12 @@ INDEX_HTML = r"""<!DOCTYPE html>
     const renameBtn = document.getElementById("renameBtn");
     const searchChatsInput = document.getElementById("searchChatsInput");
     const webSearchToggleTopEl = document.getElementById("webSearchToggleTop");
+    const webSearchToggleBtnEl = document.getElementById("webSearchToggleBtn");
     const mobileHistoryToggle = document.getElementById("mobileHistoryToggle");
     const sidebarBackdrop = document.getElementById("sidebarBackdrop");
 
     const CHATS_KEY = "ha_ollama_webapp_chats_v2";
-    const SETTINGS_KEY = "ha_ollama_webapp_settings_v10";
+    const SETTINGS_KEY = "ha_ollama_webapp_settings_v11";
 
     let chats = [];
     let currentChatId = null;
@@ -742,12 +766,17 @@ INDEX_HTML = r"""<!DOCTYPE html>
       };
     }
 
+    function updateWebToggleVisual() {
+      webSearchToggleBtnEl.classList.toggle("is-on", webSearchToggleTopEl.checked);
+    }
+
     function saveState() {
       localStorage.setItem(CHATS_KEY, JSON.stringify(chats));
       localStorage.setItem(SETTINGS_KEY, JSON.stringify({
         currentChatId,
         useWebSearch: webSearchToggleTopEl.checked
       }));
+      updateWebToggleVisual();
     }
 
     function loadState() {
@@ -775,6 +804,8 @@ INDEX_HTML = r"""<!DOCTYPE html>
       if (!currentChatId || !chats.find(c => c.id === currentChatId)) {
         currentChatId = chats[0].id;
       }
+
+      updateWebToggleVisual();
     }
 
     function currentChat() {
@@ -921,6 +952,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       renderHeaderFields();
       renderChat();
       autoResize();
+      updateWebToggleVisual();
     }
 
     function ensureAutoTitle(chat) {
@@ -936,33 +968,23 @@ INDEX_HTML = r"""<!DOCTYPE html>
     async function loadModels() {
       serverInfoEl.textContent = "Lade Modelle…";
       try {
-        const res = await fetch("./api/models");
-        const data = await res.json();
-
+        await fetch("./api/models");
         modelSelectEl.innerHTML = "";
-
-        if (!data.models || !data.models.length) {
-          const opt = document.createElement("option");
-          opt.value = "";
-          opt.textContent = "Keine Modelle gefunden";
-          modelSelectEl.appendChild(opt);
-          serverInfoEl.textContent = "Keine Modelle gefunden";
-          return;
-        }
-
-        for (const model of data.models) {
-          const opt = document.createElement("option");
-          opt.value = model.name;
-          opt.textContent = model.name;
-          modelSelectEl.appendChild(opt);
-        }
-
+        const opt = document.createElement("option");
+        opt.value = "qwen3.5:397b-cloud";
+        opt.textContent = "qwen3.5:397b-cloud";
+        modelSelectEl.appendChild(opt);
         modelSelectEl.value = "qwen3.5:397b-cloud";
         renderHeaderFields();
         saveState();
       } catch (err) {
+        modelSelectEl.innerHTML = "";
+        const opt = document.createElement("option");
+        opt.value = "qwen3.5:397b-cloud";
+        opt.textContent = "qwen3.5:397b-cloud";
+        modelSelectEl.appendChild(opt);
+        modelSelectEl.value = "qwen3.5:397b-cloud";
         serverInfoEl.textContent = "Verbindung fehlgeschlagen";
-        alert("Modelle konnten nicht geladen werden. Prüfe API-Key, Brave-Key, Add-on-Log und Base URL.");
       }
     }
 
@@ -1433,16 +1455,16 @@ async def index() -> HTMLResponse:
 @app.get("/api/models")
 async def models() -> Dict[str, Any]:
     try:
-        models = await fetch_models()
-        return {
-            "models": [{"name": DEFAULT_MODEL}],
-            "default_model": DEFAULT_MODEL,
-        }
+      await fetch_models()
+      return {
+          "models": [{"name": DEFAULT_MODEL}],
+          "default_model": DEFAULT_MODEL,
+      }
     except Exception:
-        return {
-            "models": [{"name": DEFAULT_MODEL}],
-            "default_model": DEFAULT_MODEL,
-        }
+      return {
+          "models": [{"name": DEFAULT_MODEL}],
+          "default_model": DEFAULT_MODEL,
+      }
 
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest) -> ChatResponse:
