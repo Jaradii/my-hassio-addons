@@ -23,7 +23,7 @@ ports: {}
 ports_description: {}
 
 options:
-  ollama_base_url: "http://homeassistant.local:11434"
+  ollama_base_url: "http://192.168.178.150:11434"
   searxng_base_url: ""
   default_model: ""
   keep_alive: "-1"
