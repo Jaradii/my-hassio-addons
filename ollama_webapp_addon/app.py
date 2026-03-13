@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Any, AsyncGenerator, Dict, List, Optional, Union
 
 import httpx
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, StreamingResponse
 from pydantic import BaseModel
 
@@ -74,8 +74,8 @@ INDEX_HTML = r"""<!DOCTYPE html>
       --panel-3: #0f141d;
       --text: #eef3fb;
       --muted: #9fb0c7;
-      --accent: #4fd1c5;
-      --accent-2: #2c7a7b;
+      --accent: #5F82AA;
+      --accent-2: #4f7197;
       --danger: #ff6b6b;
       --danger-bg: #3a1f24;
       --border: rgba(255,255,255,.08);
@@ -271,8 +271,8 @@ INDEX_HTML = r"""<!DOCTYPE html>
     }
 
     .history-item.active {
-      border-color: rgba(79, 209, 197, 0.45);
-      box-shadow: 0 0 0 2px rgba(79, 209, 197, 0.10);
+      border-color: rgba(95,130,170,.55);
+      box-shadow: 0 0 0 2px rgba(95,130,170,.14);
     }
 
     .history-title {
@@ -304,8 +304,8 @@ INDEX_HTML = r"""<!DOCTYPE html>
     }
 
     select:focus, textarea:focus, input[type="text"]:focus {
-      border-color: rgba(79, 209, 197, 0.55);
-      box-shadow: 0 0 0 3px rgba(79, 209, 197, 0.12);
+      border-color: rgba(95,130,170,.65);
+      box-shadow: 0 0 0 3px rgba(95,130,170,.14);
     }
 
     button {
@@ -768,7 +768,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
     const mobileHistoryToggle = document.getElementById("mobileHistoryToggle");
     const sidebarBackdrop = document.getElementById("sidebarBackdrop");
 
-    const SETTINGS_KEY = "ha_ollama_webapp_settings_v_server_2";
+    const SETTINGS_KEY = "ha_ollama_webapp_settings_v_server_user_1";
 
     let chats = [];
     let currentChatId = null;
@@ -1216,7 +1216,7 @@ def ensure_store_exists() -> None:
     os.makedirs(DATA_DIR, exist_ok=True)
     if not os.path.exists(CHATS_FILE):
         with open(CHATS_FILE, "w", encoding="utf-8") as f:
-            json.dump({"chats": []}, f, ensure_ascii=False, indent=2)
+            json.dump({"users": {}}, f, ensure_ascii=False, indent=2)
 
 
 def load_store() -> Dict[str, Any]:
@@ -1226,12 +1226,12 @@ def load_store() -> Dict[str, Any]:
             with open(CHATS_FILE, "r", encoding="utf-8") as f:
                 data = json.load(f)
             if not isinstance(data, dict):
-                return {"chats": []}
-            if not isinstance(data.get("chats"), list):
-                data["chats"] = []
+                return {"users": {}}
+            if not isinstance(data.get("users"), dict):
+                data["users"] = {}
             return data
         except Exception:
-            return {"chats": []}
+            return {"users": {}}
 
 
 def save_store(data: Dict[str, Any]) -> None:
@@ -1239,6 +1239,30 @@ def save_store(data: Dict[str, Any]) -> None:
     with STORE_LOCK:
         with open(CHATS_FILE, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
+
+
+def get_user_key(request: Request) -> str:
+    candidates = [
+        request.headers.get("X-Hass-User-Id"),
+        request.headers.get("X-HA-User-ID"),
+        request.headers.get("X-Authenticated-User-Id"),
+        request.headers.get("Remote-User"),
+    ]
+    for value in candidates:
+        if value and value.strip():
+            return value.strip()
+    return "anonymous_ingress_user"
+
+
+def get_user_store(data: Dict[str, Any], user_key: str) -> Dict[str, Any]:
+    users = data.setdefault("users", {})
+    user_store = users.get(user_key)
+    if not isinstance(user_store, dict):
+        user_store = {"chats": []}
+        users[user_key] = user_store
+    if not isinstance(user_store.get("chats"), list):
+        user_store["chats"] = []
+    return user_store
 
 
 def make_chat_id() -> str:
@@ -1256,16 +1280,16 @@ def create_empty_chat() -> Dict[str, Any]:
     }
 
 
-def find_chat(data: Dict[str, Any], chat_id: str) -> Optional[Dict[str, Any]]:
-    for chat in data.get("chats", []):
+def find_chat(user_store: Dict[str, Any], chat_id: str) -> Optional[Dict[str, Any]]:
+    for chat in user_store.get("chats", []):
         if chat.get("id") == chat_id:
             return chat
     return None
 
 
-def sort_chats(data: Dict[str, Any]) -> None:
-    data["chats"] = sorted(
-        data.get("chats", []),
+def sort_chats(user_store: Dict[str, Any]) -> None:
+    user_store["chats"] = sorted(
+        user_store.get("chats", []),
         key=lambda c: c.get("updated_at", ""),
         reverse=True,
     )
@@ -1482,74 +1506,84 @@ async def models() -> Dict[str, Any]:
 
 
 @app.get("/api/chats")
-async def get_chats() -> Dict[str, Any]:
+async def get_chats(request: Request) -> Dict[str, Any]:
+    user_key = get_user_key(request)
     data = load_store()
-    sort_chats(data)
-    return {"chats": data.get("chats", [])}
+    user_store = get_user_store(data, user_key)
+    sort_chats(user_store)
+    return {"chats": user_store.get("chats", [])}
 
 
 @app.post("/api/chats")
-async def create_chat() -> Dict[str, Any]:
+async def create_chat(request: Request) -> Dict[str, Any]:
+    user_key = get_user_key(request)
     data = load_store()
+    user_store = get_user_store(data, user_key)
     chat = create_empty_chat()
-    data.setdefault("chats", []).insert(0, chat)
-    sort_chats(data)
+    user_store.setdefault("chats", []).insert(0, chat)
+    sort_chats(user_store)
     save_store(data)
     return {"chat": chat}
 
 
 @app.patch("/api/chats/{chat_id}/rename")
-async def rename_chat(chat_id: str, req: ChatRenameRequest) -> Dict[str, Any]:
+async def rename_chat(chat_id: str, req: ChatRenameRequest, request: Request) -> Dict[str, Any]:
     title = req.title.strip()
     if not title:
         raise HTTPException(status_code=400, detail="Leerer Titel.")
 
+    user_key = get_user_key(request)
     data = load_store()
-    chat = find_chat(data, chat_id)
+    user_store = get_user_store(data, user_key)
+    chat = find_chat(user_store, chat_id)
     if not chat:
         raise HTTPException(status_code=404, detail="Chat nicht gefunden.")
 
     chat["title"] = title
     chat["updated_at"] = utc_now_iso()
-    sort_chats(data)
+    sort_chats(user_store)
     save_store(data)
     return {"chat": chat}
 
 
 @app.delete("/api/chats/{chat_id}")
-async def delete_chat(chat_id: str) -> Dict[str, Any]:
+async def delete_chat(chat_id: str, request: Request) -> Dict[str, Any]:
+    user_key = get_user_key(request)
     data = load_store()
-    chats = data.get("chats", [])
+    user_store = get_user_store(data, user_key)
+    chats = user_store.get("chats", [])
     new_chats = [c for c in chats if c.get("id") != chat_id]
-    data["chats"] = new_chats
+    user_store["chats"] = new_chats
 
     if not new_chats:
-        data["chats"] = [create_empty_chat()]
+        user_store["chats"] = [create_empty_chat()]
 
-    sort_chats(data)
+    sort_chats(user_store)
     save_store(data)
-    return {"ok": True, "chats": data["chats"]}
+    return {"ok": True, "chats": user_store["chats"]}
 
 
 @app.post("/api/chat/stream")
-async def chat_stream(req: ChatRequest):
+async def chat_stream(req: ChatRequest, request: Request):
     user_message = req.message.strip()
     if not user_message:
         raise HTTPException(status_code=400, detail="Leere Nachricht.")
 
+    user_key = get_user_key(request)
     data = load_store()
-    chat_obj: Optional[Dict[str, Any]] = None
+    user_store = get_user_store(data, user_key)
 
+    chat_obj: Optional[Dict[str, Any]] = None
     if req.chat_id:
-        chat_obj = find_chat(data, req.chat_id)
+        chat_obj = find_chat(user_store, req.chat_id)
 
     if not chat_obj:
         chat_obj = create_empty_chat()
-        data.setdefault("chats", []).insert(0, chat_obj)
+        user_store.setdefault("chats", []).insert(0, chat_obj)
 
     append_message(chat_obj, "user", user_message)
     maybe_autotitle(chat_obj)
-    sort_chats(data)
+    sort_chats(user_store)
     save_store(data)
 
     history = sanitize_history(req.history, limit=12)
@@ -1557,13 +1591,13 @@ async def chat_stream(req: ChatRequest):
 
     user_content = user_message
     if req.use_web_search:
-        sources = await brave_search(user_message)
-        if sources:
-            user_content = (
-                f"Frage:\n{user_message}\n\n"
-                f"Websuchquellen:\n{build_web_context(sources)}\n\n"
-                "Nutze die Websuchquellen nur zur Stützung aktueller Fakten."
-            )
+      sources = await brave_search(user_message)
+      if sources:
+        user_content = (
+            f"Frage:\n{user_message}\n\n"
+            f"Websuchquellen:\n{build_web_context(sources)}\n\n"
+            "Nutze die Websuchquellen nur zur Stützung aktueller Fakten."
+        )
 
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
@@ -1595,13 +1629,15 @@ async def chat_stream(req: ChatRequest):
                 sources=[s.model_dump() for s in sources] if sources else None,
             )
             maybe_autotitle(chat_obj)
+
             fresh = load_store()
-            stored_chat = find_chat(fresh, chat_obj["id"])
+            fresh_user_store = get_user_store(fresh, user_key)
+            stored_chat = find_chat(fresh_user_store, chat_obj["id"])
             if stored_chat is None:
-                fresh.setdefault("chats", []).insert(0, chat_obj)
+                fresh_user_store.setdefault("chats", []).insert(0, chat_obj)
             else:
                 stored_chat.update(chat_obj)
-            sort_chats(fresh)
+            sort_chats(fresh_user_store)
             save_store(fresh)
 
             yield (json.dumps({"type": "done"}, ensure_ascii=False) + "\n").encode("utf-8")
@@ -1610,12 +1646,13 @@ async def chat_stream(req: ChatRequest):
             error_text = f"Fehler: Netzwerkfehler: {exc}"
             append_message(chat_obj, "assistant", error_text)
             fresh = load_store()
-            stored_chat = find_chat(fresh, chat_obj["id"])
+            fresh_user_store = get_user_store(fresh, user_key)
+            stored_chat = find_chat(fresh_user_store, chat_obj["id"])
             if stored_chat is None:
-                fresh.setdefault("chats", []).insert(0, chat_obj)
+                fresh_user_store.setdefault("chats", []).insert(0, chat_obj)
             else:
                 stored_chat.update(chat_obj)
-            sort_chats(fresh)
+            sort_chats(fresh_user_store)
             save_store(fresh)
             yield (json.dumps({"type": "error", "detail": str(exc)}, ensure_ascii=False) + "\n").encode("utf-8")
 
@@ -1623,12 +1660,13 @@ async def chat_stream(req: ChatRequest):
             error_text = f"Fehler: Interner Fehler: {exc}"
             append_message(chat_obj, "assistant", error_text)
             fresh = load_store()
-            stored_chat = find_chat(fresh, chat_obj["id"])
+            fresh_user_store = get_user_store(fresh, user_key)
+            stored_chat = find_chat(fresh_user_store, chat_obj["id"])
             if stored_chat is None:
-                fresh.setdefault("chats", []).insert(0, chat_obj)
+                fresh_user_store.setdefault("chats", []).insert(0, chat_obj)
             else:
                 stored_chat.update(chat_obj)
-            sort_chats(fresh)
+            sort_chats(fresh_user_store)
             save_store(fresh)
             yield (json.dumps({"type": "error", "detail": str(exc)}, ensure_ascii=False) + "\n").encode("utf-8")
 
