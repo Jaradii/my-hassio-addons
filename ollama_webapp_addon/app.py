@@ -162,7 +162,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
 
     .topbar-row {
       display: grid;
-      grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+      grid-template-columns: auto minmax(0, 1fr) auto auto auto auto;
       gap: 8px;
       align-items: center;
     }
@@ -199,6 +199,10 @@ INDEX_HTML = r"""<!DOCTYPE html>
       box-shadow: var(--shadow);
       padding: 10px;
       flex: 0 0 auto;
+    }
+
+    .settings-card.hidden {
+      display: none;
     }
 
     details.settings-panel summary {
@@ -253,6 +257,13 @@ INDEX_HTML = r"""<!DOCTYPE html>
       min-height: 0;
     }
 
+    .history-item-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: stretch;
+    }
+
     .history-item {
       border: 1px solid var(--border);
       background: var(--panel);
@@ -273,6 +284,21 @@ INDEX_HTML = r"""<!DOCTYPE html>
     .history-item.active {
       border-color: rgba(95,130,170,.55);
       box-shadow: 0 0 0 2px rgba(95,130,170,.14);
+    }
+
+    .history-delete-btn {
+      width: 40px;
+      min-width: 40px;
+      max-width: 40px;
+      min-height: 40px;
+      align-self: center;
+      padding: 0;
+      border-radius: 10px;
+      background: var(--danger-bg);
+      color: #ffd2d2;
+      border: 1px solid rgba(255,107,107,.20);
+      font-size: 16px;
+      line-height: 1;
     }
 
     .history-title {
@@ -588,7 +614,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       }
 
       .topbar-row {
-        grid-template-columns: auto minmax(0, 1fr) auto auto;
+        grid-template-columns: auto minmax(0, 1fr) auto auto auto;
       }
 
       .settings-grid,
@@ -643,7 +669,8 @@ INDEX_HTML = r"""<!DOCTYPE html>
       }
 
       .icon-btn,
-      .toggle-icon-btn {
+      .toggle-icon-btn,
+      .history-delete-btn {
         width: 42px;
         min-width: 42px;
         max-width: 42px;
@@ -703,6 +730,8 @@ INDEX_HTML = r"""<!DOCTYPE html>
             <div class="title-sub" id="serverInfo">Verbinde…</div>
           </div>
 
+          <button id="toggleSettingsBtn" class="secondary icon-btn" type="button" title="Einstellungen einblenden oder ausblenden">⚙</button>
+
           <div class="topbar-actions">
             <label id="webSearchToggleBtn" class="toggle-icon-btn" title="Brave Websuche">
               <input id="webSearchToggleTop" type="checkbox" />
@@ -716,7 +745,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
         </div>
       </div>
 
-      <div class="settings-card">
+      <div class="settings-card hidden" id="settingsCard">
         <details class="settings-panel" id="settingsPanel">
           <summary>
             <span>Einstellungen</span>
@@ -767,8 +796,10 @@ INDEX_HTML = r"""<!DOCTYPE html>
     const webSearchToggleBtnEl = document.getElementById("webSearchToggleBtn");
     const mobileHistoryToggle = document.getElementById("mobileHistoryToggle");
     const sidebarBackdrop = document.getElementById("sidebarBackdrop");
+    const settingsCardEl = document.getElementById("settingsCard");
+    const toggleSettingsBtnEl = document.getElementById("toggleSettingsBtn");
 
-    const SETTINGS_KEY = "ha_ollama_webapp_settings_v_server_user_1";
+    const SETTINGS_KEY = "ha_ollama_webapp_settings_v_server_user_2";
 
     let chats = [];
     let currentChatId = null;
@@ -779,10 +810,17 @@ INDEX_HTML = r"""<!DOCTYPE html>
       webSearchToggleBtnEl.classList.toggle("is-on", webSearchToggleTopEl.checked);
     }
 
+    function updateSettingsVisibility(isVisible) {
+      settingsCardEl.classList.toggle("hidden", !isVisible);
+      toggleSettingsBtnEl.textContent = isVisible ? "✕" : "⚙";
+      toggleSettingsBtnEl.title = isVisible ? "Einstellungen ausblenden" : "Einstellungen einblenden";
+    }
+
     function saveLocalSettings() {
       localStorage.setItem(SETTINGS_KEY, JSON.stringify({
         currentChatId,
-        useWebSearch: webSearchToggleTopEl.checked
+        useWebSearch: webSearchToggleTopEl.checked,
+        settingsVisible: !settingsCardEl.classList.contains("hidden")
       }));
       updateWebToggleVisual();
     }
@@ -796,7 +834,14 @@ INDEX_HTML = r"""<!DOCTYPE html>
         if (typeof settings.useWebSearch === "boolean") {
           webSearchToggleTopEl.checked = settings.useWebSearch;
         }
-      } catch (_) {}
+        if (typeof settings.settingsVisible === "boolean") {
+          updateSettingsVisibility(settings.settingsVisible);
+        } else {
+          updateSettingsVisibility(false);
+        }
+      } catch (_) {
+        updateSettingsVisibility(false);
+      }
       updateWebToggleVisual();
     }
 
@@ -868,6 +913,14 @@ INDEX_HTML = r"""<!DOCTYPE html>
       return temp;
     }
 
+    async function deleteChatById(chatId) {
+      await api(`./api/chats/${chatId}`, { method: "DELETE" });
+      if (currentChatId === chatId) {
+        currentChatId = null;
+      }
+      await loadChats();
+    }
+
     function renderHistoryList() {
       const q = (searchChatsInput.value || "").trim().toLowerCase();
       historyListEl.innerHTML = "";
@@ -883,6 +936,9 @@ INDEX_HTML = r"""<!DOCTYPE html>
       });
 
       for (const chat of filtered) {
+        const wrap = document.createElement("div");
+        wrap.className = "history-item-wrap";
+
         const btn = document.createElement("button");
         btn.className = "history-item" + (chat.id === currentChatId ? " active" : "");
         btn.type = "button";
@@ -903,7 +959,20 @@ INDEX_HTML = r"""<!DOCTYPE html>
           maybeCloseSidebarOnMobile();
         });
 
-        historyListEl.appendChild(btn);
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = "history-delete-btn";
+        deleteBtn.type = "button";
+        deleteBtn.title = "Chat löschen";
+        deleteBtn.textContent = "🗑";
+        deleteBtn.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          if (!confirm(`Chat "${chat.title || "Ohne Titel"}" wirklich löschen?`)) return;
+          await deleteChatById(chat.id);
+        });
+
+        wrap.appendChild(btn);
+        wrap.appendChild(deleteBtn);
+        historyListEl.appendChild(wrap);
       }
     }
 
@@ -1146,8 +1215,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
     async function deleteCurrentChat() {
       const chat = currentChat();
       if (!chat) return;
-      await api(`./api/chats/${chat.id}`, { method: "DELETE" });
-      await loadChats();
+      await deleteChatById(chat.id);
       maybeCloseSidebarOnMobile();
     }
 
@@ -1178,7 +1246,9 @@ INDEX_HTML = r"""<!DOCTYPE html>
     newChatBtn.addEventListener("click", newChat);
     newChatBtnTop.addEventListener("click", newChat);
     deleteChatBtn.addEventListener("click", async () => {
-      if (!confirm("Diesen Chat wirklich löschen?")) return;
+      const chat = currentChat();
+      if (!chat) return;
+      if (!confirm(`Chat "${chat.title || "Ohne Titel"}" wirklich löschen?`)) return;
       await deleteCurrentChat();
     });
     renameBtn.addEventListener("click", renameCurrentChat);
@@ -1186,6 +1256,11 @@ INDEX_HTML = r"""<!DOCTYPE html>
     webSearchToggleTopEl.addEventListener("change", saveLocalSettings);
     mobileHistoryToggle.addEventListener("click", openSidebar);
     sidebarBackdrop.addEventListener("click", closeSidebar);
+    toggleSettingsBtnEl.addEventListener("click", () => {
+      const willShow = settingsCardEl.classList.contains("hidden");
+      updateSettingsVisibility(willShow);
+      saveLocalSettings();
+    });
 
     window.addEventListener("resize", () => {
       if (window.innerWidth > 980) {
@@ -1591,13 +1666,13 @@ async def chat_stream(req: ChatRequest, request: Request):
 
     user_content = user_message
     if req.use_web_search:
-      sources = await brave_search(user_message)
-      if sources:
-        user_content = (
-            f"Frage:\n{user_message}\n\n"
-            f"Websuchquellen:\n{build_web_context(sources)}\n\n"
-            "Nutze die Websuchquellen nur zur Stützung aktueller Fakten."
-        )
+        sources = await brave_search(user_message)
+        if sources:
+            user_content = (
+                f"Frage:\n{user_message}\n\n"
+                f"Websuchquellen:\n{build_web_context(sources)}\n\n"
+                "Nutze die Websuchquellen nur zur Stützung aktueller Fakten."
+            )
 
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
