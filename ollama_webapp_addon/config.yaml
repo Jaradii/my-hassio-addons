@@ -1,5 +1,5 @@
 name: "Ollama iPhone Webapp"
-version: "1.1.0"
+version: "1.1.1"
 slug: "ollama_iphone_webapp"
 description: "Chat Webapp für Ollama direkt in Home Assistant"
 url: "https://github.com/Jaradii/my-hassio-addons"
