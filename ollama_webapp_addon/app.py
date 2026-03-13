@@ -60,6 +60,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
 
     body {
       min-height: 100dvh;
+      overflow-x: hidden;
     }
 
     .layout {
@@ -67,29 +68,30 @@ INDEX_HTML = r"""<!DOCTYPE html>
       margin: 0 auto;
       min-height: 100dvh;
       display: grid;
-      grid-template-columns: 300px 1fr;
+      grid-template-columns: 280px minmax(0, 1fr);
       gap: 14px;
-      padding: calc(var(--safe-top) + 14px) 14px calc(var(--safe-bottom) + 14px) 14px;
+      padding: calc(var(--safe-top) + 12px) 12px calc(var(--safe-bottom) + 12px) 12px;
     }
 
     .sidebar {
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      background: rgba(11, 15, 20, 0.86);
+      background: rgba(11, 15, 20, 0.88);
       backdrop-filter: blur(18px);
       box-shadow: var(--shadow);
       padding: 12px;
       display: grid;
       grid-template-rows: auto auto 1fr;
-      gap: 12px;
-      min-height: calc(100dvh - 28px - var(--safe-top) - var(--safe-bottom));
+      gap: 10px;
+      min-height: calc(100dvh - 24px - var(--safe-top) - var(--safe-bottom));
       position: sticky;
-      top: calc(var(--safe-top) + 14px);
+      top: calc(var(--safe-top) + 12px);
       overflow: hidden;
+      min-width: 0;
     }
 
     .app {
-      min-height: calc(100dvh - 28px - var(--safe-top) - var(--safe-bottom));
+      min-height: calc(100dvh - 24px - var(--safe-top) - var(--safe-bottom));
       display: grid;
       grid-template-rows: auto 1fr auto;
       gap: 12px;
@@ -98,9 +100,9 @@ INDEX_HTML = r"""<!DOCTYPE html>
 
     .topbar {
       position: sticky;
-      top: calc(var(--safe-top) + 14px);
+      top: calc(var(--safe-top) + 12px);
       z-index: 20;
-      background: rgba(11, 15, 20, 0.86);
+      background: rgba(11, 15, 20, 0.88);
       backdrop-filter: blur(18px);
       border: 1px solid var(--border);
       border-radius: var(--radius);
@@ -109,7 +111,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
     }
 
     .section-title, .title {
-      margin: 0 0 10px 0;
+      margin: 0 0 8px 0;
       font-size: 18px;
       font-weight: 700;
       letter-spacing: 0.2px;
@@ -154,8 +156,8 @@ INDEX_HTML = r"""<!DOCTYPE html>
       border: 1px solid var(--border);
       background: var(--panel);
       color: var(--text);
-      border-radius: 16px;
-      padding: 12px;
+      border-radius: 14px;
+      padding: 10px;
       cursor: pointer;
       text-align: left;
       width: 100%;
@@ -172,13 +174,14 @@ INDEX_HTML = r"""<!DOCTYPE html>
     }
 
     .history-title {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       margin-bottom: 4px;
+      line-height: 1.25;
     }
 
     .history-sub {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--muted);
       white-space: nowrap;
       overflow: hidden;
@@ -254,7 +257,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       padding: 8px 10px;
       border-radius: 999px;
       font-size: 12px;
-      min-height: 38px;
+      min-height: 36px;
       min-width: 0;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -272,12 +275,12 @@ INDEX_HTML = r"""<!DOCTYPE html>
 
     .empty {
       border: 1px dashed var(--border);
-      border-radius: 20px;
-      padding: 24px;
+      border-radius: 18px;
+      padding: 20px;
       color: var(--muted);
       background: rgba(255,255,255,.02);
       text-align: center;
-      margin-top: 18px;
+      margin-top: 12px;
     }
 
     .msg {
@@ -349,8 +352,8 @@ INDEX_HTML = r"""<!DOCTYPE html>
 
     .composer {
       position: sticky;
-      bottom: calc(var(--safe-bottom) + 14px);
-      background: rgba(11,15,20,.88);
+      bottom: calc(var(--safe-bottom) + 12px);
+      background: rgba(11,15,20,.9);
       backdrop-filter: blur(16px);
       border: 1px solid var(--border);
       border-radius: var(--radius);
@@ -361,8 +364,8 @@ INDEX_HTML = r"""<!DOCTYPE html>
 
     textarea {
       resize: none;
-      min-height: 110px;
-      max-height: 260px;
+      min-height: 105px;
+      max-height: 240px;
     }
 
     .composer-actions {
@@ -403,6 +406,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
     @media (max-width: 980px) {
       .layout {
         grid-template-columns: 1fr;
+        gap: 10px;
       }
 
       .sidebar {
@@ -410,14 +414,15 @@ INDEX_HTML = r"""<!DOCTYPE html>
         top: 0;
         left: 0;
         bottom: 0;
-        width: min(88vw, 360px);
+        width: min(82vw, 320px);
+        max-width: 320px;
+        min-width: 260px;
         min-height: 100dvh;
-        border-radius: 0 22px 22px 0;
+        border-radius: 0 18px 18px 0;
         z-index: 60;
         transform: translateX(-105%);
         transition: transform .22s ease;
-        padding-top: calc(var(--safe-top) + 14px);
-        padding-bottom: calc(var(--safe-bottom) + 14px);
+        padding: calc(var(--safe-top) + 10px) 10px calc(var(--safe-bottom) + 10px) 10px;
       }
 
       body.sidebar-open .sidebar {
@@ -428,7 +433,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
         display: block;
         position: fixed;
         inset: 0;
-        background: rgba(0,0,0,.45);
+        background: rgba(0,0,0,.42);
         opacity: 0;
         pointer-events: none;
         transition: opacity .2s ease;
@@ -459,8 +464,8 @@ INDEX_HTML = r"""<!DOCTYPE html>
       }
 
       .title {
-        font-size: 17px;
-        margin-bottom: 8px;
+        font-size: 16px;
+        margin-bottom: 6px;
       }
 
       .mobile-history-toggle {
@@ -472,14 +477,14 @@ INDEX_HTML = r"""<!DOCTYPE html>
       }
 
       .bubble {
-        max-width: 92%;
+        max-width: 94%;
         font-size: 15px;
         line-height: 1.5;
       }
 
       textarea {
-        min-height: 96px;
-        max-height: 220px;
+        min-height: 92px;
+        max-height: 200px;
       }
 
       .composer-actions {
@@ -511,25 +516,42 @@ INDEX_HTML = r"""<!DOCTYPE html>
       }
 
       .section-title, .title {
-        font-size: 16px;
+        font-size: 15px;
       }
 
       select, textarea, button, input[type="text"] {
         font-size: 16px;
-        padding: 12px;
+        padding: 11px 12px;
+        min-height: 46px;
       }
 
       .history-item {
-        padding: 10px;
+        padding: 9px;
+        border-radius: 12px;
+      }
+
+      .history-title {
+        font-size: 12px;
+      }
+
+      .history-sub {
+        font-size: 10px;
       }
 
       .bubble {
-        max-width: 96%;
-        padding: 13px 14px;
+        max-width: 97%;
+        padding: 12px 13px;
       }
 
       .pill {
         font-size: 11px;
+        min-height: 34px;
+      }
+
+      .sidebar {
+        width: min(80vw, 300px);
+        max-width: 300px;
+        min-width: 240px;
       }
     }
 
@@ -615,7 +637,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
     const sidebarBackdrop = document.getElementById("sidebarBackdrop");
 
     const CHATS_KEY = "ha_ollama_webapp_chats_v2";
-    const SETTINGS_KEY = "ha_ollama_webapp_settings_v7";
+    const SETTINGS_KEY = "ha_ollama_webapp_settings_v8";
 
     let chats = [];
     let currentChatId = null;
@@ -968,7 +990,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
 
     function autoResize() {
       promptEl.style.height = "auto";
-      promptEl.style.height = Math.min(promptEl.scrollHeight, 260) + "px";
+      promptEl.style.height = Math.min(promptEl.scrollHeight, 240) + "px";
     }
 
     function newChat() {
@@ -1041,12 +1063,8 @@ INDEX_HTML = r"""<!DOCTYPE html>
 </html>
 """
 
-SYSTEM_PROMPT = """Du bist ein hilfreicher lokaler Assistent in Home Assistant.
-Antworte immer auf Deutsch.
-Antworte klar, präzise und ehrlich.
-Wenn du etwas nicht sicher weißt, sage das offen.
-Wenn Websuchquellen vorhanden sind, nutze sie nur zur Stützung aktueller Fakten und nenne sie knapp.
-Verwende saubere Absätze statt unnötig vieler Listen.
+SYSTEM_PROMPT = """Du bist ein Experte, der Dinge doppelt überprüft, du bist skeptisch und recherchierst. 
+Ich habe nicht immer Recht. Du auch nicht, aber wir beide streben nach Genauigkeit.
 """
 
 class ChatMessage(BaseModel):
