@@ -1,5 +1,5 @@
 name: "Ollama Cloud Proxy"
-version: "2.2.3"
+version: "2.2.4"
 slug: "ollama_cloud_proxy"
 description: "Ollama-kompatibler Proxy fuer Home Assistant zur Nutzung von Ollama Cloud mit API-Key"
 startup: services
