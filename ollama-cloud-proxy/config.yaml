@@ -1,30 +1,27 @@
 name: "Ollama Cloud Proxy"
-version: "2.2.4"
+version: "2.2.5"
 slug: "ollama_cloud_proxy"
-description: "Ollama-kompatibler Proxy fuer Home Assistant zur Nutzung von Ollama Cloud mit API-Key"
-startup: services
+description: "Proxy für Ollama API in Home Assistant"
+url: "https://github.com/Jaradii/my-hassio-addons"
+startup: application
 boot: auto
 init: false
 arch:
   - aarch64
   - amd64
+  - armv7
+  - armhf
+  - i386
 
 ports:
   11434/tcp: 11434
-
-watchdog: "tcp://[HOST]:[PORT:11434]"
+ports_description:
+  11434/tcp: "Ollama Proxy API"
 
 options:
-  api_key: ""
-  base_url: "https://ollama.com/api"
-  force_model: ""
-  visible_models: []
+  upstream_base_url: "http://192.168.178.150:11434"
   request_timeout: 600
 
 schema:
-  api_key: password
-  base_url: str
-  force_model: str?
-  visible_models:
-    - str?
-  request_timeout: int?
+  upstream_base_url: str
+  request_timeout: int
