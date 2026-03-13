@@ -1,7 +1,7 @@
 name: "Ollama iPhone Webapp"
-version: "1.1.1"
+version: "1.2.0"
 slug: "ollama_iphone_webapp"
-description: "Chat Webapp für Ollama direkt in Home Assistant"
+description: "Chat Webapp für Ollama Cloud direkt in Home Assistant"
 url: "https://github.com/Jaradii/my-hassio-addons"
 startup: application
 boot: auto
@@ -23,13 +23,15 @@ ports: {}
 ports_description: {}
 
 options:
-  ollama_base_url: "http://192.168.178.150:11434"
-  default_model: ""
+  ollama_base_url: "https://ollama.com/api"
+  api_key: ""
+  default_model: "qwen3.5:397b-cloud"
   keep_alive: "-1"
   request_timeout: 180
 
 schema:
   ollama_base_url: str
+  api_key: password
   default_model: str?
   keep_alive: str
   request_timeout: int
