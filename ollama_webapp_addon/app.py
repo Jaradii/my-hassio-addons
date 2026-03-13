@@ -11,7 +11,7 @@ APP_TITLE = "Ollama Chat"
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "https://ollama.com/api").rstrip("/")
 OLLAMA_API_KEY = os.getenv("OLLAMA_API_KEY", "").strip()
 BRAVE_API_KEY = os.getenv("BRAVE_API_KEY", "").strip()
-DEFAULT_MODEL = os.getenv("DEFAULT_MODEL", "").strip()
+DEFAULT_MODEL = (os.getenv("DEFAULT_MODEL", "qwen3.5:397b-cloud").strip() or "qwen3.5:397b-cloud")
 DEFAULT_KEEP_ALIVE = os.getenv("DEFAULT_KEEP_ALIVE", "5m").strip()
 REQUEST_TIMEOUT = float(os.getenv("REQUEST_TIMEOUT", "180"))
 BRAVE_COUNTRY = os.getenv("BRAVE_COUNTRY", "de").strip() or "de"
@@ -121,7 +121,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
 
     .topbar-row {
       display: grid;
-      grid-template-columns: auto 1fr auto auto;
+      grid-template-columns: auto 1fr auto auto auto;
       gap: 8px;
       align-items: center;
     }
@@ -177,7 +177,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
 
     .settings-grid {
       display: grid;
-      grid-template-columns: 1fr auto;
+      grid-template-columns: 1fr;
       gap: 10px;
       align-items: center;
     }
@@ -294,15 +294,21 @@ INDEX_HTML = r"""<!DOCTYPE html>
     .toggle {
       display: inline-flex;
       align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
+      gap: 8px;
+      padding: 0 12px;
       border-radius: 14px;
       border: 1px solid var(--border);
       background: var(--panel);
       min-height: 44px;
       user-select: none;
       white-space: nowrap;
-      width: 100%;
+      width: auto;
+      min-width: 44px;
+      justify-content: center;
+    }
+
+    .toggle.compact span {
+      display: none;
     }
 
     .toggle input {
@@ -528,7 +534,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       }
 
       .topbar-row {
-        grid-template-columns: auto 1fr auto;
+        grid-template-columns: auto 1fr auto auto;
       }
 
       .composer {
@@ -646,8 +652,12 @@ INDEX_HTML = r"""<!DOCTYPE html>
             <div class="title">Ollama Chat</div>
             <div class="title-sub" id="serverInfo">Verbinde…</div>
           </div>
-          <button id="reloadModelsBtn" class="secondary icon-btn" type="button">↻</button>
-          <button id="newChatBtnTop" class="secondary icon-btn desktop-only" type="button">＋</button>
+          <label class="toggle compact" title="Brave Websuche">
+            <input id="webSearchToggleTop" type="checkbox" />
+            <span>Websuche</span>
+          </label>
+          <button id="reloadModelsBtn" class="secondary icon-btn" type="button" title="Modelle laden">↻</button>
+          <button id="newChatBtnTop" class="secondary icon-btn desktop-only" type="button" title="Neuer Chat">＋</button>
         </div>
       </div>
 
@@ -660,10 +670,6 @@ INDEX_HTML = r"""<!DOCTYPE html>
           <div class="settings-content">
             <div class="settings-grid">
               <select id="modelSelect"></select>
-              <label class="toggle">
-                <input id="webSearchToggle" type="checkbox" />
-                <span>Brave Websuche</span>
-              </label>
             </div>
 
             <div class="settings-grid-2">
@@ -702,12 +708,12 @@ INDEX_HTML = r"""<!DOCTYPE html>
     const chatTitleInput = document.getElementById("chatTitleInput");
     const renameBtn = document.getElementById("renameBtn");
     const searchChatsInput = document.getElementById("searchChatsInput");
-    const webSearchToggleEl = document.getElementById("webSearchToggle");
+    const webSearchToggleTopEl = document.getElementById("webSearchToggleTop");
     const mobileHistoryToggle = document.getElementById("mobileHistoryToggle");
     const sidebarBackdrop = document.getElementById("sidebarBackdrop");
 
     const CHATS_KEY = "ha_ollama_webapp_chats_v2";
-    const SETTINGS_KEY = "ha_ollama_webapp_settings_v9";
+    const SETTINGS_KEY = "ha_ollama_webapp_settings_v10";
 
     let chats = [];
     let currentChatId = null;
@@ -740,8 +746,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       localStorage.setItem(CHATS_KEY, JSON.stringify(chats));
       localStorage.setItem(SETTINGS_KEY, JSON.stringify({
         currentChatId,
-        model: modelSelectEl.value,
-        useWebSearch: webSearchToggleEl.checked
+        useWebSearch: webSearchToggleTopEl.checked
       }));
     }
 
@@ -762,11 +767,8 @@ INDEX_HTML = r"""<!DOCTYPE html>
         if (typeof settings.currentChatId === "string") {
           currentChatId = settings.currentChatId;
         }
-        if (typeof settings.model === "string") {
-          modelSelectEl.dataset.savedValue = settings.model;
-        }
         if (typeof settings.useWebSearch === "boolean") {
-          webSearchToggleEl.checked = settings.useWebSearch;
+          webSearchToggleTopEl.checked = settings.useWebSearch;
         }
       } catch (_) {}
 
@@ -895,7 +897,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       if (!chat.messages || !chat.messages.length) {
         const empty = document.createElement("div");
         empty.className = "empty";
-        empty.innerHTML = "Noch kein Verlauf.<br>Wähle ein Modell und schreibe deine erste Nachricht.";
+        empty.innerHTML = "Noch kein Verlauf.<br>Schreibe deine erste Nachricht.";
         chatEl.appendChild(empty);
         return;
       }
@@ -955,19 +957,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
           modelSelectEl.appendChild(opt);
         }
 
-        const savedValue = modelSelectEl.dataset.savedValue;
-        if (savedValue && [...modelSelectEl.options].some(o => o.value === savedValue)) {
-          modelSelectEl.value = savedValue;
-        }
-
-        if (!modelSelectEl.value && data.default_model && [...modelSelectEl.options].some(o => o.value === data.default_model)) {
-          modelSelectEl.value = data.default_model;
-        }
-
-        if (!modelSelectEl.value && data.models.length) {
-          modelSelectEl.value = data.models[0].name;
-        }
-
+        modelSelectEl.value = "qwen3.5:397b-cloud";
         renderHeaderFields();
         saveState();
       } catch (err) {
@@ -980,14 +970,10 @@ INDEX_HTML = r"""<!DOCTYPE html>
       if (busy) return;
 
       const prompt = promptEl.value.trim();
-      const model = modelSelectEl.value;
+      const model = "qwen3.5:397b-cloud";
       const chat = currentChat();
 
       if (!prompt) return;
-      if (!model) {
-        alert("Bitte zuerst ein Modell wählen.");
-        return;
-      }
 
       busy = true;
       sendBtn.disabled = true;
@@ -1016,7 +1002,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
           body: JSON.stringify({
             model,
             message: prompt,
-            use_web_search: webSearchToggleEl.checked,
+            use_web_search: webSearchToggleTopEl.checked,
             history: chat.messages
               .filter(m => m.role === "user" || m.role === "assistant")
               .slice(-12)
@@ -1116,8 +1102,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
     });
     renameBtn.addEventListener("click", renameCurrentChat);
     searchChatsInput.addEventListener("input", renderHistoryList);
-    modelSelectEl.addEventListener("change", saveState);
-    webSearchToggleEl.addEventListener("change", saveState);
+    webSearchToggleTopEl.addEventListener("change", saveState);
     mobileHistoryToggle.addEventListener("click", openSidebar);
     sidebarBackdrop.addEventListener("click", closeSidebar);
 
@@ -1136,8 +1121,12 @@ INDEX_HTML = r"""<!DOCTYPE html>
 </html>
 """
 
-SYSTEM_PROMPT = """Du bist ein Experte, der Dinge doppelt überprüft, du bist skeptisch und recherchierst. 
-Ich habe nicht immer Recht. Du auch nicht, aber wir beide streben nach Genauigkeit.
+SYSTEM_PROMPT = """Du bist ein hilfreicher lokaler Assistent in Home Assistant.
+Antworte immer auf Deutsch.
+Antworte klar, präzise und ehrlich.
+Wenn du etwas nicht sicher weißt, sage das offen.
+Wenn Websuchquellen vorhanden sind, nutze sie nur zur Stützung aktueller Fakten und nenne sie knapp.
+Verwende saubere Absätze statt unnötig vieler Listen.
 """
 
 class ChatMessage(BaseModel):
@@ -1193,8 +1182,10 @@ def extract_models(data: Any) -> List[Dict[str, Any]]:
     if isinstance(data, dict):
         models = data.get("models", [])
         if isinstance(models, list):
-            return [m for m in models if isinstance(m, dict) and m.get("name")]
-    return []
+            filtered = [m for m in models if isinstance(m, dict) and m.get("name") == DEFAULT_MODEL]
+            if filtered:
+                return filtered
+    return [{"name": DEFAULT_MODEL}]
 
 def join_ndjson_chunks(text: str) -> Optional[str]:
     parts: List[str] = []
@@ -1382,7 +1373,7 @@ def history_to_prompt(history: List[Dict[str, str]], user_message: str) -> str:
 
 async def try_chat_endpoint(model: str, messages: List[Dict[str, str]]) -> Optional[str]:
     payload = {
-        "model": model,
+        "model": DEFAULT_MODEL,
         "messages": messages,
         "stream": False,
         "keep_alive": normalize_keep_alive(DEFAULT_KEEP_ALIVE),
@@ -1398,7 +1389,7 @@ async def try_chat_endpoint(model: str, messages: List[Dict[str, str]]) -> Optio
 async def try_generate_endpoint(model: str, messages: List[Dict[str, str]], user_message: str) -> Optional[str]:
     prompt = history_to_prompt(messages, user_message)
     payload = {
-        "model": model,
+        "model": DEFAULT_MODEL,
         "prompt": prompt,
         "stream": False,
         "keep_alive": normalize_keep_alive(DEFAULT_KEEP_ALIVE),
@@ -1443,13 +1434,15 @@ async def index() -> HTMLResponse:
 async def models() -> Dict[str, Any]:
     try:
         models = await fetch_models()
-        default_model = DEFAULT_MODEL if DEFAULT_MODEL else (models[0]["name"] if models else "")
         return {
-            "models": models,
-            "default_model": default_model,
+            "models": [{"name": DEFAULT_MODEL}],
+            "default_model": DEFAULT_MODEL,
         }
-    except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Modelle konnten nicht geladen werden: {exc}") from exc
+    except Exception:
+        return {
+            "models": [{"name": DEFAULT_MODEL}],
+            "default_model": DEFAULT_MODEL,
+        }
 
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest) -> ChatResponse:
@@ -1477,7 +1470,7 @@ async def chat(req: ChatRequest) -> ChatResponse:
             *history[:-1],
             {"role": "user", "content": user_message},
         ]
-        answer = await ask_upstream(req.model, messages, user_message)
+        answer = await ask_upstream(DEFAULT_MODEL, messages, user_message)
         return ChatResponse(answer=answer, sources=sources)
 
     except HTTPException:
