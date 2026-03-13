@@ -308,8 +308,8 @@ INDEX_HTML = r"""<!DOCTYPE html>
     const reloadModelsBtn = document.getElementById("reloadModelsBtn");
     const serverInfoEl = document.getElementById("serverInfo");
 
-    const STORAGE_KEY = "ha_ollama_webapp_chat_v2";
-    const SETTINGS_KEY = "ha_ollama_webapp_settings_v2";
+    const STORAGE_KEY = "ha_ollama_webapp_chat_v3";
+    const SETTINGS_KEY = "ha_ollama_webapp_settings_v3";
 
     let messages = [];
     let busy = false;
@@ -563,6 +563,35 @@ def extract_models(data: Any) -> List[Dict[str, Any]]:
             return [m for m in models if isinstance(m, dict) and m.get("name")]
     return []
 
+def join_ndjson_chunks(text: str) -> Optional[str]:
+    parts: List[str] = []
+    for raw_line in text.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        try:
+            obj = json.loads(line)
+        except Exception:
+            continue
+
+        if isinstance(obj, dict):
+            message = obj.get("message")
+            if isinstance(message, dict):
+                content = message.get("content")
+                if isinstance(content, str) and content:
+                    parts.append(content)
+
+            response = obj.get("response")
+            if isinstance(response, str) and response:
+                parts.append(response)
+
+            content = obj.get("content")
+            if isinstance(content, str) and content:
+                parts.append(content)
+
+    joined = "".join(parts).strip()
+    return joined or None
+
 def extract_text_from_response(data: Any) -> Optional[str]:
     if isinstance(data, dict):
         message = data.get("message")
@@ -597,8 +626,14 @@ def extract_text_from_response(data: Any) -> Optional[str]:
         if isinstance(error, str) and error.strip():
             return f"Upstream-Fehler: {error.strip()}"
 
-    if isinstance(data, str) and data.strip():
-        return data.strip()
+    if isinstance(data, str):
+        ndjson_joined = join_ndjson_chunks(data)
+        if ndjson_joined:
+            return ndjson_joined
+
+        stripped = data.strip()
+        if stripped:
+            return stripped
 
     return None
 
@@ -620,6 +655,9 @@ async def fetch_json_or_text(
             except Exception:
                 return text
 
+        if "application/x-ndjson" in content_type or "ndjson" in content_type:
+            return text
+
         try:
             return resp.json()
         except Exception:
@@ -629,23 +667,79 @@ async def fetch_models() -> List[Dict[str, Any]]:
     data = await fetch_json_or_text("GET", f"{OLLAMA_BASE_URL}/api/tags")
     return extract_models(data)
 
-async def ask_upstream(model: str, messages: List[Dict[str, str]]) -> str:
+def history_to_prompt(history: List[Dict[str, str]], user_message: str) -> str:
+    lines: List[str] = []
+    for item in history:
+        role = item.get("role", "")
+        content = item.get("content", "")
+        if not content:
+            continue
+        if role == "system":
+            lines.append(f"System:\n{content}\n")
+        elif role == "assistant":
+            lines.append(f"Assistant:\n{content}\n")
+        else:
+            lines.append(f"Nutzer:\n{content}\n")
+    lines.append(f"Nutzer:\n{user_message}\n")
+    lines.append("Assistant:\n")
+    return "\n".join(lines)
+
+async def try_chat_endpoint(model: str, messages: List[Dict[str, str]]) -> Optional[str]:
     payload = {
         "model": model,
         "messages": messages,
         "stream": False,
         "keep_alive": DEFAULT_KEEP_ALIVE,
     }
-
     data = await fetch_json_or_text("POST", f"{OLLAMA_BASE_URL}/api/chat", json_body=payload)
-    answer = extract_text_from_response(data)
+    return extract_text_from_response(data)
 
-    if answer:
-        return answer
+async def try_generate_endpoint(model: str, messages: List[Dict[str, str]], user_message: str) -> Optional[str]:
+    prompt = history_to_prompt(messages, user_message)
+    payload = {
+        "model": model,
+        "prompt": prompt,
+        "stream": False,
+        "keep_alive": DEFAULT_KEEP_ALIVE,
+    }
+    data = await fetch_json_or_text("POST", f"{OLLAMA_BASE_URL}/api/generate", json_body=payload)
+    return extract_text_from_response(data)
+
+async def try_openai_endpoint(model: str, messages: List[Dict[str, str]]) -> Optional[str]:
+    payload = {
+        "model": model,
+        "messages": messages,
+        "stream": False,
+    }
+    data = await fetch_json_or_text("POST", f"{OLLAMA_BASE_URL}/v1/chat/completions", json_body=payload)
+    return extract_text_from_response(data)
+
+async def ask_upstream(model: str, messages: List[Dict[str, str]], user_message: str) -> str:
+    attempts: List[str] = []
+
+    for label, func in [
+        ("api/chat", lambda: try_chat_endpoint(model, messages)),
+        ("api/generate", lambda: try_generate_endpoint(model, messages, user_message)),
+        ("v1/chat/completions", lambda: try_openai_endpoint(model, messages)),
+    ]:
+        try:
+            answer = await func()
+            if answer and answer.strip():
+                return answer
+            attempts.append(f"{label}: leere oder nicht auswertbare Antwort")
+        except httpx.HTTPStatusError as exc:
+            body = ""
+            try:
+                body = exc.response.text[:400]
+            except Exception:
+                pass
+            attempts.append(f"{label}: HTTP {exc.response.status_code} {body}")
+        except Exception as exc:
+            attempts.append(f"{label}: {exc}")
 
     raise HTTPException(
         status_code=502,
-        detail=f"Antwort von {OLLAMA_BASE_URL}/api/chat konnte nicht verarbeitet werden: {str(data)[:500]}",
+        detail=" | ".join(attempts)[:1500],
     )
 
 @app.get("/", response_class=HTMLResponse)
@@ -678,21 +772,12 @@ async def chat(req: ChatRequest) -> ChatResponse:
             *history[:-1],
             {"role": "user", "content": user_message},
         ]
-        answer = await ask_upstream(req.model, messages)
+        answer = await ask_upstream(req.model, messages, user_message)
         return ChatResponse(answer=answer)
 
-    except httpx.HTTPStatusError as exc:
-        detail = f"HTTP-Fehler {exc.response.status_code}"
-        try:
-            body = exc.response.text
-            if body:
-                detail += f": {body}"
-        except Exception:
-            pass
-        raise HTTPException(status_code=502, detail=detail) from exc
+    except HTTPException:
+        raise
     except httpx.RequestError as exc:
         raise HTTPException(status_code=502, detail=f"Netzwerkfehler: {exc}") from exc
     except Exception as exc:
-        if isinstance(exc, HTTPException):
-            raise exc
         raise HTTPException(status_code=500, detail=f"Interner Fehler: {exc}") from exc
