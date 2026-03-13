@@ -5,7 +5,7 @@ import httpx
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, Response
 
-APP_TITLE = "Ollama Proxy"
+APP_TITLE = "Ollama Cloud Proxy"
 UPSTREAM_BASE_URL = os.getenv("UPSTREAM_BASE_URL", "").rstrip("/")
 REQUEST_TIMEOUT = float(os.getenv("REQUEST_TIMEOUT", "600"))
 
@@ -25,11 +25,7 @@ def strip_hop_by_hop_headers(headers: Dict[str, str]) -> Dict[str, str]:
         "transfer-encoding",
         "upgrade",
     }
-    result = {}
-    for key, value in headers.items():
-        if key.lower() not in excluded:
-            result[key] = value
-    return result
+    return {k: v for k, v in headers.items() if k.lower() not in excluded}
 
 
 async def forward_request(request: Request, path: str) -> Response:
@@ -60,8 +56,7 @@ async def forward_request(request: Request, path: str) -> Response:
 
         passthrough_headers = {}
         for key, value in upstream_response.headers.items():
-            key_lower = key.lower()
-            if key_lower in {
+            if key.lower() in {
                 "content-type",
                 "content-length",
                 "connection",
