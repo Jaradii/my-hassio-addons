@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import httpx
 from fastapi import FastAPI, HTTPException
@@ -11,7 +11,7 @@ APP_TITLE = "Ollama Chat"
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "https://ollama.com/api").rstrip("/")
 OLLAMA_API_KEY = os.getenv("OLLAMA_API_KEY", "").strip()
 DEFAULT_MODEL = os.getenv("DEFAULT_MODEL", "").strip()
-DEFAULT_KEEP_ALIVE = os.getenv("DEFAULT_KEEP_ALIVE", "-1").strip()
+DEFAULT_KEEP_ALIVE = os.getenv("DEFAULT_KEEP_ALIVE", "5m").strip()
 REQUEST_TIMEOUT = float(os.getenv("REQUEST_TIMEOUT", "180"))
 
 app = FastAPI(title=APP_TITLE)
@@ -309,8 +309,8 @@ INDEX_HTML = r"""<!DOCTYPE html>
     const reloadModelsBtn = document.getElementById("reloadModelsBtn");
     const serverInfoEl = document.getElementById("serverInfo");
 
-    const STORAGE_KEY = "ha_ollama_webapp_chat_v4";
-    const SETTINGS_KEY = "ha_ollama_webapp_settings_v4";
+    const STORAGE_KEY = "ha_ollama_webapp_chat_v5";
+    const SETTINGS_KEY = "ha_ollama_webapp_settings_v5";
 
     let messages = [];
     let busy = false;
@@ -556,6 +556,19 @@ def auth_headers() -> Dict[str, str]:
         headers["Authorization"] = f"Bearer {OLLAMA_API_KEY}"
     return headers
 
+def normalize_keep_alive(value: str) -> Union[int, str]:
+    raw = (value or "").strip()
+    if not raw:
+        return "5m"
+
+    if raw in {"0", "-1"}:
+        return int(raw)
+
+    try:
+        return int(raw)
+    except ValueError:
+        return raw
+
 def sanitize_history(history: List[ChatMessage], limit: int = 12) -> List[Dict[str, str]]:
     cleaned: List[Dict[str, str]] = []
     for item in history[-limit:]:
@@ -679,16 +692,16 @@ async def fetch_models() -> List[Dict[str, Any]]:
 def history_to_prompt(history: List[Dict[str, str]], user_message: str) -> str:
     lines: List[str] = []
     for item in history:
-      role = item.get("role", "")
-      content = item.get("content", "")
-      if not content:
-          continue
-      if role == "system":
-          lines.append(f"System:\n{content}\n")
-      elif role == "assistant":
-          lines.append(f"Assistant:\n{content}\n")
-      else:
-          lines.append(f"Nutzer:\n{content}\n")
+        role = item.get("role", "")
+        content = item.get("content", "")
+        if not content:
+            continue
+        if role == "system":
+            lines.append(f"System:\n{content}\n")
+        elif role == "assistant":
+            lines.append(f"Assistant:\n{content}\n")
+        else:
+            lines.append(f"Nutzer:\n{content}\n")
     lines.append(f"Nutzer:\n{user_message}\n")
     lines.append("Assistant:\n")
     return "\n".join(lines)
@@ -698,7 +711,7 @@ async def try_chat_endpoint(model: str, messages: List[Dict[str, str]]) -> Optio
         "model": model,
         "messages": messages,
         "stream": False,
-        "keep_alive": DEFAULT_KEEP_ALIVE,
+        "keep_alive": normalize_keep_alive(DEFAULT_KEEP_ALIVE),
     }
     data = await fetch_json_or_text("POST", f"{OLLAMA_BASE_URL}/chat", json_body=payload)
     return extract_text_from_response(data)
@@ -709,7 +722,7 @@ async def try_generate_endpoint(model: str, messages: List[Dict[str, str]], user
         "model": model,
         "prompt": prompt,
         "stream": False,
-        "keep_alive": DEFAULT_KEEP_ALIVE,
+        "keep_alive": normalize_keep_alive(DEFAULT_KEEP_ALIVE),
     }
     data = await fetch_json_or_text("POST", f"{OLLAMA_BASE_URL}/generate", json_body=payload)
     return extract_text_from_response(data)
