@@ -7,12 +7,12 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
 APP_TITLE = "Ollama Chat"
-OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://homeassistant.local:11434").rstrip("/")
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://192.168.178.150:11434").rstrip("/")
 SEARXNG_BASE_URL = os.getenv("SEARXNG_BASE_URL", "").rstrip("/")
 DEFAULT_MODEL = os.getenv("DEFAULT_MODEL", "").strip()
 DEFAULT_KEEP_ALIVE = os.getenv("DEFAULT_KEEP_ALIVE", "-1").strip()
 REQUEST_TIMEOUT = float(os.getenv("REQUEST_TIMEOUT", "180"))
-WEB_SEARCH_ENABLED = os.getenv("WEB_SEARCH_ENABLED", "true").strip().lower() == "true"
+WEB_SEARCH_ENABLED = os.getenv("WEB_SEARCH_ENABLED", "false").strip().lower() == "true"
 
 app = FastAPI(title=APP_TITLE)
 
@@ -37,7 +37,11 @@ INDEX_HTML = r"""<!DOCTYPE html>
       --radius: 18px;
     }
 
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
     html, body {
       margin: 0;
       padding: 0;
@@ -197,8 +201,13 @@ INDEX_HTML = r"""<!DOCTYPE html>
       animation: fadeIn .18s ease-out;
     }
 
-    .user { align-items: flex-end; }
-    .assistant { align-items: flex-start; }
+    .user {
+      align-items: flex-end;
+    }
+
+    .assistant {
+      align-items: flex-start;
+    }
 
     .bubble {
       width: fit-content;
@@ -248,10 +257,6 @@ INDEX_HTML = r"""<!DOCTYPE html>
       border-radius: 999px;
       font-size: 13px;
       max-width: 100%;
-    }
-
-    .source-chip:hover {
-      border-color: rgba(79, 209, 197, .45);
     }
 
     .composer {
@@ -648,7 +653,11 @@ async def fetch_models() -> List[Dict[str, Any]]:
         resp = await client.get(f"{OLLAMA_BASE_URL}/api/tags")
         resp.raise_for_status()
         data = resp.json()
-    return data.get("models", [])
+
+    models = data.get("models", [])
+    if not isinstance(models, list):
+        return []
+    return models
 
 async def search_web(query: str) -> List[SearchSource]:
     if not WEB_SEARCH_ENABLED:
