@@ -1,3 +1,4 @@
+import json
 import os
 from typing import Any, Dict, List, Optional
 
@@ -8,11 +9,9 @@ from pydantic import BaseModel
 
 APP_TITLE = "Ollama Chat"
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://192.168.178.150:11434").rstrip("/")
-SEARXNG_BASE_URL = os.getenv("SEARXNG_BASE_URL", "").rstrip("/")
 DEFAULT_MODEL = os.getenv("DEFAULT_MODEL", "").strip()
 DEFAULT_KEEP_ALIVE = os.getenv("DEFAULT_KEEP_ALIVE", "-1").strip()
 REQUEST_TIMEOUT = float(os.getenv("REQUEST_TIMEOUT", "180"))
-WEB_SEARCH_ENABLED = os.getenv("WEB_SEARCH_ENABLED", "false").strip().lower() == "true"
 
 app = FastAPI(title=APP_TITLE)
 
@@ -34,7 +33,6 @@ INDEX_HTML = r"""<!DOCTYPE html>
       --danger: #ff6b6b;
       --border: rgba(255,255,255,.08);
       --shadow: 0 10px 30px rgba(0,0,0,.28);
-      --radius: 18px;
     }
 
     * {
@@ -145,25 +143,6 @@ INDEX_HTML = r"""<!DOCTYPE html>
       border: 1px solid rgba(255,107,107,.25);
     }
 
-    .toggle {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 14px;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      background: var(--panel);
-      min-height: 48px;
-      user-select: none;
-      white-space: nowrap;
-    }
-
-    .toggle input {
-      width: 20px;
-      height: 20px;
-      accent-color: var(--accent);
-    }
-
     .pill {
       display: inline-flex;
       align-items: center;
@@ -238,27 +217,6 @@ INDEX_HTML = r"""<!DOCTYPE html>
       padding: 0 6px;
     }
 
-    .sources {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 4px;
-    }
-
-    .source-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      text-decoration: none;
-      color: var(--text);
-      border: 1px solid var(--border);
-      background: var(--panel-2);
-      padding: 10px 12px;
-      border-radius: 999px;
-      font-size: 13px;
-      max-width: 100%;
-    }
-
     .composer {
       position: sticky;
       bottom: 0;
@@ -319,15 +277,12 @@ INDEX_HTML = r"""<!DOCTYPE html>
       <div class="controls">
         <div class="row">
           <select id="modelSelect"></select>
-          <label class="toggle">
-            <input id="webToggle" type="checkbox" />
-            <span>Websuche</span>
-          </label>
           <button id="reloadModelsBtn" class="secondary" type="button">Modelle laden</button>
+          <button id="clearBtn" class="danger" type="button">Chat leeren</button>
         </div>
         <div class="row2">
           <div class="pill" id="serverInfo">Verbinde…</div>
-          <button id="clearBtn" class="danger" type="button">Chat leeren</button>
+          <div class="pill" id="modeInfo">Direkt zu 192.168.178.150:11434</div>
         </div>
       </div>
     </div>
@@ -349,13 +304,12 @@ INDEX_HTML = r"""<!DOCTYPE html>
     const sendBtn = document.getElementById("sendBtn");
     const clearBtn = document.getElementById("clearBtn");
     const statusEl = document.getElementById("status");
-    const webToggleEl = document.getElementById("webToggle");
     const modelSelectEl = document.getElementById("modelSelect");
     const reloadModelsBtn = document.getElementById("reloadModelsBtn");
     const serverInfoEl = document.getElementById("serverInfo");
 
-    const STORAGE_KEY = "ha_ollama_webapp_chat_v1";
-    const SETTINGS_KEY = "ha_ollama_webapp_settings_v1";
+    const STORAGE_KEY = "ha_ollama_webapp_chat_v2";
+    const SETTINGS_KEY = "ha_ollama_webapp_settings_v2";
 
     let messages = [];
     let busy = false;
@@ -363,8 +317,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
     function saveState() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
       localStorage.setItem(SETTINGS_KEY, JSON.stringify({
-        model: modelSelectEl.value,
-        useWeb: webToggleEl.checked
+        model: modelSelectEl.value
       }));
     }
 
@@ -376,7 +329,6 @@ INDEX_HTML = r"""<!DOCTYPE html>
 
       try {
         const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}");
-        if (typeof settings.useWeb === "boolean") webToggleEl.checked = settings.useWeb;
         if (typeof settings.model === "string") modelSelectEl.dataset.savedValue = settings.model;
       } catch (_) {}
     }
@@ -402,24 +354,6 @@ INDEX_HTML = r"""<!DOCTYPE html>
       meta.textContent = `${msg.role === "user" ? "Du" : "Assistant"} • ${ts.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
 
       wrapper.appendChild(bubble);
-
-      if (msg.sources && Array.isArray(msg.sources) && msg.sources.length > 0) {
-        const sources = document.createElement("div");
-        sources.className = "sources";
-
-        for (const source of msg.sources) {
-          const a = document.createElement("a");
-          a.className = "source-chip";
-          a.href = source.url;
-          a.target = "_blank";
-          a.rel = "noopener noreferrer";
-          a.textContent = source.title || source.url;
-          sources.appendChild(a);
-        }
-
-        wrapper.appendChild(sources);
-      }
-
       wrapper.appendChild(meta);
       return wrapper;
     }
@@ -455,8 +389,6 @@ INDEX_HTML = r"""<!DOCTYPE html>
           opt.textContent = "Keine Modelle gefunden";
           modelSelectEl.appendChild(opt);
           serverInfoEl.textContent = "Keine Modelle gefunden";
-          webToggleEl.checked = false;
-          webToggleEl.disabled = true;
           return;
         }
 
@@ -478,11 +410,6 @@ INDEX_HTML = r"""<!DOCTYPE html>
 
         if (!modelSelectEl.value && data.models.length) {
           modelSelectEl.value = data.models[0].name;
-        }
-
-        webToggleEl.disabled = !data.web_search_available;
-        if (!data.web_search_available) {
-          webToggleEl.checked = false;
         }
 
         serverInfoEl.textContent = `Verbunden • ${data.models.length} Modell(e)`;
@@ -529,7 +456,6 @@ INDEX_HTML = r"""<!DOCTYPE html>
           body: JSON.stringify({
             model,
             message: prompt,
-            use_web: webToggleEl.checked,
             history: messages
               .filter(m => m.role === "user" || m.role === "assistant")
               .slice(-12)
@@ -546,7 +472,6 @@ INDEX_HTML = r"""<!DOCTYPE html>
         messages.push({
           role: "assistant",
           content: data.answer || "Keine Antwort erhalten.",
-          sources: data.sources || [],
           ts: Date.now()
         });
 
@@ -593,7 +518,6 @@ INDEX_HTML = r"""<!DOCTYPE html>
     });
 
     modelSelectEl.addEventListener("change", saveState);
-    webToggleEl.addEventListener("change", saveState);
 
     loadState();
     renderChat();
@@ -604,20 +528,11 @@ INDEX_HTML = r"""<!DOCTYPE html>
 </html>
 """
 
-SYSTEM_PROMPT_NO_WEB = """Du bist ein hilfreicher lokaler Assistent in Home Assistant.
+SYSTEM_PROMPT = """Du bist ein hilfreicher lokaler Assistent in Home Assistant.
 Antworte immer auf Deutsch.
 Antworte klar, präzise und ehrlich.
 Wenn du etwas nicht sicher weißt, sage das offen.
 Verwende saubere Absätze statt unnötig vieler Listen.
-"""
-
-SYSTEM_PROMPT_WITH_WEB = """Du bist ein hilfreicher lokaler Assistent in Home Assistant.
-Antworte immer auf Deutsch.
-Du erhältst zusätzlich Websuch-Ergebnisse als Kontext.
-Nutze nur Informationen, die durch den Suchkontext gestützt sind.
-Wenn der Kontext nicht ausreicht, sage das offen.
-Nenne im Fließtext knapp die Quelle in Klammern, wenn du dich auf Suchtreffer stützt.
-Erfinde keine Quellen.
 """
 
 class ChatMessage(BaseModel):
@@ -627,17 +542,10 @@ class ChatMessage(BaseModel):
 class ChatRequest(BaseModel):
     model: str
     message: str
-    use_web: bool = False
     history: List[ChatMessage] = []
-
-class SearchSource(BaseModel):
-    title: str
-    url: str
-    content: Optional[str] = None
 
 class ChatResponse(BaseModel):
     answer: str
-    sources: List[SearchSource] = []
 
 def sanitize_history(history: List[ChatMessage], limit: int = 12) -> List[Dict[str, str]]:
     cleaned: List[Dict[str, str]] = []
@@ -648,65 +556,80 @@ def sanitize_history(history: List[ChatMessage], limit: int = 12) -> List[Dict[s
             cleaned.append({"role": role, "content": content})
     return cleaned
 
-async def fetch_models() -> List[Dict[str, Any]]:
+def extract_models(data: Any) -> List[Dict[str, Any]]:
+    if isinstance(data, dict):
+        models = data.get("models", [])
+        if isinstance(models, list):
+            return [m for m in models if isinstance(m, dict) and m.get("name")]
+    return []
+
+def extract_text_from_response(data: Any) -> Optional[str]:
+    if isinstance(data, dict):
+        message = data.get("message")
+        if isinstance(message, dict):
+            content = message.get("content")
+            if isinstance(content, str) and content.strip():
+                return content.strip()
+
+        response = data.get("response")
+        if isinstance(response, str) and response.strip():
+            return response.strip()
+
+        content = data.get("content")
+        if isinstance(content, str) and content.strip():
+            return content.strip()
+
+        choices = data.get("choices")
+        if isinstance(choices, list) and choices:
+            first = choices[0]
+            if isinstance(first, dict):
+                msg = first.get("message")
+                if isinstance(msg, dict):
+                    c = msg.get("content")
+                    if isinstance(c, str) and c.strip():
+                        return c.strip()
+
+                text = first.get("text")
+                if isinstance(text, str) and text.strip():
+                    return text.strip()
+
+        error = data.get("error")
+        if isinstance(error, str) and error.strip():
+            return f"Upstream-Fehler: {error.strip()}"
+
+    if isinstance(data, str) and data.strip():
+        return data.strip()
+
+    return None
+
+async def fetch_json_or_text(
+    method: str,
+    url: str,
+    json_body: Optional[Dict[str, Any]] = None,
+) -> Any:
     async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT) as client:
-        resp = await client.get(f"{OLLAMA_BASE_URL}/api/tags")
+        resp = await client.request(method=method, url=url, json=json_body)
         resp.raise_for_status()
-        data = resp.json()
 
-    models = data.get("models", [])
-    if not isinstance(models, list):
-        return []
-    return models
+        content_type = resp.headers.get("content-type", "").lower()
+        text = resp.text
 
-async def search_web(query: str) -> List[SearchSource]:
-    if not WEB_SEARCH_ENABLED:
-        return []
+        if "application/json" in content_type or "text/json" in content_type:
+            try:
+                return resp.json()
+            except Exception:
+                return text
 
-    if not SEARXNG_BASE_URL:
-        return []
+        try:
+            return resp.json()
+        except Exception:
+            return text
 
-    params = {
-        "q": query,
-        "format": "json",
-        "language": "de-DE",
-        "safesearch": 1,
-        "categories": "general",
-    }
+async def fetch_models() -> List[Dict[str, Any]]:
+    data = await fetch_json_or_text("GET", f"{OLLAMA_BASE_URL}/api/tags")
+    return extract_models(data)
 
-    async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT, follow_redirects=True) as client:
-        resp = await client.get(f"{SEARXNG_BASE_URL}/search", params=params)
-        resp.raise_for_status()
-        data = resp.json()
-
-    results = data.get("results", [])
-    sources: List[SearchSource] = []
-
-    for item in results[:5]:
-        url = item.get("url") or ""
-        title = item.get("title") or url
-        content = item.get("content") or item.get("snippet") or ""
-        if not url:
-            continue
-        sources.append(SearchSource(title=title, url=url, content=content))
-
-    return sources
-
-def build_web_context(sources: List[SearchSource]) -> str:
-    if not sources:
-        return "Keine Suchergebnisse gefunden."
-
-    parts = []
-    for i, source in enumerate(sources, start=1):
-        parts.append(
-            f"[Quelle {i}]\n"
-            f"Titel: {source.title}\n"
-            f"URL: {source.url}\n"
-            f"Inhalt: {source.content or 'Kein Snippet verfügbar.'}"
-        )
-    return "\n\n".join(parts)
-
-async def ask_ollama(model: str, messages: List[Dict[str, str]]) -> str:
+async def ask_upstream(model: str, messages: List[Dict[str, str]]) -> str:
     payload = {
         "model": model,
         "messages": messages,
@@ -714,18 +637,16 @@ async def ask_ollama(model: str, messages: List[Dict[str, str]]) -> str:
         "keep_alive": DEFAULT_KEEP_ALIVE,
     }
 
-    async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT) as client:
-        resp = await client.post(f"{OLLAMA_BASE_URL}/api/chat", json=payload)
-        resp.raise_for_status()
-        data = resp.json()
+    data = await fetch_json_or_text("POST", f"{OLLAMA_BASE_URL}/api/chat", json_body=payload)
+    answer = extract_text_from_response(data)
 
-    message = data.get("message", {})
-    content = message.get("content", "")
+    if answer:
+        return answer
 
-    if not content:
-        raise HTTPException(status_code=502, detail="Ollama hat keine Antwort geliefert.")
-
-    return content.strip()
+    raise HTTPException(
+        status_code=502,
+        detail=f"Antwort von {OLLAMA_BASE_URL}/api/chat konnte nicht verarbeitet werden: {str(data)[:500]}",
+    )
 
 @app.get("/", response_class=HTMLResponse)
 async def index() -> HTMLResponse:
@@ -736,11 +657,9 @@ async def models() -> Dict[str, Any]:
     try:
         models = await fetch_models()
         default_model = DEFAULT_MODEL if DEFAULT_MODEL else (models[0]["name"] if models else "")
-        web_search_available = bool(WEB_SEARCH_ENABLED and SEARXNG_BASE_URL)
         return {
             "models": models,
             "default_model": default_model,
-            "web_search_available": web_search_available,
         }
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Modelle konnten nicht geladen werden: {exc}") from exc
@@ -752,35 +671,15 @@ async def chat(req: ChatRequest) -> ChatResponse:
         raise HTTPException(status_code=400, detail="Leere Nachricht.")
 
     history = sanitize_history(req.history, limit=12)
-    sources: List[SearchSource] = []
 
     try:
-        if req.use_web and WEB_SEARCH_ENABLED and SEARXNG_BASE_URL:
-            sources = await search_web(user_message)
-            web_context = build_web_context(sources)
-
-            messages = [
-                {"role": "system", "content": SYSTEM_PROMPT_WITH_WEB},
-                *history[:-1],
-                {
-                    "role": "user",
-                    "content": (
-                        f"Frage des Nutzers:\n{user_message}\n\n"
-                        f"Websuch-Kontext:\n{web_context}\n\n"
-                        "Beantworte die Frage auf Basis dieses Kontexts. "
-                        "Falls der Kontext nicht ausreicht, sage das offen."
-                    ),
-                },
-            ]
-        else:
-            messages = [
-                {"role": "system", "content": SYSTEM_PROMPT_NO_WEB},
-                *history[:-1],
-                {"role": "user", "content": user_message},
-            ]
-
-        answer = await ask_ollama(req.model, messages)
-        return ChatResponse(answer=answer, sources=sources)
+        messages = [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            *history[:-1],
+            {"role": "user", "content": user_message},
+        ]
+        answer = await ask_upstream(req.model, messages)
+        return ChatResponse(answer=answer)
 
     except httpx.HTTPStatusError as exc:
         detail = f"HTTP-Fehler {exc.response.status_code}"
@@ -794,4 +693,6 @@ async def chat(req: ChatRequest) -> ChatResponse:
     except httpx.RequestError as exc:
         raise HTTPException(status_code=502, detail=f"Netzwerkfehler: {exc}") from exc
     except Exception as exc:
+        if isinstance(exc, HTTPException):
+            raise exc
         raise HTTPException(status_code=500, detail=f"Interner Fehler: {exc}") from exc
