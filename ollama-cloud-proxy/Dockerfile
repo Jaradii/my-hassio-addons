@@ -1,21 +1,23 @@
 ARG BUILD_FROM
 FROM ${BUILD_FROM}
 
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+ENV PYTHONUNBUFFERED=1
+ENV VENV_PATH=/opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        python3 \
-        python3-pip \
-        ca-certificates \
-        curl \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache python3 py3-pip bash
 
-COPY requirements.txt /tmp/requirements.txt
-RUN python3 -m pip install --no-cache-dir --break-system-packages -r /tmp/requirements.txt
+WORKDIR /app
 
-COPY app.py /app.py
-COPY run.sh /run.sh
-RUN chmod a+x /run.sh
+COPY app.py /app/app.py
+COPY run.sh /app/run.sh
 
-CMD ["/run.sh"]
+RUN chmod +x /app/run.sh && \
+    python3 -m venv ${VENV_PATH} && \
+    ${VENV_PATH}/bin/pip install --no-cache-dir --upgrade pip && \
+    ${VENV_PATH}/bin/pip install --no-cache-dir \
+      fastapi==0.116.1 \
+      uvicorn[standard]==0.35.0 \
+      httpx==0.28.1
+
+CMD ["/app/run.sh"]
