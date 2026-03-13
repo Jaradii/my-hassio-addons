@@ -39,7 +39,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       --danger: #ff6b6b;
       --border: rgba(255,255,255,.08);
       --shadow: 0 10px 30px rgba(0,0,0,.28);
-      --radius: 22px;
+      --radius: 20px;
       --safe-top: env(safe-area-inset-top);
       --safe-bottom: env(safe-area-inset-bottom);
     }
@@ -61,6 +61,10 @@ INDEX_HTML = r"""<!DOCTYPE html>
     body {
       min-height: 100dvh;
       overflow-x: hidden;
+    }
+
+    .mobile-sidebar-backdrop {
+      display: none;
     }
 
     .layout {
@@ -90,11 +94,16 @@ INDEX_HTML = r"""<!DOCTYPE html>
       min-width: 0;
     }
 
+    .sidebar-header {
+      display: grid;
+      gap: 10px;
+    }
+
     .app {
       min-height: calc(100dvh - 24px - var(--safe-top) - var(--safe-bottom));
       display: grid;
-      grid-template-rows: auto 1fr auto;
-      gap: 12px;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 10px;
       min-width: 0;
     }
 
@@ -107,40 +116,83 @@ INDEX_HTML = r"""<!DOCTYPE html>
       border: 1px solid var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 12px;
+      padding: 10px 12px;
     }
 
-    .section-title, .title {
-      margin: 0 0 8px 0;
+    .topbar-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .title {
+      margin: 0;
       font-size: 18px;
       font-weight: 700;
       letter-spacing: 0.2px;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .controls {
-      display: grid;
-      gap: 10px;
+    .title-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
     }
 
-    .row {
-      display: grid;
-      grid-template-columns: 1fr auto auto;
-      gap: 10px;
+    .settings-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(11, 15, 20, 0.88);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+      padding: 10px;
+    }
+
+    details.settings-panel summary {
+      list-style: none;
+      cursor: pointer;
+      user-select: none;
+      display: flex;
       align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 4px 2px;
+      font-size: 14px;
+      font-weight: 600;
     }
 
-    .row2 {
+    details.settings-panel summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .settings-content {
       display: grid;
-      grid-template-columns: 1fr auto auto;
       gap: 10px;
-      align-items: center;
+      margin-top: 10px;
     }
 
-    .row3 {
+    .settings-grid {
       display: grid;
       grid-template-columns: 1fr auto;
       gap: 10px;
       align-items: center;
+    }
+
+    .settings-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
     }
 
     .history-list {
@@ -191,13 +243,13 @@ INDEX_HTML = r"""<!DOCTYPE html>
     select, textarea, button, input[type="text"] {
       width: 100%;
       border: 1px solid var(--border);
-      border-radius: 16px;
+      border-radius: 14px;
       background: var(--panel);
       color: var(--text);
-      padding: 12px 14px;
+      padding: 11px 12px;
       font-size: 16px;
       outline: none;
-      min-height: 48px;
+      min-height: 44px;
     }
 
     select:focus, textarea:focus, input[type="text"]:focus {
@@ -211,7 +263,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       background: linear-gradient(180deg, var(--accent), var(--accent-2));
       color: #071014;
       border: none;
-      min-height: 48px;
+      min-height: 44px;
     }
 
     button.secondary {
@@ -226,23 +278,36 @@ INDEX_HTML = r"""<!DOCTYPE html>
       border: 1px solid rgba(255,107,107,.25);
     }
 
+    .icon-btn {
+      width: 44px;
+      min-width: 44px;
+      max-width: 44px;
+      min-height: 44px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      line-height: 1;
+    }
+
     .toggle {
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      padding: 12px 14px;
-      border-radius: 16px;
+      padding: 10px 12px;
+      border-radius: 14px;
       border: 1px solid var(--border);
       background: var(--panel);
-      min-height: 48px;
+      min-height: 44px;
       user-select: none;
       white-space: nowrap;
       width: 100%;
     }
 
     .toggle input {
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       accent-color: var(--accent);
       flex: 0 0 auto;
     }
@@ -257,7 +322,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       padding: 8px 10px;
       border-radius: 999px;
       font-size: 12px;
-      min-height: 36px;
+      min-height: 34px;
       min-width: 0;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -301,8 +366,8 @@ INDEX_HTML = r"""<!DOCTYPE html>
     .bubble {
       width: fit-content;
       max-width: min(100%, 820px);
-      padding: 14px 16px;
-      border-radius: 20px;
+      padding: 13px 15px;
+      border-radius: 18px;
       line-height: 1.55;
       white-space: pre-wrap;
       word-wrap: break-word;
@@ -344,7 +409,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       color: var(--text);
       border: 1px solid var(--border);
       background: var(--panel-2);
-      padding: 10px 12px;
+      padding: 9px 11px;
       border-radius: 999px;
       font-size: 13px;
       max-width: 100%;
@@ -358,14 +423,14 @@ INDEX_HTML = r"""<!DOCTYPE html>
       border: 1px solid var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 12px;
+      padding: 10px;
       z-index: 15;
     }
 
     textarea {
       resize: none;
-      min-height: 105px;
-      max-height: 240px;
+      min-height: 92px;
+      max-height: 200px;
     }
 
     .composer-actions {
@@ -395,18 +460,26 @@ INDEX_HTML = r"""<!DOCTYPE html>
       margin-right: 8px;
     }
 
-    .mobile-sidebar-backdrop {
-      display: none;
+    .desktop-only {
+      display: inline-flex;
     }
 
-    .mobile-history-toggle {
+    .mobile-only {
       display: none;
     }
 
     @media (max-width: 980px) {
+      .desktop-only {
+        display: none !important;
+      }
+
+      .mobile-only {
+        display: inline-flex;
+      }
+
       .layout {
         grid-template-columns: 1fr;
-        gap: 10px;
+        gap: 8px;
       }
 
       .sidebar {
@@ -416,7 +489,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
         bottom: 0;
         width: min(82vw, 320px);
         max-width: 320px;
-        min-width: 260px;
+        min-width: 240px;
         min-height: 100dvh;
         border-radius: 0 18px 18px 0;
         z-index: 60;
@@ -446,7 +519,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       }
 
       .app {
-        min-height: auto;
+        grid-template-rows: auto auto 1fr auto;
       }
 
       .topbar {
@@ -454,37 +527,24 @@ INDEX_HTML = r"""<!DOCTYPE html>
         padding: 10px;
       }
 
+      .topbar-row {
+        grid-template-columns: auto 1fr auto;
+      }
+
       .composer {
         bottom: calc(var(--safe-bottom) + 8px);
         padding: 10px;
       }
 
-      .row, .row2, .row3 {
+      .settings-grid,
+      .settings-grid-2 {
         grid-template-columns: 1fr;
       }
 
-      .title {
-        font-size: 16px;
-        margin-bottom: 6px;
-      }
-
-      .mobile-history-toggle {
-        display: inline-flex;
-      }
-
-      .chat {
-        padding-bottom: 2px;
-      }
-
       .bubble {
-        max-width: 94%;
+        max-width: 96%;
         font-size: 15px;
         line-height: 1.5;
-      }
-
-      textarea {
-        min-height: 92px;
-        max-height: 200px;
       }
 
       .composer-actions {
@@ -508,34 +568,31 @@ INDEX_HTML = r"""<!DOCTYPE html>
     @media (max-width: 560px) {
       .layout {
         padding: calc(var(--safe-top) + 8px) 8px calc(var(--safe-bottom) + 8px) 8px;
-        gap: 8px;
       }
 
-      .topbar, .composer {
+      .topbar, .settings-card, .composer {
         border-radius: 18px;
       }
 
-      .section-title, .title {
-        font-size: 15px;
+      .title {
+        font-size: 16px;
+      }
+
+      .title-sub {
+        font-size: 11px;
       }
 
       select, textarea, button, input[type="text"] {
         font-size: 16px;
-        padding: 11px 12px;
-        min-height: 46px;
+        padding: 10px 11px;
+        min-height: 42px;
       }
 
-      .history-item {
-        padding: 9px;
-        border-radius: 12px;
-      }
-
-      .history-title {
-        font-size: 12px;
-      }
-
-      .history-sub {
-        font-size: 10px;
+      .icon-btn {
+        width: 42px;
+        min-width: 42px;
+        max-width: 42px;
+        min-height: 42px;
       }
 
       .bubble {
@@ -543,15 +600,14 @@ INDEX_HTML = r"""<!DOCTYPE html>
         padding: 12px 13px;
       }
 
-      .pill {
-        font-size: 11px;
-        min-height: 34px;
-      }
-
       .sidebar {
         width: min(80vw, 300px);
         max-width: 300px;
-        min-width: 240px;
+        min-width: 230px;
+      }
+
+      textarea {
+        min-height: 84px;
       }
     }
 
@@ -570,7 +626,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
 
   <div class="layout">
     <aside class="sidebar" id="sidebar">
-      <div>
+      <div class="sidebar-header">
         <div class="section-title">Verläufe</div>
         <button id="newChatBtn" type="button">Neuer Chat</button>
       </div>
@@ -584,26 +640,39 @@ INDEX_HTML = r"""<!DOCTYPE html>
 
     <main class="app">
       <div class="topbar">
-        <div class="title">Ollama Chat</div>
-        <div class="controls">
-          <div class="row">
-            <button id="mobileHistoryToggle" class="secondary mobile-history-toggle" type="button">Verläufe</button>
-            <select id="modelSelect"></select>
-            <button id="reloadModelsBtn" class="secondary" type="button">Modelle laden</button>
+        <div class="topbar-row">
+          <button id="mobileHistoryToggle" class="secondary icon-btn mobile-only" type="button">☰</button>
+          <div>
+            <div class="title">Ollama Chat</div>
+            <div class="title-sub" id="serverInfo">Verbinde…</div>
           </div>
-          <div class="row2">
-            <label class="toggle">
-              <input id="webSearchToggle" type="checkbox" />
-              <span>Brave Websuche</span>
-            </label>
-            <input id="chatTitleInput" type="text" placeholder="Chat Titel" />
-            <button id="renameBtn" class="secondary" type="button">Titel speichern</button>
-          </div>
-          <div class="row3">
-            <div class="pill" id="serverInfo">Verbinde…</div>
-            <button id="deleteChatBtn" class="danger" type="button">Diesen Chat löschen</button>
-          </div>
+          <button id="reloadModelsBtn" class="secondary icon-btn" type="button">↻</button>
+          <button id="newChatBtnTop" class="secondary icon-btn desktop-only" type="button">＋</button>
         </div>
+      </div>
+
+      <div class="settings-card">
+        <details class="settings-panel" id="settingsPanel">
+          <summary>
+            <span>Einstellungen</span>
+            <span>▾</span>
+          </summary>
+          <div class="settings-content">
+            <div class="settings-grid">
+              <select id="modelSelect"></select>
+              <label class="toggle">
+                <input id="webSearchToggle" type="checkbox" />
+                <span>Brave Websuche</span>
+              </label>
+            </div>
+
+            <div class="settings-grid-2">
+              <input id="chatTitleInput" type="text" placeholder="Chat Titel" />
+              <button id="renameBtn" class="secondary" type="button">Speichern</button>
+              <button id="deleteChatBtn" class="danger" type="button">Löschen</button>
+            </div>
+          </div>
+        </details>
       </div>
 
       <div class="chat" id="chat"></div>
@@ -628,6 +697,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
     const serverInfoEl = document.getElementById("serverInfo");
     const historyListEl = document.getElementById("historyList");
     const newChatBtn = document.getElementById("newChatBtn");
+    const newChatBtnTop = document.getElementById("newChatBtnTop");
     const deleteChatBtn = document.getElementById("deleteChatBtn");
     const chatTitleInput = document.getElementById("chatTitleInput");
     const renameBtn = document.getElementById("renameBtn");
@@ -637,7 +707,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
     const sidebarBackdrop = document.getElementById("sidebarBackdrop");
 
     const CHATS_KEY = "ha_ollama_webapp_chats_v2";
-    const SETTINGS_KEY = "ha_ollama_webapp_settings_v8";
+    const SETTINGS_KEY = "ha_ollama_webapp_settings_v9";
 
     let chats = [];
     let currentChatId = null;
@@ -840,6 +910,8 @@ INDEX_HTML = r"""<!DOCTYPE html>
     function renderHeaderFields() {
       const chat = currentChat();
       chatTitleInput.value = chat.title || "";
+      const modelCount = modelSelectEl.options.length || 0;
+      serverInfoEl.textContent = modelCount ? `Verbunden • ${modelCount} Modell(e)` : "Verbunden";
     }
 
     function renderAll() {
@@ -896,7 +968,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
           modelSelectEl.value = data.models[0].name;
         }
 
-        serverInfoEl.textContent = `Verbunden • ${data.models.length} Modell(e)`;
+        renderHeaderFields();
         saveState();
       } catch (err) {
         serverInfoEl.textContent = "Verbindung fehlgeschlagen";
@@ -990,7 +1062,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
 
     function autoResize() {
       promptEl.style.height = "auto";
-      promptEl.style.height = Math.min(promptEl.scrollHeight, 240) + "px";
+      promptEl.style.height = Math.min(promptEl.scrollHeight, 200) + "px";
     }
 
     function newChat() {
@@ -1037,6 +1109,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
     sendBtn.addEventListener("click", sendMessage);
     reloadModelsBtn.addEventListener("click", loadModels);
     newChatBtn.addEventListener("click", newChat);
+    newChatBtnTop.addEventListener("click", newChat);
     deleteChatBtn.addEventListener("click", () => {
       if (!confirm("Diesen Chat wirklich löschen?")) return;
       deleteCurrentChat();
