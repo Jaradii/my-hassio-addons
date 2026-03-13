@@ -1,5 +1,7 @@
 import json
 import os
+import threading
+from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
 import httpx
@@ -18,7 +20,41 @@ BRAVE_COUNTRY = os.getenv("BRAVE_COUNTRY", "de").strip() or "de"
 BRAVE_SEARCH_LANG = os.getenv("BRAVE_SEARCH_LANG", "de").strip() or "de"
 BRAVE_RESULT_COUNT = int(os.getenv("BRAVE_RESULT_COUNT", "5"))
 
+DATA_DIR = "/data"
+CHATS_FILE = os.path.join(DATA_DIR, "chats.json")
+STORE_LOCK = threading.Lock()
+
 app = FastAPI(title=APP_TITLE)
+
+
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+
+class ChatRequest(BaseModel):
+    model: str
+    message: str
+    use_web_search: bool = False
+    history: List[ChatMessage] = []
+    chat_id: Optional[str] = None
+
+
+class SearchSource(BaseModel):
+    title: str
+    url: str
+    description: Optional[str] = None
+
+
+class ChatResponse(BaseModel):
+    answer: str
+    sources: List[SearchSource] = []
+    chat_id: Optional[str] = None
+
+
+class ChatRenameRequest(BaseModel):
+    title: str
+
 
 INDEX_HTML = r"""<!DOCTYPE html>
 <html lang="de">
@@ -736,42 +772,17 @@ INDEX_HTML = r"""<!DOCTYPE html>
     const mobileHistoryToggle = document.getElementById("mobileHistoryToggle");
     const sidebarBackdrop = document.getElementById("sidebarBackdrop");
 
-    const CHATS_KEY = "ha_ollama_webapp_chats_v2";
-    const SETTINGS_KEY = "ha_ollama_webapp_settings_v11";
+    const SETTINGS_KEY = "ha_ollama_webapp_settings_v_server_1";
 
     let chats = [];
     let currentChatId = null;
     let busy = false;
 
-    function uid() {
-      return Math.random().toString(36).slice(2) + Date.now().toString(36);
-    }
-
-    function nowIso() {
-      return new Date().toISOString();
-    }
-
-    function defaultTitle() {
-      const d = new Date();
-      return "Neuer Chat " + d.toLocaleDateString() + " " + d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    }
-
-    function createEmptyChat() {
-      return {
-        id: uid(),
-        title: defaultTitle(),
-        createdAt: nowIso(),
-        updatedAt: nowIso(),
-        messages: []
-      };
-    }
-
     function updateWebToggleVisual() {
       webSearchToggleBtnEl.classList.toggle("is-on", webSearchToggleTopEl.checked);
     }
 
-    function saveState() {
-      localStorage.setItem(CHATS_KEY, JSON.stringify(chats));
+    function saveLocalSettings() {
       localStorage.setItem(SETTINGS_KEY, JSON.stringify({
         currentChatId,
         useWebSearch: webSearchToggleTopEl.checked
@@ -779,18 +790,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       updateWebToggleVisual();
     }
 
-    function loadState() {
-      try {
-        const savedChats = JSON.parse(localStorage.getItem(CHATS_KEY) || "[]");
-        if (Array.isArray(savedChats) && savedChats.length) {
-          chats = savedChats;
-        }
-      } catch (_) {}
-
-      if (!chats.length) {
-        chats = [createEmptyChat()];
-      }
-
+    function loadLocalSettings() {
       try {
         const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}");
         if (typeof settings.currentChatId === "string") {
@@ -800,16 +800,23 @@ INDEX_HTML = r"""<!DOCTYPE html>
           webSearchToggleTopEl.checked = settings.useWebSearch;
         }
       } catch (_) {}
-
-      if (!currentChatId || !chats.find(c => c.id === currentChatId)) {
-        currentChatId = chats[0].id;
-      }
-
       updateWebToggleVisual();
     }
 
+    async function api(path, options = {}) {
+      const response = await fetch(path, options);
+      let data = {};
+      try {
+        data = await response.json();
+      } catch (_) {}
+      if (!response.ok) {
+        throw new Error(data.detail || "Unbekannter Fehler");
+      }
+      return data;
+    }
+
     function currentChat() {
-      return chats.find(c => c.id === currentChatId) || chats[0];
+      return chats.find(c => c.id === currentChatId) || chats[0] || null;
     }
 
     function escapeHtml(text) {
@@ -850,7 +857,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       const q = (searchChatsInput.value || "").trim().toLowerCase();
       historyListEl.innerHTML = "";
 
-      const sorted = [...chats].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+      const sorted = [...chats].sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
       const filtered = sorted.filter(chat => {
         if (!q) return true;
         const hay = [
@@ -871,13 +878,13 @@ INDEX_HTML = r"""<!DOCTYPE html>
         btn.innerHTML = `
           <div class="history-title">${escapeHtml(chat.title || "Ohne Titel")}</div>
           <div class="history-sub">${escapeHtml(preview)}</div>
-          <div class="history-sub">${escapeHtml(formatDate(chat.updatedAt))}</div>
+          <div class="history-sub">${escapeHtml(formatDate(chat.updated_at))}</div>
         `;
 
-        btn.addEventListener("click", () => {
+        btn.addEventListener("click", async () => {
           currentChatId = chat.id;
           renderAll();
-          saveState();
+          saveLocalSettings();
           maybeCloseSidebarOnMobile();
         });
 
@@ -925,7 +932,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
       const chat = currentChat();
       chatEl.innerHTML = "";
 
-      if (!chat.messages || !chat.messages.length) {
+      if (!chat || !chat.messages || !chat.messages.length) {
         const empty = document.createElement("div");
         empty.className = "empty";
         empty.innerHTML = "Noch kein Verlauf.<br>Schreibe deine erste Nachricht.";
@@ -942,9 +949,8 @@ INDEX_HTML = r"""<!DOCTYPE html>
 
     function renderHeaderFields() {
       const chat = currentChat();
-      chatTitleInput.value = chat.title || "";
-      const modelCount = modelSelectEl.options.length || 0;
-      serverInfoEl.textContent = modelCount ? `Verbunden • ${modelCount} Modell(e)` : "Verbunden";
+      chatTitleInput.value = chat?.title || "";
+      serverInfoEl.textContent = "Verbunden • 1 Modell";
     }
 
     function renderAll() {
@@ -955,20 +961,20 @@ INDEX_HTML = r"""<!DOCTYPE html>
       updateWebToggleVisual();
     }
 
-    function ensureAutoTitle(chat) {
-      if (!chat || !chat.messages || !chat.messages.length) return;
-      const firstUser = chat.messages.find(m => m.role === "user" && m.content);
-      if (!firstUser) return;
-
-      if ((chat.title || "").startsWith("Neuer Chat")) {
-        chat.title = firstUser.content.trim().slice(0, 40) || chat.title;
+    async function loadChats() {
+      const data = await api("./api/chats");
+      chats = Array.isArray(data.chats) ? data.chats : [];
+      if (!chats.length) {
+        currentChatId = null;
+      } else if (!currentChatId || !chats.find(c => c.id === currentChatId)) {
+        currentChatId = chats[0].id;
       }
+      renderAll();
+      saveLocalSettings();
     }
 
     async function loadModels() {
-      serverInfoEl.textContent = "Lade Modelle…";
       try {
-        await fetch("./api/models");
         modelSelectEl.innerHTML = "";
         const opt = document.createElement("option");
         opt.value = "qwen3.5:397b-cloud";
@@ -976,14 +982,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
         modelSelectEl.appendChild(opt);
         modelSelectEl.value = "qwen3.5:397b-cloud";
         renderHeaderFields();
-        saveState();
-      } catch (err) {
-        modelSelectEl.innerHTML = "";
-        const opt = document.createElement("option");
-        opt.value = "qwen3.5:397b-cloud";
-        opt.textContent = "qwen3.5:397b-cloud";
-        modelSelectEl.appendChild(opt);
-        modelSelectEl.value = "qwen3.5:397b-cloud";
+      } catch (_) {
         serverInfoEl.textContent = "Verbindung fehlgeschlagen";
       }
     }
@@ -993,7 +992,6 @@ INDEX_HTML = r"""<!DOCTYPE html>
 
       const prompt = promptEl.value.trim();
       const model = "qwen3.5:397b-cloud";
-      const chat = currentChat();
 
       if (!prompt) return;
 
@@ -1002,64 +1000,32 @@ INDEX_HTML = r"""<!DOCTYPE html>
       promptEl.disabled = true;
       statusEl.innerHTML = '<span class="spinner"></span>Sende Anfrage…';
 
-      const userMsg = {
-        role: "user",
-        content: prompt,
-        ts: Date.now()
-      };
-
-      chat.messages.push(userMsg);
-      chat.updatedAt = nowIso();
-      ensureAutoTitle(chat);
-      renderAll();
-      saveState();
-
-      promptEl.value = "";
-      autoResize();
-
       try {
-        const res = await fetch("./api/chat", {
+        const chat = currentChat();
+        const res = await api("./api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            chat_id: chat ? chat.id : null,
             model,
             message: prompt,
             use_web_search: webSearchToggleTopEl.checked,
-            history: chat.messages
+            history: (chat?.messages || [])
               .filter(m => m.role === "user" || m.role === "assistant")
               .slice(-12)
               .map(m => ({ role: m.role, content: m.content }))
           })
         });
 
-        const data = await res.json();
+        promptEl.value = "";
+        autoResize();
+        currentChatId = res.chat_id || currentChatId;
 
-        if (!res.ok) {
-          throw new Error(data.detail || "Unbekannter Fehler");
-        }
-
-        chat.messages.push({
-          role: "assistant",
-          content: data.answer || "Keine Antwort erhalten.",
-          sources: data.sources || [],
-          ts: Date.now()
-        });
-        chat.updatedAt = nowIso();
-
-        renderAll();
-        saveState();
+        await loadChats();
         statusEl.textContent = "Bereit";
       } catch (err) {
-        chat.messages.push({
-          role: "assistant",
-          content: "Fehler: " + (err.message || "Die Anfrage konnte nicht verarbeitet werden."),
-          ts: Date.now()
-        });
-        chat.updatedAt = nowIso();
-
-        renderAll();
-        saveState();
         statusEl.textContent = "Fehler";
+        alert(err.message || "Die Anfrage konnte nicht verarbeitet werden.");
       } finally {
         busy = false;
         sendBtn.disabled = false;
@@ -1073,37 +1039,37 @@ INDEX_HTML = r"""<!DOCTYPE html>
       promptEl.style.height = Math.min(promptEl.scrollHeight, 200) + "px";
     }
 
-    function newChat() {
-      const chat = createEmptyChat();
-      chats.unshift(chat);
-      currentChatId = chat.id;
-      renderAll();
-      saveState();
+    async function newChat() {
+      const res = await api("./api/chats", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
+      currentChatId = res.chat?.id || null;
+      await loadChats();
       promptEl.focus();
       maybeCloseSidebarOnMobile();
     }
 
-    function deleteCurrentChat() {
-      if (chats.length === 1) {
-        chats = [createEmptyChat()];
-        currentChatId = chats[0].id;
-      } else {
-        chats = chats.filter(c => c.id !== currentChatId);
-        currentChatId = chats[0].id;
-      }
-      renderAll();
-      saveState();
+    async function deleteCurrentChat() {
+      const chat = currentChat();
+      if (!chat) return;
+      await api(`./api/chats/${chat.id}`, { method: "DELETE" });
+      await loadChats();
       maybeCloseSidebarOnMobile();
     }
 
-    function renameCurrentChat() {
+    async function renameCurrentChat() {
       const chat = currentChat();
       const value = chatTitleInput.value.trim();
-      if (!value) return;
-      chat.title = value;
-      chat.updatedAt = nowIso();
-      renderAll();
-      saveState();
+      if (!chat || !value) return;
+
+      await api(`./api/chats/${chat.id}/rename`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: value })
+      });
+
+      await loadChats();
     }
 
     promptEl.addEventListener("input", autoResize);
@@ -1118,13 +1084,13 @@ INDEX_HTML = r"""<!DOCTYPE html>
     reloadModelsBtn.addEventListener("click", loadModels);
     newChatBtn.addEventListener("click", newChat);
     newChatBtnTop.addEventListener("click", newChat);
-    deleteChatBtn.addEventListener("click", () => {
+    deleteChatBtn.addEventListener("click", async () => {
       if (!confirm("Diesen Chat wirklich löschen?")) return;
-      deleteCurrentChat();
+      await deleteCurrentChat();
     });
     renameBtn.addEventListener("click", renameCurrentChat);
     searchChatsInput.addEventListener("input", renderHistoryList);
-    webSearchToggleTopEl.addEventListener("change", saveState);
+    webSearchToggleTopEl.addEventListener("change", saveLocalSettings);
     mobileHistoryToggle.addEventListener("click", openSidebar);
     sidebarBackdrop.addEventListener("click", closeSidebar);
 
@@ -1134,41 +1100,105 @@ INDEX_HTML = r"""<!DOCTYPE html>
       }
     });
 
-    loadState();
-    renderAll();
-    autoResize();
-    loadModels();
+    async function init() {
+      loadLocalSettings();
+      updateWebToggleVisual();
+      await loadModels();
+      await loadChats();
+      autoResize();
+    }
+
+    init();
   </script>
 </body>
 </html>
 """
 
-SYSTEM_PROMPT = """Du bist ein hilfreicher lokaler Assistent in Home Assistant.
-Antworte immer auf Deutsch.
-Antworte klar, präzise und ehrlich.
-Wenn du etwas nicht sicher weißt, sage das offen.
-Wenn Websuchquellen vorhanden sind, nutze sie nur zur Stützung aktueller Fakten und nenne sie knapp.
-Verwende saubere Absätze statt unnötig vieler Listen.
-"""
 
-class ChatMessage(BaseModel):
-    role: str
-    content: str
+def utc_now_iso() -> str:
+    return datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
 
-class ChatRequest(BaseModel):
-    model: str
-    message: str
-    use_web_search: bool = False
-    history: List[ChatMessage] = []
 
-class SearchSource(BaseModel):
-    title: str
-    url: str
-    description: Optional[str] = None
+def ensure_store_exists() -> None:
+    os.makedirs(DATA_DIR, exist_ok=True)
+    if not os.path.exists(CHATS_FILE):
+        with open(CHATS_FILE, "w", encoding="utf-8") as f:
+            json.dump({"chats": []}, f, ensure_ascii=False, indent=2)
 
-class ChatResponse(BaseModel):
-    answer: str
-    sources: List[SearchSource] = []
+
+def load_store() -> Dict[str, Any]:
+    ensure_store_exists()
+    with STORE_LOCK:
+        try:
+            with open(CHATS_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if not isinstance(data, dict):
+                return {"chats": []}
+            if not isinstance(data.get("chats"), list):
+                data["chats"] = []
+            return data
+        except Exception:
+            return {"chats": []}
+
+
+def save_store(data: Dict[str, Any]) -> None:
+    ensure_store_exists()
+    with STORE_LOCK:
+        with open(CHATS_FILE, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+
+
+def make_chat_id() -> str:
+    return f"chat_{datetime.utcnow().strftime('%Y%m%d%H%M%S%f')}"
+
+
+def create_empty_chat() -> Dict[str, Any]:
+    now = utc_now_iso()
+    return {
+        "id": make_chat_id(),
+        "title": f"Neuer Chat {datetime.now().strftime('%d.%m.%Y %H:%M')}",
+        "created_at": now,
+        "updated_at": now,
+        "messages": [],
+    }
+
+
+def find_chat(data: Dict[str, Any], chat_id: str) -> Optional[Dict[str, Any]]:
+    for chat in data.get("chats", []):
+        if chat.get("id") == chat_id:
+            return chat
+    return None
+
+
+def sort_chats(data: Dict[str, Any]) -> None:
+    data["chats"] = sorted(
+        data.get("chats", []),
+        key=lambda c: c.get("updated_at", ""),
+        reverse=True,
+    )
+
+
+def append_message(chat: Dict[str, Any], role: str, content: str, sources: Optional[List[Dict[str, Any]]] = None) -> None:
+    msg: Dict[str, Any] = {
+        "role": role,
+        "content": content,
+        "ts": int(datetime.now().timestamp() * 1000),
+    }
+    if sources:
+        msg["sources"] = sources
+    chat.setdefault("messages", []).append(msg)
+    chat["updated_at"] = utc_now_iso()
+
+
+def maybe_autotitle(chat: Dict[str, Any]) -> None:
+    title = str(chat.get("title", ""))
+    if not title.startswith("Neuer Chat"):
+        return
+    for msg in chat.get("messages", []):
+        if msg.get("role") == "user" and msg.get("content"):
+            chat["title"] = str(msg["content"]).strip()[:40] or title
+            return
+
 
 def auth_headers() -> Dict[str, str]:
     headers: Dict[str, str] = {
@@ -1178,18 +1208,18 @@ def auth_headers() -> Dict[str, str]:
         headers["Authorization"] = f"Bearer {OLLAMA_API_KEY}"
     return headers
 
+
 def normalize_keep_alive(value: str) -> Union[int, str]:
     raw = (value or "").strip()
     if not raw:
         return "5m"
-
     if raw in {"0", "-1"}:
         return int(raw)
-
     try:
         return int(raw)
     except ValueError:
         return raw
+
 
 def sanitize_history(history: List[ChatMessage], limit: int = 12) -> List[Dict[str, str]]:
     cleaned: List[Dict[str, str]] = []
@@ -1200,6 +1230,7 @@ def sanitize_history(history: List[ChatMessage], limit: int = 12) -> List[Dict[s
             cleaned.append({"role": role, "content": content})
     return cleaned
 
+
 def extract_models(data: Any) -> List[Dict[str, Any]]:
     if isinstance(data, dict):
         models = data.get("models", [])
@@ -1208,6 +1239,7 @@ def extract_models(data: Any) -> List[Dict[str, Any]]:
             if filtered:
                 return filtered
     return [{"name": DEFAULT_MODEL}]
+
 
 def join_ndjson_chunks(text: str) -> Optional[str]:
     parts: List[str] = []
@@ -1237,6 +1269,7 @@ def join_ndjson_chunks(text: str) -> Optional[str]:
 
     joined = "".join(parts).strip()
     return joined or None
+
 
 def extract_text_from_response(data: Any) -> Optional[str]:
     if isinstance(data, dict):
@@ -1283,6 +1316,7 @@ def extract_text_from_response(data: Any) -> Optional[str]:
 
     return None
 
+
 async def fetch_json_or_text(
     method: str,
     url: str,
@@ -1311,6 +1345,7 @@ async def fetch_json_or_text(
         except Exception:
             return text
 
+
 async def fetch_models() -> List[Dict[str, Any]]:
     data = await fetch_json_or_text(
         "GET",
@@ -1318,6 +1353,7 @@ async def fetch_models() -> List[Dict[str, Any]]:
         headers=auth_headers(),
     )
     return extract_models(data)
+
 
 async def brave_search(query: str) -> List[SearchSource]:
     if not BRAVE_API_KEY:
@@ -1353,14 +1389,9 @@ async def brave_search(query: str) -> List[SearchSource]:
         description = item.get("description") or item.get("snippet") or ""
         if not url:
             continue
-        sources.append(
-            SearchSource(
-                title=title,
-                url=url,
-                description=description,
-            )
-        )
+        sources.append(SearchSource(title=title, url=url, description=description))
     return sources
+
 
 def build_web_context(sources: List[SearchSource]) -> str:
     if not sources:
@@ -1375,6 +1406,7 @@ def build_web_context(sources: List[SearchSource]) -> str:
             f"Beschreibung: {source.description or 'Keine Beschreibung verfügbar.'}"
         )
     return "\n\n".join(parts)
+
 
 def history_to_prompt(history: List[Dict[str, str]], user_message: str) -> str:
     lines: List[str] = []
@@ -1393,6 +1425,7 @@ def history_to_prompt(history: List[Dict[str, str]], user_message: str) -> str:
     lines.append("Assistant:\n")
     return "\n".join(lines)
 
+
 async def try_chat_endpoint(model: str, messages: List[Dict[str, str]]) -> Optional[str]:
     payload = {
         "model": DEFAULT_MODEL,
@@ -1407,6 +1440,7 @@ async def try_chat_endpoint(model: str, messages: List[Dict[str, str]]) -> Optio
         headers=auth_headers(),
     )
     return extract_text_from_response(data)
+
 
 async def try_generate_endpoint(model: str, messages: List[Dict[str, str]], user_message: str) -> Optional[str]:
     prompt = history_to_prompt(messages, user_message)
@@ -1423,6 +1457,7 @@ async def try_generate_endpoint(model: str, messages: List[Dict[str, str]], user
         headers=auth_headers(),
     )
     return extract_text_from_response(data)
+
 
 async def ask_upstream(model: str, messages: List[Dict[str, str]], user_message: str) -> str:
     attempts: List[str] = []
@@ -1448,23 +1483,70 @@ async def ask_upstream(model: str, messages: List[Dict[str, str]], user_message:
 
     raise HTTPException(status_code=502, detail=" | ".join(attempts)[:1500])
 
+
 @app.get("/", response_class=HTMLResponse)
 async def index() -> HTMLResponse:
     return HTMLResponse(INDEX_HTML)
 
+
 @app.get("/api/models")
 async def models() -> Dict[str, Any]:
     try:
-      await fetch_models()
-      return {
-          "models": [{"name": DEFAULT_MODEL}],
-          "default_model": DEFAULT_MODEL,
-      }
+        await fetch_models()
+        return {"models": [{"name": DEFAULT_MODEL}], "default_model": DEFAULT_MODEL}
     except Exception:
-      return {
-          "models": [{"name": DEFAULT_MODEL}],
-          "default_model": DEFAULT_MODEL,
-      }
+        return {"models": [{"name": DEFAULT_MODEL}], "default_model": DEFAULT_MODEL}
+
+
+@app.get("/api/chats")
+async def get_chats() -> Dict[str, Any]:
+    data = load_store()
+    sort_chats(data)
+    return {"chats": data.get("chats", [])}
+
+
+@app.post("/api/chats")
+async def create_chat() -> Dict[str, Any]:
+    data = load_store()
+    chat = create_empty_chat()
+    data.setdefault("chats", []).insert(0, chat)
+    sort_chats(data)
+    save_store(data)
+    return {"chat": chat}
+
+
+@app.patch("/api/chats/{chat_id}/rename")
+async def rename_chat(chat_id: str, req: ChatRenameRequest) -> Dict[str, Any]:
+    title = req.title.strip()
+    if not title:
+        raise HTTPException(status_code=400, detail="Leerer Titel.")
+
+    data = load_store()
+    chat = find_chat(data, chat_id)
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat nicht gefunden.")
+
+    chat["title"] = title
+    chat["updated_at"] = utc_now_iso()
+    sort_chats(data)
+    save_store(data)
+    return {"chat": chat}
+
+
+@app.delete("/api/chats/{chat_id}")
+async def delete_chat(chat_id: str) -> Dict[str, Any]:
+    data = load_store()
+    chats = data.get("chats", [])
+    new_chats = [c for c in chats if c.get("id") != chat_id]
+    data["chats"] = new_chats
+
+    if not new_chats:
+        data["chats"] = [create_empty_chat()]
+
+    sort_chats(data)
+    save_store(data)
+    return {"ok": True, "chats": data["chats"]}
+
 
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest) -> ChatResponse:
@@ -1472,17 +1554,37 @@ async def chat(req: ChatRequest) -> ChatResponse:
     if not user_message:
         raise HTTPException(status_code=400, detail="Leere Nachricht.")
 
+    data = load_store()
+    chat_obj: Optional[Dict[str, Any]] = None
+
+    if req.chat_id:
+        chat_obj = find_chat(data, req.chat_id)
+
+    if not chat_obj:
+        chat_obj = create_empty_chat()
+        data.setdefault("chats", []).insert(0, chat_obj)
+
+    append_message(chat_obj, "user", user_message)
+    maybe_autotitle(chat_obj)
+
     history = sanitize_history(req.history, limit=12)
     sources: List[SearchSource] = []
 
     try:
-        system_content = SYSTEM_PROMPT
+        system_content = (
+            "Du bist ein hilfreicher lokaler Assistent in Home Assistant.\n"
+            "Antworte immer auf Deutsch.\n"
+            "Antworte klar, präzise und ehrlich.\n"
+            "Wenn du etwas nicht sicher weißt, sage das offen.\n"
+            "Wenn Websuchquellen vorhanden sind, nutze sie nur zur Stützung aktueller Fakten und nenne sie knapp.\n"
+            "Verwende saubere Absätze statt unnötig vieler Listen."
+        )
 
         if req.use_web_search:
             sources = await brave_search(user_message)
             if sources:
                 system_content = (
-                    SYSTEM_PROMPT
+                    system_content
                     + "\n\nNutze die folgenden Websuchquellen nur zur Stützung aktueller Fakten.\n"
                     + build_web_context(sources)
                 )
@@ -1492,12 +1594,33 @@ async def chat(req: ChatRequest) -> ChatResponse:
             *history[:-1],
             {"role": "user", "content": user_message},
         ]
+
         answer = await ask_upstream(DEFAULT_MODEL, messages, user_message)
-        return ChatResponse(answer=answer, sources=sources)
+        append_message(
+            chat_obj,
+            "assistant",
+            answer,
+            sources=[s.model_dump() for s in sources] if sources else None,
+        )
+        maybe_autotitle(chat_obj)
+
+        sort_chats(data)
+        save_store(data)
+
+        return ChatResponse(answer=answer, sources=sources, chat_id=chat_obj["id"])
 
     except HTTPException:
+        append_message(chat_obj, "assistant", "Fehler: Anfrage konnte nicht verarbeitet werden.")
+        sort_chats(data)
+        save_store(data)
         raise
     except httpx.RequestError as exc:
+        append_message(chat_obj, "assistant", f"Fehler: Netzwerkfehler: {exc}")
+        sort_chats(data)
+        save_store(data)
         raise HTTPException(status_code=502, detail=f"Netzwerkfehler: {exc}") from exc
     except Exception as exc:
+        append_message(chat_obj, "assistant", f"Fehler: Interner Fehler: {exc}")
+        sort_chats(data)
+        save_store(data)
         raise HTTPException(status_code=500, detail=f"Interner Fehler: {exc}") from exc
