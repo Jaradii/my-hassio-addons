@@ -307,7 +307,6 @@ function openView(id) {
 
 function closeViews() {
   document.querySelectorAll(".modal-view").forEach(v => v.classList.add("hidden"));
-  document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.view === "day"));
 }
 
 async function init() {
@@ -384,15 +383,8 @@ async function init() {
     closeViews();
   });
 
-  document.querySelectorAll(".nav-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      if (btn.dataset.view === "day") closeViews();
-      if (btn.dataset.view === "profile") openView("profileView");
-      if (btn.dataset.view === "backup") openView("backupView");
-    });
-  });
+  $("profileButton").addEventListener("click", () => openView("profileView"));
+  $("backupButton").addEventListener("click", () => openView("backupView"));
 
   document.querySelectorAll(".close-view").forEach(btn => btn.addEventListener("click", closeViews));
 

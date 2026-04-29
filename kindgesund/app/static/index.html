@@ -24,7 +24,11 @@
         <p class="kicker">Gesundheitstagebuch</p>
         <h1 id="appTitle">KindGesund</h1>
       </div>
-      <button id="todayButton" class="icon-btn">Heute</button>
+      <div class="top-actions">
+        <button id="profileButton" class="icon-btn" aria-label="Profil öffnen">☰</button>
+        <button id="backupButton" class="icon-btn" aria-label="Backup öffnen">⇩</button>
+        <button id="todayButton" class="icon-btn">Heute</button>
+      </div>
     </header>
 
     <section class="date-card">
@@ -120,12 +124,6 @@
         </div>
       </form>
     </section>
-
-    <nav class="bottom-nav">
-      <button class="nav-btn active" data-view="day">Tag</button>
-      <button class="nav-btn" data-view="profile">Profil</button>
-      <button class="nav-btn" data-view="backup">Backup</button>
-    </nav>
 
     <section id="profileView" class="modal-view hidden">
       <div class="view-card">
