@@ -631,49 +631,210 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-function focusEntryField(kind) {
-  const targetMap = {
-    temperature: "temperature",
-    fluids: "fluidsMl",
-    mood: "moodOptions",
-    symptoms: "symptomChips",
-    medication: "medication",
-    food: "food",
-    sleep: "sleep",
-    notes: "notes"
-  };
-
-  const id = targetMap[kind];
-  if (!id) return;
-
-  window.setTimeout(() => {
-    const el = $(id);
-    if (!el) return;
-
-    el.scrollIntoView({ behavior: "smooth", block: "center" });
-
-    if (["temperature", "fluidsMl", "medication", "food", "sleep", "notes"].includes(id)) {
-      window.setTimeout(() => el.focus({ preventScroll: true }), 280);
+function quickDefinitions() {
+  return {
+    temperature: {
+      title: "Temperatur",
+      subtitle: "Temperatur für diesen Tag speichern.",
+      html: `
+        <label class="field quick-field">
+          <span>Temperatur in °C</span>
+          <input id="quickTemperature" type="number" step="0.1" min="30" max="45" placeholder="38.4" />
+          <input id="quickTemperatureSlider" class="temperature-slider" type="range" min="34" max="42" step="0.1" value="37.0" />
+          <div class="slider-scale">
+            <span>34°</span><span>37°</span><span>39°</span><span>42°</span>
+          </div>
+        </label>
+      `
+    },
+    fluids: {
+      title: "Flüssigkeit",
+      subtitle: "Getrunkene Menge in ml eintragen.",
+      html: `
+        <label class="field quick-field">
+          <span>Flüssigkeit in ml</span>
+          <input id="quickFluidsMl" type="number" min="0" step="10" inputmode="numeric" placeholder="z. B. 250" />
+        </label>
+      `
+    },
+    mood: {
+      title: "Stimmung",
+      subtitle: "Aktuelle Stimmung auswählen.",
+      html: `
+        <input id="quickMood" type="hidden" />
+        <div id="quickMoodOptions" class="mood-options quick-mood-options" role="radiogroup" aria-label="Stimmung">
+          <button type="button" class="mood-option" data-mood="Gut drauf" aria-label="Gut drauf"><span>😊</span><small>Gut</small></button>
+          <button type="button" class="mood-option" data-mood="Müde" aria-label="Müde"><span>😴</span><small>Müde</small></button>
+          <button type="button" class="mood-option" data-mood="Quengelig" aria-label="Quengelig"><span>😣</span><small>Quengelig</small></button>
+          <button type="button" class="mood-option" data-mood="Schlapp" aria-label="Schlapp"><span>🥱</span><small>Schlapp</small></button>
+          <button type="button" class="mood-option" data-mood="Schmerzen" aria-label="Schmerzen"><span>🤕</span><small>Schmerz</small></button>
+          <button type="button" class="mood-option" data-mood="Unruhig" aria-label="Unruhig"><span>😟</span><small>Unruhig</small></button>
+        </div>
+      `
+    },
+    symptoms: {
+      title: "Symptome",
+      subtitle: "Ein oder mehrere Symptome auswählen.",
+      html: `
+        <div id="quickSymptomChips" class="quick-symptom-grid">
+          <label><input type="checkbox" value="Fieber" /><span class="symptom-icon">🌡️</span><span>Fieber</span></label>
+          <label><input type="checkbox" value="Husten" /><span class="symptom-icon">🤧</span><span>Husten</span></label>
+          <label><input type="checkbox" value="Schnupfen" /><span class="symptom-icon">👃</span><span>Schnupfen</span></label>
+          <label><input type="checkbox" value="Halsschmerzen" /><span class="symptom-icon">🗣️</span><span>Hals</span></label>
+          <label><input type="checkbox" value="Ohrenschmerzen" /><span class="symptom-icon">👂</span><span>Ohren</span></label>
+          <label><input type="checkbox" value="Bauchschmerzen" /><span class="symptom-icon">🤢</span><span>Bauch</span></label>
+          <label><input type="checkbox" value="Durchfall" /><span class="symptom-icon">🚽</span><span>Durchfall</span></label>
+          <label><input type="checkbox" value="Erbrechen" /><span class="symptom-icon">🤮</span><span>Erbrechen</span></label>
+          <label><input type="checkbox" value="Ausschlag" /><span class="symptom-icon">🩹</span><span>Ausschlag</span></label>
+          <label><input type="checkbox" value="Appetitlosigkeit" /><span class="symptom-icon">🍽️</span><span>Appetit</span></label>
+        </div>
+        <label class="field quick-field">
+          <span>Weitere Symptome</span>
+          <input id="quickCustomSymptoms" type="text" placeholder="optional" />
+        </label>
+      `
+    },
+    medication: {
+      title: "Medikamente",
+      subtitle: "Medikament, Dosis oder Uhrzeit notieren.",
+      html: `
+        <label class="field quick-field icon-textarea-field">
+          <span><span class="field-icon">💊</span>Medikamente</span>
+          <textarea id="quickMedication" rows="3" placeholder="Name, Dosis, Uhrzeit"></textarea>
+        </label>
+      `
+    },
+    food: {
+      title: "Essen / Schlaf",
+      subtitle: "Essen oder Schlaf kurz eintragen.",
+      html: `
+        <label class="field quick-field icon-textarea-field">
+          <span><span class="field-icon">🍽️</span>Essen</span>
+          <textarea id="quickFood" rows="2" placeholder="Was wurde gegessen?"></textarea>
+        </label>
+        <label class="field quick-field icon-textarea-field">
+          <span><span class="field-icon">😴</span>Schlaf</span>
+          <textarea id="quickSleep" rows="2" placeholder="Dauer, Qualität, Auffälligkeiten"></textarea>
+        </label>
+      `
     }
-  }, 260);
+  };
 }
 
 function openQuickEntry(kind) {
-  resetEntryForm();
-  openSheet();
-  focusEntryField(kind);
+  const defs = quickDefinitions();
+  const def = defs[kind];
+  if (!def) return;
 
-  const labels = {
-    temperature: "Temperatur eintragen",
-    fluids: "Flüssigkeit eintragen",
-    mood: "Stimmung eintragen",
-    symptoms: "Symptome eintragen",
-    medication: "Medikament eintragen",
-    food: "Essen / Schlaf eintragen"
+  document.body.classList.add("quick-open");
+  $("quickKind").value = kind;
+  $("quickTitle").textContent = def.title;
+  $("quickSubtitle").textContent = def.subtitle;
+  $("quickContent").innerHTML = def.html;
+
+  const sheet = $("quickSheet");
+  sheet.classList.remove("closing");
+  sheet.classList.remove("hidden");
+  sheet.setAttribute("aria-hidden", "false");
+
+  bindQuickControls(kind);
+
+  window.setTimeout(() => {
+    const first = $("quickContent").querySelector("input:not([type='hidden']), textarea, button");
+    if (first) first.focus({ preventScroll: true });
+  }, 260);
+}
+
+function closeQuickSheet() {
+  const sheet = $("quickSheet");
+  sheet.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("quick-open");
+  animateHide(sheet, "closing", () => {
+    $("quickContent").innerHTML = "";
+    $("quickKind").value = "";
+  });
+}
+
+function bindQuickControls(kind) {
+  if (kind === "temperature") {
+    const input = $("quickTemperature");
+    const slider = $("quickTemperatureSlider");
+    const setQuickTemp = (value, source = "input") => {
+      if (value === "" || value === null || value === undefined) return;
+      const normalized = String(value).replace(",", ".");
+      const num = Number(normalized);
+      if (Number.isNaN(num)) return;
+      if (source === "slider") input.value = (Math.round(num * 10) / 10).toFixed(1);
+      slider.value = Math.min(42, Math.max(34, num)).toFixed(1);
+    };
+    input.addEventListener("input", event => setQuickTemp(event.target.value, "input"));
+    input.addEventListener("blur", event => {
+      const normalized = String(event.target.value).replace(",", ".");
+      const num = Number(normalized);
+      if (!Number.isNaN(num)) input.value = (Math.round(num * 10) / 10).toFixed(1);
+    });
+    slider.addEventListener("input", event => setQuickTemp(event.target.value, "slider"));
+  }
+
+  if (kind === "mood") {
+    $("quickContent").querySelectorAll(".mood-option").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const current = $("quickMood").value;
+        const next = current === btn.dataset.mood ? "" : btn.dataset.mood;
+        $("quickMood").value = next;
+        $("quickContent").querySelectorAll(".mood-option").forEach(item => {
+          item.classList.toggle("active", item.dataset.mood === next);
+        });
+      });
+    });
+  }
+}
+
+function quickPayload(kind) {
+  const payload = {
+    date: state.selectedDate,
+    time: nowTime(),
+    temperature: null,
+    mood: "",
+    symptoms: [],
+    custom_symptoms: "",
+    medication: "",
+    fluids_ml: null,
+    food: "",
+    sleep: "",
+    diaper_or_toilet: "",
+    notes: ""
   };
 
-  const title = labels[kind] || "Neuer Eintrag";
-  $("entryFormTitle").textContent = title;
+  if (kind === "temperature") {
+    const value = $("quickTemperature").value;
+    payload.temperature = value === "" ? null : Number(String(value).replace(",", "."));
+  }
+
+  if (kind === "fluids") {
+    const value = $("quickFluidsMl").value;
+    payload.fluids_ml = value === "" ? null : Number(value);
+  }
+
+  if (kind === "mood") {
+    payload.mood = $("quickMood").value;
+  }
+
+  if (kind === "symptoms") {
+    payload.symptoms = [...document.querySelectorAll("#quickSymptomChips input:checked")].map(i => i.value);
+    payload.custom_symptoms = $("quickCustomSymptoms").value.trim();
+  }
+
+  if (kind === "medication") {
+    payload.medication = $("quickMedication").value.trim();
+  }
+
+  if (kind === "food") {
+    payload.food = $("quickFood").value.trim();
+    payload.sleep = $("quickSleep").value.trim();
+  }
+
+  return payload;
 }
 
 function openSheet() {
@@ -866,6 +1027,34 @@ async function init() {
   });
   $("closeEntry").addEventListener("click", closeSheet);
   $("sheetBackdrop").addEventListener("click", closeSheet);
+  $("closeQuick").addEventListener("click", closeQuickSheet);
+  $("quickBackdrop").addEventListener("click", closeQuickSheet);
+  $("quickForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    const kind = $("quickKind").value;
+    const payload = quickPayload(kind);
+
+    const hasValue = [
+      payload.temperature !== null && !Number.isNaN(payload.temperature),
+      payload.fluids_ml !== null && !Number.isNaN(payload.fluids_ml),
+      payload.mood,
+      payload.symptoms.length,
+      payload.custom_symptoms,
+      payload.medication,
+      payload.food,
+      payload.sleep
+    ].some(Boolean);
+
+    if (!hasValue) {
+      showToast("Kein Wert eingetragen");
+      return;
+    }
+
+    await api("./api/entries", { method: "POST", body: JSON.stringify(payload) });
+    await loadState();
+    closeQuickSheet();
+    showToast("Gespeichert");
+  });
   $("deleteCurrent").addEventListener("click", deleteCurrentEntry);
 
   $("temperature").addEventListener("input", (event) => {
