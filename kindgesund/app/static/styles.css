@@ -1583,3 +1583,141 @@ textarea {
 .sheet-head p {
   background: transparent !important;
 }
+
+
+/* v1.2.2: Date-Input Overflow im Profil beheben */
+#profileBirthDate,
+input[type="date"] {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  display: block !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+/* iOS/Safari innere Date-Input-Breite begrenzen */
+input[type="date"]::-webkit-date-and-time-value {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  text-align: left !important;
+}
+
+input[type="date"]::-webkit-datetime-edit {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  margin-left: 4px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Profilfelder dürfen nie breiter als der Dialog werden */
+#profileView .field,
+#profileView input,
+#profileView textarea,
+#profileView .view-card {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+}
+
+
+/* v1.2.3: ALLE sichtbaren UI-Felder/Karten/Dialoge auf 10px Kantenradius */
+:root {
+  --radius: 10px !important;
+}
+
+button,
+input,
+select,
+textarea,
+.btn,
+.icon-btn,
+.round-btn,
+.bottom-add-button,
+.bottom-action-bar,
+.date-card,
+.child-card,
+.entry-card,
+.section-card,
+.view-card,
+.pin-card,
+.sheet-panel,
+.metric,
+.temp-pill,
+.tag,
+.chips label,
+.avatar,
+.empty-icon,
+.pin-icon,
+.toast,
+.file-label,
+.modal-view .view-card,
+.sheet-actions .btn,
+.hero-card,
+.panel,
+.stat-card,
+.entry-card,
+.empty-state,
+.link-button {
+  border-radius: 10px !important;
+}
+
+/* Auch runde/pillenförmige Spezialelemente explizit auf 10px zurücksetzen */
+.primary,
+.secondary,
+.danger,
+.danger-button,
+.nav-btn,
+.tab,
+.badge,
+.floating-add,
+body > .bottom-action-bar > .bottom-add-button {
+  border-radius: 10px !important;
+}
+
+/* Checkboxen/kleine native Controls nicht verformen */
+input[type="checkbox"],
+input[type="radio"] {
+  border-radius: 3px !important;
+}
+
+/* Falls Browser innere Date-Input-Schaltflächen rund rendert */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  border-radius: 10px !important;
+}
+
+/* Dialoge und Sheets inklusive Mobile-Overrides hart fixieren */
+.sheet-panel,
+.modal-view .view-card,
+#profileView .view-card,
+#backupView .view-card {
+  border-radius: 10px !important;
+}
+
+/* Bottom-Dock und Eintragsbutton ebenfalls exakt 10px */
+body > .bottom-action-bar,
+body > .bottom-action-bar > .bottom-add-button {
+  border-radius: 10px !important;
+}
+
+/* Abschnittscontainer innerhalb des Formulars */
+.quick-grid .field,
+.field.full,
+.section-card,
+.chips label {
+  border-radius: 10px !important;
+}
+
+/* Kleine visuelle Karten */
+.metric,
+.note-block,
+.temp-pill,
+.empty-day,
+.entry-card {
+  border-radius: 10px !important;
+}
