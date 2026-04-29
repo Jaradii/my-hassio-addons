@@ -4981,3 +4981,197 @@ button:active,
     height: 15px;
   }
 }
+
+
+/* v1.8.1: Desktop breiter nutzen, Smartphone unverändert lassen */
+@media (min-width: 900px) {
+  .app {
+    width: min(1120px, calc(100vw - 48px)) !important;
+    max-width: 1120px !important;
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+
+  .topbar,
+  .date-card,
+  .day-entries {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .topbar {
+    align-items: center !important;
+  }
+
+  .topbar h1#activeProfileTitle {
+    font-size: 2.4rem !important;
+  }
+
+  .date-card {
+    grid-template-columns: 48px minmax(0, 1fr) 48px !important;
+    padding: 14px !important;
+  }
+
+  .day-summary-card {
+    padding: 18px !important;
+  }
+
+  .day-tile-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+
+  .day-tile {
+    min-height: 142px !important;
+    padding: 14px !important;
+  }
+
+  .tile-icon {
+    font-size: 1.55rem !important;
+  }
+
+  .tile-label {
+    font-size: 0.78rem !important;
+  }
+
+  .day-tile strong {
+    font-size: 1.08rem !important;
+  }
+
+  .day-tile small {
+    font-size: 0.72rem !important;
+  }
+
+  .summary-info-card {
+    padding: 12px !important;
+  }
+
+  .summary-info-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .expanded-details {
+    gap: 12px !important;
+  }
+
+  .entry-detail {
+    padding: 12px !important;
+  }
+
+  .entry-detail .detail-row {
+    grid-template-columns: 160px minmax(0, 1fr) !important;
+    align-items: start !important;
+    gap: 12px !important;
+  }
+
+  .entry-detail .detail-row span {
+    padding-top: 2px !important;
+  }
+
+  .entry-detail .symptom-row {
+    grid-template-columns: 160px minmax(0, 1fr) !important;
+  }
+
+  .history-list.compact-history-list {
+    width: min(720px, 100%) !important;
+  }
+
+  .history-row-main {
+    grid-template-columns: 110px minmax(0, 1fr) auto !important;
+  }
+
+  .history-change-row {
+    grid-template-columns: 150px minmax(0, 1fr) !important;
+    align-items: center !important;
+  }
+
+  .history-change-values {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) !important;
+  }
+
+  body > .bottom-action-bar > .bottom-add-button {
+    max-width: 420px !important;
+    width: 420px !important;
+  }
+
+  .toast {
+    max-width: 420px !important;
+  }
+}
+
+@media (min-width: 1280px) {
+  .app {
+    width: min(1220px, calc(100vw - 72px)) !important;
+    max-width: 1220px !important;
+  }
+
+  .day-tile {
+    min-height: 150px !important;
+  }
+}
+
+/* Popup-Formulare auf Desktop breiter und übersichtlicher, Smartphone bleibt wie bisher */
+@media (min-width: 900px) {
+  .sheet-panel {
+    width: min(860px, calc(100vw - 64px)) !important;
+    max-width: 860px !important;
+  }
+
+  .quick-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+
+  .temperature-field {
+    grid-column: span 1 !important;
+  }
+
+  .mood-field {
+    grid-column: span 2 !important;
+  }
+
+  .quick-grid .field:nth-child(3) {
+    grid-column: span 1 !important;
+  }
+
+  .mood-options {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  }
+
+  #symptomChips {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .section-card {
+    padding: 14px !important;
+  }
+
+  .section-card:has(.icon-textarea-field) {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+
+  .section-card:has(.icon-textarea-field) h3 {
+    grid-column: 1 / -1 !important;
+  }
+
+  .icon-textarea-field textarea {
+    min-height: 92px !important;
+  }
+
+  .sheet-actions .btn.primary,
+  .sheet-actions .btn.danger,
+  #deleteCurrent {
+    width: 420px !important;
+    max-width: 420px !important;
+  }
+
+  .modal-view .view-card,
+  #profileView .view-card,
+  #backupView .view-card {
+    width: min(680px, calc(100vw - 64px)) !important;
+    max-width: 680px !important;
+  }
+}
