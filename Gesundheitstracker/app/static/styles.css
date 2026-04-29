@@ -4245,3 +4245,58 @@ body.dark[data-theme="mono"] {
     font-size: 0.8rem !important;
   }
 }
+
+
+/* v1.7.5: Kreise/Hintergründe um Icons entfernen */
+
+/* Symptom-Icons im Neuer-Eintrag-Popup */
+#symptomChips label .symptom-icon,
+#symptomChips label:has(input:checked) .symptom-icon {
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Symptom-Icons in Übersicht/Details */
+.symptom-icon,
+.symptom-chip .symptom-icon,
+.symptom-tag .symptom-icon {
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Detailfeld-Icons bei Medikamente, Essen, Schlaf, Windel/Toilette, Notizen */
+.field-icon,
+.summary-info-icon {
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Icon-Abstände nach Entfernen der Kreise etwas harmonischer */
+.icon-textarea-field > span,
+.summary-info-head,
+#symptomChips label,
+.symptom-chip,
+.symptom-tag {
+  gap: 6px !important;
+}
