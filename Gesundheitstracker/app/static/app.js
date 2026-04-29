@@ -210,10 +210,14 @@ function renderDay() {
 
   container.innerHTML = renderDaySummaryCard(entries);
   const expandButton = container.querySelector("#toggleDetails");
-  if (expandButton) {
+  const detailsPanel = container.querySelector("#expandedDetails");
+  if (expandButton && detailsPanel) {
     expandButton.addEventListener("click", () => {
       state.dayExpanded = !state.dayExpanded;
-      renderDay();
+      detailsPanel.classList.toggle("hidden", !state.dayExpanded);
+      detailsPanel.setAttribute("aria-hidden", state.dayExpanded ? "false" : "true");
+      expandButton.textContent = state.dayExpanded ? "Details ausblenden" : "Details";
+      expandButton.setAttribute("aria-expanded", state.dayExpanded ? "true" : "false");
     });
   }
 
@@ -350,10 +354,12 @@ function renderDaySummaryCard(entries) {
       ${renderSummaryTextBlocks(summary)}
 
       <div class="card-actions">
-        <button id="toggleDetails" class="btn secondary">${expanded ? "Details ausblenden" : "Details"}</button>
+        <button id="toggleDetails" class="btn secondary" aria-expanded="${expanded ? "true" : "false"}">${expanded ? "Details ausblenden" : "Details"}</button>
       </div>
 
-      ${expanded ? renderExpandedEntries(entries) : ""}
+      <div id="expandedDetails" class="${expanded ? "" : "hidden"}" aria-hidden="${expanded ? "false" : "true"}">
+        ${renderExpandedEntries(entries)}
+      </div>
     </article>
   `;
 }

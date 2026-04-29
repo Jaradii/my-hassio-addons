@@ -1,6 +1,6 @@
 # Gesundheitstracker Home Assistant Add-on
 
-Version 1.7.7
+Version 1.7.8
 
 Mobile, tageszentrierte Gesundheits-Tagebuch-App für Home Assistant Ingress.
 
@@ -353,3 +353,11 @@ Die Daten liegen im Add-on unter:
 - Eintragsformular hat jetzt eine Schließanimation
 - Profil- und Backup-Dialoge haben jetzt eine Schließanimation
 - Öffnungsanimationen wurden etwas entschärft, damit sie stabiler wirken
+
+
+## Änderungen in 1.7.8
+
+- Details öffnen jetzt ohne kompletten Re-Render der Tagesübersicht
+- Tageskacheln werden beim Öffnen von Details nicht mehr neu aufgebaut
+- Dadurch wird das Zucken/Flackern der Übersicht deutlich reduziert
+- Nur der Detailbereich selbst animiert beim Einblenden

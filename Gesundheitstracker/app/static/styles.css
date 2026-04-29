@@ -4696,3 +4696,52 @@ button:active,
     animation: none !important;
   }
 }
+
+
+/* v1.7.8: Details ohne kompletten Re-Render öffnen, dadurch kein Zucken der Übersicht */
+#expandedDetails.hidden {
+  display: none !important;
+}
+
+#expandedDetails:not(.hidden) {
+  animation: kgDetailsOnlyIn 260ms cubic-bezier(.22, .9, .28, 1) both !important;
+}
+
+/* Beim Details-Toggle keine Animationen auf der Tageskarte/Kacheln auslösen */
+.day-summary-card,
+.day-summary-card *,
+.day-tile,
+.date-card {
+  animation-delay: 0ms !important;
+}
+
+.day-summary-card .day-tile,
+.day-summary-card,
+.date-card {
+  animation-name: none !important;
+}
+
+/* Nur der neu eingeblendete Detailbereich darf animieren */
+#expandedDetails .expanded-details {
+  animation: none !important;
+}
+
+@keyframes kgDetailsOnlyIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Der Details-Button verändert nur sich selbst, keine umliegenden Layoutanimationen */
+#toggleDetails {
+  transition:
+    background-color 220ms cubic-bezier(.22, .9, .28, 1),
+    border-color 220ms cubic-bezier(.22, .9, .28, 1),
+    color 220ms cubic-bezier(.22, .9, .28, 1),
+    transform 160ms cubic-bezier(.22, .9, .28, 1) !important;
+}
