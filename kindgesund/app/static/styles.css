@@ -2544,3 +2544,205 @@ body.dark .temp-red {
 .temperature-tile.temp-red .tile-label {
   color: var(--temp-text) !important;
 }
+
+
+/* v1.4.0: auswählbare Farbthemes */
+body[data-theme="babyblue"] {
+  --bg: #eef6fb !important;
+  --card: #f8fcff !important;
+  --card2: #d9ecf8 !important;
+  --text: #122431 !important;
+  --muted: #5d7281 !important;
+  --line: #cfe1ec !important;
+  --primary: #4f9fca !important;
+  --primary2: #2f7fb4 !important;
+  --green: #4baea0 !important;
+  --blue: #3b8fc6 !important;
+  --danger: #d94b5a !important;
+  --shadow: 0 14px 34px rgba(26, 68, 96, 0.13) !important;
+}
+
+body.dark[data-theme="babyblue"] {
+  --bg: #0e1a22 !important;
+  --card: #152630 !important;
+  --card2: #1d3542 !important;
+  --text: #eef8ff !important;
+  --muted: #9eb8c8 !important;
+  --line: #294657 !important;
+  --primary: #7ec7ee !important;
+  --primary2: #3e93c8 !important;
+  --green: #65c7b8 !important;
+  --blue: #7ec7ee !important;
+  --danger: #ff7b87 !important;
+  --shadow: 0 16px 38px rgba(0, 0, 0, 0.35) !important;
+}
+
+body[data-theme="mint"] {
+  --bg: #effaf6 !important;
+  --card: #fbfffd !important;
+  --card2: #d9f2e9 !important;
+  --text: #10261e !important;
+  --muted: #587568 !important;
+  --line: #c9e7db !important;
+  --primary: #57b99f !important;
+  --primary2: #2d8d78 !important;
+  --green: #45a878 !important;
+  --blue: #4fa3bd !important;
+  --danger: #d85a66 !important;
+  --shadow: 0 14px 34px rgba(26, 89, 72, 0.13) !important;
+}
+
+body.dark[data-theme="mint"] {
+  --bg: #0d1c18 !important;
+  --card: #142a23 !important;
+  --card2: #1d3d33 !important;
+  --text: #effff8 !important;
+  --muted: #a1c3b8 !important;
+  --line: #2a5246 !important;
+  --primary: #77d9c0 !important;
+  --primary2: #39a58c !important;
+  --green: #78ddb5 !important;
+  --blue: #7fcde0 !important;
+  --danger: #ff7d8a !important;
+  --shadow: 0 16px 38px rgba(0, 0, 0, 0.35) !important;
+}
+
+body[data-theme="lavender"] {
+  --bg: #f6f1fb !important;
+  --card: #fdfaff !important;
+  --card2: #eadff6 !important;
+  --text: #21172c !important;
+  --muted: #715f83 !important;
+  --line: #dfd1ed !important;
+  --primary: #a387d6 !important;
+  --primary2: #7d5eb8 !important;
+  --green: #66ab8c !important;
+  --blue: #7d94d6 !important;
+  --danger: #d85a75 !important;
+  --shadow: 0 14px 34px rgba(71, 42, 110, 0.13) !important;
+}
+
+body.dark[data-theme="lavender"] {
+  --bg: #171221 !important;
+  --card: #241c31 !important;
+  --card2: #332640 !important;
+  --text: #fbf7ff !important;
+  --muted: #c1b2d3 !important;
+  --line: #493a5f !important;
+  --primary: #bfa6f0 !important;
+  --primary2: #8b6acb !important;
+  --green: #87d0ac !important;
+  --blue: #a7b7ff !important;
+  --danger: #ff7b98 !important;
+  --shadow: 0 16px 38px rgba(0, 0, 0, 0.35) !important;
+}
+
+body[data-theme="peach"] {
+  --bg: #fff4ed !important;
+  --card: #fffaf7 !important;
+  --card2: #ffe2d1 !important;
+  --text: #2c1b14 !important;
+  --muted: #876555 !important;
+  --line: #efcdbc !important;
+  --primary: #ee996d !important;
+  --primary2: #cf6f45 !important;
+  --green: #76a878 !important;
+  --blue: #6f9fc6 !important;
+  --danger: #d84f5c !important;
+  --shadow: 0 14px 34px rgba(115, 60, 35, 0.13) !important;
+}
+
+body.dark[data-theme="peach"] {
+  --bg: #21150f !important;
+  --card: #301f17 !important;
+  --card2: #44291c !important;
+  --text: #fff7f1 !important;
+  --muted: #d1ae9d !important;
+  --line: #5a3a2a !important;
+  --primary: #ffb184 !important;
+  --primary2: #df7b50 !important;
+  --green: #98cf99 !important;
+  --blue: #91c5ee !important;
+  --danger: #ff7884 !important;
+  --shadow: 0 16px 38px rgba(0, 0, 0, 0.35) !important;
+}
+
+body[data-theme="rose"] {
+  --bg: #fff1f5 !important;
+  --card: #fffafd !important;
+  --card2: #f9dce7 !important;
+  --text: #2c1420 !important;
+  --muted: #845b6c !important;
+  --line: #edc8d7 !important;
+  --primary: #e48ead !important;
+  --primary2: #c65d85 !important;
+  --green: #79aa8b !important;
+  --blue: #7c9fd4 !important;
+  --danger: #d6465b !important;
+  --shadow: 0 14px 34px rgba(115, 42, 70, 0.13) !important;
+}
+
+body.dark[data-theme="rose"] {
+  --bg: #211018 !important;
+  --card: #311a25 !important;
+  --card2: #442333 !important;
+  --text: #fff7fb !important;
+  --muted: #d5aebe !important;
+  --line: #5a3244 !important;
+  --primary: #f5a8c4 !important;
+  --primary2: #d96c98 !important;
+  --green: #99d2aa !important;
+  --blue: #a2bfff !important;
+  --danger: #ff7588 !important;
+  --shadow: 0 16px 38px rgba(0, 0, 0, 0.35) !important;
+}
+
+body[data-theme="slate"] {
+  --bg: #eef3f7 !important;
+  --card: #fbfdff !important;
+  --card2: #dce7ef !important;
+  --text: #162330 !important;
+  --muted: #617080 !important;
+  --line: #ccd9e4 !important;
+  --primary: #6e94b8 !important;
+  --primary2: #426c93 !important;
+  --green: #68a58d !important;
+  --blue: #5b8fbf !important;
+  --danger: #cf5865 !important;
+  --shadow: 0 14px 34px rgba(35, 58, 81, 0.13) !important;
+}
+
+body.dark[data-theme="slate"] {
+  --bg: #101820 !important;
+  --card: #182430 !important;
+  --card2: #223240 !important;
+  --text: #f1f7fb !important;
+  --muted: #a8b8c6 !important;
+  --line: #33495c !important;
+  --primary: #91b7da !important;
+  --primary2: #5f8fbd !important;
+  --green: #86ccb0 !important;
+  --blue: #91b7da !important;
+  --danger: #f47d8b !important;
+  --shadow: 0 16px 38px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* Themeabhängige Hintergründe zentral */
+body {
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--primary) 22%, transparent), transparent 18rem),
+    linear-gradient(180deg, color-mix(in srgb, var(--bg) 96%, white 4%), var(--bg)) !important;
+}
+
+body.dark {
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--primary) 16%, transparent), transparent 18rem),
+    linear-gradient(180deg, color-mix(in srgb, var(--bg) 92%, black 8%), var(--bg)) !important;
+}
+
+/* Theme Select optisch passend */
+#themeSelect {
+  background: var(--card) !important;
+  color: var(--text) !important;
+  border-color: var(--line) !important;
+}

@@ -1,6 +1,7 @@
 const state = {
   config: {},
   data: { profile: {}, entries: [] },
+  theme: localStorage.getItem("kindgesund_theme") || "babyblue",
   pin: localStorage.getItem("kindgesund_pin") || "",
   selectedDate: today(),
   dayExpanded: false,
@@ -74,10 +75,21 @@ function hidePin() {
   $("pinError").textContent = "";
 }
 
+function applyTheme(theme) {
+  const allowed = ["babyblue", "mint", "lavender", "peach", "rose", "slate"];
+  const next = allowed.includes(theme) ? theme : "babyblue";
+  state.theme = next;
+  document.body.dataset.theme = next;
+  localStorage.setItem("kindgesund_theme", next);
+  const selector = $("themeSelect");
+  if (selector) selector.value = next;
+}
+
 async function loadConfig() {
   state.config = await api("./api/config", { headers: {} });
   document.title = state.config.app_title || "KindGesund";
   document.body.classList.toggle("dark", Boolean(state.config.dark_mode));
+  applyTheme(state.theme);
   if (state.config.pin_required && !state.pin) showPin();
 }
 
@@ -98,6 +110,8 @@ function renderProfile() {
   $("profileName").value = name;
   $("profileBirthDate").value = profile.birth_date || "";
   $("profileNotes").value = profile.notes || "";
+  const themeSelector = $("themeSelect");
+  if (themeSelector) themeSelector.value = state.theme;
 }
 
 function selectedEntries() {
@@ -552,6 +566,11 @@ async function init() {
     await loadState();
     showToast("Profil gespeichert");
     closeViews();
+  });
+
+  $("themeSelect").addEventListener("change", (event) => {
+    applyTheme(event.target.value);
+    showToast("Theme geändert");
   });
 
   $("importFile").addEventListener("change", async event => {

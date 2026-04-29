@@ -1,6 +1,6 @@
 # KindGesund Home Assistant Add-on
 
-Version 1.3.8
+Version 1.4.0
 
 Mobile, tageszentrierte Gesundheits-Tagebuch-App für Home Assistant Ingress.
 
@@ -177,3 +177,12 @@ Die Daten liegen im Add-on unter:
 - Ab 38,5 °C orange
 - Ab 39,0 °C rot
 - Temperatur-Kachel und Temperatur-Pill verwenden diese Farben
+
+
+## Änderungen in 1.4.0
+
+- Farbthemes eingebaut
+- Theme-Auswahl im Profil-Popup ergänzt
+- Themes werden im Browser gespeichert und sofort angewendet
+- Enthaltene Themes: Dunkles Babyblau, Sanftes Mint, Lavendel, Pfirsich, Rosa, Schieferblau
+- Darkmode funktioniert weiterhin zusammen mit jedem Theme
