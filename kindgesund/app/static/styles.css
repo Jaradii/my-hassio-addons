@@ -44,6 +44,8 @@ body {
 
 body {
   margin: 0;
+  width: 100%;
+  max-width: 100%;
   overflow-x: hidden;
   background:
     radial-gradient(circle at top right, rgba(255, 118, 100, 0.18), transparent 18rem),
@@ -66,12 +68,10 @@ button {
 }
 
 .app {
-  width: 100%;
-  max-width: 540px;
+  width: min(540px, 100%);
   min-height: 100dvh;
   margin: 0 auto;
   padding: 14px 14px 96px;
-  overflow-x: clip;
 }
 
 .topbar {
@@ -378,8 +378,7 @@ body.dark .temp-pill.high {
   left: 50%;
   bottom: 74px;
   transform: translateX(-50%);
-  width: calc(100vw - 28px);
-  max-width: 500px;
+  width: min(500px, calc(100% - 28px));
   border-radius: 22px;
   min-height: 52px;
   background: linear-gradient(135deg, var(--primary), var(--primary2));
@@ -395,8 +394,7 @@ body.dark .temp-pill.high {
   left: 50%;
   bottom: 10px;
   transform: translateX(-50%);
-  width: calc(100vw - 28px);
-  max-width: 500px;
+  width: min(500px, calc(100% - 28px));
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 6px;
@@ -442,8 +440,7 @@ body.dark .temp-pill.high {
   left: 50%;
   bottom: 0;
   transform: translateX(-50%);
-  width: 100%;
-  max-width: 540px;
+  width: min(540px, 100%);
   max-height: 92dvh;
   overflow: auto;
   background: var(--bg);
@@ -594,8 +591,7 @@ textarea:focus {
 }
 
 .pin-card {
-  width: 100%;
-  max-width: 360px;
+  width: min(360px, 100%);
   border-radius: 28px;
   padding: 18px;
   text-align: center;
@@ -637,20 +633,75 @@ textarea:focus {
 }
 
 
-/* v1.1.1: verhindert horizontales Scrollen in der Home-Assistant-App */
-.app,
+/* v1.1.2: echter Overflow-Fix ohne optische Umstellung der Tagesansicht */
+*,
+*::before,
+*::after {
+  min-width: 0;
+}
+
+.app {
+  max-width: 540px;
+  overflow-x: hidden;
+  contain: layout paint;
+}
+
 .topbar,
 .date-card,
 .child-card,
-.day-entries,
-.entry-card,
+.entry-card-head,
 .metric-grid,
+.card-actions,
+.sheet-head,
+.quick-grid,
+.bottom-nav {
+  min-width: 0;
+}
+
+.date-main,
+.child-card > div,
+.entry-card,
+.entry-title,
+.note-block,
+.metric,
+.tag,
+.field,
 .section-card,
-.sheet-panel,
 .view-card,
-.bottom-nav,
-.floating-add {
+.sheet-panel {
+  min-width: 0;
   max-width: 100%;
+}
+
+.entry-title,
+.note-block,
+.metric strong,
+.tag,
+.child-card strong,
+.date-main strong,
+.date-main span {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.floating-add,
+.bottom-nav {
+  box-sizing: border-box;
+  width: calc(100% - 28px);
+  max-width: 500px;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+}
+
+.sheet-panel,
+.view-card {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 540px;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
 }
 
 input,
@@ -658,40 +709,30 @@ select,
 textarea,
 button,
 .btn {
+  min-width: 0;
   max-width: 100%;
 }
 
-.sheet-panel,
-.view-card {
-  left: 0;
-  right: 0;
-  transform: none;
-  margin-left: auto;
-  margin-right: auto;
-}
+@media (max-width: 540px) {
+  .app {
+    width: 100%;
+    max-width: 100%;
+  }
 
-.floating-add,
-.bottom-nav {
-  left: 14px;
-  right: 14px;
-  transform: none;
-  width: auto;
-  max-width: 500px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-@media (min-width: 529px) {
   .floating-add,
   .bottom-nav {
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-    width: 500px;
+    width: calc(100% - 28px);
+    max-width: calc(100% - 28px);
+  }
+
+  .sheet-panel,
+  .view-card {
+    width: 100%;
+    max-width: 100%;
   }
 }
 
-@media (max-width: 420px) {
+@media (max-width: 390px) {
   .app {
     padding-left: 10px;
     padding-right: 10px;
@@ -699,8 +740,7 @@ button,
 
   .date-card {
     grid-template-columns: 38px minmax(0, 1fr) 38px;
-    gap: 7px;
-    padding: 10px;
+    gap: 8px;
   }
 
   .round-btn {
@@ -708,13 +748,9 @@ button,
     height: 38px;
   }
 
-  .metric-grid {
-    grid-template-columns: 1fr;
-  }
-
   .floating-add,
   .bottom-nav {
-    left: 10px;
-    right: 10px;
+    width: calc(100% - 20px);
+    max-width: calc(100% - 20px);
   }
 }
