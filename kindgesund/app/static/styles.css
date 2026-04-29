@@ -3485,3 +3485,23 @@ body.dark .mood-option.active small {
     font-size: 0.66rem;
   }
 }
+
+
+/* v1.5.1: Home-Assistant-Benutzer pro Eintrag anzeigen */
+.entry-user-meta {
+  display: grid;
+  gap: 3px;
+  padding: 8px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--kg-soft) 72%, transparent) !important;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 72%, transparent);
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.entry-user-meta strong {
+  color: var(--text);
+  font-weight: 900;
+}

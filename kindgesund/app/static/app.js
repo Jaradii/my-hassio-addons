@@ -377,6 +377,28 @@ function renderExpandedEntries(entries) {
   `;
 }
 
+function userLabel(user) {
+  if (!user || typeof user !== "object") return "Unbekannt";
+  return user.display_name || user.name || user.label || "Unbekannt";
+}
+
+function formatTimestamp(value) {
+  if (!value) return "";
+  try {
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return "";
+    return d.toLocaleString("de-DE", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  } catch {
+    return "";
+  }
+}
+
 function renderEntryDetail(entry) {
   const symptoms = [...(entry.symptoms || [])];
   if (entry.custom_symptoms) symptoms.push(...entry.custom_symptoms.split(",").map(s => s.trim()).filter(Boolean));
@@ -401,6 +423,10 @@ function renderEntryDetail(entry) {
           <button class="btn secondary edit-entry" data-id="${entry.id}">Bearbeiten</button>
           <button class="btn danger delete-entry" data-id="${entry.id}">Löschen</button>
         </div>
+      </div>
+      <div class="entry-user-meta">
+        <span>Erstellt von <strong>${escapeHtml(userLabel(entry.created_by))}</strong>${entry.created_at ? ` · ${escapeHtml(formatTimestamp(entry.created_at))}` : ""}</span>
+        ${entry.updated_by && userLabel(entry.updated_by) !== userLabel(entry.created_by) ? `<span>Bearbeitet von <strong>${escapeHtml(userLabel(entry.updated_by))}</strong>${entry.updated_at ? ` · ${escapeHtml(formatTimestamp(entry.updated_at))}` : ""}</span>` : ""}
       </div>
       ${symptoms.length ? `
         <div class="detail-row symptom-row">

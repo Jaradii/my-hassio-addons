@@ -96,6 +96,26 @@ def check_pin(request: Request) -> None:
         raise HTTPException(status_code=401, detail="PIN erforderlich oder falsch.")
 
 
+def get_ha_user(request: Request) -> Dict[str, str]:
+    """Read Home Assistant Ingress user headers.
+
+    Home Assistant may provide these headers when the add-on is accessed through Ingress.
+    Older entries or non-Ingress access may not contain them.
+    """
+    user_id = request.headers.get("x-remote-user-id", "") or request.headers.get("X-Remote-User-Id", "")
+    user_name = request.headers.get("x-remote-user-name", "") or request.headers.get("X-Remote-User-Name", "")
+    display_name = request.headers.get("x-remote-user-display-name", "") or request.headers.get("X-Remote-User-Display-Name", "")
+
+    best_name = display_name or user_name or "Unbekannt"
+
+    return {
+        "id": user_id,
+        "name": user_name,
+        "display_name": display_name,
+        "label": best_name,
+    }
+
+
 class Profile(BaseModel):
     child_name: str = Field(default="Kind", max_length=80)
     birth_date: str = Field(default="", max_length=20)
@@ -121,6 +141,8 @@ class HealthEntry(HealthEntryIn):
     id: str
     created_at: str
     updated_at: str
+    created_by: Dict[str, str] = Field(default_factory=dict)
+    updated_by: Dict[str, str] = Field(default_factory=dict)
 
 
 @app.middleware("http")
@@ -159,11 +181,14 @@ def api_save_profile(profile: Profile, request: Request):
 def api_create_entry(entry: HealthEntryIn, request: Request):
     check_pin(request)
     store = read_store()
+    user = get_ha_user(request)
     item = HealthEntry(
         **entry.model_dump(),
         id=str(uuid.uuid4()),
         created_at=utc_now(),
         updated_at=utc_now(),
+        created_by=user,
+        updated_by=user,
     ).model_dump()
     store["entries"].append(item)
     store["entries"].sort(key=lambda e: (e.get("date", ""), e.get("time", "")), reverse=True)
@@ -175,6 +200,7 @@ def api_create_entry(entry: HealthEntryIn, request: Request):
 def api_update_entry(entry_id: str, entry: HealthEntryIn, request: Request):
     check_pin(request)
     store = read_store()
+    user = get_ha_user(request)
     for idx, existing in enumerate(store["entries"]):
         if existing.get("id") == entry_id:
             updated = HealthEntry(
@@ -182,6 +208,8 @@ def api_update_entry(entry_id: str, entry: HealthEntryIn, request: Request):
                 id=entry_id,
                 created_at=existing.get("created_at", utc_now()),
                 updated_at=utc_now(),
+                created_by=existing.get("created_by", {}),
+                updated_by=user,
             ).model_dump()
             store["entries"][idx] = updated
             store["entries"].sort(key=lambda e: (e.get("date", ""), e.get("time", "")), reverse=True)

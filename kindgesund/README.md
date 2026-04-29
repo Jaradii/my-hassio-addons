@@ -1,6 +1,6 @@
 # KindGesund Home Assistant Add-on
 
-Version 1.5.0
+Version 1.5.1
 
 Mobile, tageszentrierte Gesundheits-Tagebuch-App für Home Assistant Ingress.
 
@@ -234,3 +234,11 @@ Die Daten liegen im Add-on unter:
 - Slider zeigt farbliche Temperaturbereiche
 - Stimmung ist jetzt eine Icon-Auswahl statt Dropdown
 - Stimmung kann per Tippen gewählt oder wieder abgewählt werden
+
+
+## Änderungen in 1.5.1
+
+- Home-Assistant-Benutzer wird bei neuen Einträgen automatisch gespeichert
+- Beim Bearbeiten wird der zuletzt bearbeitende Benutzer gespeichert
+- Erweiterte Einzelansicht zeigt „Erstellt von“ und, falls abweichend, „Bearbeitet von“
+- Alte Einträge ohne Benutzerinformationen werden als „Unbekannt“ angezeigt
