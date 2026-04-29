@@ -2103,3 +2103,128 @@ body.dark .entry-detail-actions .delete-entry {
     width: 100% !important;
   }
 }
+
+
+/* v1.3.4: dunkles Babyblau + Toast auf Buttonbreite */
+:root {
+  --bg: #eef6fb !important;
+  --card: #f8fcff !important;
+  --card2: #d9ecf8 !important;
+  --text: #122431 !important;
+  --muted: #5d7281 !important;
+  --line: #cfe1ec !important;
+  --primary: #4f9fca !important;
+  --primary2: #2f7fb4 !important;
+  --green: #4baea0 !important;
+  --blue: #3b8fc6 !important;
+  --danger: #d94b5a !important;
+  --shadow: 0 14px 34px rgba(26, 68, 96, 0.13) !important;
+}
+
+body.dark {
+  --bg: #0e1a22 !important;
+  --card: #152630 !important;
+  --card2: #1d3542 !important;
+  --text: #eef8ff !important;
+  --muted: #9eb8c8 !important;
+  --line: #294657 !important;
+  --primary: #7ec7ee !important;
+  --primary2: #3e93c8 !important;
+  --green: #65c7b8 !important;
+  --blue: #7ec7ee !important;
+  --danger: #ff7b87 !important;
+  --shadow: 0 16px 38px rgba(0, 0, 0, 0.35) !important;
+}
+
+body {
+  background:
+    radial-gradient(circle at top right, rgba(79, 159, 202, 0.22), transparent 18rem),
+    linear-gradient(180deg, color-mix(in srgb, var(--bg) 96%, white 4%), var(--bg)) !important;
+}
+
+body.dark {
+  background:
+    radial-gradient(circle at top right, rgba(126, 199, 238, 0.16), transparent 18rem),
+    linear-gradient(180deg, #0e1a22, #0b151c) !important;
+}
+
+.kicker {
+  color: var(--primary2) !important;
+}
+
+body.dark .kicker {
+  color: var(--primary) !important;
+}
+
+.primary,
+.bottom-add-button,
+body > .bottom-action-bar > .bottom-add-button,
+.sheet-actions .btn.primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary2)) !important;
+  color: #ffffff !important;
+  box-shadow: 0 14px 32px rgba(47, 127, 180, 0.28) !important;
+}
+
+.day-tile,
+.metric,
+.note-block,
+.entry-detail,
+.round-btn,
+.icon-btn,
+.secondary {
+  background: color-mix(in srgb, var(--card2) 55%, var(--card) 45%) !important;
+}
+
+.entry-card,
+.date-card,
+.section-card,
+.view-card,
+.sheet-panel,
+.pin-card {
+  background:
+    radial-gradient(circle at top right, rgba(79, 159, 202, 0.10), transparent 14rem),
+    var(--card) !important;
+}
+
+.tag {
+  background: color-mix(in srgb, var(--primary) 18%, var(--card)) !important;
+  color: color-mix(in srgb, var(--primary2) 82%, var(--text)) !important;
+}
+
+body.dark .tag {
+  color: var(--primary) !important;
+}
+
+.temp-pill {
+  background: color-mix(in srgb, var(--primary) 16%, var(--card)) !important;
+  color: var(--primary2) !important;
+}
+
+body.dark .temp-pill {
+  color: var(--primary) !important;
+}
+
+/* Toast: gleiche Breite wie die Hauptbuttons */
+.toast {
+  width: min(360px, calc(100vw - 48px)) !important;
+  max-width: calc(100vw - 48px) !important;
+  min-height: 54px !important;
+  padding: 0 24px !important;
+  border-radius: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  font-weight: 950 !important;
+  background: linear-gradient(135deg, var(--primary), var(--primary2)) !important;
+  color: #ffffff !important;
+  box-shadow: 0 16px 38px rgba(47, 127, 180, 0.30) !important;
+}
+
+@media (max-width: 430px) {
+  .toast {
+    width: min(330px, calc(100vw - 36px)) !important;
+    max-width: calc(100vw - 36px) !important;
+    min-height: 52px !important;
+  }
+}
