@@ -4,6 +4,7 @@ const state = {
   theme: localStorage.getItem("kindgesund_theme") || "babyblue",
   pin: localStorage.getItem("kindgesund_pin") || "",
   selectedDate: today(),
+  calendarMonth: today().slice(0, 7),
   dayExpanded: false,
   editingExistingEntry: false
 };
@@ -11,18 +12,8 @@ const state = {
 const $ = (id) => document.getElementById(id);
 
 function openSelectedDatePicker() {
-  const picker = $("selectedDate");
-  if (!picker) return;
-  if (typeof picker.showPicker === "function") {
-    try {
-      picker.showPicker();
-      return;
-    } catch {
-      // Fallback below.
-    }
-  }
-  picker.focus({ preventScroll: true });
-  picker.click();
+  state.calendarMonth = state.selectedDate.slice(0, 7);
+  openCalendarSheet();
 }
 
 function onIfExists(id, eventName, handler) {
@@ -194,6 +185,89 @@ function selectedEntries() {
   return (state.data.entries || [])
     .filter(e => e.date === state.selectedDate)
     .sort((a, b) => (b.time || "").localeCompare(a.time || ""));
+}
+
+function monthLabel(month) {
+  const [year, monthIndex] = month.split("-").map(Number);
+  return new Date(year, monthIndex - 1, 1).toLocaleDateString("de-DE", {
+    month: "long",
+    year: "numeric"
+  });
+}
+
+function addMonths(month, amount) {
+  const [year, monthIndex] = month.split("-").map(Number);
+  const d = new Date(year, monthIndex - 1 + amount, 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function entryDatesSet() {
+  return new Set((state.data.entries || []).map(entry => entry.date).filter(Boolean));
+}
+
+function openCalendarSheet() {
+  const sheet = $("calendarSheet");
+  if (!sheet) return;
+  document.body.classList.add("calendar-open");
+  renderCalendar();
+  sheet.classList.remove("closing", "hidden");
+  sheet.setAttribute("aria-hidden", "false");
+}
+
+function closeCalendarSheet() {
+  const sheet = $("calendarSheet");
+  if (!sheet || sheet.classList.contains("hidden")) return;
+  sheet.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("calendar-open");
+  animateHide(sheet, "closing");
+}
+
+function renderCalendar() {
+  const grid = $("calendarGrid");
+  if (!grid) return;
+
+  const month = state.calendarMonth || state.selectedDate.slice(0, 7);
+  $("calendarMonthLabel").textContent = monthLabel(month);
+
+  const [year, monthIndex] = month.split("-").map(Number);
+  const first = new Date(year, monthIndex - 1, 1);
+  const daysInMonth = new Date(year, monthIndex, 0).getDate();
+  const mondayStartOffset = (first.getDay() + 6) % 7;
+  const markedDates = entryDatesSet();
+  const todayValue = today();
+
+  const cells = [];
+
+  for (let i = 0; i < mondayStartOffset; i += 1) {
+    cells.push(`<div class="calendar-day empty" aria-hidden="true"></div>`);
+  }
+
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    const value = `${month}-${String(day).padStart(2, "0")}`;
+    const hasEntry = markedDates.has(value);
+    const selected = value === state.selectedDate;
+    const isToday = value === todayValue;
+
+    cells.push(`
+      <button
+        type="button"
+        class="calendar-day ${hasEntry ? "has-entry" : ""} ${selected ? "selected" : ""} ${isToday ? "today" : ""}"
+        data-date="${value}"
+        aria-label="${day}. ${monthLabel(month)}${hasEntry ? ", mit Eintrag" : ""}"
+      >
+        <span>${day}</span>
+      </button>
+    `);
+  }
+
+  grid.innerHTML = cells.join("");
+
+  grid.querySelectorAll(".calendar-day[data-date]").forEach(button => {
+    button.addEventListener("click", () => {
+      setDate(button.dataset.date);
+      closeCalendarSheet();
+    });
+  });
 }
 
 function renderDateHeader(entries) {
@@ -981,6 +1055,20 @@ async function init() {
       event.preventDefault();
       openSelectedDatePicker();
     }
+  });
+  $("calendarBackdrop").addEventListener("click", closeCalendarSheet);
+  $("calendarClose").addEventListener("click", closeCalendarSheet);
+  $("calendarPrevMonth").addEventListener("click", () => {
+    state.calendarMonth = addMonths(state.calendarMonth, -1);
+    renderCalendar();
+  });
+  $("calendarNextMonth").addEventListener("click", () => {
+    state.calendarMonth = addMonths(state.calendarMonth, 1);
+    renderCalendar();
+  });
+  $("calendarToday").addEventListener("click", () => {
+    setDate(today());
+    closeCalendarSheet();
   });
 
   $("openEntry").addEventListener("click", () => {

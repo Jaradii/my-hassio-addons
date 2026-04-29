@@ -43,6 +43,32 @@
 
     <section id="dayEntries" class="day-entries"></section>
 
+
+    <section id="calendarSheet" class="calendar-sheet hidden" aria-hidden="true">
+      <div id="calendarBackdrop" class="calendar-backdrop"></div>
+      <div class="calendar-panel">
+        <div class="calendar-head">
+          <button id="calendarPrevMonth" type="button" class="round-btn" aria-label="Vorheriger Monat">‹</button>
+          <div>
+            <h2 id="calendarMonthLabel">Monat</h2>
+            <p>Ein Punkt markiert Tage mit Einträgen.</p>
+          </div>
+          <button id="calendarNextMonth" type="button" class="round-btn" aria-label="Nächster Monat">›</button>
+          <button id="calendarClose" type="button" class="round-btn calendar-close" aria-label="Kalender schließen">×</button>
+        </div>
+
+        <div class="calendar-weekdays" aria-hidden="true">
+          <span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span>
+        </div>
+
+        <div id="calendarGrid" class="calendar-grid"></div>
+
+        <div class="calendar-footer">
+          <button id="calendarToday" type="button" class="btn secondary">Heute</button>
+        </div>
+      </div>
+    </section>
+
     <section id="quickSheet" class="quick-sheet hidden" aria-hidden="true">
       <div id="quickBackdrop" class="quick-backdrop"></div>
       <form id="quickForm" class="quick-panel">

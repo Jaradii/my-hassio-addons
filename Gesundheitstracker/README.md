@@ -1,6 +1,6 @@
 # Gesundheitstracker Home Assistant Add-on
 
-Version 1.9.5
+Version 2.0.0
 
 Mobile, tageszentrierte Gesundheits-Tagebuch-App für Home Assistant Ingress.
 
@@ -444,3 +444,12 @@ Die Daten liegen im Add-on unter:
 - Das native Date-Feld liegt jetzt als transparente klickbare Ebene über der Datumsfläche
 - `pointer-events: none` für den Datepicker wurde entfernt
 - Datumsfläche ist kein Button mehr mit verschachteltem Input, sondern ein sauberer Container
+
+
+## Änderungen in 2.0.0
+
+- Nativer Datepicker durch eigenen Kalender ersetzt
+- Tage mit Einträgen werden mit einem kleinen Punkt markiert
+- Der aktuell ausgewählte Tag wird hervorgehoben
+- Der heutige Tag bekommt eine dezente Markierung
+- Monatsnavigation und Heute-Button im Kalender ergänzt

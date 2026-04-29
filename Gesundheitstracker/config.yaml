@@ -1,5 +1,5 @@
 name: Gesundheitstracker
-version: "1.9.5"
+version: "2.0.0"
 slug: kindgesund
 description: "Gesundheitstracker für Home Assistant"
 url: "https://github.com/Jaradii/my-hassio-addons"

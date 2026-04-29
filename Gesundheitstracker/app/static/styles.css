@@ -5527,3 +5527,236 @@ body.quick-open > .bottom-action-bar { display: none !important; }
 .date-picker-trigger #selectedDate::-webkit-datetime-edit {
   color: transparent;
 }
+
+
+/* v2.0.0: Eigener Kalender mit Markierungen für Tage mit Einträgen */
+body.calendar-open > .bottom-action-bar {
+  display: none !important;
+}
+
+.calendar-sheet {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1270 !important;
+  display: block !important;
+  overflow: hidden !important;
+}
+
+.calendar-sheet.hidden {
+  display: none !important;
+}
+
+.calendar-backdrop {
+  position: absolute !important;
+  inset: 0 !important;
+  background: color-mix(in srgb, var(--bg) 72%, rgba(17, 19, 24, 0.28) 28%) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+.calendar-panel {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: min(430px, calc(100vw - 28px)) !important;
+  max-width: calc(100vw - 28px) !important;
+  max-height: min(82dvh, 680px) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 14px !important;
+  border-radius: 10px !important;
+  background: var(--kg-surface) !important;
+  border: 1px solid var(--kg-border) !important;
+  box-sizing: border-box !important;
+}
+
+.calendar-head {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 12px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid color-mix(in srgb, var(--kg-border) 65%, transparent);
+}
+
+.calendar-head h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  line-height: 1.2;
+  text-transform: capitalize;
+}
+
+.calendar-head p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.25;
+}
+
+.calendar-close {
+  margin-left: 2px;
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 950;
+  text-align: center;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.calendar-day {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  min-width: 0;
+  aspect-ratio: 1 / 1;
+  border-radius: 10px !important;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 70%, transparent);
+  background: color-mix(in srgb, var(--kg-soft) 74%, transparent);
+  color: var(--text);
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.calendar-day.empty {
+  background: transparent;
+  border: 0;
+  pointer-events: none;
+}
+
+.calendar-day.has-entry::after {
+  content: "";
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+.calendar-day.today {
+  border-color: color-mix(in srgb, var(--primary) 60%, var(--kg-border) 40%);
+}
+
+.calendar-day.selected {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: #fff !important;
+}
+
+.calendar-day.selected.has-entry::after {
+  background: #fff;
+}
+
+.calendar-day:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--primary) 35%, transparent);
+  outline-offset: 2px;
+}
+
+.calendar-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid color-mix(in srgb, var(--kg-border) 65%, transparent);
+}
+
+.calendar-footer .btn {
+  width: min(240px, 100%);
+  min-height: 44px;
+}
+
+/* Der alte native Date-Input soll nicht mehr über der Datumsfläche liegen */
+.date-picker-trigger #selectedDate {
+  display: none !important;
+}
+
+.calendar-sheet:not(.hidden):not(.closing) .calendar-backdrop {
+  animation: kgSheetBackdropIn var(--sheet-motion-duration, 420ms) var(--sheet-motion-ease, cubic-bezier(.22,.9,.28,1)) both !important;
+}
+
+.calendar-sheet:not(.hidden):not(.closing) .calendar-panel {
+  animation: kgCalendarOpen 420ms cubic-bezier(.22,.9,.28,1) both !important;
+}
+
+.calendar-sheet.closing {
+  display: block !important;
+  pointer-events: none !important;
+}
+
+.calendar-sheet.closing .calendar-backdrop {
+  animation: kgSheetBackdropOut var(--sheet-motion-duration, 420ms) var(--sheet-motion-ease, cubic-bezier(.22,.9,.28,1)) both !important;
+}
+
+.calendar-sheet.closing .calendar-panel {
+  animation: kgCalendarClose 420ms cubic-bezier(.22,.9,.28,1) both !important;
+}
+
+@keyframes kgCalendarOpen {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 26px)) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes kgCalendarClose {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 26px)) scale(0.985);
+  }
+}
+
+@media (min-width: 900px) {
+  .calendar-panel {
+    width: min(500px, calc(100vw - 64px)) !important;
+  }
+
+  .calendar-day {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 370px) {
+  .calendar-panel {
+    padding: 12px !important;
+  }
+
+  .calendar-grid,
+  .calendar-weekdays {
+    gap: 4px;
+  }
+
+  .calendar-head {
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .calendar-close {
+    grid-column: 1 / -1;
+    justify-self: end;
+  }
+}
