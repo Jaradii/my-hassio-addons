@@ -3210,3 +3210,40 @@ body > .bottom-action-bar > .bottom-add-button::after {
     filter: brightness(0.98);
   }
 }
+
+
+/* v1.4.3: Symptom-Icons auch im Neuer-Eintrag-Popup */
+#symptomChips label {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+#symptomChips label .symptom-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+#symptomChips label input {
+  margin: 0 !important;
+  flex-shrink: 0;
+}
+
+#symptomChips label span:last-child {
+  line-height: 1;
+}
+
+@media (max-width: 430px) {
+  #symptomChips {
+    gap: 6px !important;
+  }
+
+  #symptomChips label {
+    padding: 7px 8px !important;
+    gap: 5px !important;
+  }
+
+  #symptomChips label .symptom-icon {
+    font-size: 1.05rem;
+  }
+}
