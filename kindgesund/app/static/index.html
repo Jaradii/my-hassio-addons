@@ -9,93 +9,70 @@
 <body>
   <div id="pinOverlay" class="pin-overlay hidden">
     <div class="pin-card">
-      <div class="logo-circle">♥</div>
+      <div class="pin-icon">♥</div>
       <h1>KindGesund</h1>
-      <p>Diese Ansicht ist zusätzlich mit einer lokalen PIN geschützt.</p>
-      <input id="pinInput" type="password" inputmode="numeric" placeholder="PIN eingeben" autocomplete="current-password" />
-      <button id="pinButton" class="primary">Entsperren</button>
+      <p>PIN eingeben</p>
+      <input id="pinInput" type="password" inputmode="numeric" placeholder="PIN" autocomplete="current-password" />
+      <button id="pinButton" class="btn primary">Entsperren</button>
       <p id="pinError" class="error"></p>
     </div>
   </div>
 
-  <main class="shell">
-    <header class="hero">
+  <main class="app">
+    <header class="topbar">
       <div>
-        <p class="eyebrow">Tägliches Gesundheits-Tagebuch</p>
+        <p class="kicker">Gesundheitstagebuch</p>
         <h1 id="appTitle">KindGesund</h1>
-        <p class="subtitle">Symptome, Temperatur, Medikamente, Flüssigkeit, Schlaf und Notizen dokumentieren.</p>
       </div>
-      <div class="hero-card">
-        <span class="small-label">Aktuell für</span>
-        <strong id="childNameHero">Kind</strong>
-        <span id="lastEntryText">Noch keine Einträge</span>
-      </div>
+      <button id="todayButton" class="icon-btn">Heute</button>
     </header>
 
-    <nav class="tabs" aria-label="Navigation">
-      <button class="tab active" data-tab="dashboard">Übersicht</button>
-      <button class="tab" data-tab="entry">Neuer Eintrag</button>
-      <button class="tab" data-tab="timeline">Verlauf</button>
-      <button class="tab" data-tab="settings">Profil & Export</button>
-    </nav>
-
-    <section id="dashboard" class="tab-panel active">
-      <div class="stats-grid">
-        <article class="stat-card">
-          <span>Einträge</span>
-          <strong id="statEntries">0</strong>
-        </article>
-        <article class="stat-card">
-          <span>Letzte Temperatur</span>
-          <strong id="statTemp">Keine</strong>
-        </article>
-        <article class="stat-card">
-          <span>Heute Flüssigkeit</span>
-          <strong id="statFluids">0 ml</strong>
-        </article>
-        <article class="stat-card">
-          <span>Häufige Symptome</span>
-          <strong id="statSymptoms">Keine</strong>
-        </article>
+    <section class="date-card">
+      <button id="prevDay" class="round-btn" aria-label="Vorheriger Tag">‹</button>
+      <div class="date-main">
+        <input id="selectedDate" type="date" />
+        <strong id="prettyDate">Heute</strong>
+        <span id="daySummary">Noch kein Eintrag</span>
       </div>
+      <button id="nextDay" class="round-btn" aria-label="Nächster Tag">›</button>
+    </section>
 
-      <div class="panel">
-        <div class="panel-head">
-          <div>
-            <h2>Letzte Einträge</h2>
-            <p>Die neuesten Beobachtungen auf einen Blick.</p>
-          </div>
-          <button class="secondary" data-go="entry">Eintrag hinzufügen</button>
-        </div>
-        <div id="recentEntries" class="cards-list empty-state">Noch keine Einträge vorhanden.</div>
+    <section class="child-card">
+      <div class="avatar">♥</div>
+      <div>
+        <span>Aktuell für</span>
+        <strong id="childNameHero">Kind</strong>
       </div>
     </section>
 
-    <section id="entry" class="tab-panel">
-      <form id="entryForm" class="panel form-panel">
+    <section id="dayEntries" class="day-entries"></section>
+
+    <button id="openEntry" class="floating-add">+ Neuer Eintrag</button>
+
+    <section id="entrySheet" class="sheet hidden" aria-hidden="true">
+      <div class="sheet-backdrop" id="sheetBackdrop"></div>
+      <form id="entryForm" class="sheet-panel">
         <input type="hidden" id="entryId" />
         <input type="hidden" id="time" />
-        <div class="panel-head">
+
+        <div class="sheet-head">
           <div>
             <h2 id="entryFormTitle">Neuer Eintrag</h2>
-            <p id="autoTimeText">Die aktuelle Uhrzeit wird beim Speichern automatisch übernommen.</p>
+            <p id="autoTimeText">Uhrzeit wird automatisch gespeichert</p>
           </div>
-          <button type="button" id="resetEntryButton" class="secondary">Zurücksetzen</button>
+          <button type="button" id="closeEntry" class="round-btn">×</button>
         </div>
 
-        <div class="form-grid">
-          <label>
-            Datum
-            <input id="date" type="date" required />
+        <div class="quick-grid">
+          <label class="field">
+            <span>Temperatur</span>
+            <input id="temperature" type="number" step="0.1" min="30" max="45" placeholder="38.4" />
           </label>
-          <label>
-            Temperatur in °C
-            <input id="temperature" type="number" step="0.1" min="30" max="45" placeholder="z. B. 38.4" />
-          </label>
-          <label>
-            Stimmung
+
+          <label class="field">
+            <span>Stimmung</span>
             <select id="mood">
-              <option value="">Nicht ausgewählt</option>
+              <option value="">Auswählen</option>
               <option>Gut drauf</option>
               <option>Müde</option>
               <option>Quengelig</option>
@@ -104,113 +81,73 @@
               <option>Unruhig</option>
             </select>
           </label>
+
+          <label class="field">
+            <span>Flüssigkeit</span>
+            <input id="fluidsMl" type="number" min="0" step="10" placeholder="ml" />
+          </label>
         </div>
 
-        <fieldset>
-          <legend>Symptome</legend>
-          <div class="chip-grid" id="symptomChips">
-            <label><input type="checkbox" value="Fieber" /> Fieber</label>
-            <label><input type="checkbox" value="Husten" /> Husten</label>
-            <label><input type="checkbox" value="Schnupfen" /> Schnupfen</label>
-            <label><input type="checkbox" value="Halsschmerzen" /> Halsschmerzen</label>
-            <label><input type="checkbox" value="Ohrenschmerzen" /> Ohrenschmerzen</label>
-            <label><input type="checkbox" value="Bauchschmerzen" /> Bauchschmerzen</label>
-            <label><input type="checkbox" value="Durchfall" /> Durchfall</label>
-            <label><input type="checkbox" value="Erbrechen" /> Erbrechen</label>
-            <label><input type="checkbox" value="Ausschlag" /> Ausschlag</label>
-            <label><input type="checkbox" value="Appetitlosigkeit" /> Appetitlosigkeit</label>
+        <div class="section-card">
+          <h3>Symptome</h3>
+          <div class="chips" id="symptomChips">
+            <label><input type="checkbox" value="Fieber" />Fieber</label>
+            <label><input type="checkbox" value="Husten" />Husten</label>
+            <label><input type="checkbox" value="Schnupfen" />Schnupfen</label>
+            <label><input type="checkbox" value="Halsschmerzen" />Hals</label>
+            <label><input type="checkbox" value="Ohrenschmerzen" />Ohren</label>
+            <label><input type="checkbox" value="Bauchschmerzen" />Bauch</label>
+            <label><input type="checkbox" value="Durchfall" />Durchfall</label>
+            <label><input type="checkbox" value="Erbrechen" />Erbrechen</label>
+            <label><input type="checkbox" value="Ausschlag" />Ausschlag</label>
+            <label><input type="checkbox" value="Appetitlosigkeit" />Appetit</label>
           </div>
-          <input id="customSymptoms" type="text" placeholder="Weitere Symptome, durch Komma getrennt" />
-        </fieldset>
-
-        <div class="form-grid">
-          <label>
-            Medikamente
-            <textarea id="medication" rows="2" placeholder="Name, Dosis, Uhrzeit"></textarea>
-          </label>
-          <label>
-            Flüssigkeit in ml
-            <input id="fluidsMl" type="number" min="0" step="10" placeholder="z. B. 250" />
-          </label>
-          <label>
-            Essen
-            <textarea id="food" rows="2" placeholder="Was und wie viel wurde gegessen?"></textarea>
-          </label>
-          <label>
-            Schlaf
-            <textarea id="sleep" rows="2" placeholder="Dauer, Qualität, Auffälligkeiten"></textarea>
-          </label>
-          <label>
-            Windel / Toilette
-            <textarea id="diaperOrToilet" rows="2" placeholder="Urin, Stuhlgang, Auffälligkeiten"></textarea>
-          </label>
-          <label>
-            Notizen
-            <textarea id="notes" rows="2" placeholder="Alles, was später wichtig sein könnte"></textarea>
-          </label>
+          <input id="customSymptoms" type="text" placeholder="Weitere Symptome" />
         </div>
 
-        <button type="submit" class="primary wide">Eintrag speichern</button>
+        <div class="section-card">
+          <h3>Details</h3>
+          <label class="field full"><span>Medikamente</span><textarea id="medication" rows="2"></textarea></label>
+          <label class="field full"><span>Essen</span><textarea id="food" rows="2"></textarea></label>
+          <label class="field full"><span>Schlaf</span><textarea id="sleep" rows="2"></textarea></label>
+          <label class="field full"><span>Windel / Toilette</span><textarea id="diaperOrToilet" rows="2"></textarea></label>
+          <label class="field full"><span>Notizen</span><textarea id="notes" rows="2"></textarea></label>
+        </div>
+
+        <div class="sheet-actions">
+          <button type="button" id="deleteCurrent" class="btn danger hidden">Löschen</button>
+          <button type="submit" class="btn primary">Speichern</button>
+        </div>
       </form>
     </section>
 
-    <section id="timeline" class="tab-panel">
-      <div class="panel">
-        <div class="panel-head">
-          <div>
-            <h2>Verlauf</h2>
-            <p>Filtere nach Datum, Text oder Symptom.</p>
-          </div>
+    <nav class="bottom-nav">
+      <button class="nav-btn active" data-view="day">Tag</button>
+      <button class="nav-btn" data-view="profile">Profil</button>
+      <button class="nav-btn" data-view="backup">Backup</button>
+    </nav>
+
+    <section id="profileView" class="modal-view hidden">
+      <div class="view-card">
+        <div class="sheet-head">
+          <h2>Profil</h2>
+          <button class="round-btn close-view">×</button>
         </div>
-        <div class="filter-row">
-          <input id="searchInput" type="search" placeholder="Suchen, z. B. Fieber, Husten, Medikament" />
-          <input id="fromDate" type="date" />
-          <input id="toDate" type="date" />
-          <button id="clearFilters" class="secondary">Filter löschen</button>
-        </div>
-        <div id="timelineList" class="timeline empty-state">Noch keine Einträge vorhanden.</div>
+        <label class="field full"><span>Name des Kindes</span><input id="profileName" type="text" maxlength="80" /></label>
+        <label class="field full"><span>Geburtsdatum</span><input id="profileBirthDate" type="date" /></label>
+        <label class="field full"><span>Hinweise</span><textarea id="profileNotes" rows="3"></textarea></label>
+        <button id="saveProfileButton" class="btn primary">Profil speichern</button>
       </div>
     </section>
 
-    <section id="settings" class="tab-panel">
-      <div class="panel form-panel">
-        <div class="panel-head">
-          <div>
-            <h2>Profil</h2>
-            <p>Diese Daten bleiben im Add-on-Speicher deines Home Assistant.</p>
-          </div>
+    <section id="backupView" class="modal-view hidden">
+      <div class="view-card">
+        <div class="sheet-head">
+          <h2>Backup</h2>
+          <button class="round-btn close-view">×</button>
         </div>
-        <div class="form-grid">
-          <label>
-            Name des Kindes
-            <input id="profileName" type="text" maxlength="80" />
-          </label>
-          <label>
-            Geburtsdatum
-            <input id="profileBirthDate" type="date" />
-          </label>
-        </div>
-        <label>
-          Wichtige Hinweise
-          <textarea id="profileNotes" rows="3" placeholder="z. B. Allergien, Unverträglichkeiten, Dauermedikation"></textarea>
-        </label>
-        <button id="saveProfileButton" class="primary">Profil speichern</button>
-      </div>
-
-      <div class="panel">
-        <div class="panel-head">
-          <div>
-            <h2>Backup</h2>
-            <p>Exportiere oder importiere alle Tagebuchdaten als JSON.</p>
-          </div>
-        </div>
-        <div class="backup-row">
-          <a class="secondary link-button" href="./api/export" download>Export herunterladen</a>
-          <label class="secondary file-label">
-            Import auswählen
-            <input id="importFile" type="file" accept="application/json" />
-          </label>
-        </div>
+        <a class="btn secondary" href="./api/export" download>Export herunterladen</a>
+        <label class="btn secondary file-label">Import auswählen<input id="importFile" type="file" accept="application/json" /></label>
       </div>
     </section>
   </main>

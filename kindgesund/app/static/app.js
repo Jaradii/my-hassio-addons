@@ -2,7 +2,7 @@ const state = {
   config: {},
   data: { profile: {}, entries: [] },
   pin: localStorage.getItem("kindgesund_pin") || "",
-  filters: { search: "", from: "", to: "" },
+  selectedDate: today(),
   editingExistingEntry: false
 };
 
@@ -14,6 +14,12 @@ function today() {
 
 function nowTime() {
   return new Date().toTimeString().slice(0, 5);
+}
+
+function addDays(dateStr, days) {
+  const d = new Date(`${dateStr}T12:00:00`);
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
 }
 
 function headers() {
@@ -45,7 +51,6 @@ async function api(path, options = {}) {
     throw new Error(message);
   }
 
-  if (res.status === 204) return null;
   return res.json();
 }
 
@@ -53,7 +58,7 @@ function showToast(message) {
   const toast = $("toast");
   toast.textContent = message;
   toast.classList.remove("hidden");
-  setTimeout(() => toast.classList.add("hidden"), 2400);
+  setTimeout(() => toast.classList.add("hidden"), 2200);
 }
 
 function showPin(error = "") {
@@ -83,8 +88,7 @@ async function loadState() {
 
 function renderAll() {
   renderProfile();
-  renderDashboard();
-  renderTimeline();
+  renderDay();
 }
 
 function renderProfile() {
@@ -96,132 +100,102 @@ function renderProfile() {
   $("profileNotes").value = profile.notes || "";
 }
 
-function feverBadge(temp) {
-  if (temp === null || temp === undefined || temp === "") return "";
-  const high = Number(state.config.high_fever_threshold ?? 39.5);
-  const fever = Number(state.config.fever_threshold ?? 38.5);
-  const val = Number(temp);
-  if (Number.isNaN(val)) return "";
-  if (val >= high) return "danger";
-  if (val >= fever) return "warning";
-  return "";
+function selectedEntries() {
+  return (state.data.entries || [])
+    .filter(e => e.date === state.selectedDate)
+    .sort((a, b) => (b.time || "").localeCompare(a.time || ""));
 }
 
-function formatDate(date, time) {
-  if (!date) return "Ohne Datum";
-  const d = new Date(`${date}T${time || "12:00"}`);
-  const dateText = d.toLocaleDateString("de-DE", { weekday: "short", day: "2-digit", month: "2-digit", year: "numeric" });
-  return time ? `${dateText}, ${time} Uhr` : dateText;
+function renderDateHeader(entries) {
+  $("selectedDate").value = state.selectedDate;
+
+  const d = new Date(`${state.selectedDate}T12:00:00`);
+  const isToday = state.selectedDate === today();
+  $("prettyDate").textContent = isToday
+    ? "Heute"
+    : d.toLocaleDateString("de-DE", { weekday: "long", day: "2-digit", month: "long" });
+
+  $("daySummary").textContent = entries.length
+    ? `${entries.length} Eintrag${entries.length === 1 ? "" : "e"} an diesem Tag`
+    : "Noch kein Eintrag";
 }
 
-function entrySearchText(entry) {
-  return [
-    entry.date, entry.time, entry.temperature, entry.mood,
-    ...(entry.symptoms || []),
-    entry.custom_symptoms, entry.medication, entry.food,
-    entry.sleep, entry.diaper_or_toilet, entry.notes
-  ].join(" ").toLowerCase();
-}
+function renderDay() {
+  const entries = selectedEntries();
+  renderDateHeader(entries);
 
-function filteredEntries() {
-  const q = state.filters.search.trim().toLowerCase();
-  return [...(state.data.entries || [])].filter(entry => {
-    if (state.filters.from && entry.date < state.filters.from) return false;
-    if (state.filters.to && entry.date > state.filters.to) return false;
-    if (q && !entrySearchText(entry).includes(q)) return false;
-    return true;
+  const container = $("dayEntries");
+  if (!entries.length) {
+    container.innerHTML = `
+      <div class="empty-day">
+        <div>
+          <div class="empty-icon">＋</div>
+          <h2>Noch nichts eingetragen</h2>
+          <p>Tippe unten auf „Neuer Eintrag“, um den aktuellen Zustand für diesen Tag zu speichern.</p>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = entries.map(renderEntryCard).join("");
+  container.querySelectorAll(".edit-entry").forEach(btn => {
+    btn.addEventListener("click", () => editEntry(btn.dataset.id));
   });
 }
 
-function renderDashboard() {
-  const entries = state.data.entries || [];
-  $("statEntries").textContent = String(entries.length);
-
-  const lastWithTemp = entries.find(e => e.temperature !== null && e.temperature !== undefined && e.temperature !== "");
-  $("statTemp").textContent = lastWithTemp ? `${Number(lastWithTemp.temperature).toFixed(1)} °C` : "Keine";
-
-  const todaysFluids = entries
-    .filter(e => e.date === today())
-    .reduce((sum, e) => sum + (Number(e.fluids_ml) || 0), 0);
-  $("statFluids").textContent = `${todaysFluids} ml`;
-
-  const counts = {};
-  entries.forEach(e => (e.symptoms || []).forEach(s => counts[s] = (counts[s] || 0) + 1));
-  const top = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([s]) => s).join(", ");
-  $("statSymptoms").textContent = top || "Keine";
-
-  $("lastEntryText").textContent = entries[0] ? `Letzter Eintrag: ${formatDate(entries[0].date, entries[0].time)}` : "Noch keine Einträge";
-
-  const recent = entries.slice(0, 3);
-  const container = $("recentEntries");
-  if (!recent.length) {
-    container.className = "cards-list empty-state";
-    container.textContent = "Noch keine Einträge vorhanden.";
-    return;
-  }
-  container.className = "cards-list";
-  container.innerHTML = recent.map(renderEntryCard).join("");
-  bindEntryButtons(container);
+function feverClass(temp) {
+  if (temp === null || temp === undefined || temp === "") return "";
+  const high = Number(state.config.high_fever_threshold ?? 39.5);
+  const fever = Number(state.config.fever_threshold ?? 38.5);
+  const value = Number(temp);
+  if (Number.isNaN(value)) return "";
+  if (value >= high) return "high";
+  if (value >= fever) return "warn";
+  return "";
 }
 
 function renderEntryCard(entry) {
   const symptoms = [...(entry.symptoms || [])];
   if (entry.custom_symptoms) symptoms.push(...entry.custom_symptoms.split(",").map(s => s.trim()).filter(Boolean));
 
-  const tempClass = feverBadge(entry.temperature);
-  const tempBadge = entry.temperature !== null && entry.temperature !== undefined && entry.temperature !== ""
-    ? `<span class="badge ${tempClass}">${Number(entry.temperature).toFixed(1)} °C</span>`
+  const title = entry.mood || symptoms[0] || entry.notes || "Eintrag";
+  const temp = entry.temperature !== null && entry.temperature !== undefined && entry.temperature !== ""
+    ? `<div class="temp-pill ${feverClass(entry.temperature)}">${Number(entry.temperature).toFixed(1)}°</div>`
     : "";
 
-  const bodyParts = [
-    entry.mood ? `Stimmung: ${escapeHtml(entry.mood)}` : "",
+  const noteParts = [
     entry.medication ? `Medikamente: ${escapeHtml(entry.medication)}` : "",
-    entry.fluids_ml ? `Flüssigkeit: ${escapeHtml(String(entry.fluids_ml))} ml` : "",
     entry.food ? `Essen: ${escapeHtml(entry.food)}` : "",
     entry.sleep ? `Schlaf: ${escapeHtml(entry.sleep)}` : "",
     entry.diaper_or_toilet ? `Windel / Toilette: ${escapeHtml(entry.diaper_or_toilet)}` : "",
-    entry.notes ? `Notizen: ${escapeHtml(entry.notes)}` : ""
-  ].filter(Boolean).join("\n");
+    entry.notes ? `${escapeHtml(entry.notes)}` : ""
+  ].filter(Boolean);
 
   return `
-    <article class="entry-card" data-id="${entry.id}">
-      <div class="entry-top">
+    <article class="entry-card">
+      <div class="entry-card-head">
         <div>
-          <div class="entry-date">${escapeHtml(formatDate(entry.date, entry.time))}</div>
-          <div class="entry-meta">${escapeHtml(entry.mood || "Keine Stimmung gewählt")}</div>
+          <span class="entry-time">${escapeHtml(entry.time || "")} Uhr</span>
+          <div class="entry-title">${escapeHtml(String(title).slice(0, 70))}</div>
         </div>
-        <div class="badges">${tempBadge}</div>
+        ${temp}
       </div>
-      ${symptoms.length ? `<div class="badges">${symptoms.map(s => `<span class="badge">${escapeHtml(s)}</span>`).join("")}</div>` : ""}
-      ${bodyParts ? `<div class="entry-body">${bodyParts}</div>` : ""}
-      <div class="entry-actions">
-        <button class="secondary edit-entry" data-id="${entry.id}">Bearbeiten</button>
-        <button class="danger-button delete-entry" data-id="${entry.id}">Löschen</button>
+
+      <div class="metric-grid">
+        <div class="metric"><span>Stimmung</span><strong>${escapeHtml(entry.mood || "Keine")}</strong></div>
+        <div class="metric"><span>Flüssigkeit</span><strong>${entry.fluids_ml ? `${escapeHtml(entry.fluids_ml)} ml` : "Keine"}</strong></div>
+        <div class="metric"><span>Symptome</span><strong>${symptoms.length || "Keine"}</strong></div>
+      </div>
+
+      ${symptoms.length ? `<div class="tags">${symptoms.map(s => `<span class="tag">${escapeHtml(s)}</span>`).join("")}</div>` : ""}
+      ${noteParts.length ? `<div class="note-block">${noteParts.join("\n")}</div>` : ""}
+
+      <div class="card-actions">
+        <button class="btn secondary edit-entry" data-id="${entry.id}">Bearbeiten</button>
       </div>
     </article>
   `;
-}
-
-function renderTimeline() {
-  const entries = filteredEntries();
-  const container = $("timelineList");
-  if (!entries.length) {
-    container.className = "timeline empty-state";
-    container.textContent = "Keine passenden Einträge gefunden.";
-    return;
-  }
-  container.className = "timeline";
-  container.innerHTML = entries.map(renderEntryCard).join("");
-  bindEntryButtons(container);
-}
-
-function bindEntryButtons(container) {
-  container.querySelectorAll(".edit-entry").forEach(btn => {
-    btn.addEventListener("click", () => editEntry(btn.dataset.id));
-  });
-  container.querySelectorAll(".delete-entry").forEach(btn => {
-    btn.addEventListener("click", () => deleteEntry(btn.dataset.id));
-  });
 }
 
 function escapeHtml(value) {
@@ -233,22 +207,33 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function openSheet() {
+  $("entrySheet").classList.remove("hidden");
+  $("entrySheet").setAttribute("aria-hidden", "false");
+}
+
+function closeSheet() {
+  $("entrySheet").classList.add("hidden");
+  $("entrySheet").setAttribute("aria-hidden", "true");
+  resetEntryForm();
+}
+
 function resetEntryForm() {
   state.editingExistingEntry = false;
   $("entryId").value = "";
-  $("entryFormTitle").textContent = "Neuer Eintrag";
-  $("autoTimeText").textContent = "Die aktuelle Uhrzeit wird beim Speichern automatisch übernommen.";
-  $("date").value = today();
   $("time").value = "";
+  $("entryFormTitle").textContent = "Neuer Eintrag";
+  $("autoTimeText").textContent = "Uhrzeit wird automatisch gespeichert";
   $("temperature").value = "";
   $("mood").value = "";
+  $("fluidsMl").value = "";
   $("customSymptoms").value = "";
   $("medication").value = "";
-  $("fluidsMl").value = "";
   $("food").value = "";
   $("sleep").value = "";
   $("diaperOrToilet").value = "";
   $("notes").value = "";
+  $("deleteCurrent").classList.add("hidden");
   document.querySelectorAll("#symptomChips input").forEach(i => i.checked = false);
 }
 
@@ -260,8 +245,9 @@ function formEntry() {
   const temp = $("temperature").value;
   const fluids = $("fluidsMl").value;
   const existingTime = $("time").value;
+
   return {
-    date: $("date").value,
+    date: state.selectedDate,
     time: state.editingExistingEntry && existingTime ? existingTime : nowTime(),
     temperature: temp === "" ? null : Number(temp),
     mood: $("mood").value,
@@ -279,48 +265,66 @@ function formEntry() {
 function editEntry(id) {
   const entry = (state.data.entries || []).find(e => e.id === id);
   if (!entry) return;
+
   state.editingExistingEntry = true;
-  showTab("entry");
   $("entryId").value = entry.id;
-  $("entryFormTitle").textContent = "Eintrag bearbeiten";
-  $("autoTimeText").textContent = entry.time
-    ? `Gespeicherte Uhrzeit: ${entry.time} Uhr. Beim Bearbeiten bleibt sie erhalten.`
-    : "Beim Bearbeiten bleibt die gespeicherte Uhrzeit erhalten.";
-  $("date").value = entry.date || today();
   $("time").value = entry.time || "";
+  $("entryFormTitle").textContent = "Eintrag bearbeiten";
+  $("autoTimeText").textContent = entry.time ? `Gespeichert um ${entry.time} Uhr` : "Gespeicherte Uhrzeit bleibt erhalten";
   $("temperature").value = entry.temperature ?? "";
   $("mood").value = entry.mood || "";
+  $("fluidsMl").value = entry.fluids_ml ?? "";
   $("customSymptoms").value = entry.custom_symptoms || "";
   $("medication").value = entry.medication || "";
-  $("fluidsMl").value = entry.fluids_ml ?? "";
   $("food").value = entry.food || "";
   $("sleep").value = entry.sleep || "";
   $("diaperOrToilet").value = entry.diaper_or_toilet || "";
   $("notes").value = entry.notes || "";
+  $("deleteCurrent").classList.remove("hidden");
   document.querySelectorAll("#symptomChips input").forEach(i => i.checked = (entry.symptoms || []).includes(i.value));
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  openSheet();
 }
 
-async function deleteEntry(id) {
-  if (!confirm("Diesen Eintrag wirklich löschen?")) return;
+async function deleteCurrentEntry() {
+  const id = $("entryId").value;
+  if (!id) return;
+  if (!confirm("Diesen Eintrag löschen?")) return;
   await api(`./api/entries/${id}`, { method: "DELETE" });
   await loadState();
-  showToast("Eintrag gelöscht.");
+  closeSheet();
+  showToast("Eintrag gelöscht");
 }
 
-function showTab(name) {
-  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === name));
-  document.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === name));
-  if (name === "entry" && !$("entryId").value) {
-    resetEntryForm();
-  }
+function setDate(date) {
+  state.selectedDate = date;
+  renderDay();
+}
+
+function openView(id) {
+  document.querySelectorAll(".modal-view").forEach(v => v.classList.add("hidden"));
+  $(id).classList.remove("hidden");
+}
+
+function closeViews() {
+  document.querySelectorAll(".modal-view").forEach(v => v.classList.add("hidden"));
+  document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.view === "day"));
 }
 
 async function init() {
-  resetEntryForm();
+  $("selectedDate").value = state.selectedDate;
 
-  document.querySelectorAll(".tab").forEach(tab => tab.addEventListener("click", () => showTab(tab.dataset.tab)));
-  document.querySelectorAll("[data-go]").forEach(btn => btn.addEventListener("click", () => showTab(btn.dataset.go)));
+  $("todayButton").addEventListener("click", () => setDate(today()));
+  $("prevDay").addEventListener("click", () => setDate(addDays(state.selectedDate, -1)));
+  $("nextDay").addEventListener("click", () => setDate(addDays(state.selectedDate, 1)));
+  $("selectedDate").addEventListener("change", e => setDate(e.target.value || today()));
+
+  $("openEntry").addEventListener("click", () => {
+    resetEntryForm();
+    openSheet();
+  });
+  $("closeEntry").addEventListener("click", closeSheet);
+  $("sheetBackdrop").addEventListener("click", closeSheet);
+  $("deleteCurrent").addEventListener("click", deleteCurrentEntry);
 
   $("pinButton").addEventListener("click", async () => {
     state.pin = $("pinInput").value;
@@ -339,23 +343,22 @@ async function init() {
     if (event.key === "Enter") $("pinButton").click();
   });
 
-  $("entryForm").addEventListener("submit", async (event) => {
+  $("entryForm").addEventListener("submit", async event => {
     event.preventDefault();
     const id = $("entryId").value;
     const payload = formEntry();
+
     if (id) {
       await api(`./api/entries/${id}`, { method: "PUT", body: JSON.stringify(payload) });
-      showToast("Eintrag aktualisiert.");
+      showToast("Aktualisiert");
     } else {
       await api("./api/entries", { method: "POST", body: JSON.stringify(payload) });
-      showToast("Eintrag gespeichert.");
+      showToast("Gespeichert");
     }
-    resetEntryForm();
-    await loadState();
-    showTab("dashboard");
-  });
 
-  $("resetEntryButton").addEventListener("click", resetEntryForm);
+    await loadState();
+    closeSheet();
+  });
 
   $("saveProfileButton").addEventListener("click", async () => {
     const payload = {
@@ -365,40 +368,33 @@ async function init() {
     };
     await api("./api/profile", { method: "PUT", body: JSON.stringify(payload) });
     await loadState();
-    showToast("Profil gespeichert.");
+    showToast("Profil gespeichert");
+    closeViews();
   });
 
-  $("searchInput").addEventListener("input", e => {
-    state.filters.search = e.target.value;
-    renderTimeline();
-  });
-  $("fromDate").addEventListener("change", e => {
-    state.filters.from = e.target.value;
-    renderTimeline();
-  });
-  $("toDate").addEventListener("change", e => {
-    state.filters.to = e.target.value;
-    renderTimeline();
-  });
-  $("clearFilters").addEventListener("click", () => {
-    state.filters = { search: "", from: "", to: "" };
-    $("searchInput").value = "";
-    $("fromDate").value = "";
-    $("toDate").value = "";
-    renderTimeline();
-  });
-
-  $("importFile").addEventListener("change", async (event) => {
+  $("importFile").addEventListener("change", async event => {
     const file = event.target.files?.[0];
     if (!file) return;
     if (!confirm("Import überschreibt die aktuellen Daten. Fortfahren?")) return;
-    const text = await file.text();
-    const data = JSON.parse(text);
+    const data = JSON.parse(await file.text());
     await api("./api/import", { method: "POST", body: JSON.stringify(data) });
     await loadState();
-    showToast("Import abgeschlossen.");
+    showToast("Import abgeschlossen");
     event.target.value = "";
+    closeViews();
   });
+
+  document.querySelectorAll(".nav-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      if (btn.dataset.view === "day") closeViews();
+      if (btn.dataset.view === "profile") openView("profileView");
+      if (btn.dataset.view === "backup") openView("backupView");
+    });
+  });
+
+  document.querySelectorAll(".close-view").forEach(btn => btn.addEventListener("click", closeViews));
 
   try {
     await loadConfig();

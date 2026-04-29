@@ -14,7 +14,7 @@ DATA_PATH = Path(os.environ.get("KINDGESUND_DATA", "/data/diary.json"))
 CONFIG_PATH = Path(os.environ.get("KINDGESUND_CONFIG", "/data/options.json"))
 STATIC_DIR = Path(__file__).parent / "static"
 
-app = FastAPI(title="KindGesund", version="1.0.1")
+app = FastAPI(title="KindGesund", version="1.1.0")
 
 
 def utc_now() -> str:
@@ -22,21 +22,7 @@ def utc_now() -> str:
 
 
 def read_config() -> Dict[str, Any]:
-    if CONFIG_PATH.exists():
-        try:
-            data = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
-            if isinstance(data, dict):
-                data.setdefault("app_title", "KindGesund")
-                data.setdefault("child_name", "Kind")
-                data.setdefault("fever_threshold", 38.5)
-                data.setdefault("high_fever_threshold", 39.5)
-                data.setdefault("dark_mode", False)
-                data.setdefault("pin_enabled", False)
-                data.setdefault("pin_code", "")
-                return data
-        except Exception:
-            pass
-    return {
+    defaults = {
         "app_title": "KindGesund",
         "child_name": "Kind",
         "fever_threshold": 38.5,
@@ -45,6 +31,14 @@ def read_config() -> Dict[str, Any]:
         "pin_enabled": False,
         "pin_code": "",
     }
+    if CONFIG_PATH.exists():
+        try:
+            data = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
+            if isinstance(data, dict):
+                defaults.update(data)
+        except Exception:
+            pass
+    return defaults
 
 
 def default_store() -> Dict[str, Any]:
@@ -211,12 +205,9 @@ def api_delete_entry(entry_id: str, request: Request):
 @app.get("/api/export")
 def api_export(request: Request):
     check_pin(request)
-    store = read_store()
     return JSONResponse(
-        store,
-        headers={
-            "Content-Disposition": 'attachment; filename="kindgesund-export.json"'
-        },
+        read_store(),
+        headers={"Content-Disposition": 'attachment; filename="kindgesund-export.json"'},
     )
 
 
@@ -227,10 +218,8 @@ async def api_import(request: Request):
         data = await request.json()
     except Exception:
         raise HTTPException(status_code=400, detail="Ungültige JSON-Datei.")
-
     if not isinstance(data, dict) or "entries" not in data:
         raise HTTPException(status_code=400, detail="Die Datei sieht nicht wie ein KindGesund-Export aus.")
-
     data.setdefault("profile", default_store()["profile"])
     data.setdefault("created_at", utc_now())
     data["updated_at"] = utc_now()
@@ -248,5 +237,4 @@ app.mount("/assets", StaticFiles(directory=STATIC_DIR), name="assets")
 
 @app.get("/{path:path}")
 def frontend(path: str):
-    index = STATIC_DIR / "index.html"
-    return FileResponse(index)
+    return FileResponse(STATIC_DIR / "index.html")
