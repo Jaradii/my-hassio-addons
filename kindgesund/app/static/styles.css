@@ -2228,3 +2228,119 @@ body.dark .temp-pill {
     min-height: 52px !important;
   }
 }
+
+
+/* v1.3.5: Toast-Balken korrigieren, damit er den Neuer-Eintrag-Button nicht überlagert */
+.toast {
+  position: fixed !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: calc(86px + env(safe-area-inset-bottom, 0px)) !important;
+  transform: translateX(-50%) !important;
+  z-index: 1400 !important;
+  width: auto !important;
+  min-width: 220px !important;
+  max-width: min(360px, calc(100vw - 48px)) !important;
+  min-height: 44px !important;
+  padding: 0 18px !important;
+  border-radius: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  font-weight: 900 !important;
+  background: color-mix(in srgb, var(--primary2) 92%, #000 8%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 12px 30px rgba(26, 68, 96, 0.25) !important;
+  pointer-events: none !important;
+}
+
+.toast.hidden {
+  display: none !important;
+}
+
+/* Wenn ein Popup offen ist, kann der Toast tiefer stehen, weil der Dock-Button ausgeblendet ist */
+body.sheet-open .toast,
+body.modal-open .toast {
+  bottom: calc(22px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+@media (max-width: 430px) {
+  .toast {
+    bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+    max-width: calc(100vw - 36px) !important;
+    min-height: 42px !important;
+    padding: 0 16px !important;
+  }
+
+  body.sheet-open .toast,
+  body.modal-open .toast {
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+
+/* v1.3.6: Toast wieder dezent, transparent, aber maximal buttonbreit */
+.toast {
+  position: fixed !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: calc(86px + env(safe-area-inset-bottom, 0px)) !important;
+  transform: translateX(-50%) !important;
+  z-index: 1400 !important;
+
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: min(360px, calc(100vw - 48px)) !important;
+  min-height: 0 !important;
+  height: auto !important;
+
+  padding: 8px 12px !important;
+  border-radius: 10px !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  font-size: 0.86rem !important;
+  line-height: 1.15 !important;
+  font-weight: 850 !important;
+  text-align: center !important;
+
+  background: color-mix(in srgb, var(--card) 72%, transparent) !important;
+  color: var(--text) !important;
+  border: 1px solid color-mix(in srgb, var(--line) 70%, transparent) !important;
+  box-shadow: 0 10px 26px rgba(26, 68, 96, 0.14) !important;
+  backdrop-filter: blur(14px) !important;
+  pointer-events: none !important;
+}
+
+body.dark .toast {
+  background: color-mix(in srgb, var(--card) 68%, transparent) !important;
+  color: var(--text) !important;
+  border-color: color-mix(in srgb, var(--line) 76%, transparent) !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28) !important;
+}
+
+.toast.hidden {
+  display: none !important;
+}
+
+body.sheet-open .toast,
+body.modal-open .toast {
+  bottom: calc(22px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+@media (max-width: 430px) {
+  .toast {
+    bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+    max-width: min(330px, calc(100vw - 36px)) !important;
+    padding: 7px 11px !important;
+    font-size: 0.84rem !important;
+  }
+
+  body.sheet-open .toast,
+  body.modal-open .toast {
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
