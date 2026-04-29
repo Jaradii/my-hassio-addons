@@ -1,6 +1,6 @@
 # Gesundheitstracker Home Assistant Add-on
 
-Version 1.7.3
+Version 1.7.4
 
 Mobile, tageszentrierte Gesundheits-Tagebuch-App für Home Assistant Ingress.
 
@@ -315,3 +315,12 @@ Die Daten liegen im Add-on unter:
 
 - App in „Gesundheitstracker“ umbenannt
 - Add-on-Name, Panel-Titel, App-Titel und Standardtitel angepasst
+
+
+## Änderungen in 1.7.4
+
+- Symptom-Auswahl im „Neuer Eintrag“-Popup als 3-Spalten-Grid gestaltet
+- Schrift in den Symptom-Chips verkleinert
+- Icons und Texte gleichmäßiger ausgerichtet
+- Drei Symptome passen nebeneinander auf normale Smartphone-Breite
+- Sehr schmale Displays wechseln auf 2 Spalten
