@@ -1721,3 +1721,127 @@ body > .bottom-action-bar > .bottom-add-button {
 .entry-card {
   border-radius: 10px !important;
 }
+
+
+/* v1.3.0: Tageswerte zusammenfassen + Eintrags-Popup Animation verstärken */
+.day-summary-card {
+  display: grid;
+  gap: 10px;
+}
+
+.day-summary-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.metric small {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.expanded-details {
+  display: grid;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.expanded-details h3 {
+  margin: 4px 0 0;
+  font-size: 1rem;
+}
+
+.entry-detail {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.entry-detail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.entry-detail-head .btn {
+  min-height: 36px;
+  padding: 7px 10px;
+  font-size: 0.86rem;
+}
+
+.detail-row {
+  display: grid;
+  gap: 2px;
+  padding-top: 7px;
+  border-top: 1px solid color-mix(in srgb, var(--line) 75%, transparent);
+}
+
+.detail-row span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.detail-row p {
+  margin: 0;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.muted-detail {
+  margin: 0;
+  color: var(--muted);
+}
+
+/* Sichtbarere Öffnungsanimation für Neuer-Eintrag-Popup */
+.sheet:not(.hidden) .sheet-backdrop {
+  animation: kgBackdropIn 220ms ease-out both !important;
+}
+
+.sheet:not(.hidden) .sheet-panel {
+  animation: kgEntryPopupIn 260ms cubic-bezier(.16, .84, .32, 1) both !important;
+  transform-origin: bottom center;
+}
+
+@keyframes kgBackdropIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(12px);
+  }
+}
+
+@keyframes kgEntryPopupIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(34px) scale(0.965);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 430px) {
+  .day-summary-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .entry-detail-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .entry-detail-head .btn {
+    width: 100%;
+  }
+}

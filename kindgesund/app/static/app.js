@@ -3,6 +3,7 @@ const state = {
   data: { profile: {}, entries: [] },
   pin: localStorage.getItem("kindgesund_pin") || "",
   selectedDate: today(),
+  dayExpanded: false,
   editingExistingEntry: false
 };
 
@@ -138,10 +139,189 @@ function renderDay() {
     return;
   }
 
-  container.innerHTML = entries.map(renderEntryCard).join("");
+  container.innerHTML = renderDaySummaryCard(entries);
+  const expandButton = container.querySelector("#toggleDetails");
+  if (expandButton) {
+    expandButton.addEventListener("click", () => {
+      state.dayExpanded = !state.dayExpanded;
+      renderDay();
+    });
+  }
+
   container.querySelectorAll(".edit-entry").forEach(btn => {
     btn.addEventListener("click", () => editEntry(btn.dataset.id));
   });
+}
+
+function buildDaySummary(entries) {
+  const fluidsTotal = entries.reduce((sum, e) => sum + (Number(e.fluids_ml) || 0), 0);
+  const temperatures = entries
+    .map(e => e.temperature)
+    .filter(v => v !== null && v !== undefined && v !== "")
+    .map(Number)
+    .filter(v => !Number.isNaN(v));
+
+  const latestTempEntry = entries.find(e => e.temperature !== null && e.temperature !== undefined && e.temperature !== "");
+  const maxTemp = temperatures.length ? Math.max(...temperatures) : null;
+  const minTemp = temperatures.length ? Math.min(...temperatures) : null;
+
+  const symptomCounts = {};
+  const addSymptom = (symptom) => {
+    const s = String(symptom || "").trim();
+    if (!s) return;
+    symptomCounts[s] = (symptomCounts[s] || 0) + 1;
+  };
+
+  entries.forEach(entry => {
+    (entry.symptoms || []).forEach(addSymptom);
+    if (entry.custom_symptoms) {
+      entry.custom_symptoms.split(",").forEach(addSymptom);
+    }
+  });
+
+  const symptoms = Object.entries(symptomCounts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+
+  const moods = entries.map(e => e.mood).filter(Boolean);
+  const medications = entries.filter(e => e.medication);
+  const foods = entries.filter(e => e.food);
+  const sleeps = entries.filter(e => e.sleep);
+  const diaper = entries.filter(e => e.diaper_or_toilet);
+  const notes = entries.filter(e => e.notes);
+
+  return {
+    count: entries.length,
+    fluidsTotal,
+    temperatures,
+    latestTempEntry,
+    maxTemp,
+    minTemp,
+    symptoms,
+    moods,
+    medications,
+    foods,
+    sleeps,
+    diaper,
+    notes
+  };
+}
+
+function renderDaySummaryCard(entries) {
+  const summary = buildDaySummary(entries);
+  const latestTempText = summary.latestTempEntry
+    ? `${Number(summary.latestTempEntry.temperature).toFixed(1)}°`
+    : "Keine";
+
+  const tempMeta = summary.temperatures.length
+    ? `Max ${summary.maxTemp.toFixed(1)}°${summary.minTemp !== summary.maxTemp ? ` · Min ${summary.minTemp.toFixed(1)}°` : ""}`
+    : "Keine Messung";
+
+  const symptomText = summary.symptoms.length
+    ? summary.symptoms.slice(0, 4).map(([name, count]) => `${escapeHtml(name)}${count > 1 ? ` ×${count}` : ""}`).join(", ")
+    : "Keine";
+
+  const moodText = summary.moods.length
+    ? escapeHtml(summary.moods[0])
+    : "Keine";
+
+  const expanded = state.dayExpanded;
+
+  return `
+    <article class="entry-card day-summary-card">
+      <div class="entry-card-head">
+        <div>
+          <span class="entry-time">${summary.count} Eintrag${summary.count === 1 ? "" : "e"} zusammengefasst</span>
+          <div class="entry-title">Tagesübersicht</div>
+        </div>
+        ${summary.latestTempEntry ? `<div class="temp-pill ${feverClass(summary.latestTempEntry.temperature)}">${latestTempText}</div>` : ""}
+      </div>
+
+      <div class="metric-grid day-summary-grid">
+        <div class="metric"><span>Flüssigkeit gesamt</span><strong>${summary.fluidsTotal ? `${summary.fluidsTotal} ml` : "Keine"}</strong></div>
+        <div class="metric"><span>Temperatur</span><strong>${escapeHtml(latestTempText)}</strong><small>${escapeHtml(tempMeta)}</small></div>
+        <div class="metric"><span>Stimmung</span><strong>${moodText}</strong><small>${summary.moods.length > 1 ? `${summary.moods.length} Angaben` : "Letzte Angabe"}</small></div>
+        <div class="metric"><span>Symptome</span><strong>${summary.symptoms.length || "Keine"}</strong><small>${symptomText}</small></div>
+        <div class="metric"><span>Medikamente</span><strong>${summary.medications.length || "Keine"}</strong><small>${summary.medications.length ? "Einträge vorhanden" : "Nicht eingetragen"}</small></div>
+        <div class="metric"><span>Essen / Schlaf</span><strong>${summary.foods.length + summary.sleeps.length || "Keine"}</strong><small>${summary.foods.length} Essen · ${summary.sleeps.length} Schlaf</small></div>
+      </div>
+
+      ${summary.symptoms.length ? `<div class="tags">${summary.symptoms.map(([s, count]) => `<span class="tag">${escapeHtml(s)}${count > 1 ? ` ×${count}` : ""}</span>`).join("")}</div>` : ""}
+
+      ${renderSummaryTextBlocks(summary)}
+
+      <div class="card-actions">
+        <button id="toggleDetails" class="btn secondary">${expanded ? "Details ausblenden" : "Erweitern"}</button>
+      </div>
+
+      ${expanded ? renderExpandedEntries(entries) : ""}
+    </article>
+  `;
+}
+
+function renderSummaryTextBlocks(summary) {
+  const blocks = [];
+
+  if (summary.medications.length) {
+    blocks.push(`<div class="note-block"><strong>Medikamente</strong>\n${summary.medications.map(e => `${escapeHtml(e.time || "--:--")} · ${escapeHtml(e.medication)}`).join("\n")}</div>`);
+  }
+
+  if (summary.foods.length) {
+    blocks.push(`<div class="note-block"><strong>Essen</strong>\n${summary.foods.map(e => `${escapeHtml(e.time || "--:--")} · ${escapeHtml(e.food)}`).join("\n")}</div>`);
+  }
+
+  if (summary.sleeps.length) {
+    blocks.push(`<div class="note-block"><strong>Schlaf</strong>\n${summary.sleeps.map(e => `${escapeHtml(e.time || "--:--")} · ${escapeHtml(e.sleep)}`).join("\n")}</div>`);
+  }
+
+  if (summary.diaper.length) {
+    blocks.push(`<div class="note-block"><strong>Windel / Toilette</strong>\n${summary.diaper.map(e => `${escapeHtml(e.time || "--:--")} · ${escapeHtml(e.diaper_or_toilet)}`).join("\n")}</div>`);
+  }
+
+  if (summary.notes.length) {
+    blocks.push(`<div class="note-block"><strong>Notizen</strong>\n${summary.notes.map(e => `${escapeHtml(e.time || "--:--")} · ${escapeHtml(e.notes)}`).join("\n")}</div>`);
+  }
+
+  return blocks.join("");
+}
+
+function renderExpandedEntries(entries) {
+  return `
+    <div class="expanded-details">
+      <h3>Einzelne Einträge</h3>
+      ${entries.map(renderEntryDetail).join("")}
+    </div>
+  `;
+}
+
+function renderEntryDetail(entry) {
+  const symptoms = [...(entry.symptoms || [])];
+  if (entry.custom_symptoms) symptoms.push(...entry.custom_symptoms.split(",").map(s => s.trim()).filter(Boolean));
+
+  const rows = [
+    entry.temperature !== null && entry.temperature !== undefined && entry.temperature !== "" ? ["Temperatur", `${Number(entry.temperature).toFixed(1)} °C`] : null,
+    entry.fluids_ml ? ["Flüssigkeit", `${entry.fluids_ml} ml`] : null,
+    entry.mood ? ["Stimmung", entry.mood] : null,
+    symptoms.length ? ["Symptome", symptoms.join(", ")] : null,
+    entry.medication ? ["Medikamente", entry.medication] : null,
+    entry.food ? ["Essen", entry.food] : null,
+    entry.sleep ? ["Schlaf", entry.sleep] : null,
+    entry.diaper_or_toilet ? ["Windel / Toilette", entry.diaper_or_toilet] : null,
+    entry.notes ? ["Notizen", entry.notes] : null
+  ].filter(Boolean);
+
+  return `
+    <div class="entry-detail">
+      <div class="entry-detail-head">
+        <strong>${escapeHtml(entry.time || "--:--")} Uhr</strong>
+        <button class="btn secondary edit-entry" data-id="${entry.id}">Bearbeiten</button>
+      </div>
+      ${rows.length ? rows.map(([label, value]) => `
+        <div class="detail-row">
+          <span>${escapeHtml(label)}</span>
+          <p>${escapeHtml(value)}</p>
+        </div>
+      `).join("") : `<p class="muted-detail">Keine Details eingetragen.</p>`}
+    </div>
+  `;
 }
 
 function feverClass(temp) {
@@ -153,49 +333,6 @@ function feverClass(temp) {
   if (value >= high) return "high";
   if (value >= fever) return "warn";
   return "";
-}
-
-function renderEntryCard(entry) {
-  const symptoms = [...(entry.symptoms || [])];
-  if (entry.custom_symptoms) symptoms.push(...entry.custom_symptoms.split(",").map(s => s.trim()).filter(Boolean));
-
-  const title = entry.mood || symptoms[0] || entry.notes || "Eintrag";
-  const temp = entry.temperature !== null && entry.temperature !== undefined && entry.temperature !== ""
-    ? `<div class="temp-pill ${feverClass(entry.temperature)}">${Number(entry.temperature).toFixed(1)}°</div>`
-    : "";
-
-  const noteParts = [
-    entry.medication ? `Medikamente: ${escapeHtml(entry.medication)}` : "",
-    entry.food ? `Essen: ${escapeHtml(entry.food)}` : "",
-    entry.sleep ? `Schlaf: ${escapeHtml(entry.sleep)}` : "",
-    entry.diaper_or_toilet ? `Windel / Toilette: ${escapeHtml(entry.diaper_or_toilet)}` : "",
-    entry.notes ? `${escapeHtml(entry.notes)}` : ""
-  ].filter(Boolean);
-
-  return `
-    <article class="entry-card">
-      <div class="entry-card-head">
-        <div>
-          <span class="entry-time">${escapeHtml(entry.time || "")} Uhr</span>
-          <div class="entry-title">${escapeHtml(String(title).slice(0, 70))}</div>
-        </div>
-        ${temp}
-      </div>
-
-      <div class="metric-grid">
-        <div class="metric"><span>Stimmung</span><strong>${escapeHtml(entry.mood || "Keine")}</strong></div>
-        <div class="metric"><span>Flüssigkeit</span><strong>${entry.fluids_ml ? `${escapeHtml(entry.fluids_ml)} ml` : "Keine"}</strong></div>
-        <div class="metric"><span>Symptome</span><strong>${symptoms.length || "Keine"}</strong></div>
-      </div>
-
-      ${symptoms.length ? `<div class="tags">${symptoms.map(s => `<span class="tag">${escapeHtml(s)}</span>`).join("")}</div>` : ""}
-      ${noteParts.length ? `<div class="note-block">${noteParts.join("\n")}</div>` : ""}
-
-      <div class="card-actions">
-        <button class="btn secondary edit-entry" data-id="${entry.id}">Bearbeiten</button>
-      </div>
-    </article>
-  `;
 }
 
 function escapeHtml(value) {
@@ -299,6 +436,7 @@ async function deleteCurrentEntry() {
 
 function setDate(date) {
   state.selectedDate = date;
+  state.dayExpanded = false;
   renderDay();
 }
 
