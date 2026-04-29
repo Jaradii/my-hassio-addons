@@ -5908,3 +5908,57 @@ body.calendar-open > .bottom-action-bar {
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   }
 }
+
+
+/* v2.2.2: Symptom-Intensität auch im kleinen Symptome-Kachel-Popup */
+.quick-symptom-intensity {
+  display: none !important;
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+  margin-top: 4px !important;
+  min-height: 30px !important;
+  height: 30px !important;
+  padding: 3px 7px !important;
+  font-size: 0.7rem !important;
+  font-weight: 850 !important;
+  border-radius: 10px !important;
+  background: color-mix(in srgb, var(--card) 86%, var(--primary) 14%) !important;
+  border: 1px solid color-mix(in srgb, var(--primary) 42%, var(--kg-border) 58%) !important;
+  color: var(--text) !important;
+}
+
+.quick-symptom-grid label:has(input:checked),
+.quick-symptom-grid label.with-intensity {
+  min-height: 82px !important;
+  align-content: start !important;
+  overflow: visible !important;
+}
+
+.quick-symptom-grid label:has(input:checked) .quick-symptom-intensity,
+.quick-symptom-grid label.with-intensity .quick-symptom-intensity {
+  display: block !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+.quick-symptom-grid label {
+  height: auto !important;
+  overflow: visible !important;
+  grid-template-rows: auto auto !important;
+}
+
+@media (max-width: 430px) {
+  .quick-symptom-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .quick-symptom-grid label:has(input:checked),
+  .quick-symptom-grid label.with-intensity {
+    min-height: 80px !important;
+  }
+
+  .quick-symptom-intensity {
+    min-height: 32px !important;
+    font-size: 0.68rem !important;
+  }
+}
