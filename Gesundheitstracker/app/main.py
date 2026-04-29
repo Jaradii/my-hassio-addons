@@ -203,6 +203,44 @@ class HealthEntryIn(BaseModel):
     notes: str = Field(default="", max_length=4000)
 
 
+
+class QuickFluidIn(BaseModel):
+    ml: int = Field(ge=0, le=5000)
+    date: Optional[str] = None
+    time: Optional[str] = None
+
+
+class QuickTemperatureIn(BaseModel):
+    temperature: float = Field(ge=30, le=45)
+    date: Optional[str] = None
+    time: Optional[str] = None
+
+
+class QuickMoodIn(BaseModel):
+    mood: str
+    date: Optional[str] = None
+    time: Optional[str] = None
+
+
+class QuickSymptomIn(BaseModel):
+    symptom: str
+    date: Optional[str] = None
+    time: Optional[str] = None
+
+
+class QuickMedicationIn(BaseModel):
+    medication: str
+    date: Optional[str] = None
+    time: Optional[str] = None
+
+
+class QuickFoodSleepIn(BaseModel):
+    food: str = ""
+    sleep: str = ""
+    date: Optional[str] = None
+    time: Optional[str] = None
+
+
 class HealthEntry(HealthEntryIn):
     id: str
     created_at: str
@@ -244,6 +282,60 @@ def api_save_profile(profile: Profile, request: Request):
     return store["profile"]
 
 
+
+def local_today() -> str:
+    # Browser/UI uses local dates. The add-on usually runs in the HA host timezone,
+    # so datetime.now() is the best simple default for server-side quick actions.
+    return datetime.now().date().isoformat()
+
+
+def local_now_time() -> str:
+    return datetime.now().strftime("%H:%M")
+
+
+def quick_base_entry(date_value: Optional[str] = None, time_value: Optional[str] = None) -> Dict[str, Any]:
+    return {
+        "date": date_value or local_today(),
+        "time": time_value or local_now_time(),
+        "temperature": None,
+        "mood": "",
+        "symptoms": [],
+        "custom_symptoms": "",
+        "medication": "",
+        "fluids_ml": None,
+        "food": "",
+        "sleep": "",
+        "diaper_or_toilet": "",
+        "notes": "",
+    }
+
+
+def create_entry_from_dict(entry_data: Dict[str, Any], request: Request) -> Dict[str, Any]:
+    store = read_store()
+    user = get_ha_user(request)
+    now = utc_now()
+    item = HealthEntry(
+        **entry_data,
+        id=str(uuid.uuid4()),
+        created_at=now,
+        updated_at=now,
+        created_by=user,
+        updated_by=user,
+        history=[
+            {
+                "action": "created",
+                "at": now,
+                "by": user,
+                "fields": [],
+            }
+        ],
+    ).model_dump()
+    store["entries"].append(item)
+    store["updated_at"] = utc_now()
+    write_store(store)
+    return item
+
+
 @app.post("/api/entries")
 def api_create_entry(entry: HealthEntryIn, request: Request):
     check_pin(request)
@@ -271,6 +363,56 @@ def api_create_entry(entry: HealthEntryIn, request: Request):
     write_store(store)
     return item
 
+
+
+@app.post("/api/quick/fluid")
+def api_quick_fluid(payload: QuickFluidIn, request: Request):
+    check_pin(request)
+    entry = quick_base_entry(payload.date, payload.time)
+    entry["fluids_ml"] = payload.ml
+    return create_entry_from_dict(entry, request)
+
+
+@app.post("/api/quick/temperature")
+def api_quick_temperature(payload: QuickTemperatureIn, request: Request):
+    check_pin(request)
+    entry = quick_base_entry(payload.date, payload.time)
+    entry["temperature"] = payload.temperature
+    return create_entry_from_dict(entry, request)
+
+
+@app.post("/api/quick/mood")
+def api_quick_mood(payload: QuickMoodIn, request: Request):
+    check_pin(request)
+    entry = quick_base_entry(payload.date, payload.time)
+    entry["mood"] = payload.mood.strip()
+    return create_entry_from_dict(entry, request)
+
+
+@app.post("/api/quick/symptom")
+def api_quick_symptom(payload: QuickSymptomIn, request: Request):
+    check_pin(request)
+    entry = quick_base_entry(payload.date, payload.time)
+    symptom = payload.symptom.strip()
+    entry["symptoms"] = [symptom] if symptom else []
+    return create_entry_from_dict(entry, request)
+
+
+@app.post("/api/quick/medication")
+def api_quick_medication(payload: QuickMedicationIn, request: Request):
+    check_pin(request)
+    entry = quick_base_entry(payload.date, payload.time)
+    entry["medication"] = payload.medication.strip()
+    return create_entry_from_dict(entry, request)
+
+
+@app.post("/api/quick/food-sleep")
+def api_quick_food_sleep(payload: QuickFoodSleepIn, request: Request):
+    check_pin(request)
+    entry = quick_base_entry(payload.date, payload.time)
+    entry["food"] = payload.food.strip()
+    entry["sleep"] = payload.sleep.strip()
+    return create_entry_from_dict(entry, request)
 
 @app.put("/api/entries/{entry_id}")
 def api_update_entry(entry_id: str, entry: HealthEntryIn, request: Request):
