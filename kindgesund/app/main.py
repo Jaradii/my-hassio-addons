@@ -71,8 +71,28 @@ def read_store() -> Dict[str, Any]:
 
     data.setdefault("profile", default_store()["profile"])
     data.setdefault("entries", [])
+    data.setdefault("deleted_entries", [])
     data.setdefault("created_at", utc_now())
     data.setdefault("updated_at", utc_now())
+
+    # Ensure every existing entry has a persistent history array.
+    # This prevents the frontend from falling back to only created/updated timestamps.
+    for entry in data.get("entries", []):
+        if not isinstance(entry, dict):
+            continue
+        history = entry.get("history")
+        if not isinstance(history, list) or not history:
+            created_at = entry.get("created_at", data.get("created_at", utc_now()))
+            created_by = entry.get("created_by", {})
+            entry["history"] = [
+                {
+                    "action": "created",
+                    "at": created_at,
+                    "by": created_by if isinstance(created_by, dict) else {},
+                    "fields": [],
+                }
+            ]
+
     return data
 
 
@@ -250,6 +270,16 @@ def api_update_entry(entry_id: str, entry: HealthEntryIn, request: Request):
             existing_history = existing.get("history", [])
             if not isinstance(existing_history, list):
                 existing_history = []
+
+            if not existing_history:
+                existing_history = [
+                    {
+                        "action": "created",
+                        "at": existing.get("created_at", now),
+                        "by": existing.get("created_by", {}),
+                        "fields": [],
+                    }
+                ]
 
             updated = HealthEntry(
                 **entry_data,

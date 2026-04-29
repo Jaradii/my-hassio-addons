@@ -447,7 +447,7 @@ function fieldLabel(field) {
 }
 
 function renderEntryHistory(entry) {
-  let history = Array.isArray(entry.history) ? entry.history : [];
+  let history = Array.isArray(entry.history) ? entry.history.filter(Boolean) : [];
 
   if (!history.length) {
     history = [{
@@ -467,11 +467,23 @@ function renderEntryHistory(entry) {
     }
   }
 
+  const sorted = history.slice().sort((a, b) => {
+    const atA = new Date(a.at || 0).getTime();
+    const atB = new Date(b.at || 0).getTime();
+    return atB - atA;
+  });
+
+  const count = sorted.length;
+
   return `
     <details class="history-box">
-      <summary>Historie</summary>
+      <summary aria-label="Historie anzeigen">
+        <span class="history-summary-icon">↻</span>
+        <span class="history-summary-text">Historie</span>
+        <span class="history-summary-count">${count}</span>
+      </summary>
       <div class="history-list">
-        ${history.slice().reverse().map(event => {
+        ${sorted.map(event => {
           const fields = Array.isArray(event.fields) ? event.fields : [];
           return `
             <div class="history-item">
