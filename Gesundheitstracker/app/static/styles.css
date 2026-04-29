@@ -5468,3 +5468,62 @@ body.quick-open > .bottom-action-bar { display: none !important; }
     font-size: 0.64rem;
   }
 }
+
+
+/* v1.9.5: Datepicker zuverlässig öffnend durch echtes klickbares Date-Input */
+.date-picker-trigger {
+  position: relative !important;
+  isolation: isolate;
+}
+
+/*
+  Nicht mehr pointer-events:none:
+  Das echte native Date-Input liegt als transparente Klickfläche über dem Datum.
+  Das ist zuverlässiger in iOS/Home-Assistant-WebViews als showPicker().
+*/
+.date-picker-trigger #selectedDate {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 4 !important;
+  width: 100% !important;
+  height: 100% !important;
+  opacity: 0.001 !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  border: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  color: transparent !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+/* sichtbare Texte bleiben oberhalb optisch normal, aber unter der transparenten Input-Klickfläche */
+.date-picker-trigger strong,
+.date-picker-trigger span,
+.date-picker-trigger::after {
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.date-picker-trigger:focus-within {
+  outline: 3px solid color-mix(in srgb, var(--primary) 32%, transparent);
+  outline-offset: 4px;
+}
+
+/* Verhindert, dass Browser ein Kalender-Icon sichtbar ins Layout malt */
+.date-picker-trigger #selectedDate::-webkit-calendar-picker-indicator {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.date-picker-trigger #selectedDate::-webkit-date-and-time-value,
+.date-picker-trigger #selectedDate::-webkit-datetime-edit {
+  color: transparent;
+}

@@ -976,6 +976,12 @@ async function init() {
     if (event.target && event.target.id === "selectedDate") return;
     openSelectedDatePicker();
   });
+  $("datePickerButton").addEventListener("keydown", event => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      openSelectedDatePicker();
+    }
+  });
 
   $("openEntry").addEventListener("click", () => {
     resetEntryForm();

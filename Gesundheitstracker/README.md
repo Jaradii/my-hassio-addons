@@ -1,6 +1,6 @@
 # Gesundheitstracker Home Assistant Add-on
 
-Version 1.9.4
+Version 1.9.5
 
 Mobile, tageszentrierte Gesundheits-Tagebuch-App für Home Assistant Ingress.
 
@@ -436,3 +436,11 @@ Die Daten liegen im Add-on unter:
 - Beim Tippen auf das Datum öffnet sich der native Datepicker
 - Nach Auswahl springt die Tagesübersicht direkt auf den gewählten Tag
 - Pfeile und Heute-Button bleiben unverändert nutzbar
+
+
+## Änderungen in 1.9.5
+
+- Datepicker-Öffnung auf iOS/Home-Assistant-WebView robuster umgesetzt
+- Das native Date-Feld liegt jetzt als transparente klickbare Ebene über der Datumsfläche
+- `pointer-events: none` für den Datepicker wurde entfernt
+- Datumsfläche ist kein Button mehr mit verschachteltem Input, sondern ein sauberer Container
