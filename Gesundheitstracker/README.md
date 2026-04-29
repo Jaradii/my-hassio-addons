@@ -1,6 +1,6 @@
 # Gesundheitstracker Home Assistant Add-on
 
-Version 1.7.6
+Version 1.7.7
 
 Mobile, tageszentrierte Gesundheits-Tagebuch-App für Home Assistant Ingress.
 
@@ -343,3 +343,13 @@ Die Daten liegen im Add-on unter:
 - Tageskacheln erscheinen mit leichtem Stagger-Effekt
 - Auswahl von Stimmung und Symptomen hat dezentes Feedback
 - `prefers-reduced-motion` wird respektiert
+
+
+## Änderungen in 1.7.7
+
+- Flackern der Tageskacheln beim Öffnen von Details behoben
+- Tageskacheln animieren nicht mehr bei jedem Re-Render
+- Details und Historie öffnen weiterhin sanft
+- Eintragsformular hat jetzt eine Schließanimation
+- Profil- und Backup-Dialoge haben jetzt eine Schließanimation
+- Öffnungsanimationen wurden etwas entschärft, damit sie stabiler wirken
