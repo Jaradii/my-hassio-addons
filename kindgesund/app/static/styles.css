@@ -4084,3 +4084,75 @@ body.dark[data-theme="mono"] {
     width: 100%;
   }
 }
+
+
+/* v1.7.2: Historie als kompakte Zeilenliste, separate Erstellt/Bearbeitet-Zeilen entfernt */
+.entry-user-meta {
+  display: none !important;
+}
+
+.compact-history {
+  width: 100%;
+}
+
+.compact-history-list {
+  width: 100% !important;
+  display: grid;
+  gap: 5px !important;
+  padding: 7px 0 0 !important;
+}
+
+.history-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+  padding: 7px 8px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--kg-soft) 62%, transparent);
+  border: 1px solid color-mix(in srgb, var(--kg-border) 50%, transparent);
+  font-size: 0.74rem;
+  line-height: 1.2;
+}
+
+.history-action {
+  font-weight: 950;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.history-user-inline {
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history-date {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.history-fields-inline {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-size: 0.7rem;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 430px) {
+  .history-row {
+    grid-template-columns: auto 1fr;
+  }
+
+  .history-date {
+    grid-column: 1 / -1;
+    font-size: 0.7rem;
+  }
+
+  .history-fields-inline {
+    font-size: 0.68rem;
+  }
+}

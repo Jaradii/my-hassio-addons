@@ -473,26 +473,23 @@ function renderEntryHistory(entry) {
     return atB - atA;
   });
 
-  const count = sorted.length;
-
   return `
-    <details class="history-box">
+    <details class="history-box compact-history">
       <summary aria-label="Historie anzeigen">
         <span class="history-summary-icon">↻</span>
         <span class="history-summary-text">Historie</span>
-        <span class="history-summary-count">${count}</span>
+        <span class="history-summary-count">${sorted.length}</span>
       </summary>
-      <div class="history-list">
+      <div class="history-list compact-history-list">
         ${sorted.map(event => {
-          const fields = Array.isArray(event.fields) ? event.fields : [];
+          const fields = Array.isArray(event.fields) ? event.fields.map(fieldLabel).join(", ") : "";
+          const fieldsText = fields ? ` · ${escapeHtml(fields)}` : "";
           return `
-            <div class="history-item">
-              <div class="history-line">
-                <strong>${escapeHtml(historyActionLabel(event.action))}</strong>
-                <span>${escapeHtml(formatTimestamp(event.at) || "")}</span>
-              </div>
-              <div class="history-user">${escapeHtml(userLabel(event.by))}</div>
-              ${fields.length ? `<div class="history-fields">${fields.map(field => `<span>${escapeHtml(fieldLabel(field))}</span>`).join("")}</div>` : ""}
+            <div class="history-row">
+              <span class="history-action">${escapeHtml(historyActionLabel(event.action))}</span>
+              <span class="history-user-inline">${escapeHtml(userLabel(event.by))}</span>
+              <span class="history-date">${escapeHtml(formatTimestamp(event.at) || "")}</span>
+              ${fieldsText ? `<span class="history-fields-inline">${fieldsText}</span>` : ""}
             </div>
           `;
         }).join("")}
@@ -525,10 +522,6 @@ function renderEntryDetail(entry) {
           <button class="btn secondary edit-entry" data-id="${entry.id}">Bearbeiten</button>
           <button class="btn danger delete-entry" data-id="${entry.id}">Löschen</button>
         </div>
-      </div>
-      <div class="entry-user-meta">
-        <span>Erstellt von <strong>${escapeHtml(userLabel(entry.created_by))}</strong>${entry.created_at ? ` · ${escapeHtml(formatTimestamp(entry.created_at))}` : ""}</span>
-        ${entryWasEdited(entry) ? `<span>Bearbeitet von <strong>${escapeHtml(userLabel(entry.updated_by))}</strong>${entry.updated_at ? ` · ${escapeHtml(formatTimestamp(entry.updated_at))}` : ""}</span>` : ""}
       </div>
       ${renderEntryHistory(entry)}
       ${symptoms.length ? `

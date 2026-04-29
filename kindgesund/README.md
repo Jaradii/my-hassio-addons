@@ -1,6 +1,6 @@
 # KindGesund Home Assistant Add-on
 
-Version 1.7.1
+Version 1.7.2
 
 Mobile, tageszentrierte Gesundheits-Tagebuch-App für Home Assistant Ingress.
 
@@ -300,3 +300,12 @@ Die Daten liegen im Add-on unter:
 - Bei Bearbeitungen wird die vorhandene Historie zuverlässiger erhalten und erweitert
 - Historie-Button ist jetzt viel kleiner und subtiler
 - Auf Smartphone wird die Historie primär als Icon mit Zähler angezeigt
+
+
+## Änderungen in 1.7.2
+
+- Separate Zeilen „Erstellt von“ und „Bearbeitet von“ entfernt
+- Alle Erstellungs- und Bearbeitungsdaten stehen jetzt nur noch in der Historie
+- Historie öffnet als kompakte Liste
+- Jedes Historienereignis steht in einer eigenen Zeile
+- Geänderte Felder werden innerhalb der jeweiligen Historienzeile angezeigt
