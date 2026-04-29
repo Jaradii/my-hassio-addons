@@ -288,7 +288,7 @@ function renderDaySummaryCard(entries) {
           <span class="entry-time">${summary.count} Eintrag${summary.count === 1 ? "" : "e"} zusammengefasst</span>
           <div class="entry-title">Tagesübersicht</div>
         </div>
-        ${summary.latestTempEntry ? `<div class="temp-pill ${feverClass(summary.latestTempEntry.temperature)}">${latestTempText}</div>` : ""}
+        ${""}
       </div>
 
       <div class="day-tile-grid">
@@ -301,6 +301,7 @@ function renderDaySummaryCard(entries) {
           <span class="tile-icon">🌡️</span>
           <span class="tile-label">Temperatur</span>
           <strong>${escapeHtml(latestTempText)}</strong>
+          <small>${escapeHtml(tempMeta)}</small>
         </div>
         <div class="day-tile">
           <span class="tile-icon">🙂</span>
@@ -344,27 +345,33 @@ function renderDaySummaryCard(entries) {
 function renderSummaryTextBlocks(summary) {
   const blocks = [];
 
-  if (summary.medications.length) {
-    blocks.push(`<div class="note-block"><strong>Medikamente</strong>\n${summary.medications.map(e => `${escapeHtml(e.time || "--:--")} · ${escapeHtml(e.medication)}`).join("\n")}</div>`);
-  }
+  const renderItems = (items, key, icon, title) => {
+    if (!items.length) return "";
+    return `
+      <section class="summary-info-card">
+        <div class="summary-info-head">
+          <span class="summary-info-icon">${icon}</span>
+          <strong>${title}</strong>
+        </div>
+        <div class="summary-info-list">
+          ${items.map(e => `
+            <div class="summary-info-item">
+              <span class="summary-info-time">${escapeHtml(e.time || "--:--")}</span>
+              <p>${escapeHtml(e[key] || "")}</p>
+            </div>
+          `).join("")}
+        </div>
+      </section>
+    `;
+  };
 
-  if (summary.foods.length) {
-    blocks.push(`<div class="note-block"><strong>Essen</strong>\n${summary.foods.map(e => `${escapeHtml(e.time || "--:--")} · ${escapeHtml(e.food)}`).join("\n")}</div>`);
-  }
+  blocks.push(renderItems(summary.medications, "medication", "💊", "Medikamente"));
+  blocks.push(renderItems(summary.foods, "food", "🍽️", "Essen"));
+  blocks.push(renderItems(summary.sleeps, "sleep", "😴", "Schlaf"));
+  blocks.push(renderItems(summary.diaper, "diaper_or_toilet", "🚽", "Windel / Toilette"));
+  blocks.push(renderItems(summary.notes, "notes", "📝", "Notizen"));
 
-  if (summary.sleeps.length) {
-    blocks.push(`<div class="note-block"><strong>Schlaf</strong>\n${summary.sleeps.map(e => `${escapeHtml(e.time || "--:--")} · ${escapeHtml(e.sleep)}`).join("\n")}</div>`);
-  }
-
-  if (summary.diaper.length) {
-    blocks.push(`<div class="note-block"><strong>Windel / Toilette</strong>\n${summary.diaper.map(e => `${escapeHtml(e.time || "--:--")} · ${escapeHtml(e.diaper_or_toilet)}`).join("\n")}</div>`);
-  }
-
-  if (summary.notes.length) {
-    blocks.push(`<div class="note-block"><strong>Notizen</strong>\n${summary.notes.map(e => `${escapeHtml(e.time || "--:--")} · ${escapeHtml(e.notes)}`).join("\n")}</div>`);
-  }
-
-  return blocks.join("");
+  return blocks.filter(Boolean).join("");
 }
 
 function renderExpandedEntries(entries) {

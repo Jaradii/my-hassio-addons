@@ -3586,3 +3586,106 @@ body.dark .mood-option.active small {
     gap: 3px;
   }
 }
+
+
+/* v1.5.4: richtige Temperaturanzeige + schönere Tages-Detailfelder */
+.temperature-tile small {
+  display: block !important;
+}
+
+/* Die zusätzliche Temperaturanzeige oben rechts in der Tageskarte wurde im HTML entfernt.
+   Falls alte Browser-Caches sie noch rendern, ausblenden. */
+.day-summary-card > .entry-card-head .temp-pill {
+  display: none !important;
+}
+
+/* Zusammengeführte Tagesfelder wie Medikamente/Schlaf schöner darstellen */
+.summary-info-card {
+  border-radius: 10px;
+  border: 1px solid var(--kg-border);
+  background: color-mix(in srgb, var(--kg-soft) 72%, var(--card) 28%);
+  padding: 10px;
+  display: grid;
+  gap: 9px;
+}
+
+.summary-info-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.summary-info-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  display: inline-grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--primary) 12%, var(--card) 88%);
+  border: 1px solid color-mix(in srgb, var(--kg-border) 78%, transparent);
+  font-size: 1rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.summary-info-head strong {
+  font-size: 0.95rem;
+  font-weight: 950;
+  color: var(--text);
+}
+
+.summary-info-list {
+  display: grid;
+  gap: 7px;
+}
+
+.summary-info-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+  align-items: start;
+  padding: 8px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--card) 58%, transparent);
+  border: 1px solid color-mix(in srgb, var(--kg-border) 55%, transparent);
+}
+
+.summary-info-time {
+  min-width: 48px;
+  padding: 4px 6px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--primary) 11%, var(--card) 89%);
+  color: color-mix(in srgb, var(--primary2) 74%, var(--text) 26%);
+  font-size: 0.76rem;
+  font-weight: 950;
+  text-align: center;
+  line-height: 1;
+}
+
+body.dark .summary-info-time {
+  color: var(--primary);
+}
+
+.summary-info-item p {
+  margin: 0;
+  color: var(--text);
+  line-height: 1.38;
+  overflow-wrap: anywhere;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 430px) {
+  .summary-info-card {
+    padding: 9px;
+  }
+
+  .summary-info-item {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .summary-info-time {
+    width: fit-content;
+    min-width: 0;
+  }
+}
