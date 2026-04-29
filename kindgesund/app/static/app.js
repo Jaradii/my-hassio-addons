@@ -235,13 +235,42 @@ function renderDaySummaryCard(entries) {
         ${summary.latestTempEntry ? `<div class="temp-pill ${feverClass(summary.latestTempEntry.temperature)}">${latestTempText}</div>` : ""}
       </div>
 
-      <div class="metric-grid day-summary-grid">
-        <div class="metric"><span>Flüssigkeit gesamt</span><strong>${summary.fluidsTotal ? `${summary.fluidsTotal} ml` : "Keine"}</strong></div>
-        <div class="metric"><span>Temperatur</span><strong>${escapeHtml(latestTempText)}</strong><small>${escapeHtml(tempMeta)}</small></div>
-        <div class="metric"><span>Stimmung</span><strong>${moodText}</strong><small>${summary.moods.length > 1 ? `${summary.moods.length} Angaben` : "Letzte Angabe"}</small></div>
-        <div class="metric"><span>Symptome</span><strong>${summary.symptoms.length || "Keine"}</strong><small>${symptomText}</small></div>
-        <div class="metric"><span>Medikamente</span><strong>${summary.medications.length || "Keine"}</strong><small>${summary.medications.length ? "Einträge vorhanden" : "Nicht eingetragen"}</small></div>
-        <div class="metric"><span>Essen / Schlaf</span><strong>${summary.foods.length + summary.sleeps.length || "Keine"}</strong><small>${summary.foods.length} Essen · ${summary.sleeps.length} Schlaf</small></div>
+      <div class="day-tile-grid">
+        <div class="day-tile">
+          <span class="tile-icon">💧</span>
+          <span class="tile-label">Flüssigkeit</span>
+          <strong>${summary.fluidsTotal ? `${summary.fluidsTotal} ml` : "Keine"}</strong>
+        </div>
+        <div class="day-tile">
+          <span class="tile-icon">🌡️</span>
+          <span class="tile-label">Temperatur</span>
+          <strong>${escapeHtml(latestTempText)}</strong>
+          <small>${escapeHtml(tempMeta)}</small>
+        </div>
+        <div class="day-tile">
+          <span class="tile-icon">🙂</span>
+          <span class="tile-label">Stimmung</span>
+          <strong>${moodText}</strong>
+          <small>${summary.moods.length > 1 ? `${summary.moods.length} Angaben` : "Letzte Angabe"}</small>
+        </div>
+        <div class="day-tile">
+          <span class="tile-icon">🤧</span>
+          <span class="tile-label">Symptome</span>
+          <strong>${summary.symptoms.length || "Keine"}</strong>
+          <small>${symptomText}</small>
+        </div>
+        <div class="day-tile">
+          <span class="tile-icon">💊</span>
+          <span class="tile-label">Medikamente</span>
+          <strong>${summary.medications.length || "Keine"}</strong>
+          <small>${summary.medications.length ? "Einträge" : "Nicht eingetragen"}</small>
+        </div>
+        <div class="day-tile">
+          <span class="tile-icon">🍽️</span>
+          <span class="tile-label">Essen / Schlaf</span>
+          <strong>${summary.foods.length + summary.sleeps.length || "Keine"}</strong>
+          <small>${summary.foods.length} Essen · ${summary.sleeps.length} Schlaf</small>
+        </div>
       </div>
 
       ${summary.symptoms.length ? `<div class="tags">${summary.symptoms.map(([s, count]) => `<span class="tag">${escapeHtml(s)}${count > 1 ? ` ×${count}` : ""}</span>`).join("")}</div>` : ""}

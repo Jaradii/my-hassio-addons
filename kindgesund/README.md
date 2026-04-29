@@ -1,6 +1,6 @@
 # KindGesund Home Assistant Add-on
 
-Version 1.3.0
+Version 1.3.1
 
 Mobile, tageszentrierte Gesundheits-Tagebuch-App für Home Assistant Ingress.
 
@@ -113,3 +113,13 @@ Die Daten liegen im Add-on unter:
 - Medikamente, Essen, Schlaf, Windel/Toilette und Notizen werden als Tagesblöcke zusammengeführt
 - Erweitern-Button zeigt die genauen Einzelzeiten und Mengen
 - Eintrags-Popup öffnet mit stärkerer Animation
+
+
+## Änderungen in 1.3.1
+
+- Tagesübersicht als quadratische Kacheln umgesetzt
+- Kacheln enthalten Icons
+- Smartphone zeigt die Kacheln kompakter, primär mit Icons und Werten
+- Desktop zeigt Icons plus Text
+- Speichern-Button im Eintragsformular ist jetzt optisch so groß wie „Neuer Eintrag“
+- Neuer-Eintrag-Dock sitzt auf Smartphones weiter unten

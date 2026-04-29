@@ -1845,3 +1845,145 @@ body > .bottom-action-bar > .bottom-add-button {
     width: 100%;
   }
 }
+
+
+/* v1.3.1: quadratische Tageskacheln + bessere Buttonposition/-größe */
+.day-tile-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+}
+
+.day-tile {
+  aspect-ratio: 1 / 1;
+  min-width: 0;
+  border-radius: 10px !important;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  padding: 10px;
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.tile-icon {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.tile-label {
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 850;
+  line-height: 1.1;
+}
+
+.day-tile strong {
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.day-tile small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.68rem;
+  line-height: 1.15;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* Speichern-Button im Eintragsformular optisch gleich groß wie „Neuer Eintrag“ */
+.sheet-actions {
+  grid-template-columns: 1fr !important;
+}
+
+.sheet-actions .btn.primary {
+  width: min(360px, 100%) !important;
+  max-width: 360px !important;
+  min-height: 54px !important;
+  justify-self: center !important;
+  border-radius: 10px !important;
+  font-weight: 950 !important;
+  font-size: 1rem !important;
+}
+
+.sheet-actions .btn.danger:not(.hidden) {
+  width: min(360px, 100%) !important;
+  max-width: 360px !important;
+  min-height: 48px !important;
+  justify-self: center !important;
+  border-radius: 10px !important;
+}
+
+/* Smartphone: Neuer-Eintrag-Dock deutlich weiter nach unten */
+@media (max-width: 600px) {
+  body > .bottom-action-bar {
+    bottom: calc(2px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .app {
+    padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+@media (max-width: 430px) {
+  body > .bottom-action-bar {
+    bottom: calc(0px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  body > .bottom-action-bar > .bottom-add-button {
+    width: min(330px, 100%) !important;
+    max-width: 330px !important;
+    min-height: 52px !important;
+  }
+
+  .day-tile-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px;
+  }
+
+  .day-tile {
+    padding: 8px;
+    place-items: center;
+    align-content: center;
+    text-align: center;
+  }
+
+  .tile-icon {
+    font-size: 1.45rem;
+  }
+
+  .tile-label {
+    font-size: 0;
+    line-height: 0;
+    height: 0;
+    overflow: hidden;
+  }
+
+  .day-tile strong {
+    font-size: 0.92rem;
+  }
+
+  .day-tile small {
+    font-size: 0.62rem;
+    -webkit-line-clamp: 2;
+  }
+
+  .sheet-actions .btn.primary {
+    width: min(330px, 100%) !important;
+    max-width: 330px !important;
+    min-height: 52px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .day-tile-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
