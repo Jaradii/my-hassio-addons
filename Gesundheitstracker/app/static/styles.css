@@ -5286,3 +5286,130 @@ body.dark .quick-tile::after {
     font-size: 0.66rem;
   }
 }
+
+
+/* v1.9.2: Mini-Popups für Kachel-Schnellaktionen */
+body.quick-open > .bottom-action-bar { display: none !important; }
+
+.quick-sheet {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1260 !important;
+  display: block !important;
+  overflow: hidden !important;
+}
+.quick-sheet.hidden { display: none !important; }
+
+.quick-backdrop {
+  position: absolute !important;
+  inset: 0 !important;
+  background: color-mix(in srgb, var(--bg) 72%, rgba(17, 19, 24, 0.28) 28%) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+.quick-panel {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: min(430px, calc(100vw - 28px)) !important;
+  max-width: calc(100vw - 28px) !important;
+  max-height: min(78dvh, 620px) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 14px !important;
+  border-radius: 10px !important;
+  background: var(--kg-surface) !important;
+  border: 1px solid var(--kg-border) !important;
+  box-sizing: border-box !important;
+}
+
+.quick-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--kg-border) 65%, transparent);
+}
+.quick-head h2 { margin: 0 0 4px 0; font-size: 1.25rem; line-height: 1.15; }
+.quick-head p { margin: 0; color: var(--muted); font-size: 0.86rem; line-height: 1.35; }
+
+.quick-content { display: grid; gap: 12px; }
+.quick-field { gap: 8px !important; }
+
+.quick-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid color-mix(in srgb, var(--kg-border) 65%, transparent);
+}
+.quick-actions .btn.primary { width: min(330px, 100%) !important; min-height: 52px !important; }
+
+.quick-symptom-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 7px !important;
+}
+.quick-symptom-grid label {
+  position: relative;
+  min-height: 44px;
+  padding: 7px 24px 7px 7px;
+  border-radius: 10px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.76rem;
+  font-weight: 850;
+  background: var(--kg-soft);
+  border: 1px solid var(--kg-border);
+  overflow: hidden;
+}
+.quick-symptom-grid label input { display: none !important; }
+.quick-symptom-grid label span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.quick-symptom-grid label:has(input:checked) {
+  background: color-mix(in srgb, var(--primary) 26%, var(--card) 74%) !important;
+  border-color: var(--primary) !important;
+  font-weight: 950;
+}
+.quick-symptom-grid label:has(input:checked)::after {
+  content: "✓";
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 950;
+}
+
+.quick-sheet:not(.hidden):not(.closing) .quick-backdrop {
+  animation: kgSheetBackdropIn var(--sheet-motion-duration, 420ms) var(--sheet-motion-ease, cubic-bezier(.22,.9,.28,1)) both !important;
+}
+.quick-sheet:not(.hidden):not(.closing) .quick-panel { animation: kgQuickOpen 420ms cubic-bezier(.22,.9,.28,1) both !important; }
+.quick-sheet.closing { display: block !important; pointer-events: none !important; }
+.quick-sheet.closing .quick-backdrop { animation: kgSheetBackdropOut var(--sheet-motion-duration, 420ms) var(--sheet-motion-ease, cubic-bezier(.22,.9,.28,1)) both !important; }
+.quick-sheet.closing .quick-panel { animation: kgQuickClose 420ms cubic-bezier(.22,.9,.28,1) both !important; }
+
+@keyframes kgQuickOpen {
+  from { opacity: 0; transform: translate(-50%, calc(-50% + 26px)) scale(0.985); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes kgQuickClose {
+  from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  to { opacity: 0; transform: translate(-50%, calc(-50% + 26px)) scale(0.985); }
+}
+
+@media (min-width: 900px) {
+  .quick-panel { width: min(520px, calc(100vw - 64px)) !important; }
+  .quick-symptom-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+}
