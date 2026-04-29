@@ -457,7 +457,8 @@ function resetEntryForm() {
   $("entryFormTitle").textContent = "Neuer Eintrag";
   $("autoTimeText").textContent = "Uhrzeit wird automatisch gespeichert";
   $("temperature").value = "";
-  $("mood").value = "";
+  $("temperatureSlider").value = "37.0";
+  setMood("");
   $("fluidsMl").value = "";
   $("customSymptoms").value = "";
   $("medication").value = "";
@@ -471,6 +472,32 @@ function resetEntryForm() {
 
 function selectedSymptoms() {
   return [...document.querySelectorAll("#symptomChips input:checked")].map(i => i.value);
+}
+
+function setMood(value) {
+  $("mood").value = value || "";
+  document.querySelectorAll(".mood-option").forEach(btn => {
+    const active = btn.dataset.mood === value;
+    btn.classList.toggle("active", active);
+    btn.setAttribute("aria-checked", active ? "true" : "false");
+  });
+}
+
+function setTemperatureValue(value, source = "input") {
+  const input = $("temperature");
+  const slider = $("temperatureSlider");
+  if (value === "" || value === null || value === undefined) {
+    input.value = "";
+    return;
+  }
+  const num = Number(value);
+  if (Number.isNaN(num)) return;
+  const rounded = Math.round(num * 10) / 10;
+  input.value = rounded.toFixed(1);
+  if (source !== "slider") {
+    const sliderValue = Math.min(42, Math.max(34, rounded));
+    slider.value = sliderValue.toFixed(1);
+  }
 }
 
 function formEntry() {
@@ -504,7 +531,12 @@ function editEntry(id) {
   $("entryFormTitle").textContent = "Eintrag bearbeiten";
   $("autoTimeText").textContent = entry.time ? `Gespeichert um ${entry.time} Uhr` : "Gespeicherte Uhrzeit bleibt erhalten";
   $("temperature").value = entry.temperature ?? "";
-  $("mood").value = entry.mood || "";
+  if (entry.temperature !== null && entry.temperature !== undefined && entry.temperature !== "") {
+    setTemperatureValue(entry.temperature);
+  } else {
+    $("temperatureSlider").value = "37.0";
+  }
+  setMood(entry.mood || "");
   $("fluidsMl").value = entry.fluids_ml ?? "";
   $("customSymptoms").value = entry.custom_symptoms || "";
   $("medication").value = entry.medication || "";
@@ -567,6 +599,21 @@ async function init() {
   $("closeEntry").addEventListener("click", closeSheet);
   $("sheetBackdrop").addEventListener("click", closeSheet);
   $("deleteCurrent").addEventListener("click", deleteCurrentEntry);
+
+  $("temperature").addEventListener("input", (event) => {
+    setTemperatureValue(event.target.value, "input");
+  });
+
+  $("temperatureSlider").addEventListener("input", (event) => {
+    setTemperatureValue(event.target.value, "slider");
+  });
+
+  document.querySelectorAll(".mood-option").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const nextMood = $("mood").value === btn.dataset.mood ? "" : btn.dataset.mood;
+      setMood(nextMood);
+    });
+  });
 
   $("pinButton").addEventListener("click", async () => {
     state.pin = $("pinInput").value;

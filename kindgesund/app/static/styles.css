@@ -3360,3 +3360,128 @@ body[data-theme] > .bottom-action-bar > .bottom-add-button:active {
     font-size: 0.86rem !important;
   }
 }
+
+
+/* v1.5.0: Temperatur-Slider und Stimmung als Icon-Auswahl */
+.temperature-field {
+  gap: 8px !important;
+}
+
+.temperature-slider {
+  width: 100% !important;
+  padding: 0 !important;
+  height: 28px !important;
+  background: transparent !important;
+  border: 0 !important;
+  accent-color: var(--primary) !important;
+}
+
+.temperature-slider::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #69b980 0%, #69b980 43%, #e4c84e 43%, #e4c84e 56%, #e89038 56%, #e89038 65%, #d94b5a 65%, #d94b5a 100%);
+}
+
+.temperature-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  margin-top: -7px;
+  border-radius: 10px;
+  background: var(--card);
+  border: 2px solid var(--primary);
+}
+
+.temperature-slider::-moz-range-track {
+  height: 8px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #69b980 0%, #69b980 43%, #e4c84e 43%, #e4c84e 56%, #e89038 56%, #e89038 65%, #d94b5a 65%, #d94b5a 100%);
+}
+
+.temperature-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  background: var(--card);
+  border: 2px solid var(--primary);
+}
+
+.slider-scale {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 750;
+  line-height: 1;
+}
+
+.mood-field {
+  grid-column: 1 / -1;
+}
+
+.mood-options {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.mood-option {
+  min-width: 0;
+  min-height: 68px;
+  padding: 8px 6px;
+  border-radius: 10px !important;
+  border: 1px solid var(--kg-border) !important;
+  background: var(--kg-soft) !important;
+  color: var(--text) !important;
+  display: grid;
+  place-items: center;
+  gap: 4px;
+  box-shadow: none !important;
+}
+
+.mood-option span {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.mood-option small {
+  font-size: 0.68rem;
+  font-weight: 850;
+  line-height: 1;
+  color: var(--muted);
+}
+
+.mood-option.active {
+  background: color-mix(in srgb, var(--primary) 20%, var(--card) 80%) !important;
+  border-color: var(--primary) !important;
+  color: var(--text) !important;
+}
+
+.mood-option.active small {
+  color: color-mix(in srgb, var(--primary2) 75%, var(--text) 25%) !important;
+}
+
+body.dark .mood-option.active small {
+  color: var(--primary) !important;
+}
+
+@media (max-width: 430px) {
+  .mood-options {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .mood-option {
+    min-height: 58px;
+    padding: 7px 6px;
+  }
+
+  .mood-option span {
+    font-size: 1.3rem;
+  }
+
+  .mood-option small {
+    font-size: 0.66rem;
+  }
+}
