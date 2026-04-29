@@ -468,6 +468,53 @@ function fieldLabel(field) {
   return labels[field] || field;
 }
 
+function formatHistoryValue(field, value) {
+  if (value === null || value === undefined || value === "") return "leer";
+  if (Array.isArray(value)) return value.length ? value.join(", ") : "leer";
+
+  if (field === "temperature") {
+    const n = Number(value);
+    return Number.isNaN(n) ? String(value) : `${n.toFixed(1)} °C`;
+  }
+
+  if (field === "fluids_ml") {
+    const n = Number(value);
+    return Number.isNaN(n) ? String(value) : `${n} ml`;
+  }
+
+  return String(value);
+}
+
+function renderChangeDetails(event) {
+  const changes = Array.isArray(event.changes) ? event.changes : [];
+
+  if (changes.length) {
+    return `
+      <div class="history-change-list">
+        ${changes.map(change => `
+          <div class="history-change-row">
+            <span class="history-change-field">${escapeHtml(fieldLabel(change.field))}</span>
+            <div class="history-change-values">
+              <span class="history-old">${escapeHtml(formatHistoryValue(change.field, change.before))}</span>
+              <span class="history-arrow">→</span>
+              <span class="history-new">${escapeHtml(formatHistoryValue(change.field, change.after))}</span>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  const fields = Array.isArray(event.fields) ? event.fields : [];
+  if (!fields.length) return "";
+
+  return `
+    <div class="history-fields-inline">
+      ${fields.map(field => `<span>${escapeHtml(fieldLabel(field))}</span>`).join("")}
+    </div>
+  `;
+}
+
 function renderEntryHistory(entry) {
   let history = Array.isArray(entry.history) ? entry.history.filter(Boolean) : [];
 
@@ -504,14 +551,14 @@ function renderEntryHistory(entry) {
       </summary>
       <div class="history-list compact-history-list">
         ${sorted.map(event => {
-          const fields = Array.isArray(event.fields) ? event.fields.map(fieldLabel).join(", ") : "";
-          const fieldsText = fields ? ` · ${escapeHtml(fields)}` : "";
           return `
             <div class="history-row">
-              <span class="history-action">${escapeHtml(historyActionLabel(event.action))}</span>
-              <span class="history-user-inline">${escapeHtml(userLabel(event.by))}</span>
-              <span class="history-date">${escapeHtml(formatTimestamp(event.at) || "")}</span>
-              ${fieldsText ? `<span class="history-fields-inline">${fieldsText}</span>` : ""}
+              <div class="history-row-main">
+                <span class="history-action">${escapeHtml(historyActionLabel(event.action))}</span>
+                <span class="history-user-inline">${escapeHtml(userLabel(event.by))}</span>
+                <span class="history-date">${escapeHtml(formatTimestamp(event.at) || "")}</span>
+              </div>
+              ${renderChangeDetails(event)}
             </div>
           `;
         }).join("")}

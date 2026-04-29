@@ -1,6 +1,6 @@
 # Gesundheitstracker Home Assistant Add-on
 
-Version 1.7.9
+Version 1.8.0
 
 Mobile, tageszentrierte Gesundheits-Tagebuch-App für Home Assistant Ingress.
 
@@ -370,3 +370,12 @@ Die Daten liegen im Add-on unter:
 - Öffnen bewegt sich von unten nach oben
 - Schließen bewegt sich von oben nach unten
 - Opacity, Skalierung und Backdrop-Blur sind symmetrisch abgestimmt
+
+
+## Änderungen in 1.8.0
+
+- Historie speichert bei neuen Bearbeitungen jetzt detaillierte Vorher/Nachher-Werte
+- Historie zeigt pro geändertem Feld den alten und neuen Wert
+- Alte Historieneinträge ohne Detailwerte bleiben kompatibel und zeigen weiterhin die geänderten Felder
+- Symptom-Auswahl ist deutlicher markiert
+- Ausgewählte Symptome bekommen eine stärkere Hervorhebung und ein Häkchen

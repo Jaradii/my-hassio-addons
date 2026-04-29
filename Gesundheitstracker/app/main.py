@@ -136,8 +136,8 @@ def get_ha_user(request: Request) -> Dict[str, str]:
     }
 
 
-def changed_fields(before: Dict[str, Any], after: Dict[str, Any]) -> List[str]:
-    tracked = [
+def tracked_entry_fields() -> List[str]:
+    return [
         "date",
         "time",
         "temperature",
@@ -151,10 +151,25 @@ def changed_fields(before: Dict[str, Any], after: Dict[str, Any]) -> List[str]:
         "diaper_or_toilet",
         "notes",
     ]
-    changes: List[str] = []
-    for key in tracked:
-        if before.get(key) != after.get(key):
-            changes.append(key)
+
+
+def changed_fields(before: Dict[str, Any], after: Dict[str, Any]) -> List[str]:
+    return [change["field"] for change in detailed_changes(before, after)]
+
+
+def detailed_changes(before: Dict[str, Any], after: Dict[str, Any]) -> List[Dict[str, Any]]:
+    changes: List[Dict[str, Any]] = []
+    for key in tracked_entry_fields():
+        old_value = before.get(key)
+        new_value = after.get(key)
+        if old_value != new_value:
+            changes.append(
+                {
+                    "field": key,
+                    "before": old_value,
+                    "after": new_value,
+                }
+            )
     return changes
 
 
@@ -266,7 +281,8 @@ def api_update_entry(entry_id: str, entry: HealthEntryIn, request: Request):
         if existing.get("id") == entry_id:
             now = utc_now()
             entry_data = entry.model_dump()
-            fields = changed_fields(existing, entry_data)
+            changes = detailed_changes(existing, entry_data)
+            fields = [change["field"] for change in changes]
             existing_history = existing.get("history", [])
             if not isinstance(existing_history, list):
                 existing_history = []
@@ -295,6 +311,7 @@ def api_update_entry(entry_id: str, entry: HealthEntryIn, request: Request):
                         "at": now,
                         "by": user,
                         "fields": fields,
+                        "changes": changes,
                     },
                 ],
             ).model_dump()
