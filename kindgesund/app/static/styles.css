@@ -3505,3 +3505,84 @@ body.dark .mood-option.active small {
   color: var(--text);
   font-weight: 900;
 }
+
+
+/* v1.5.3: Tagesübersicht aufräumen und Textfelder schöner gestalten */
+.temperature-tile small {
+  display: none !important;
+}
+
+.tile-duo {
+  display: inline-flex !important;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+}
+
+.tile-duo span {
+  line-height: 1;
+}
+
+/* Textfelder mit Icon und ruhigerer Fläche */
+.icon-textarea-field {
+  gap: 7px !important;
+}
+
+.icon-textarea-field > span {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 7px;
+  color: var(--text) !important;
+  font-weight: 900 !important;
+}
+
+.field-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 10px;
+  display: inline-grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--primary) 12%, var(--card) 88%);
+  border: 1px solid color-mix(in srgb, var(--kg-border) 78%, transparent);
+  font-size: 0.95rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.icon-textarea-field textarea {
+  min-height: 74px;
+  padding: 11px 12px !important;
+  line-height: 1.42 !important;
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--kg-soft) 82%, var(--card) 18%),
+      var(--kg-soft)
+    ) !important;
+  border: 1px solid var(--kg-border) !important;
+}
+
+.icon-textarea-field textarea::placeholder {
+  color: color-mix(in srgb, var(--muted) 78%, transparent);
+}
+
+.icon-textarea-field textarea:focus {
+  border-color: var(--primary) !important;
+  background: color-mix(in srgb, var(--card) 72%, var(--kg-soft) 28%) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 15%, transparent) !important;
+}
+
+@media (max-width: 430px) {
+  .field-icon {
+    width: 22px;
+    height: 22px;
+    font-size: 0.9rem;
+  }
+
+  .icon-textarea-field textarea {
+    min-height: 68px;
+  }
+
+  .tile-duo {
+    gap: 3px;
+  }
+}

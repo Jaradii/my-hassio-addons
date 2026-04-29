@@ -1,6 +1,6 @@
 # KindGesund Home Assistant Add-on
 
-Version 1.5.2
+Version 1.5.3
 
 Mobile, tageszentrierte Gesundheits-Tagebuch-App für Home Assistant Ingress.
 
@@ -250,3 +250,11 @@ Die Daten liegen im Add-on unter:
 - Temperaturfeld formatiert beim Tippen nicht mehr sofort auf eine Nachkommastelle
 - Cursor springt beim Eingeben der Temperatur nicht mehr hinter das Komma
 - Temperatur wird erst beim Verlassen des Feldes oder über den Slider sauber auf eine Nachkommastelle formatiert
+
+
+## Änderungen in 1.5.3
+
+- Temperatur-Kachel zeigt keinen zusätzlichen Temperaturtext mehr unter dem Wert
+- Essen/Schlaf-Kachel zeigt jetzt Teller- und Schlaf-Icon
+- Textfelder für Medikamente, Essen, Schlaf, Windel/Toilette und Notizen optisch verbessert
+- Diese Textfelder haben jetzt Icons und bessere Platzhaltertexte

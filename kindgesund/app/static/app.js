@@ -301,7 +301,6 @@ function renderDaySummaryCard(entries) {
           <span class="tile-icon">🌡️</span>
           <span class="tile-label">Temperatur</span>
           <strong>${escapeHtml(latestTempText)}</strong>
-          <small>${escapeHtml(tempMeta)}</small>
         </div>
         <div class="day-tile">
           <span class="tile-icon">🙂</span>
@@ -322,7 +321,7 @@ function renderDaySummaryCard(entries) {
           <small>${summary.medications.length ? "Einträge" : "Nicht eingetragen"}</small>
         </div>
         <div class="day-tile">
-          <span class="tile-icon">🍽️</span>
+          <span class="tile-icon tile-duo"><span>🍽️</span><span>😴</span></span>
           <span class="tile-label">Essen / Schlaf</span>
           <strong>${summary.foods.length + summary.sleeps.length || "Keine"}</strong>
           <small>${summary.foods.length} Essen · ${summary.sleeps.length} Schlaf</small>
