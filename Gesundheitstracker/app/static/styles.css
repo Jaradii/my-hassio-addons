@@ -4745,3 +4745,76 @@ button:active,
     color 220ms cubic-bezier(.22, .9, .28, 1),
     transform 160ms cubic-bezier(.22, .9, .28, 1) !important;
 }
+
+
+/* v1.7.9: Neuer-Eintrag-Popup: Öffnen/Schließen gleiche Animation, nur Richtung anders */
+:root {
+  --sheet-motion-duration: 420ms;
+  --sheet-motion-ease: cubic-bezier(.22, .9, .28, 1);
+}
+
+.sheet:not(.hidden):not(.closing) .sheet-backdrop {
+  animation: kgSheetBackdropIn var(--sheet-motion-duration) var(--sheet-motion-ease) both !important;
+}
+
+.sheet:not(.hidden):not(.closing) .sheet-panel {
+  animation: kgSheetOpenMatched var(--sheet-motion-duration) var(--sheet-motion-ease) both !important;
+  transform-origin: center center !important;
+}
+
+.sheet.closing .sheet-backdrop {
+  animation: kgSheetBackdropOut var(--sheet-motion-duration) var(--sheet-motion-ease) both !important;
+}
+
+.sheet.closing .sheet-panel {
+  animation: kgSheetCloseMatched var(--sheet-motion-duration) var(--sheet-motion-ease) both !important;
+  transform-origin: center center !important;
+}
+
+@keyframes kgSheetOpenMatched {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(32px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+@keyframes kgSheetCloseMatched {
+  from {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-50%) translateY(32px) scale(0.985);
+  }
+}
+
+@keyframes kgSheetBackdropIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+}
+
+@keyframes kgSheetBackdropOut {
+  from {
+    opacity: 1;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  to {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+  }
+}
