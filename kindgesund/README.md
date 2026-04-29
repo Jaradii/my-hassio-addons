@@ -1,6 +1,6 @@
 # KindGesund Home Assistant Add-on
 
-Version 1.1.9
+Version 1.1.10
 
 Mobile, tageszentrierte Gesundheits-Tagebuch-App für Home Assistant Ingress.
 
@@ -63,3 +63,11 @@ Die Daten liegen im Add-on unter:
 - Dock-Button aus dem scrollenden `<main>` herausgelöst
 - problematische CSS-Containment-Regel entfernt
 - Dock liegt jetzt direkt unter `body` als feste Ebene
+
+
+## Änderungen in 1.1.10
+
+- Dock-Button auf Smartphones weiter nach unten gesetzt
+- Desktop-Position bleibt unverändert
+- Seitliches Scrollen erneut abgesichert
+- Fixed-Layer erzeugen keinen horizontalen Scrollbereich mehr
