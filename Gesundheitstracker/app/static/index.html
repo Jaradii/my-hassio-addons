@@ -42,6 +42,26 @@
     </section>
 
     <section id="dayEntries" class="day-entries"></section>
+
+    <section id="quickSheet" class="quick-sheet hidden" aria-hidden="true">
+      <div id="quickBackdrop" class="quick-backdrop"></div>
+      <form id="quickForm" class="quick-panel">
+        <input id="quickKind" type="hidden" />
+        <div class="quick-head">
+          <div>
+            <h2 id="quickTitle">Eintragen</h2>
+            <p id="quickSubtitle">Nur dieser Wert wird gespeichert.</p>
+          </div>
+          <button id="closeQuick" type="button" class="round-btn">×</button>
+        </div>
+        <div id="quickContent" class="quick-content"></div>
+        <div class="quick-actions">
+          <button type="submit" class="btn primary">Speichern</button>
+        </div>
+      </form>
+    </section>
+
+
 <section id="entrySheet" class="sheet hidden" aria-hidden="true">
       <div class="sheet-backdrop" id="sheetBackdrop"></div>
       <form id="entryForm" class="sheet-panel">

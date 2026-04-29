@@ -10,6 +10,11 @@ const state = {
 
 const $ = (id) => document.getElementById(id);
 
+function onIfExists(id, eventName, handler) {
+  const el = $(id);
+  if (el) el.addEventListener(eventName, handler);
+}
+
 function animateHide(element, closingClass, afterClose) {
   if (!element || element.classList.contains("hidden")) {
     if (afterClose) afterClose();
@@ -959,9 +964,9 @@ async function init() {
   });
   $("closeEntry").addEventListener("click", closeSheet);
   $("sheetBackdrop").addEventListener("click", closeSheet);
-  $("closeQuick").addEventListener("click", closeQuickSheet);
-  $("quickBackdrop").addEventListener("click", closeQuickSheet);
-  $("quickForm").addEventListener("submit", async event => {
+  onIfExists("closeQuick", "click", closeQuickSheet);
+  onIfExists("quickBackdrop", "click", closeQuickSheet);
+  onIfExists("quickForm", "submit", async event => {
     event.preventDefault();
     const payload = quickPayload($("quickKind").value);
     if (!quickPayloadHasValue(payload)) {
