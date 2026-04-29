@@ -1,6 +1,6 @@
 # KindGesund Home Assistant Add-on
 
-Version 1.1.5
+Version 1.1.6
 
 Mobile, tageszentrierte Gesundheits-Tagebuch-App für Home Assistant Ingress.
 
@@ -64,3 +64,10 @@ Die Daten liegen im Add-on unter:
 - Profil und Backup sind wieder mittige Dialoge statt Fullscreen
 - Dialoge sind größer, zentriert und animiert
 - Bottom-Sheet öffnet weicher
+
+
+## Änderungen in 1.1.6
+
+- „Neuer Eintrag“ sitzt wieder als feste untere Menüleiste
+- Keine separate Bottom-Navigation
+- Profil und Backup bleiben als zentrierte animierte Dialoge
