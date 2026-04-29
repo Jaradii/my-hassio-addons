@@ -5842,3 +5842,69 @@ body.calendar-open > .bottom-action-bar {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* v2.2.1: Symptom-Intensität sichtbar machen */
+#symptomChips {
+  align-items: stretch !important;
+}
+
+#symptomChips label {
+  min-height: 44px !important;
+  height: auto !important;
+  overflow: visible !important;
+  align-content: center !important;
+  grid-template-rows: auto auto !important;
+}
+
+#symptomChips label:has(input:checked),
+#symptomChips label.with-intensity {
+  min-height: 82px !important;
+  align-content: start !important;
+  padding-bottom: 7px !important;
+}
+
+#symptomChips label:has(input:checked) .symptom-intensity,
+#symptomChips label.with-intensity .symptom-intensity {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+#symptomChips label:not(:has(input:checked)) .symptom-intensity {
+  display: none !important;
+}
+
+.symptom-intensity {
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+  margin-top: 4px !important;
+  min-height: 30px !important;
+  height: 30px !important;
+  padding: 3px 7px !important;
+  font-size: 0.7rem !important;
+  border-radius: 10px !important;
+  background: color-mix(in srgb, var(--card) 86%, var(--primary) 14%) !important;
+  border: 1px solid color-mix(in srgb, var(--primary) 42%, var(--kg-border) 58%) !important;
+  color: var(--text) !important;
+}
+
+/* Auf dem Smartphone lieber 2 Spalten, damit die Auswahlmenüs lesbar bleiben */
+@media (max-width: 430px) {
+  #symptomChips {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  #symptomChips label:has(input:checked),
+  #symptomChips label.with-intensity {
+    min-height: 80px !important;
+  }
+}
+
+/* Auf sehr breiten Screens kann es bei 3 Spalten bleiben */
+@media (min-width: 900px) {
+  #symptomChips {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
