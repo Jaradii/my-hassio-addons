@@ -1,6 +1,6 @@
 # KindGesund Home Assistant Add-on
 
-Version 1.1.0
+Version 1.1.1
 
 Mobile, tageszentrierte Gesundheits-Tagebuch-App für Home Assistant Ingress.
 
@@ -13,6 +13,7 @@ Mobile, tageszentrierte Gesundheits-Tagebuch-App für Home Assistant Ingress.
 - Uhrzeit wird automatisch beim Speichern gesetzt
 - Kompakteres, App-ähnlicheres UI
 - Optionaler Darkmode
+- Fix gegen horizontales Scrollen in der Home-Assistant-App
 
 ## Optionen
 

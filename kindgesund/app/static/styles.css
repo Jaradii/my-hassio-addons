@@ -37,10 +37,14 @@ body.dark {
 html,
 body {
   min-height: 100%;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 body {
   margin: 0;
+  overflow-x: hidden;
   background:
     radial-gradient(circle at top right, rgba(255, 118, 100, 0.18), transparent 18rem),
     var(--bg);
@@ -62,10 +66,12 @@ button {
 }
 
 .app {
-  width: min(540px, 100%);
+  width: 100%;
+  max-width: 540px;
   min-height: 100dvh;
   margin: 0 auto;
   padding: 14px 14px 96px;
+  overflow-x: clip;
 }
 
 .topbar {
@@ -372,7 +378,8 @@ body.dark .temp-pill.high {
   left: 50%;
   bottom: 74px;
   transform: translateX(-50%);
-  width: min(500px, calc(100% - 28px));
+  width: calc(100vw - 28px);
+  max-width: 500px;
   border-radius: 22px;
   min-height: 52px;
   background: linear-gradient(135deg, var(--primary), var(--primary2));
@@ -388,7 +395,8 @@ body.dark .temp-pill.high {
   left: 50%;
   bottom: 10px;
   transform: translateX(-50%);
-  width: min(500px, calc(100% - 28px));
+  width: calc(100vw - 28px);
+  max-width: 500px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 6px;
@@ -434,7 +442,8 @@ body.dark .temp-pill.high {
   left: 50%;
   bottom: 0;
   transform: translateX(-50%);
-  width: min(540px, 100%);
+  width: 100%;
+  max-width: 540px;
   max-height: 92dvh;
   overflow: auto;
   background: var(--bg);
@@ -585,7 +594,8 @@ textarea:focus {
 }
 
 .pin-card {
-  width: min(360px, 100%);
+  width: 100%;
+  max-width: 360px;
   border-radius: 28px;
   padding: 18px;
   text-align: center;
@@ -623,5 +633,88 @@ textarea:focus {
 
   .quick-grid .field:nth-child(3) {
     grid-column: auto;
+  }
+}
+
+
+/* v1.1.1: verhindert horizontales Scrollen in der Home-Assistant-App */
+.app,
+.topbar,
+.date-card,
+.child-card,
+.day-entries,
+.entry-card,
+.metric-grid,
+.section-card,
+.sheet-panel,
+.view-card,
+.bottom-nav,
+.floating-add {
+  max-width: 100%;
+}
+
+input,
+select,
+textarea,
+button,
+.btn {
+  max-width: 100%;
+}
+
+.sheet-panel,
+.view-card {
+  left: 0;
+  right: 0;
+  transform: none;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.floating-add,
+.bottom-nav {
+  left: 14px;
+  right: 14px;
+  transform: none;
+  width: auto;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 529px) {
+  .floating-add,
+  .bottom-nav {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: 500px;
+  }
+}
+
+@media (max-width: 420px) {
+  .app {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .date-card {
+    grid-template-columns: 38px minmax(0, 1fr) 38px;
+    gap: 7px;
+    padding: 10px;
+  }
+
+  .round-btn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .metric-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .floating-add,
+  .bottom-nav {
+    left: 10px;
+    right: 10px;
   }
 }
