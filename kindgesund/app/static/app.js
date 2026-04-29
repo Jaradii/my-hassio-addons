@@ -421,6 +421,74 @@ function entryWasEdited(entry) {
   return timeChanged || userChanged;
 }
 
+function historyActionLabel(action) {
+  if (action === "created") return "Erstellt";
+  if (action === "updated") return "Bearbeitet";
+  if (action === "deleted") return "Gelöscht";
+  return action || "Ereignis";
+}
+
+function fieldLabel(field) {
+  const labels = {
+    date: "Datum",
+    time: "Uhrzeit",
+    temperature: "Temperatur",
+    mood: "Stimmung",
+    symptoms: "Symptome",
+    custom_symptoms: "Weitere Symptome",
+    medication: "Medikamente",
+    fluids_ml: "Flüssigkeit",
+    food: "Essen",
+    sleep: "Schlaf",
+    diaper_or_toilet: "Windel / Toilette",
+    notes: "Notizen"
+  };
+  return labels[field] || field;
+}
+
+function renderEntryHistory(entry) {
+  let history = Array.isArray(entry.history) ? entry.history : [];
+
+  if (!history.length) {
+    history = [{
+      action: "created",
+      at: entry.created_at,
+      by: entry.created_by || {},
+      fields: []
+    }];
+
+    if (entryWasEdited(entry)) {
+      history.push({
+        action: "updated",
+        at: entry.updated_at,
+        by: entry.updated_by || {},
+        fields: []
+      });
+    }
+  }
+
+  return `
+    <details class="history-box">
+      <summary>Historie</summary>
+      <div class="history-list">
+        ${history.slice().reverse().map(event => {
+          const fields = Array.isArray(event.fields) ? event.fields : [];
+          return `
+            <div class="history-item">
+              <div class="history-line">
+                <strong>${escapeHtml(historyActionLabel(event.action))}</strong>
+                <span>${escapeHtml(formatTimestamp(event.at) || "")}</span>
+              </div>
+              <div class="history-user">${escapeHtml(userLabel(event.by))}</div>
+              ${fields.length ? `<div class="history-fields">${fields.map(field => `<span>${escapeHtml(fieldLabel(field))}</span>`).join("")}</div>` : ""}
+            </div>
+          `;
+        }).join("")}
+      </div>
+    </details>
+  `;
+}
+
 function renderEntryDetail(entry) {
   const symptoms = [...(entry.symptoms || [])];
   if (entry.custom_symptoms) symptoms.push(...entry.custom_symptoms.split(",").map(s => s.trim()).filter(Boolean));
@@ -450,6 +518,7 @@ function renderEntryDetail(entry) {
         <span>Erstellt von <strong>${escapeHtml(userLabel(entry.created_by))}</strong>${entry.created_at ? ` · ${escapeHtml(formatTimestamp(entry.created_at))}` : ""}</span>
         ${entryWasEdited(entry) ? `<span>Bearbeitet von <strong>${escapeHtml(userLabel(entry.updated_by))}</strong>${entry.updated_at ? ` · ${escapeHtml(formatTimestamp(entry.updated_at))}` : ""}</span>` : ""}
       </div>
+      ${renderEntryHistory(entry)}
       ${symptoms.length ? `
         <div class="detail-row symptom-row">
           <span>Symptome</span>

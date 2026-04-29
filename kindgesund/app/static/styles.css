@@ -3878,3 +3878,84 @@ body.dark[data-theme="mono"] {
   padding-top: 3px;
   border-top: 1px solid color-mix(in srgb, var(--kg-border) 55%, transparent);
 }
+
+
+/* v1.7.0: Historie pro Eintrag */
+.history-box {
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 72%, transparent);
+  background: color-mix(in srgb, var(--kg-soft) 62%, transparent);
+  overflow: hidden;
+}
+
+.history-box summary {
+  cursor: pointer;
+  padding: 9px 10px;
+  font-weight: 950;
+  color: var(--text);
+  list-style: none;
+}
+
+.history-box summary::-webkit-details-marker {
+  display: none;
+}
+
+.history-box summary::after {
+  content: "▾";
+  float: right;
+  color: var(--muted);
+  transition: transform 160ms ease;
+}
+
+.history-box[open] summary::after {
+  transform: rotate(180deg);
+}
+
+.history-list {
+  display: grid;
+  gap: 7px;
+  padding: 0 10px 10px;
+}
+
+.history-item {
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--card) 58%, transparent);
+  border: 1px solid color-mix(in srgb, var(--kg-border) 50%, transparent);
+}
+
+.history-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.history-line strong {
+  font-size: 0.86rem;
+}
+
+.history-line span,
+.history-user {
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.2;
+}
+
+.history-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.history-fields span {
+  padding: 4px 6px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--primary) 10%, var(--card) 90%);
+  border: 1px solid color-mix(in srgb, var(--kg-border) 60%, transparent);
+  font-size: 0.72rem;
+  font-weight: 850;
+  color: var(--text);
+}

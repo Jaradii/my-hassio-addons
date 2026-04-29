@@ -116,6 +116,37 @@ def get_ha_user(request: Request) -> Dict[str, str]:
     }
 
 
+def changed_fields(before: Dict[str, Any], after: Dict[str, Any]) -> List[str]:
+    tracked = [
+        "date",
+        "time",
+        "temperature",
+        "mood",
+        "symptoms",
+        "custom_symptoms",
+        "medication",
+        "fluids_ml",
+        "food",
+        "sleep",
+        "diaper_or_toilet",
+        "notes",
+    ]
+    changes: List[str] = []
+    for key in tracked:
+        if before.get(key) != after.get(key):
+            changes.append(key)
+    return changes
+
+
+def history_event(action: str, user: Dict[str, str], fields: Optional[List[str]] = None) -> Dict[str, Any]:
+    return {
+        "action": action,
+        "at": utc_now(),
+        "by": user,
+        "fields": fields or [],
+    }
+
+
 class Profile(BaseModel):
     child_name: str = Field(default="Kind", max_length=80)
     birth_date: str = Field(default="", max_length=20)
@@ -143,6 +174,7 @@ class HealthEntry(HealthEntryIn):
     updated_at: str
     created_by: Dict[str, str] = Field(default_factory=dict)
     updated_by: Dict[str, str] = Field(default_factory=dict)
+    history: List[Dict[str, Any]] = Field(default_factory=list)
 
 
 @app.middleware("http")
@@ -190,6 +222,14 @@ def api_create_entry(entry: HealthEntryIn, request: Request):
         updated_at=now,
         created_by=user,
         updated_by=user,
+        history=[
+            {
+                "action": "created",
+                "at": now,
+                "by": user,
+                "fields": [],
+            }
+        ],
     ).model_dump()
     store["entries"].append(item)
     store["entries"].sort(key=lambda e: (e.get("date", ""), e.get("time", "")), reverse=True)
@@ -204,13 +244,29 @@ def api_update_entry(entry_id: str, entry: HealthEntryIn, request: Request):
     user = get_ha_user(request)
     for idx, existing in enumerate(store["entries"]):
         if existing.get("id") == entry_id:
+            now = utc_now()
+            entry_data = entry.model_dump()
+            fields = changed_fields(existing, entry_data)
+            existing_history = existing.get("history", [])
+            if not isinstance(existing_history, list):
+                existing_history = []
+
             updated = HealthEntry(
-                **entry.model_dump(),
+                **entry_data,
                 id=entry_id,
-                created_at=existing.get("created_at", utc_now()),
-                updated_at=utc_now(),
+                created_at=existing.get("created_at", now),
+                updated_at=now,
                 created_by=existing.get("created_by", {}),
                 updated_by=user,
+                history=[
+                    *existing_history,
+                    {
+                        "action": "updated",
+                        "at": now,
+                        "by": user,
+                        "fields": fields,
+                    },
+                ],
             ).model_dump()
             store["entries"][idx] = updated
             store["entries"].sort(key=lambda e: (e.get("date", ""), e.get("time", "")), reverse=True)
@@ -223,10 +279,33 @@ def api_update_entry(entry_id: str, entry: HealthEntryIn, request: Request):
 def api_delete_entry(entry_id: str, request: Request):
     check_pin(request)
     store = read_store()
-    before = len(store["entries"])
-    store["entries"] = [e for e in store["entries"] if e.get("id") != entry_id]
-    if len(store["entries"]) == before:
+    user = get_ha_user(request)
+    entries = store.get("entries", [])
+    existing = next((e for e in entries if e.get("id") == entry_id), None)
+    if not existing:
         raise HTTPException(status_code=404, detail="Eintrag nicht gefunden.")
+
+    deleted_entries = store.get("deleted_entries", [])
+    if not isinstance(deleted_entries, list):
+        deleted_entries = []
+
+    existing_history = existing.get("history", [])
+    if not isinstance(existing_history, list):
+        existing_history = []
+
+    deleted_snapshot = {
+        **existing,
+        "deleted_at": utc_now(),
+        "deleted_by": user,
+        "history": [
+            *existing_history,
+            history_event("deleted", user),
+        ],
+    }
+    deleted_entries.append(deleted_snapshot)
+
+    store["deleted_entries"] = deleted_entries[-200:]
+    store["entries"] = [e for e in entries if e.get("id") != entry_id]
     write_store(store)
     return {"ok": True}
 

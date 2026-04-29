@@ -1,6 +1,6 @@
 # KindGesund Home Assistant Add-on
 
-Version 1.6.1
+Version 1.7.0
 
 Mobile, tageszentrierte Gesundheits-Tagebuch-App für Home Assistant Ingress.
 
@@ -281,3 +281,13 @@ Die Daten liegen im Add-on unter:
 - „Bearbeitet von“ wird jetzt auch angezeigt, wenn dieselbe Person den Eintrag später bearbeitet hat
 - Neue Einträge bekommen exakt gleiche Werte für `created_at` und `updated_at`, damit sie nicht fälschlich als bearbeitet gelten
 - Die Bearbeitet-Zeile wird in der Detailansicht optisch etwas klarer getrennt
+
+
+## Änderungen in 1.7.0
+
+- Audit-Historie pro Eintrag ergänzt
+- Neue Einträge speichern ein `created`-Historienereignis
+- Bearbeitungen speichern ein `updated`-Historienereignis mit geänderten Feldern
+- Löschungen werden als Snapshot in `deleted_entries` mit `deleted`-Historienereignis archiviert
+- Detailansicht enthält jetzt einen aufklappbaren Bereich „Historie“
+- Bestehende alte Einträge erhalten automatisch eine einfache Fallback-Historie aus created_at/updated_at
