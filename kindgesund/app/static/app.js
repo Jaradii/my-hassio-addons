@@ -76,7 +76,6 @@ function hidePin() {
 
 async function loadConfig() {
   state.config = await api("./api/config", { headers: {} });
-  $("appTitle").textContent = state.config.app_title || "KindGesund";
   document.title = state.config.app_title || "KindGesund";
   document.body.classList.toggle("dark", Boolean(state.config.dark_mode));
   if (state.config.pin_required && !state.pin) showPin();
@@ -95,7 +94,7 @@ function renderAll() {
 function renderProfile() {
   const profile = state.data.profile || {};
   const name = profile.child_name || state.config.child_name || "Kind";
-  $("childNameHero").textContent = name;
+  $("activeProfileTitle").textContent = name;
   $("profileName").value = name;
   $("profileBirthDate").value = profile.birth_date || "";
   $("profileNotes").value = profile.notes || "";
@@ -150,6 +149,9 @@ function renderDay() {
 
   container.querySelectorAll(".edit-entry").forEach(btn => {
     btn.addEventListener("click", () => editEntry(btn.dataset.id));
+  });
+  container.querySelectorAll(".delete-entry").forEach(btn => {
+    btn.addEventListener("click", () => deleteEntry(btn.dataset.id));
   });
 }
 
@@ -341,7 +343,10 @@ function renderEntryDetail(entry) {
     <div class="entry-detail">
       <div class="entry-detail-head">
         <strong>${escapeHtml(entry.time || "--:--")} Uhr</strong>
-        <button class="btn secondary edit-entry" data-id="${entry.id}">Bearbeiten</button>
+        <div class="entry-detail-actions">
+          <button class="btn secondary edit-entry" data-id="${entry.id}">Bearbeiten</button>
+          <button class="btn danger delete-entry" data-id="${entry.id}">Löschen</button>
+        </div>
       </div>
       ${rows.length ? rows.map(([label, value]) => `
         <div class="detail-row">
@@ -460,6 +465,14 @@ async function deleteCurrentEntry() {
   await api(`./api/entries/${id}`, { method: "DELETE" });
   await loadState();
   closeSheet();
+  showToast("Eintrag gelöscht");
+}
+
+async function deleteEntry(id) {
+  if (!id) return;
+  if (!confirm("Diesen Eintrag löschen?")) return;
+  await api(`./api/entries/${id}`, { method: "DELETE" });
+  await loadState();
   showToast("Eintrag gelöscht");
 }
 

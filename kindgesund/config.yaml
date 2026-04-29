@@ -1,5 +1,5 @@
 name: KindGesund
-version: "1.3.1"
+version: "1.3.3"
 slug: kindgesund
 description: "Tägliches Gesundheits-Tagebuch fürs Kind für Home Assistant"
 url: "https://github.com/Jaradii/my-hassio-addons"
