@@ -116,7 +116,7 @@ function renderSymptomList(symptoms) {
 }
 
 function applyTheme(theme) {
-  const allowed = ["babyblue", "mint", "lavender", "peach", "rose", "slate"];
+  const allowed = ["babyblue", "mint", "lavender", "peach", "rose", "slate", "darkslate", "ocean", "forest", "sand", "berry", "mono"];
   const next = allowed.includes(theme) ? theme : "babyblue";
   state.theme = next;
   document.body.dataset.theme = next;
