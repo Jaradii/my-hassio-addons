@@ -26,7 +26,7 @@
       </div>
       <div class="top-actions">
         <button id="profileButton" class="icon-btn" aria-label="Profil öffnen">☰</button>
-        <button id="backupButton" class="icon-btn" aria-label="Backup öffnen">⇩</button>
+        <button id="backupButton" class="icon-btn" aria-label="Backup öffnen">☁</button>
         <button id="todayButton" class="icon-btn">Heute</button>
       </div>
     </header>
@@ -92,7 +92,6 @@
       <div class="sheet-backdrop" id="sheetBackdrop"></div>
       <form id="entryForm" class="sheet-panel">
         <input type="hidden" id="entryId" />
-        <input type="hidden" id="time" />
 
         <div class="sheet-head">
           <div>
@@ -100,6 +99,20 @@
             <p id="autoTimeText">Uhrzeit wird automatisch gespeichert</p>
           </div>
           <button type="button" id="closeEntry" class="round-btn">×</button>
+        </div>
+
+        <div class="section-card entry-date-time-card">
+          <h3>Datum & Uhrzeit</h3>
+          <div class="entry-date-time-grid">
+            <label class="field">
+              <span>Datum</span>
+              <input id="entryDate" type="date" />
+            </label>
+            <label class="field">
+              <span>Uhrzeit</span>
+              <input id="entryTime" type="time" />
+            </label>
+          </div>
         </div>
 
         <div class="quick-grid">
@@ -137,16 +150,16 @@
         <div class="section-card">
           <h3>Symptome</h3>
           <div class="chips" id="symptomChips">
-            <label><input type="checkbox" value="Fieber" /><span class="symptom-icon">🌡️</span><span>Fieber</span></label>
-            <label><input type="checkbox" value="Husten" /><span class="symptom-icon">🤧</span><span>Husten</span></label>
-            <label><input type="checkbox" value="Schnupfen" /><span class="symptom-icon">👃</span><span>Schnupfen</span></label>
-            <label><input type="checkbox" value="Halsschmerzen" /><span class="symptom-icon">🗣️</span><span>Hals</span></label>
-            <label><input type="checkbox" value="Ohrenschmerzen" /><span class="symptom-icon">👂</span><span>Ohren</span></label>
-            <label><input type="checkbox" value="Bauchschmerzen" /><span class="symptom-icon">🤢</span><span>Bauch</span></label>
-            <label><input type="checkbox" value="Durchfall" /><span class="symptom-icon">🚽</span><span>Durchfall</span></label>
-            <label><input type="checkbox" value="Erbrechen" /><span class="symptom-icon">🤮</span><span>Erbrechen</span></label>
-            <label><input type="checkbox" value="Ausschlag" /><span class="symptom-icon">🩹</span><span>Ausschlag</span></label>
-            <label><input type="checkbox" value="Appetitlosigkeit" /><span class="symptom-icon">🍽️</span><span>Appetit</span></label>
+            <label><input type="checkbox" value="Fieber" /><span class="symptom-icon">🌡️</span><span>Fieber</span><select class="symptom-intensity" data-symptom="Fieber" aria-label="Intensität Fieber" disabled><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
+            <label><input type="checkbox" value="Husten" /><span class="symptom-icon">🤧</span><span>Husten</span><select class="symptom-intensity" data-symptom="Husten" aria-label="Intensität Husten" disabled><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
+            <label><input type="checkbox" value="Schnupfen" /><span class="symptom-icon">👃</span><span>Schnupfen</span><select class="symptom-intensity" data-symptom="Schnupfen" aria-label="Intensität Schnupfen" disabled><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
+            <label><input type="checkbox" value="Halsschmerzen" /><span class="symptom-icon">🗣️</span><span>Hals</span><select class="symptom-intensity" data-symptom="Halsschmerzen" aria-label="Intensität Halsschmerzen" disabled><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
+            <label><input type="checkbox" value="Ohrenschmerzen" /><span class="symptom-icon">👂</span><span>Ohren</span><select class="symptom-intensity" data-symptom="Ohrenschmerzen" aria-label="Intensität Ohrenschmerzen" disabled><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
+            <label><input type="checkbox" value="Bauchschmerzen" /><span class="symptom-icon">🤢</span><span>Bauch</span><select class="symptom-intensity" data-symptom="Bauchschmerzen" aria-label="Intensität Bauchschmerzen" disabled><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
+            <label><input type="checkbox" value="Durchfall" /><span class="symptom-icon">🚽</span><span>Durchfall</span><select class="symptom-intensity" data-symptom="Durchfall" aria-label="Intensität Durchfall" disabled><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
+            <label><input type="checkbox" value="Erbrechen" /><span class="symptom-icon">🤮</span><span>Erbrechen</span><select class="symptom-intensity" data-symptom="Erbrechen" aria-label="Intensität Erbrechen" disabled><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
+            <label><input type="checkbox" value="Ausschlag" /><span class="symptom-icon">🩹</span><span>Ausschlag</span><select class="symptom-intensity" data-symptom="Ausschlag" aria-label="Intensität Ausschlag" disabled><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
+            <label><input type="checkbox" value="Appetitlosigkeit" /><span class="symptom-icon">🍽️</span><span>Appetit</span><select class="symptom-intensity" data-symptom="Appetitlosigkeit" aria-label="Intensität Appetitlosigkeit" disabled><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
           </div>
           <input id="customSymptoms" type="text" placeholder="Weitere Symptome" />
         </div>

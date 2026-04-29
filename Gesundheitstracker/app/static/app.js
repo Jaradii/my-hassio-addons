@@ -260,6 +260,10 @@ function renderCalendar() {
     `);
   }
 
+  while (cells.length < 42) {
+    cells.push(`<div class="calendar-day empty" aria-hidden="true"></div>`);
+  }
+
   grid.innerHTML = cells.join("");
 
   grid.querySelectorAll(".calendar-day[data-date]").forEach(button => {
@@ -554,6 +558,7 @@ function fieldLabel(field) {
     temperature: "Temperatur",
     mood: "Stimmung",
     symptoms: "Symptome",
+    symptom_intensity: "Symptom-Intensität",
     custom_symptoms: "Weitere Symptome",
     medication: "Medikamente",
     fluids_ml: "Flüssigkeit",
@@ -565,9 +570,21 @@ function fieldLabel(field) {
   return labels[field] || field;
 }
 
+function formatSymptomIntensity(map) {
+  if (!map || typeof map !== "object") return "";
+  return Object.entries(map)
+    .filter(([, value]) => value)
+    .map(([name, value]) => `${name}: ${value}`)
+    .join(", ");
+}
+
 function formatHistoryValue(field, value) {
   if (value === null || value === undefined || value === "") return "leer";
   if (Array.isArray(value)) return value.length ? value.join(", ") : "leer";
+  if (field === "symptom_intensity") {
+    const text = formatSymptomIntensity(value);
+    return text || "leer";
+  }
 
   if (field === "temperature") {
     const n = Number(value);
@@ -665,7 +682,11 @@ function renderEntryHistory(entry) {
 }
 
 function renderEntryDetail(entry) {
-  const symptoms = [...(entry.symptoms || [])];
+  const intensityMap = entry.symptom_intensity || {};
+  const symptoms = [...(entry.symptoms || [])].map(s => {
+    const level = intensityMap[s];
+    return level ? `${s} (${level})` : s;
+  });
   if (entry.custom_symptoms) symptoms.push(...entry.custom_symptoms.split(",").map(s => s.trim()).filter(Boolean));
 
   const rows = [
@@ -881,9 +902,10 @@ function closeSheet() {
 function resetEntryForm() {
   state.editingExistingEntry = false;
   $("entryId").value = "";
-  $("time").value = "";
+  $("entryDate").value = state.selectedDate;
+  $("entryTime").value = nowTime();
   $("entryFormTitle").textContent = "Neuer Eintrag";
-  $("autoTimeText").textContent = "Uhrzeit wird automatisch gespeichert";
+  $("autoTimeText").textContent = "Nachträgliche Einträge sind über Datum und Uhrzeit möglich";
   $("temperature").value = "";
   $("temperatureSlider").value = "37.0";
   setMood("");
@@ -896,10 +918,44 @@ function resetEntryForm() {
   $("notes").value = "";
   $("deleteCurrent").classList.add("hidden");
   document.querySelectorAll("#symptomChips input").forEach(i => i.checked = false);
+  document.querySelectorAll(".symptom-intensity").forEach(select => {
+    select.value = "mittel";
+    select.disabled = true;
+  });
 }
 
 function selectedSymptoms() {
   return [...document.querySelectorAll("#symptomChips input:checked")].map(i => i.value);
+}
+
+function selectedSymptomIntensity() {
+  const map = {};
+  document.querySelectorAll("#symptomChips input:checked").forEach(input => {
+    const select = document.querySelector(`.symptom-intensity[data-symptom="${CSS.escape(input.value)}"]`);
+    if (select && select.value) map[input.value] = select.value;
+  });
+  return map;
+}
+
+function updateSymptomIntensityControls() {
+  document.querySelectorAll("#symptomChips label").forEach(label => {
+    const input = label.querySelector("input[type='checkbox']");
+    const select = label.querySelector(".symptom-intensity");
+    if (!input || !select) return;
+    select.disabled = !input.checked;
+    label.classList.toggle("with-intensity", input.checked);
+  });
+}
+
+function setSymptomIntensityMap(map = {}) {
+  document.querySelectorAll("#symptomChips label").forEach(label => {
+    const input = label.querySelector("input[type='checkbox']");
+    const select = label.querySelector(".symptom-intensity");
+    if (!input || !select) return;
+    if (map[input.value]) select.value = map[input.value];
+    else select.value = "mittel";
+  });
+  updateSymptomIntensityControls();
 }
 
 function setMood(value) {
@@ -946,14 +1002,13 @@ function setTemperatureValue(value, source = "input") {
 function formEntry() {
   const temp = $("temperature").value;
   const fluids = $("fluidsMl").value;
-  const existingTime = $("time").value;
-
   return {
-    date: state.selectedDate,
-    time: state.editingExistingEntry && existingTime ? existingTime : nowTime(),
+    date: $("entryDate").value || state.selectedDate,
+    time: $("entryTime").value || nowTime(),
     temperature: temp === "" ? null : Number(temp),
     mood: $("mood").value,
     symptoms: selectedSymptoms(),
+    symptom_intensity: selectedSymptomIntensity(),
     custom_symptoms: $("customSymptoms").value.trim(),
     medication: $("medication").value.trim(),
     fluids_ml: fluids === "" ? null : Number(fluids),
@@ -970,9 +1025,10 @@ function editEntry(id) {
 
   state.editingExistingEntry = true;
   $("entryId").value = entry.id;
-  $("time").value = entry.time || "";
+  $("entryDate").value = entry.date || state.selectedDate;
+  $("entryTime").value = entry.time || nowTime();
   $("entryFormTitle").textContent = "Eintrag bearbeiten";
-  $("autoTimeText").textContent = entry.time ? `Gespeichert um ${entry.time} Uhr` : "Gespeicherte Uhrzeit bleibt erhalten";
+  $("autoTimeText").textContent = "Datum und Uhrzeit können geändert werden";
   $("temperature").value = entry.temperature ?? "";
   if (entry.temperature !== null && entry.temperature !== undefined && entry.temperature !== "") {
     setTemperatureValue(entry.temperature);
@@ -989,6 +1045,7 @@ function editEntry(id) {
   $("notes").value = entry.notes || "";
   $("deleteCurrent").classList.remove("hidden");
   document.querySelectorAll("#symptomChips input").forEach(i => i.checked = (entry.symptoms || []).includes(i.value));
+  setSymptomIntensityMap(entry.symptom_intensity || {});
   openSheet();
 }
 
@@ -1094,6 +1151,10 @@ async function init() {
   });
   $("deleteCurrent").addEventListener("click", deleteCurrentEntry);
 
+  document.querySelectorAll("#symptomChips input").forEach(input => {
+    input.addEventListener("change", updateSymptomIntensityControls);
+  });
+
   $("temperature").addEventListener("input", (event) => {
     setTemperatureValue(event.target.value, "input");
   });
@@ -1143,6 +1204,7 @@ async function init() {
       showToast("Gespeichert");
     }
 
+    state.selectedDate = payload.date || state.selectedDate;
     await loadState();
     closeSheet();
   });

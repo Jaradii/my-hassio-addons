@@ -143,6 +143,7 @@ def tracked_entry_fields() -> List[str]:
         "temperature",
         "mood",
         "symptoms",
+        "symptom_intensity",
         "custom_symptoms",
         "medication",
         "fluids_ml",
@@ -194,6 +195,7 @@ class HealthEntryIn(BaseModel):
     temperature: Optional[float] = None
     mood: str = Field(default="", max_length=40)
     symptoms: List[str] = Field(default_factory=list)
+    symptom_intensity: Dict[str, str] = Field(default_factory=dict)
     custom_symptoms: str = Field(default="", max_length=500)
     medication: str = Field(default="", max_length=1000)
     fluids_ml: Optional[int] = None
