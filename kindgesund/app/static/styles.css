@@ -3292,3 +3292,71 @@ body[data-theme] > .bottom-action-bar > .bottom-add-button:active {
   filter: brightness(0.96) !important;
   transform: none !important;
 }
+
+
+/* v1.4.5: Formular-Kopf im Neuer-Eintrag-Popup nicht mehr sticky */
+.sheet-panel .sheet-head {
+  position: relative !important;
+  top: auto !important;
+  z-index: auto !important;
+  margin: 0 0 14px 0 !important;
+  padding: 0 0 12px 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--kg-border) 65%, transparent) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+.sheet-panel {
+  padding-top: calc(18px + env(safe-area-inset-top, 0px)) !important;
+  scroll-padding-top: calc(18px + env(safe-area-inset-top, 0px)) !important;
+}
+
+.sheet-panel .sheet-head h2 {
+  margin: 0 0 4px 0 !important;
+  line-height: 1.15 !important;
+  overflow-wrap: anywhere !important;
+}
+
+.sheet-panel .sheet-head p {
+  margin: 0 !important;
+  line-height: 1.35 !important;
+  color: var(--muted) !important;
+}
+
+.sheet-panel .sheet-head .round-btn {
+  flex-shrink: 0 !important;
+}
+
+/* Profil/Backup-Köpfe dürfen weiterhin im Dialog normal aussehen, aber nicht oben kleben */
+.modal-view .sheet-head {
+  position: relative !important;
+  top: auto !important;
+  z-index: auto !important;
+  margin: 0 0 14px 0 !important;
+  padding: 0 0 12px 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--kg-border) 65%, transparent) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+@media (max-width: 430px) {
+  .sheet-panel {
+    padding-top: calc(16px + env(safe-area-inset-top, 0px)) !important;
+  }
+
+  .sheet-panel .sheet-head {
+    gap: 10px !important;
+  }
+
+  .sheet-panel .sheet-head h2 {
+    font-size: 1.28rem !important;
+  }
+
+  .sheet-panel .sheet-head p {
+    font-size: 0.86rem !important;
+  }
+}
