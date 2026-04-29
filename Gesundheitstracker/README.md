@@ -1,6 +1,6 @@
 # Gesundheitstracker Home Assistant Add-on
 
-Version 2.1.0
+Version 2.1.1
 
 Mobile, tageszentrierte Gesundheits-Tagebuch-App für Home Assistant Ingress.
 
@@ -455,37 +455,8 @@ Die Daten liegen im Add-on unter:
 - Monatsnavigation und Heute-Button im Kalender ergänzt
 
 
-## Änderungen in 2.1.0
+## Änderungen in 2.1.1
 
-- Apple-Watch-taugliche Quick-API ergänzt
-- Neue Endpunkte:
-  - `POST /api/quick/fluid`
-  - `POST /api/quick/temperature`
-  - `POST /api/quick/mood`
-  - `POST /api/quick/symptom`
-  - `POST /api/quick/medication`
-  - `POST /api/quick/food-sleep`
-- Quick-Aktionen speichern automatisch Datum und Uhrzeit, wenn keine Werte übergeben werden
-- Quick-Aktionen speichern weiterhin den Home-Assistant-Benutzer über Ingress-Header
-- Beispiel-Datei für Home-Assistant-Skripte ergänzt:
-  - `examples/home_assistant_watch_scripts.yaml`
-
-### Quick-API Beispiele
-
-```bash
-curl -X POST http://homeassistant.local:8099/api/quick/fluid \
-  -H "Content-Type: application/json" \
-  -d '{"ml":250}'
-```
-
-```bash
-curl -X POST http://homeassistant.local:8099/api/quick/temperature \
-  -H "Content-Type: application/json" \
-  -d '{"temperature":38.5}'
-```
-
-```bash
-curl -X POST http://homeassistant.local:8099/api/quick/symptom \
-  -H "Content-Type: application/json" \
-  -d '{"symptom":"Husten"}'
-```
+- Rollback auf Version 2.0.0 vor der Apple-Watch/Quick-API-Erweiterung
+- Quick-API-Endpunkte und Apple-Watch-Skriptbeispiele entfernt
+- Eigener Kalender mit Punkten für Tage mit Einträgen bleibt erhalten
