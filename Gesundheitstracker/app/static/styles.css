@@ -5222,3 +5222,67 @@ button:active,
     height: 15px;
   }
 }
+
+
+/* v1.8.3: Tageskacheln als Schnellaktionen */
+button.day-tile {
+  appearance: none;
+  -webkit-appearance: none;
+  font: inherit;
+  text-align: inherit;
+  cursor: pointer;
+  color: inherit;
+}
+
+.quick-tile {
+  position: relative;
+}
+
+.quick-tile::after {
+  content: "+";
+  position: absolute;
+  right: 7px;
+  top: 7px;
+  width: 17px;
+  height: 17px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--primary) 18%, var(--card) 82%);
+  border: 1px solid color-mix(in srgb, var(--primary) 55%, transparent);
+  color: var(--primary2);
+  font-size: 0.72rem;
+  font-weight: 950;
+  line-height: 1;
+  opacity: 0.88;
+}
+
+body.dark .quick-tile::after {
+  color: var(--primary);
+}
+
+.quick-tile:active {
+  transform: scale(0.985) !important;
+}
+
+.quick-tile:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--primary) 35%, transparent);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .quick-tile:hover {
+    border-color: var(--primary) !important;
+    background: color-mix(in srgb, var(--primary) 10%, var(--kg-surface) 90%) !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .quick-tile::after {
+    right: 5px;
+    top: 5px;
+    width: 15px;
+    height: 15px;
+    font-size: 0.66rem;
+  }
+}

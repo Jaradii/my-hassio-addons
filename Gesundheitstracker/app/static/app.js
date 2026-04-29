@@ -227,6 +227,9 @@ function renderDay() {
   container.querySelectorAll(".delete-entry").forEach(btn => {
     btn.addEventListener("click", () => deleteEntry(btn.dataset.id));
   });
+  container.querySelectorAll(".quick-tile").forEach(tile => {
+    tile.addEventListener("click", () => openQuickEntry(tile.dataset.quick));
+  });
 }
 
 function buildDaySummary(entries) {
@@ -312,41 +315,41 @@ function renderDaySummaryCard(entries) {
       </div>
 
       <div class="day-tile-grid">
-        <div class="day-tile">
+        <button type="button" class="day-tile quick-tile" data-quick="fluids" aria-label="Flüssigkeit eintragen">
           <span class="tile-icon">💧</span>
           <span class="tile-label">Flüssigkeit</span>
           <strong>${summary.fluidsTotal ? `${summary.fluidsTotal} ml` : "Keine"}</strong>
-        </div>
-        <div class="day-tile temperature-tile ${summary.latestTempEntry ? feverClass(summary.latestTempEntry.temperature) : ""}">
+        </button>
+        <button type="button" class="day-tile quick-tile temperature-tile ${summary.latestTempEntry ? feverClass(summary.latestTempEntry.temperature) : ""}" data-quick="temperature" aria-label="Temperatur eintragen">
           <span class="tile-icon">🌡️</span>
           <span class="tile-label">Temperatur</span>
           <strong>${escapeHtml(latestTempText)}</strong>
           <small>${escapeHtml(tempMeta)}</small>
-        </div>
-        <div class="day-tile">
+        </button>
+        <button type="button" class="day-tile quick-tile" data-quick="mood" aria-label="Stimmung eintragen">
           <span class="tile-icon">🙂</span>
           <span class="tile-label">Stimmung</span>
           <strong>${moodText}</strong>
           <small>${summary.moods.length > 1 ? `${summary.moods.length} Angaben` : "Letzte Angabe"}</small>
-        </div>
-        <div class="day-tile">
+        </button>
+        <button type="button" class="day-tile quick-tile" data-quick="symptoms" aria-label="Symptome eintragen">
           <span class="tile-icon">🤧</span>
           <span class="tile-label">Symptome</span>
           <strong>${summary.symptoms.length || "Keine"}</strong>
           <small>${symptomText}</small>
-        </div>
-        <div class="day-tile">
+        </button>
+        <button type="button" class="day-tile quick-tile" data-quick="medication" aria-label="Medikament eintragen">
           <span class="tile-icon">💊</span>
           <span class="tile-label">Medikamente</span>
           <strong>${summary.medications.length || "Keine"}</strong>
           <small>${summary.medications.length ? "Einträge" : "Nicht eingetragen"}</small>
-        </div>
-        <div class="day-tile">
+        </button>
+        <button type="button" class="day-tile quick-tile" data-quick="food" aria-label="Essen oder Schlaf eintragen">
           <span class="tile-icon tile-duo"><span>🍽️</span><span>😴</span></span>
           <span class="tile-label">Essen / Schlaf</span>
           <strong>${summary.foods.length + summary.sleeps.length || "Keine"}</strong>
           <small>${summary.foods.length} Essen · ${summary.sleeps.length} Schlaf</small>
-        </div>
+        </button>
       </div>
 
       ${summary.symptoms.length ? `<div class="tags symptom-tags">${summary.symptoms.map(([s, count]) => renderSymptomTag(s, count)).join("")}</div>` : ""}
@@ -628,6 +631,51 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function focusEntryField(kind) {
+  const targetMap = {
+    temperature: "temperature",
+    fluids: "fluidsMl",
+    mood: "moodOptions",
+    symptoms: "symptomChips",
+    medication: "medication",
+    food: "food",
+    sleep: "sleep",
+    notes: "notes"
+  };
+
+  const id = targetMap[kind];
+  if (!id) return;
+
+  window.setTimeout(() => {
+    const el = $(id);
+    if (!el) return;
+
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    if (["temperature", "fluidsMl", "medication", "food", "sleep", "notes"].includes(id)) {
+      window.setTimeout(() => el.focus({ preventScroll: true }), 280);
+    }
+  }, 260);
+}
+
+function openQuickEntry(kind) {
+  resetEntryForm();
+  openSheet();
+  focusEntryField(kind);
+
+  const labels = {
+    temperature: "Temperatur eintragen",
+    fluids: "Flüssigkeit eintragen",
+    mood: "Stimmung eintragen",
+    symptoms: "Symptome eintragen",
+    medication: "Medikament eintragen",
+    food: "Essen / Schlaf eintragen"
+  };
+
+  const title = labels[kind] || "Neuer Eintrag";
+  $("entryFormTitle").textContent = title;
+}
+
 function openSheet() {
   document.body.classList.add("sheet-open");
   const sheet = $("entrySheet");
@@ -813,6 +861,7 @@ async function init() {
 
   $("openEntry").addEventListener("click", () => {
     resetEntryForm();
+    $("entryFormTitle").textContent = "Neuer Eintrag";
     openSheet();
   });
   $("closeEntry").addEventListener("click", closeSheet);

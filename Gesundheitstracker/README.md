@@ -1,6 +1,6 @@
 # Gesundheitstracker Home Assistant Add-on
 
-Version 1.8.2
+Version 1.8.3
 
 Mobile, tageszentrierte Gesundheits-Tagebuch-App für Home Assistant Ingress.
 
@@ -396,3 +396,12 @@ Die Daten liegen im Add-on unter:
 - Ausgewählte Stimmung zeigt jetzt ebenfalls ein Häkchen
 - Stimmungsauswahl ist optisch an die Symptomauswahl angepasst
 - Aktive Stimmung wird deutlicher hervorgehoben
+
+
+## Änderungen in 1.8.3
+
+- Tageskacheln sind jetzt klickbare Schnellaktionen
+- Klick auf Flüssigkeit öffnet direkt einen neuen Eintrag mit Fokus auf Flüssigkeit
+- Klick auf Temperatur fokussiert das Temperaturfeld
+- Klick auf Stimmung, Symptome, Medikamente und Essen/Schlaf springt zum passenden Bereich
+- Kacheln zeigen ein kleines Plus als Hinweis auf die Schnellaktion
