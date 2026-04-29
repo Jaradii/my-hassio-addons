@@ -5962,3 +5962,101 @@ body.calendar-open > .bottom-action-bar {
     font-size: 0.68rem !important;
   }
 }
+
+
+/* v2.2.3: Uhrzeitfeld WebView-sicher, Buttons begrenzen, Intensität immer sichtbar */
+
+/* Uhrzeit ist jetzt ein Textfeld, damit iOS/Home-Assistant nicht durch den nativen Timepicker abstürzt */
+#entryTime {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Button darf nicht mehr über das Popup hinausragen */
+.sheet-actions,
+.quick-actions {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  display: grid !important;
+  justify-items: center !important;
+  overflow: hidden !important;
+}
+
+.sheet-actions .btn,
+.sheet-actions .btn.primary,
+.sheet-actions .btn.danger,
+#deleteCurrent,
+.quick-actions .btn,
+.quick-actions .btn.primary {
+  width: min(100%, 330px) !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Intensität immer sichtbar, nicht erst nach Auswahl */
+.symptom-intensity,
+.quick-symptom-intensity {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+  margin-top: 4px !important;
+  min-height: 30px !important;
+  height: 30px !important;
+  padding: 3px 7px !important;
+  font-size: 0.68rem !important;
+  font-weight: 850 !important;
+  border-radius: 10px !important;
+  background: color-mix(in srgb, var(--card) 86%, var(--primary) 14%) !important;
+  border: 1px solid color-mix(in srgb, var(--primary) 35%, var(--kg-border) 65%) !important;
+  color: var(--text) !important;
+}
+
+/* Chips dauerhaft höher, damit Selects nicht abgeschnitten werden */
+#symptomChips label,
+.quick-symptom-grid label {
+  min-height: 82px !important;
+  height: auto !important;
+  overflow: visible !important;
+  align-content: start !important;
+  grid-template-rows: auto auto !important;
+  padding-bottom: 7px !important;
+}
+
+/* Auswahl trotzdem klar markieren */
+#symptomChips label:not(:has(input:checked)),
+.quick-symptom-grid label:not(:has(input:checked)) {
+  opacity: 0.82;
+}
+
+#symptomChips label:not(:has(input:checked)) .symptom-intensity,
+.quick-symptom-grid label:not(:has(input:checked)) .quick-symptom-intensity {
+  opacity: 0.72 !important;
+}
+
+/* Auf Smartphone lieber 2 Spalten, damit Icon/Text/Select sauber passen */
+@media (max-width: 430px) {
+  #symptomChips,
+  .quick-symptom-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .sheet-actions .btn,
+  .sheet-actions .btn.primary,
+  .sheet-actions .btn.danger,
+  #deleteCurrent,
+  .quick-actions .btn,
+  .quick-actions .btn.primary {
+    width: min(100%, 310px) !important;
+  }
+}
+
+@media (max-width: 360px) {
+  #symptomChips,
+  .quick-symptom-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

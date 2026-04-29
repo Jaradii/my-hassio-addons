@@ -776,16 +776,16 @@ function focusEntryField(kind) {
 function quickDefinition(kind) {
   const symptomsHtml = `
     <div id="quickSymptomChips" class="quick-symptom-grid">
-      <label><input type="checkbox" value="Fieber"><span class="symptom-icon">🌡️</span><span>Fieber</span><select class="quick-symptom-intensity" data-symptom="Fieber" aria-label="Intensität Fieber" disabled><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
-      <label><input type="checkbox" value="Husten"><span class="symptom-icon">🤧</span><span>Husten</span><select class="quick-symptom-intensity" data-symptom="Husten" aria-label="Intensität Husten" disabled><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
-      <label><input type="checkbox" value="Schnupfen"><span class="symptom-icon">👃</span><span>Schnupfen</span><select class="quick-symptom-intensity" data-symptom="Schnupfen" aria-label="Intensität Schnupfen" disabled><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
-      <label><input type="checkbox" value="Halsschmerzen"><span class="symptom-icon">🗣️</span><span>Hals</span><select class="quick-symptom-intensity" data-symptom="Halsschmerzen" aria-label="Intensität Halsschmerzen" disabled><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
-      <label><input type="checkbox" value="Ohrenschmerzen"><span class="symptom-icon">👂</span><span>Ohren</span><select class="quick-symptom-intensity" data-symptom="Ohrenschmerzen" aria-label="Intensität Ohrenschmerzen" disabled><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
-      <label><input type="checkbox" value="Bauchschmerzen"><span class="symptom-icon">🤢</span><span>Bauch</span><select class="quick-symptom-intensity" data-symptom="Bauchschmerzen" aria-label="Intensität Bauchschmerzen" disabled><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
-      <label><input type="checkbox" value="Durchfall"><span class="symptom-icon">🚽</span><span>Durchfall</span><select class="quick-symptom-intensity" data-symptom="Durchfall" aria-label="Intensität Durchfall" disabled><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
-      <label><input type="checkbox" value="Erbrechen"><span class="symptom-icon">🤮</span><span>Erbrechen</span><select class="quick-symptom-intensity" data-symptom="Erbrechen" aria-label="Intensität Erbrechen" disabled><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
-      <label><input type="checkbox" value="Ausschlag"><span class="symptom-icon">🩹</span><span>Ausschlag</span><select class="quick-symptom-intensity" data-symptom="Ausschlag" aria-label="Intensität Ausschlag" disabled><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
-      <label><input type="checkbox" value="Appetitlosigkeit"><span class="symptom-icon">🍽️</span><span>Appetit</span><select class="quick-symptom-intensity" data-symptom="Appetitlosigkeit" aria-label="Intensität Appetitlosigkeit" disabled><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
+      <label><input type="checkbox" value="Fieber"><span class="symptom-icon">🌡️</span><span>Fieber</span><select class="quick-symptom-intensity" data-symptom="Fieber" aria-label="Intensität Fieber"><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
+      <label><input type="checkbox" value="Husten"><span class="symptom-icon">🤧</span><span>Husten</span><select class="quick-symptom-intensity" data-symptom="Husten" aria-label="Intensität Husten"><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
+      <label><input type="checkbox" value="Schnupfen"><span class="symptom-icon">👃</span><span>Schnupfen</span><select class="quick-symptom-intensity" data-symptom="Schnupfen" aria-label="Intensität Schnupfen"><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
+      <label><input type="checkbox" value="Halsschmerzen"><span class="symptom-icon">🗣️</span><span>Hals</span><select class="quick-symptom-intensity" data-symptom="Halsschmerzen" aria-label="Intensität Halsschmerzen"><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
+      <label><input type="checkbox" value="Ohrenschmerzen"><span class="symptom-icon">👂</span><span>Ohren</span><select class="quick-symptom-intensity" data-symptom="Ohrenschmerzen" aria-label="Intensität Ohrenschmerzen"><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
+      <label><input type="checkbox" value="Bauchschmerzen"><span class="symptom-icon">🤢</span><span>Bauch</span><select class="quick-symptom-intensity" data-symptom="Bauchschmerzen" aria-label="Intensität Bauchschmerzen"><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
+      <label><input type="checkbox" value="Durchfall"><span class="symptom-icon">🚽</span><span>Durchfall</span><select class="quick-symptom-intensity" data-symptom="Durchfall" aria-label="Intensität Durchfall"><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
+      <label><input type="checkbox" value="Erbrechen"><span class="symptom-icon">🤮</span><span>Erbrechen</span><select class="quick-symptom-intensity" data-symptom="Erbrechen" aria-label="Intensität Erbrechen"><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
+      <label><input type="checkbox" value="Ausschlag"><span class="symptom-icon">🩹</span><span>Ausschlag</span><select class="quick-symptom-intensity" data-symptom="Ausschlag" aria-label="Intensität Ausschlag"><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
+      <label><input type="checkbox" value="Appetitlosigkeit"><span class="symptom-icon">🍽️</span><span>Appetit</span><select class="quick-symptom-intensity" data-symptom="Appetitlosigkeit" aria-label="Intensität Appetitlosigkeit"><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
     </div>
     <label class="field quick-field"><span>Weitere Symptome</span><input id="quickCustomSymptoms" type="text" placeholder="optional"></label>
   `;
@@ -870,8 +870,8 @@ function updateQuickSymptomIntensityControls() {
     const input = label.querySelector("input[type='checkbox']");
     const select = label.querySelector(".quick-symptom-intensity");
     if (!input || !select) return;
-    select.disabled = !input.checked;
-    label.classList.toggle("with-intensity", input.checked);
+    select.disabled = false;
+    label.classList.toggle("with-intensity", true);
   });
 }
 
@@ -947,7 +947,7 @@ function resetEntryForm() {
   document.querySelectorAll("#symptomChips input").forEach(i => i.checked = false);
   document.querySelectorAll(".symptom-intensity").forEach(select => {
     select.value = "mittel";
-    select.disabled = true;
+    select.disabled = false;
   });
 }
 
@@ -969,8 +969,8 @@ function updateSymptomIntensityControls() {
     const input = label.querySelector("input[type='checkbox']");
     const select = label.querySelector(".symptom-intensity");
     if (!input || !select) return;
-    select.disabled = !input.checked;
-    label.classList.toggle("with-intensity", input.checked);
+    select.disabled = false;
+    label.classList.toggle("with-intensity", true);
   });
 }
 
@@ -1026,12 +1026,42 @@ function setTemperatureValue(value, source = "input") {
   slider.value = Math.min(42, Math.max(34, num)).toFixed(1);
 }
 
+function normalizeTimeInput(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return nowTime();
+
+  const digits = raw.replace(/\D/g, "").slice(0, 4);
+  if (!digits) return nowTime();
+
+  let hours = "";
+  let minutes = "";
+
+  if (digits.length <= 2) {
+    hours = digits;
+    minutes = "00";
+  } else {
+    hours = digits.slice(0, 2);
+    minutes = digits.slice(2, 4);
+  }
+
+  let h = Math.min(23, Math.max(0, Number(hours || "0")));
+  let m = Math.min(59, Math.max(0, Number(minutes || "0")));
+
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
+function formatTimeInputLive(value) {
+  const digits = String(value || "").replace(/\D/g, "").slice(0, 4);
+  if (digits.length <= 2) return digits;
+  return `${digits.slice(0, 2)}:${digits.slice(2)}`;
+}
+
 function formEntry() {
   const temp = $("temperature").value;
   const fluids = $("fluidsMl").value;
   return {
     date: $("entryDate").value || state.selectedDate,
-    time: $("entryTime").value || nowTime(),
+    time: normalizeTimeInput($("entryTime").value),
     temperature: temp === "" ? null : Number(temp),
     mood: $("mood").value,
     symptoms: selectedSymptoms(),
@@ -1177,6 +1207,16 @@ async function init() {
     showToast("Gespeichert");
   });
   $("deleteCurrent").addEventListener("click", deleteCurrentEntry);
+
+  $("entryTime").addEventListener("input", event => {
+    const cursorAtEnd = event.target.selectionStart === event.target.value.length;
+    event.target.value = formatTimeInputLive(event.target.value);
+    if (cursorAtEnd) event.target.selectionStart = event.target.selectionEnd = event.target.value.length;
+  });
+
+  $("entryTime").addEventListener("blur", event => {
+    event.target.value = normalizeTimeInput(event.target.value);
+  });
 
   document.querySelectorAll("#symptomChips input").forEach(input => {
     input.addEventListener("change", updateSymptomIntensityControls);
