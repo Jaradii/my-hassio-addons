@@ -334,7 +334,7 @@ function renderDaySummaryCard(entries) {
       ${renderSummaryTextBlocks(summary)}
 
       <div class="card-actions">
-        <button id="toggleDetails" class="btn secondary">${expanded ? "Details ausblenden" : "Erweitern"}</button>
+        <button id="toggleDetails" class="btn secondary">${expanded ? "Details ausblenden" : "Details"}</button>
       </div>
 
       ${expanded ? renderExpandedEntries(entries) : ""}
@@ -512,18 +512,33 @@ function setMood(value) {
 function setTemperatureValue(value, source = "input") {
   const input = $("temperature");
   const slider = $("temperatureSlider");
+
   if (value === "" || value === null || value === undefined) {
+    if (source !== "slider") return;
     input.value = "";
     return;
   }
-  const num = Number(value);
+
+  const normalized = String(value).replace(",", ".");
+  const num = Number(normalized);
   if (Number.isNaN(num)) return;
-  const rounded = Math.round(num * 10) / 10;
-  input.value = rounded.toFixed(1);
-  if (source !== "slider") {
-    const sliderValue = Math.min(42, Math.max(34, rounded));
-    slider.value = sliderValue.toFixed(1);
+
+  if (source === "slider") {
+    const rounded = Math.round(num * 10) / 10;
+    input.value = rounded.toFixed(1);
+    slider.value = Math.min(42, Math.max(34, rounded)).toFixed(1);
+    return;
   }
+
+  if (source === "blur") {
+    const rounded = Math.round(num * 10) / 10;
+    input.value = rounded.toFixed(1);
+    slider.value = Math.min(42, Math.max(34, rounded)).toFixed(1);
+    return;
+  }
+
+  // Beim normalen Tippen nicht formatieren, sonst springt der Cursor auf iOS/Android.
+  slider.value = Math.min(42, Math.max(34, num)).toFixed(1);
 }
 
 function formEntry() {
@@ -628,6 +643,10 @@ async function init() {
 
   $("temperature").addEventListener("input", (event) => {
     setTemperatureValue(event.target.value, "input");
+  });
+
+  $("temperature").addEventListener("blur", (event) => {
+    setTemperatureValue(event.target.value, "blur");
   });
 
   $("temperatureSlider").addEventListener("input", (event) => {
