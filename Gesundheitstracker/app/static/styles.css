@@ -6060,3 +6060,77 @@ body.calendar-open > .bottom-action-bar {
     grid-template-columns: 1fr !important;
   }
 }
+
+
+/* v2.2.4: Intensitätsmenüs wirklich dauerhaft sichtbar machen.
+   Überschreibt ältere Regeln, die Selects erst bei :has(input:checked) anzeigen. */
+#symptomChips label .symptom-intensity,
+#symptomChips label:not(:has(input:checked)) .symptom-intensity,
+#symptomChips label:has(input:checked) .symptom-intensity,
+#symptomChips label.with-intensity .symptom-intensity,
+.quick-symptom-grid label .quick-symptom-intensity,
+.quick-symptom-grid label:not(:has(input:checked)) .quick-symptom-intensity,
+.quick-symptom-grid label:has(input:checked) .quick-symptom-intensity,
+.quick-symptom-grid label.with-intensity .quick-symptom-intensity {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 2 !important;
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 30px !important;
+  min-height: 30px !important;
+  margin-top: 5px !important;
+  padding: 3px 7px !important;
+  border-radius: 10px !important;
+  box-sizing: border-box !important;
+  font-size: 0.68rem !important;
+  font-weight: 850 !important;
+  background: color-mix(in srgb, var(--card) 86%, var(--primary) 14%) !important;
+  border: 1px solid color-mix(in srgb, var(--primary) 35%, var(--kg-border) 65%) !important;
+  color: var(--text) !important;
+  appearance: auto !important;
+  -webkit-appearance: menulist !important;
+}
+
+/* Chips immer hoch genug für Icon/Text + Intensität */
+#symptomChips label,
+#symptomChips label:not(:has(input:checked)),
+#symptomChips label:has(input:checked),
+#symptomChips label.with-intensity,
+.quick-symptom-grid label,
+.quick-symptom-grid label:not(:has(input:checked)),
+.quick-symptom-grid label:has(input:checked),
+.quick-symptom-grid label.with-intensity {
+  min-height: 84px !important;
+  height: auto !important;
+  overflow: visible !important;
+  align-content: start !important;
+  grid-template-rows: auto auto !important;
+  padding-bottom: 7px !important;
+}
+
+/* Nicht ausgewählte Chips bleiben etwas ruhiger, aber das Menü bleibt sichtbar */
+#symptomChips label:not(:has(input:checked)),
+.quick-symptom-grid label:not(:has(input:checked)) {
+  opacity: 0.92 !important;
+}
+
+#symptomChips label:not(:has(input:checked)) .symptom-intensity,
+.quick-symptom-grid label:not(:has(input:checked)) .quick-symptom-intensity {
+  opacity: 0.88 !important;
+}
+
+/* Fallback für WebViews ohne :has: auch dort immer anzeigen */
+@supports not selector(:has(*)) {
+  #symptomChips label .symptom-intensity,
+  .quick-symptom-grid label .quick-symptom-intensity {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+}
