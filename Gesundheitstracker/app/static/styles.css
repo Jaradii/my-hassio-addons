@@ -5175,3 +5175,50 @@ button:active,
     max-width: 680px !important;
   }
 }
+
+
+/* v1.8.2: Haken auch bei ausgewählter Stimmung */
+.mood-option {
+  position: relative !important;
+}
+
+.mood-option.active {
+  background: color-mix(in srgb, var(--primary) 26%, var(--card) 74%) !important;
+  border-color: var(--primary) !important;
+  color: var(--text) !important;
+  font-weight: 950 !important;
+}
+
+.mood-option.active::after {
+  content: "✓";
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.mood-option.active span {
+  transform: scale(1.08);
+}
+
+.mood-option span {
+  transition: transform 180ms cubic-bezier(.22, .9, .28, 1);
+}
+
+@media (max-width: 430px) {
+  .mood-option.active::after {
+    right: 4px;
+    top: 4px;
+    width: 15px;
+    height: 15px;
+  }
+}
