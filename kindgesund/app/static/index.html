@@ -23,7 +23,7 @@
       <div>
         <p class="eyebrow">Tägliches Gesundheits-Tagebuch</p>
         <h1 id="appTitle">KindGesund</h1>
-        <p class="subtitle">Symptome, Temperatur, Medikamente, Flüssigkeit, Schlaf und Notizen übersichtlich dokumentieren.</p>
+        <p class="subtitle">Symptome, Temperatur, Medikamente, Flüssigkeit, Schlaf und Notizen dokumentieren.</p>
       </div>
       <div class="hero-card">
         <span class="small-label">Aktuell für</span>
@@ -31,10 +31,6 @@
         <span id="lastEntryText">Noch keine Einträge</span>
       </div>
     </header>
-
-    <section class="notice">
-      <strong>Hinweis:</strong> Diese App ist ein privates Tagebuch und ersetzt keine ärztliche Diagnose. Bei hohem Fieber, Atemnot, Austrocknung, starken Schmerzen oder deutlicher Verschlechterung bitte medizinische Hilfe nutzen.
-    </section>
 
     <nav class="tabs" aria-label="Navigation">
       <button class="tab active" data-tab="dashboard">Übersicht</button>
@@ -78,10 +74,11 @@
     <section id="entry" class="tab-panel">
       <form id="entryForm" class="panel form-panel">
         <input type="hidden" id="entryId" />
+        <input type="hidden" id="time" />
         <div class="panel-head">
           <div>
             <h2 id="entryFormTitle">Neuer Eintrag</h2>
-            <p>Trage nur ein, was gerade relevant ist.</p>
+            <p id="autoTimeText">Die aktuelle Uhrzeit wird beim Speichern automatisch übernommen.</p>
           </div>
           <button type="button" id="resetEntryButton" class="secondary">Zurücksetzen</button>
         </div>
@@ -90,10 +87,6 @@
           <label>
             Datum
             <input id="date" type="date" required />
-          </label>
-          <label>
-            Uhrzeit
-            <input id="time" type="time" />
           </label>
           <label>
             Temperatur in °C
@@ -133,7 +126,7 @@
         <div class="form-grid">
           <label>
             Medikamente
-            <textarea id="medication" rows="3" placeholder="Name, Dosis, Uhrzeit"></textarea>
+            <textarea id="medication" rows="2" placeholder="Name, Dosis, Uhrzeit"></textarea>
           </label>
           <label>
             Flüssigkeit in ml
@@ -141,19 +134,19 @@
           </label>
           <label>
             Essen
-            <textarea id="food" rows="3" placeholder="Was und wie viel wurde gegessen?"></textarea>
+            <textarea id="food" rows="2" placeholder="Was und wie viel wurde gegessen?"></textarea>
           </label>
           <label>
             Schlaf
-            <textarea id="sleep" rows="3" placeholder="Dauer, Qualität, Auffälligkeiten"></textarea>
+            <textarea id="sleep" rows="2" placeholder="Dauer, Qualität, Auffälligkeiten"></textarea>
           </label>
           <label>
             Windel / Toilette
-            <textarea id="diaperOrToilet" rows="3" placeholder="Urin, Stuhlgang, Auffälligkeiten"></textarea>
+            <textarea id="diaperOrToilet" rows="2" placeholder="Urin, Stuhlgang, Auffälligkeiten"></textarea>
           </label>
           <label>
             Notizen
-            <textarea id="notes" rows="3" placeholder="Alles, was später wichtig sein könnte"></textarea>
+            <textarea id="notes" rows="2" placeholder="Alles, was später wichtig sein könnte"></textarea>
           </label>
         </div>
 
@@ -199,7 +192,7 @@
         </div>
         <label>
           Wichtige Hinweise
-          <textarea id="profileNotes" rows="4" placeholder="z. B. Allergien, Unverträglichkeiten, Dauermedikation"></textarea>
+          <textarea id="profileNotes" rows="3" placeholder="z. B. Allergien, Unverträglichkeiten, Dauermedikation"></textarea>
         </label>
         <button id="saveProfileButton" class="primary">Profil speichern</button>
       </div>

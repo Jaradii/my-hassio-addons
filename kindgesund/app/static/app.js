@@ -2,7 +2,8 @@ const state = {
   config: {},
   data: { profile: {}, entries: [] },
   pin: localStorage.getItem("kindgesund_pin") || "",
-  filters: { search: "", from: "", to: "" }
+  filters: { search: "", from: "", to: "" },
+  editingExistingEntry: false
 };
 
 const $ = (id) => document.getElementById(id);
@@ -52,7 +53,7 @@ function showToast(message) {
   const toast = $("toast");
   toast.textContent = message;
   toast.classList.remove("hidden");
-  setTimeout(() => toast.classList.add("hidden"), 2600);
+  setTimeout(() => toast.classList.add("hidden"), 2400);
 }
 
 function showPin(error = "") {
@@ -71,6 +72,7 @@ async function loadConfig() {
   state.config = await api("./api/config", { headers: {} });
   $("appTitle").textContent = state.config.app_title || "KindGesund";
   document.title = state.config.app_title || "KindGesund";
+  document.body.classList.toggle("dark", Boolean(state.config.dark_mode));
   if (state.config.pin_required && !state.pin) showPin();
 }
 
@@ -232,10 +234,12 @@ function escapeHtml(value) {
 }
 
 function resetEntryForm() {
+  state.editingExistingEntry = false;
   $("entryId").value = "";
   $("entryFormTitle").textContent = "Neuer Eintrag";
+  $("autoTimeText").textContent = "Die aktuelle Uhrzeit wird beim Speichern automatisch übernommen.";
   $("date").value = today();
-  $("time").value = nowTime();
+  $("time").value = "";
   $("temperature").value = "";
   $("mood").value = "";
   $("customSymptoms").value = "";
@@ -255,9 +259,10 @@ function selectedSymptoms() {
 function formEntry() {
   const temp = $("temperature").value;
   const fluids = $("fluidsMl").value;
+  const existingTime = $("time").value;
   return {
     date: $("date").value,
-    time: $("time").value,
+    time: state.editingExistingEntry && existingTime ? existingTime : nowTime(),
     temperature: temp === "" ? null : Number(temp),
     mood: $("mood").value,
     symptoms: selectedSymptoms(),
@@ -274,9 +279,13 @@ function formEntry() {
 function editEntry(id) {
   const entry = (state.data.entries || []).find(e => e.id === id);
   if (!entry) return;
+  state.editingExistingEntry = true;
   showTab("entry");
   $("entryId").value = entry.id;
   $("entryFormTitle").textContent = "Eintrag bearbeiten";
+  $("autoTimeText").textContent = entry.time
+    ? `Gespeicherte Uhrzeit: ${entry.time} Uhr. Beim Bearbeiten bleibt sie erhalten.`
+    : "Beim Bearbeiten bleibt die gespeicherte Uhrzeit erhalten.";
   $("date").value = entry.date || today();
   $("time").value = entry.time || "";
   $("temperature").value = entry.temperature ?? "";
@@ -302,11 +311,13 @@ async function deleteEntry(id) {
 function showTab(name) {
   document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === name));
   document.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === name));
+  if (name === "entry" && !$("entryId").value) {
+    resetEntryForm();
+  }
 }
 
 async function init() {
-  $("date").value = today();
-  $("time").value = nowTime();
+  resetEntryForm();
 
   document.querySelectorAll(".tab").forEach(tab => tab.addEventListener("click", () => showTab(tab.dataset.tab)));
   document.querySelectorAll("[data-go]").forEach(btn => btn.addEventListener("click", () => showTab(btn.dataset.go)));

@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, JSONResponse, Response
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -14,11 +14,37 @@ DATA_PATH = Path(os.environ.get("KINDGESUND_DATA", "/data/diary.json"))
 CONFIG_PATH = Path(os.environ.get("KINDGESUND_CONFIG", "/data/options.json"))
 STATIC_DIR = Path(__file__).parent / "static"
 
-app = FastAPI(title="KindGesund", version="1.0.0")
+app = FastAPI(title="KindGesund", version="1.0.1")
 
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def read_config() -> Dict[str, Any]:
+    if CONFIG_PATH.exists():
+        try:
+            data = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
+            if isinstance(data, dict):
+                data.setdefault("app_title", "KindGesund")
+                data.setdefault("child_name", "Kind")
+                data.setdefault("fever_threshold", 38.5)
+                data.setdefault("high_fever_threshold", 39.5)
+                data.setdefault("dark_mode", False)
+                data.setdefault("pin_enabled", False)
+                data.setdefault("pin_code", "")
+                return data
+        except Exception:
+            pass
+    return {
+        "app_title": "KindGesund",
+        "child_name": "Kind",
+        "fever_threshold": 38.5,
+        "high_fever_threshold": 39.5,
+        "dark_mode": False,
+        "pin_enabled": False,
+        "pin_code": "",
+    }
 
 
 def default_store() -> Dict[str, Any]:
@@ -31,24 +57,6 @@ def default_store() -> Dict[str, Any]:
         "entries": [],
         "created_at": utc_now(),
         "updated_at": utc_now(),
-    }
-
-
-def read_config() -> Dict[str, Any]:
-    if CONFIG_PATH.exists():
-        try:
-            data = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
-            if isinstance(data, dict):
-                return data
-        except Exception:
-            pass
-    return {
-        "app_title": "KindGesund",
-        "child_name": "Kind",
-        "fever_threshold": 38.5,
-        "high_fever_threshold": 39.5,
-        "pin_enabled": False,
-        "pin_code": "",
     }
 
 

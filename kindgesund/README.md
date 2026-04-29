@@ -9,6 +9,7 @@ Tägliches Gesundheits-Tagebuch fürs Kind als Home-Assistant-Add-on mit Ingress
 - Verlauf mit Suche und Datumfilter
 - Übersicht mit Statistiken
 - JSON Export und Import
+- Optionaler Darkmode über Add-on-Option `dark_mode`
 - Optionaler lokaler PIN-Schutz über Add-on-Optionen
 - Speicherung in `/data/diary.json` innerhalb des Add-ons
 
@@ -21,6 +22,14 @@ Tägliches Gesundheits-Tagebuch fürs Kind als Home-Assistant-Add-on mit Ingress
 5. Starten.
 6. Optional: Seitenleisten-Anzeige aktivieren.
 
-## Hinweis
+## Optionen
 
-Diese App ersetzt keine medizinische Diagnose und ist nur als privates Tagebuch gedacht.
+```yaml
+app_title: "KindGesund"
+child_name: "Kind"
+fever_threshold: 38.5
+high_fever_threshold: 39.5
+dark_mode: false
+pin_enabled: false
+pin_code: ""
+```
