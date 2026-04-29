@@ -1,6 +1,6 @@
 # KindGesund Home Assistant Add-on
 
-Version 1.4.0
+Version 1.4.1
 
 Mobile, tageszentrierte Gesundheits-Tagebuch-App für Home Assistant Ingress.
 
@@ -186,3 +186,12 @@ Die Daten liegen im Add-on unter:
 - Themes werden im Browser gespeichert und sofort angewendet
 - Enthaltene Themes: Dunkles Babyblau, Sanftes Mint, Lavendel, Pfirsich, Rosa, Schieferblau
 - Darkmode funktioniert weiterhin zusammen mit jedem Theme
+
+
+## Änderungen in 1.4.1
+
+- Popup-Hintergründe reagieren jetzt korrekt auf das gewählte Farbtheme
+- Neuer-Eintrag-Button optisch beruhigt und an das Theme angepasst
+- Speichern-Button und Löschen-Button im Eintragsformular vereinheitlicht
+- Profil-/Backup-Buttons und Detail-Buttons an denselben Stil angepasst
+- Karten, Eingaben und Sektionen nutzen konsistente Theme-Flächen

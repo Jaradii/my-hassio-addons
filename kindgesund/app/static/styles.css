@@ -2746,3 +2746,247 @@ body.dark {
   color: var(--text) !important;
   border-color: var(--line) !important;
 }
+
+
+/* v1.4.1: konsistentes Theme-Styling für Popups, Dock, Speichern und Löschen */
+
+/* Gemeinsame Designvariablen, abhängig vom gewählten Theme */
+body {
+  --kg-surface: color-mix(in srgb, var(--card) 88%, var(--bg) 12%);
+  --kg-surface-strong: color-mix(in srgb, var(--card) 76%, var(--primary) 8%);
+  --kg-soft: color-mix(in srgb, var(--primary) 13%, var(--card) 87%);
+  --kg-soft-2: color-mix(in srgb, var(--primary2) 12%, var(--card2) 88%);
+  --kg-border: color-mix(in srgb, var(--line) 82%, var(--primary) 18%);
+  --kg-button-bg: linear-gradient(135deg,
+    color-mix(in srgb, var(--primary) 82%, white 18%),
+    color-mix(in srgb, var(--primary2) 88%, black 4%)
+  );
+  --kg-button-shadow: 0 14px 32px color-mix(in srgb, var(--primary2) 28%, transparent);
+  --kg-danger-bg: linear-gradient(135deg,
+    color-mix(in srgb, var(--danger) 88%, white 12%),
+    color-mix(in srgb, var(--danger) 72%, #7a1f2a 28%)
+  );
+  --kg-danger-shadow: 0 14px 32px color-mix(in srgb, var(--danger) 24%, transparent);
+}
+
+body.dark {
+  --kg-surface: color-mix(in srgb, var(--card) 88%, black 12%);
+  --kg-surface-strong: color-mix(in srgb, var(--card) 78%, var(--primary) 10%);
+  --kg-soft: color-mix(in srgb, var(--primary) 12%, var(--card) 88%);
+  --kg-soft-2: color-mix(in srgb, var(--primary2) 16%, var(--card2) 84%);
+  --kg-border: color-mix(in srgb, var(--line) 76%, var(--primary) 24%);
+  --kg-button-bg: linear-gradient(135deg,
+    color-mix(in srgb, var(--primary) 76%, white 10%),
+    color-mix(in srgb, var(--primary2) 88%, black 8%)
+  );
+  --kg-button-shadow: 0 16px 38px rgba(0,0,0,0.34);
+  --kg-danger-bg: linear-gradient(135deg,
+    color-mix(in srgb, var(--danger) 82%, white 10%),
+    color-mix(in srgb, var(--danger) 70%, black 16%)
+  );
+  --kg-danger-shadow: 0 16px 38px rgba(0,0,0,0.32);
+}
+
+/* Popup-Hintergründe folgen jetzt jedem Theme */
+.sheet-backdrop,
+.modal-view {
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--primary) 20%, transparent), transparent 22rem),
+    color-mix(in srgb, var(--bg) 62%, rgba(17, 19, 24, 0.48) 38%) !important;
+  backdrop-filter: blur(14px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(150%) !important;
+}
+
+.sheet-panel,
+.modal-view .view-card,
+#profileView .view-card,
+#backupView .view-card,
+.pin-card {
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--primary) 16%, transparent), transparent 16rem),
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--kg-surface) 94%, white 6%),
+      var(--kg-surface)
+    ) !important;
+  border: 1px solid var(--kg-border) !important;
+  box-shadow:
+    0 24px 70px rgba(0,0,0,0.24),
+    inset 0 1px 0 color-mix(in srgb, white 50%, transparent) !important;
+}
+
+body.dark .sheet-panel,
+body.dark .modal-view .view-card,
+body.dark #profileView .view-card,
+body.dark #backupView .view-card,
+body.dark .pin-card {
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--primary) 12%, transparent), transparent 16rem),
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--kg-surface) 92%, white 3%),
+      var(--kg-surface)
+    ) !important;
+  box-shadow:
+    0 24px 70px rgba(0,0,0,0.42),
+    inset 0 1px 0 rgba(255,255,255,0.08) !important;
+}
+
+/* Kacheln, Eingaben und Sektionen im Popup einheitlich */
+.section-card,
+.day-tile,
+.entry-detail,
+.note-block,
+.metric,
+input,
+select,
+textarea {
+  background: var(--kg-soft) !important;
+  border-color: var(--kg-border) !important;
+  color: var(--text) !important;
+}
+
+.chips label,
+.icon-btn,
+.round-btn,
+.secondary {
+  background: var(--kg-soft-2) !important;
+  border: 1px solid var(--kg-border) !important;
+  color: var(--text) !important;
+}
+
+/* Einheitlicher Hauptbutton-Stil */
+.primary,
+.bottom-add-button,
+body > .bottom-action-bar > .bottom-add-button,
+.sheet-actions .btn.primary,
+#saveProfileButton,
+#pinButton {
+  background: var(--kg-button-bg) !important;
+  color: #ffffff !important;
+  border: 1px solid color-mix(in srgb, white 28%, var(--primary) 72%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.34),
+    var(--kg-button-shadow) !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.18) !important;
+  opacity: 1 !important;
+}
+
+/* Neuer Eintrag: weniger übertriebener Liquid-Glass-Look, mehr konsistent */
+body > .bottom-action-bar > .bottom-add-button {
+  background:
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--primary) 74%, rgba(255,255,255,0.36) 26%),
+      color-mix(in srgb, var(--primary2) 84%, rgba(255,255,255,0.12) 16%)
+    ) !important;
+  border: 1px solid color-mix(in srgb, white 34%, var(--primary) 66%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.42),
+    inset 0 -1px 0 rgba(255,255,255,0.12),
+    0 16px 36px color-mix(in srgb, var(--primary2) 28%, transparent) !important;
+  backdrop-filter: blur(18px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(150%) !important;
+}
+
+body > .bottom-action-bar > .bottom-add-button::before {
+  background:
+    linear-gradient(180deg,
+      rgba(255,255,255,0.34),
+      rgba(255,255,255,0.11) 58%,
+      rgba(255,255,255,0.00)
+    ) !important;
+  opacity: 0.82 !important;
+}
+
+body > .bottom-action-bar > .bottom-add-button::after {
+  opacity: 0 !important;
+}
+
+/* Einheitlicher Speichern-Button im Eintragsformular */
+.sheet-actions .btn.primary {
+  width: min(360px, 100%) !important;
+  max-width: 360px !important;
+  min-height: 54px !important;
+  border-radius: 10px !important;
+  font-weight: 950 !important;
+  font-size: 1rem !important;
+}
+
+/* Einheitlicher Löschen-Button, gleiche Größe wie Speichern */
+.sheet-actions .btn.danger,
+#deleteCurrent,
+.entry-detail-actions .delete-entry {
+  background: var(--kg-danger-bg) !important;
+  color: #ffffff !important;
+  border: 1px solid color-mix(in srgb, white 20%, var(--danger) 80%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.24),
+    var(--kg-danger-shadow) !important;
+  opacity: 1 !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.18) !important;
+}
+
+.sheet-actions .btn.danger,
+#deleteCurrent {
+  width: min(360px, 100%) !important;
+  max-width: 360px !important;
+  min-height: 54px !important;
+  justify-self: center !important;
+  border-radius: 10px !important;
+  font-weight: 950 !important;
+  font-size: 1rem !important;
+}
+
+/* Detail-Buttons optisch zusammenführen */
+.entry-detail-actions .btn.secondary {
+  background: var(--kg-soft-2) !important;
+  border: 1px solid var(--kg-border) !important;
+  color: var(--text) !important;
+  box-shadow: none !important;
+}
+
+.entry-detail-actions .delete-entry {
+  min-height: 36px !important;
+  padding: 7px 10px !important;
+  border-radius: 10px !important;
+  font-size: 0.86rem !important;
+}
+
+/* Profil und Backup Buttons ebenfalls angleichen */
+#profileView .btn.primary,
+#backupView .btn.secondary,
+#backupView .file-label {
+  border-radius: 10px !important;
+  min-height: 48px !important;
+}
+
+#backupView .btn.secondary,
+#backupView .file-label {
+  background: var(--kg-soft-2) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--kg-border) !important;
+  box-shadow: none !important;
+}
+
+/* Toast bleibt dezent und themetreu */
+.toast {
+  background: color-mix(in srgb, var(--kg-surface) 72%, transparent) !important;
+  color: var(--text) !important;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 70%, transparent) !important;
+  box-shadow: 0 10px 26px color-mix(in srgb, var(--primary2) 16%, transparent) !important;
+}
+
+/* Mobile Größen */
+@media (max-width: 430px) {
+  .sheet-actions .btn.primary,
+  .sheet-actions .btn.danger,
+  #deleteCurrent {
+    width: min(330px, 100%) !important;
+    max-width: 330px !important;
+    min-height: 52px !important;
+  }
+
+  body > .bottom-action-bar > .bottom-add-button {
+    width: min(330px, 100%) !important;
+    max-width: 330px !important;
+    min-height: 52px !important;
+  }
+}
