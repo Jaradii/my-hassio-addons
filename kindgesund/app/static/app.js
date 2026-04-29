@@ -243,7 +243,7 @@ function renderDaySummaryCard(entries) {
           <span class="tile-label">Flüssigkeit</span>
           <strong>${summary.fluidsTotal ? `${summary.fluidsTotal} ml` : "Keine"}</strong>
         </div>
-        <div class="day-tile">
+        <div class="day-tile temperature-tile ${summary.latestTempEntry ? feverClass(summary.latestTempEntry.temperature) : ""}">
           <span class="tile-icon">🌡️</span>
           <span class="tile-label">Temperatur</span>
           <strong>${escapeHtml(latestTempText)}</strong>
@@ -360,13 +360,12 @@ function renderEntryDetail(entry) {
 
 function feverClass(temp) {
   if (temp === null || temp === undefined || temp === "") return "";
-  const high = Number(state.config.high_fever_threshold ?? 39.5);
-  const fever = Number(state.config.fever_threshold ?? 38.5);
   const value = Number(temp);
   if (Number.isNaN(value)) return "";
-  if (value >= high) return "high";
-  if (value >= fever) return "warn";
-  return "";
+  if (value >= 39.0) return "temp-red";
+  if (value >= 38.5) return "temp-orange";
+  if (value >= 37.6) return "temp-yellow";
+  return "temp-green";
 }
 
 function escapeHtml(value) {

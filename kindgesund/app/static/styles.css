@@ -2344,3 +2344,203 @@ body.modal-open .toast {
     bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important;
   }
 }
+
+
+/* v1.3.7: „Neuer Eintrag“ im iOS Liquid-Glass-Stil */
+body > .bottom-action-bar {
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+body > .bottom-action-bar > .bottom-add-button {
+  position: relative !important;
+  overflow: hidden !important;
+
+  background:
+    linear-gradient(135deg,
+      color-mix(in srgb, rgba(255,255,255,0.86) 56%, var(--primary) 44%),
+      color-mix(in srgb, rgba(255,255,255,0.42) 30%, var(--primary2) 70%)
+    ) !important;
+
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.54) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.72),
+    inset 0 -1px 0 rgba(255,255,255,0.18),
+    0 18px 42px rgba(47, 127, 180, 0.28),
+    0 8px 18px rgba(18, 36, 49, 0.16) !important;
+
+  backdrop-filter: blur(22px) saturate(180%) brightness(1.08) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(180%) brightness(1.08) !important;
+
+  text-shadow: 0 1px 2px rgba(18, 36, 49, 0.26) !important;
+}
+
+body > .bottom-action-bar > .bottom-add-button::before {
+  content: "";
+  position: absolute;
+  inset: 1px 1px auto 1px;
+  height: 52%;
+  border-radius: 9px 9px 6px 6px;
+  background:
+    linear-gradient(180deg,
+      rgba(255,255,255,0.62),
+      rgba(255,255,255,0.20) 58%,
+      rgba(255,255,255,0.00)
+    );
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+body > .bottom-action-bar > .bottom-add-button::after {
+  content: "";
+  position: absolute;
+  width: 64px;
+  height: 160%;
+  left: -82px;
+  top: -30%;
+  transform: rotate(18deg);
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0),
+    rgba(255,255,255,0.34),
+    rgba(255,255,255,0)
+  );
+  pointer-events: none;
+  opacity: 0.72;
+}
+
+body > .bottom-action-bar > .bottom-add-button:active {
+  transform: scale(0.985) !important;
+  filter: brightness(0.98) saturate(1.05);
+}
+
+/* Darkmode: dunkleres Glas mit babyblauem Schimmer */
+body.dark > .bottom-action-bar > .bottom-add-button {
+  background:
+    linear-gradient(135deg,
+      rgba(126, 199, 238, 0.36),
+      rgba(62, 147, 200, 0.54)
+    ) !important;
+
+  color: #f7fcff !important;
+  border: 1px solid rgba(183, 226, 249, 0.38) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.26),
+    inset 0 -1px 0 rgba(255,255,255,0.10),
+    0 18px 42px rgba(0, 0, 0, 0.38),
+    0 8px 18px rgba(126, 199, 238, 0.12) !important;
+
+  backdrop-filter: blur(24px) saturate(180%) brightness(1.16) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) brightness(1.16) !important;
+}
+
+body.dark > .bottom-action-bar > .bottom-add-button::before {
+  background:
+    linear-gradient(180deg,
+      rgba(255,255,255,0.24),
+      rgba(255,255,255,0.08) 58%,
+      rgba(255,255,255,0.00)
+    );
+}
+
+@media (hover: hover) {
+  body > .bottom-action-bar > .bottom-add-button:hover {
+    filter: brightness(1.04) saturate(1.08);
+  }
+}
+
+
+/* v1.3.8: Temperaturfarben nach Höhe
+   Grün bis 37,5 °C
+   Gelb ab 37,6 °C
+   Orange ab 38,5 °C
+   Rot ab 39,0 °C
+*/
+.temp-green {
+  --temp-bg: #dff7e9;
+  --temp-border: #8ad7a7;
+  --temp-text: #17683a;
+}
+
+.temp-yellow {
+  --temp-bg: #fff6cf;
+  --temp-border: #f0d05d;
+  --temp-text: #7a5a00;
+}
+
+.temp-orange {
+  --temp-bg: #ffe6c8;
+  --temp-border: #f2a24c;
+  --temp-text: #8a3f00;
+}
+
+.temp-red {
+  --temp-bg: #ffe0e2;
+  --temp-border: #ed6b73;
+  --temp-text: #9b1f2a;
+}
+
+body.dark .temp-green {
+  --temp-bg: #183728;
+  --temp-border: #3f9d68;
+  --temp-text: #8ff0b5;
+}
+
+body.dark .temp-yellow {
+  --temp-bg: #3a3214;
+  --temp-border: #d6b93d;
+  --temp-text: #ffe583;
+}
+
+body.dark .temp-orange {
+  --temp-bg: #3f2815;
+  --temp-border: #e28b36;
+  --temp-text: #ffc07a;
+}
+
+body.dark .temp-red {
+  --temp-bg: #421b20;
+  --temp-border: #e25a66;
+  --temp-text: #ff9aa3;
+}
+
+.temp-pill.temp-green,
+.temp-pill.temp-yellow,
+.temp-pill.temp-orange,
+.temp-pill.temp-red,
+.temperature-tile.temp-green,
+.temperature-tile.temp-yellow,
+.temperature-tile.temp-orange,
+.temperature-tile.temp-red {
+  background: var(--temp-bg) !important;
+  border-color: var(--temp-border) !important;
+  color: var(--temp-text) !important;
+}
+
+.temp-pill.temp-green,
+.temp-pill.temp-yellow,
+.temp-pill.temp-orange,
+.temp-pill.temp-red {
+  font-weight: 950 !important;
+}
+
+.temperature-tile.temp-green .tile-icon,
+.temperature-tile.temp-yellow .tile-icon,
+.temperature-tile.temp-orange .tile-icon,
+.temperature-tile.temp-red .tile-icon,
+.temperature-tile.temp-green strong,
+.temperature-tile.temp-yellow strong,
+.temperature-tile.temp-orange strong,
+.temperature-tile.temp-red strong,
+.temperature-tile.temp-green small,
+.temperature-tile.temp-yellow small,
+.temperature-tile.temp-orange small,
+.temperature-tile.temp-red small,
+.temperature-tile.temp-green .tile-label,
+.temperature-tile.temp-yellow .tile-label,
+.temperature-tile.temp-orange .tile-label,
+.temperature-tile.temp-red .tile-label {
+  color: var(--temp-text) !important;
+}

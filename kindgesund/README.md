@@ -1,6 +1,6 @@
 # KindGesund Home Assistant Add-on
 
-Version 1.3.6
+Version 1.3.8
 
 Mobile, tageszentrierte Gesundheits-Tagebuch-App für Home Assistant Ingress.
 
@@ -160,3 +160,20 @@ Die Daten liegen im Add-on unter:
 - Transparenter Hintergrund mit Blur
 - Kleiner als die Buttons
 - Maximale Breite an Hauptbuttons orientiert
+
+
+## Änderungen in 1.3.7
+
+- „Neuer Eintrag“-Button im iOS-Liquid-Glass-Stil gestaltet
+- Glas-Effekt mit Blur, Reflex, heller Kante und Tiefenschatten
+- Darkmode-Variante mit dunklem Babyblau-Schimmer ergänzt
+
+
+## Änderungen in 1.3.8
+
+- Temperatur/Fieber bekommt je nach Höhe eigene Farben
+- Bis 37,5 °C grün
+- Ab 37,6 °C gelb
+- Ab 38,5 °C orange
+- Ab 39,0 °C rot
+- Temperatur-Kachel und Temperatur-Pill verwenden diese Farben
