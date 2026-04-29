@@ -3247,3 +3247,48 @@ body > .bottom-action-bar > .bottom-add-button::after {
     font-size: 1.05rem;
   }
 }
+
+
+/* v1.4.4: Neuer-Eintrag-Button folgt sicher dem aktiven Theme */
+body > .bottom-action-bar > .bottom-add-button,
+body[data-theme] > .bottom-action-bar > .bottom-add-button,
+body.dark[data-theme] > .bottom-action-bar > .bottom-add-button {
+  background: var(--primary) !important;
+  background-image: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--primary) 92%, white 8%),
+    color-mix(in srgb, var(--primary2) 92%, black 8%)
+  ) !important;
+  border-color: color-mix(in srgb, var(--primary2) 70%, var(--primary) 30%) !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+body.dark[data-theme] > .bottom-action-bar > .bottom-add-button {
+  background-image: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--primary) 84%, white 6%),
+    color-mix(in srgb, var(--primary2) 88%, black 12%)
+  ) !important;
+  border-color: color-mix(in srgb, var(--primary) 54%, var(--line) 46%) !important;
+}
+
+body > .bottom-action-bar > .bottom-add-button::before,
+body > .bottom-action-bar > .bottom-add-button::after,
+body[data-theme] > .bottom-action-bar > .bottom-add-button::before,
+body[data-theme] > .bottom-action-bar > .bottom-add-button::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+}
+
+/* Auch beim Antippen nicht auf alte Farb-/Filter-Regeln zurückfallen */
+body > .bottom-action-bar > .bottom-add-button:active,
+body[data-theme] > .bottom-action-bar > .bottom-add-button:active {
+  filter: brightness(0.96) !important;
+  transform: none !important;
+}
