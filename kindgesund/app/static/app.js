@@ -75,6 +75,46 @@ function hidePin() {
   $("pinError").textContent = "";
 }
 
+
+function symptomIcon(symptom) {
+  const s = String(symptom || "").trim().toLowerCase();
+  if (!s) return "🩺";
+  if (s.includes("fieber") || s.includes("temperatur")) return "🌡️";
+  if (s.includes("husten")) return "🤧";
+  if (s.includes("schnupfen") || s.includes("nase")) return "👃";
+  if (s.includes("halsschmerz") || s.includes("hals")) return "🗣️";
+  if (s.includes("ohr")) return "👂";
+  if (s.includes("kopf")) return "🤕";
+  if (s.includes("bauch") || s.includes("magen")) return "🤢";
+  if (s.includes("übel") || s.includes("uebel")) return "🤢";
+  if (s.includes("erbrechen")) return "🤮";
+  if (s.includes("durchfall")) return "🚽";
+  if (s.includes("verstopfung")) return "🚽";
+  if (s.includes("ausschlag") || s.includes("haut")) return "🩹";
+  if (s.includes("schlaf")) return "😴";
+  if (s.includes("müde") || s.includes("muede")) return "😴";
+  if (s.includes("appetit")) return "🍽️";
+  if (s.includes("trinken") || s.includes("durst")) return "💧";
+  if (s.includes("schmerz")) return "⚠️";
+  if (s.includes("unruh")) return "😣";
+  if (s.includes("weinen")) return "😢";
+  return "🩺";
+}
+
+function renderSymptomTag(symptom, count = 1) {
+  const icon = symptomIcon(symptom);
+  return `<span class="tag symptom-tag"><span class="symptom-icon">${icon}</span><span>${escapeHtml(symptom)}${count > 1 ? ` ×${count}` : ""}</span></span>`;
+}
+
+function renderSymptomList(symptoms) {
+  if (!symptoms || !symptoms.length) return "";
+  return `<div class="symptom-list">${symptoms.map(symptom => {
+    const name = String(symptom || "").trim();
+    if (!name) return "";
+    return `<span class="symptom-chip"><span class="symptom-icon">${symptomIcon(name)}</span><span>${escapeHtml(name)}</span></span>`;
+  }).join("")}</div>`;
+}
+
 function applyTheme(theme) {
   const allowed = ["babyblue", "mint", "lavender", "peach", "rose", "slate"];
   const next = allowed.includes(theme) ? theme : "babyblue";
@@ -289,7 +329,7 @@ function renderDaySummaryCard(entries) {
         </div>
       </div>
 
-      ${summary.symptoms.length ? `<div class="tags">${summary.symptoms.map(([s, count]) => `<span class="tag">${escapeHtml(s)}${count > 1 ? ` ×${count}` : ""}</span>`).join("")}</div>` : ""}
+      ${summary.symptoms.length ? `<div class="tags symptom-tags">${summary.symptoms.map(([s, count]) => renderSymptomTag(s, count)).join("")}</div>` : ""}
 
       ${renderSummaryTextBlocks(summary)}
 
@@ -345,7 +385,7 @@ function renderEntryDetail(entry) {
     entry.temperature !== null && entry.temperature !== undefined && entry.temperature !== "" ? ["Temperatur", `${Number(entry.temperature).toFixed(1)} °C`] : null,
     entry.fluids_ml ? ["Flüssigkeit", `${entry.fluids_ml} ml`] : null,
     entry.mood ? ["Stimmung", entry.mood] : null,
-    symptoms.length ? ["Symptome", symptoms.join(", ")] : null,
+
     entry.medication ? ["Medikamente", entry.medication] : null,
     entry.food ? ["Essen", entry.food] : null,
     entry.sleep ? ["Schlaf", entry.sleep] : null,
@@ -362,12 +402,18 @@ function renderEntryDetail(entry) {
           <button class="btn danger delete-entry" data-id="${entry.id}">Löschen</button>
         </div>
       </div>
+      ${symptoms.length ? `
+        <div class="detail-row symptom-row">
+          <span>Symptome</span>
+          ${renderSymptomList(symptoms)}
+        </div>
+      ` : ""}
       ${rows.length ? rows.map(([label, value]) => `
         <div class="detail-row">
           <span>${escapeHtml(label)}</span>
           <p>${escapeHtml(value)}</p>
         </div>
-      `).join("") : `<p class="muted-detail">Keine Details eingetragen.</p>`}
+      `).join("") : `${!symptoms.length ? `<p class="muted-detail">Keine Details eingetragen.</p>` : ""}`}
     </div>
   `;
 }

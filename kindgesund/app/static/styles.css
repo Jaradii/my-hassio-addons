@@ -2990,3 +2990,223 @@ body > .bottom-action-bar > .bottom-add-button::after {
     min-height: 52px !important;
   }
 }
+
+
+/* v1.4.2: flacheres, ruhigeres Design ohne pseudo-3D Effekte */
+body {
+  --kg-surface: color-mix(in srgb, var(--card) 92%, var(--bg) 8%);
+  --kg-surface-strong: color-mix(in srgb, var(--card) 84%, var(--primary) 6%);
+  --kg-soft: color-mix(in srgb, var(--card2) 58%, var(--card) 42%);
+  --kg-soft-2: color-mix(in srgb, var(--card2) 42%, var(--card) 58%);
+  --kg-border: color-mix(in srgb, var(--line) 88%, var(--primary) 12%);
+  --kg-button-bg: var(--primary);
+  --kg-button-shadow: none;
+  --kg-danger-bg: var(--danger);
+  --kg-danger-shadow: none;
+}
+
+/* Allgemein deutlich flacher */
+.entry-card,
+.date-card,
+.section-card,
+.view-card,
+.sheet-panel,
+.pin-card,
+.day-tile,
+.entry-detail,
+.note-block,
+.metric,
+.child-card,
+.toast,
+.bottom-action-bar,
+input,
+select,
+textarea,
+button,
+.btn,
+.icon-btn,
+.round-btn,
+.chips label,
+.file-label {
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+.entry-card,
+.date-card,
+.section-card,
+.view-card,
+.sheet-panel,
+.pin-card,
+.day-tile,
+.entry-detail,
+.note-block,
+.metric,
+.child-card {
+  background: var(--kg-surface) !important;
+  background-image: none !important;
+  border: 1px solid var(--kg-border) !important;
+}
+
+/* Popup-Hintergründe zurückhaltender */
+.sheet-backdrop,
+.modal-view {
+  background: color-mix(in srgb, var(--bg) 72%, rgba(17, 19, 24, 0.28) 28%) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+.sheet-panel,
+.modal-view .view-card,
+#profileView .view-card,
+#backupView .view-card,
+.pin-card {
+  background: var(--kg-surface) !important;
+  background-image: none !important;
+  border: 1px solid var(--kg-border) !important;
+}
+
+/* Flachere Eingaben und Sekundär-Elemente */
+input,
+select,
+textarea,
+.chips label,
+.icon-btn,
+.round-btn,
+.secondary,
+.file-label {
+  background: var(--kg-soft) !important;
+  background-image: none !important;
+  border: 1px solid var(--kg-border) !important;
+  color: var(--text) !important;
+}
+
+/* Primärbuttons flach und sauber */
+.primary,
+.bottom-add-button,
+body > .bottom-action-bar > .bottom-add-button,
+.sheet-actions .btn.primary,
+#saveProfileButton,
+#pinButton {
+  background: var(--primary) !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  border: 1px solid color-mix(in srgb, var(--primary2) 60%, var(--primary) 40%) !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+/* Neuer Eintrag Button: clean, ruhig, ohne Gloss/Glas-Spielereien */
+body > .bottom-action-bar {
+  background: transparent !important;
+  border: 0 !important;
+}
+
+body > .bottom-action-bar > .bottom-add-button {
+  position: relative !important;
+  overflow: hidden !important;
+  background: color-mix(in srgb, var(--primary) 92%, white 8%) !important;
+  border: 1px solid color-mix(in srgb, var(--primary2) 64%, var(--primary) 36%) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+body > .bottom-action-bar > .bottom-add-button::before,
+body > .bottom-action-bar > .bottom-add-button::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Löschen ebenfalls clean und konsistent */
+.sheet-actions .btn.danger,
+#deleteCurrent,
+.entry-detail-actions .delete-entry {
+  background: var(--danger) !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  border: 1px solid color-mix(in srgb, #9b1f2a 46%, var(--danger) 54%) !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+/* Detail-Buttons */
+.entry-detail-actions .btn.secondary {
+  background: var(--kg-soft) !important;
+  border: 1px solid var(--kg-border) !important;
+  color: var(--text) !important;
+}
+
+/* Toast zurückhaltend */
+.toast {
+  background: color-mix(in srgb, var(--kg-surface) 86%, transparent) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--kg-border) !important;
+  box-shadow: none !important;
+}
+
+/* Symptom-Icons */
+.symptom-tags,
+.symptom-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.symptom-tag,
+.symptom-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.symptom-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.symptom-chip {
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: var(--kg-soft) !important;
+  border: 1px solid var(--kg-border);
+  color: var(--text);
+}
+
+.symptom-row {
+  gap: 8px !important;
+}
+
+.symptom-row .symptom-list {
+  margin-top: 2px;
+}
+
+.tag.symptom-tag {
+  background: var(--kg-soft-2) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--kg-border) !important;
+}
+
+/* Tageskacheln ebenfalls cleaner */
+.day-tile {
+  background: var(--kg-surface) !important;
+}
+
+.day-tile small,
+.tile-label {
+  color: var(--muted) !important;
+}
+
+@media (hover: hover) {
+  .btn:hover,
+  button:hover,
+  .icon-btn:hover,
+  .round-btn:hover,
+  .file-label:hover {
+    filter: brightness(0.98);
+  }
+}
