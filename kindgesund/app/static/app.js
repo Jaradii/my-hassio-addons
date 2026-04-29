@@ -405,6 +405,22 @@ function formatTimestamp(value) {
   }
 }
 
+function entryWasEdited(entry) {
+  if (!entry || !entry.updated_at || !entry.created_at) return false;
+
+  const created = new Date(entry.created_at).getTime();
+  const updated = new Date(entry.updated_at).getTime();
+
+  if (Number.isNaN(created) || Number.isNaN(updated)) return false;
+
+  const timeChanged = Math.abs(updated - created) > 1000;
+  const createdUser = userLabel(entry.created_by);
+  const updatedUser = userLabel(entry.updated_by);
+  const userChanged = updatedUser !== "Unbekannt" && updatedUser !== createdUser;
+
+  return timeChanged || userChanged;
+}
+
 function renderEntryDetail(entry) {
   const symptoms = [...(entry.symptoms || [])];
   if (entry.custom_symptoms) symptoms.push(...entry.custom_symptoms.split(",").map(s => s.trim()).filter(Boolean));
@@ -432,7 +448,7 @@ function renderEntryDetail(entry) {
       </div>
       <div class="entry-user-meta">
         <span>Erstellt von <strong>${escapeHtml(userLabel(entry.created_by))}</strong>${entry.created_at ? ` · ${escapeHtml(formatTimestamp(entry.created_at))}` : ""}</span>
-        ${entry.updated_by && userLabel(entry.updated_by) !== userLabel(entry.created_by) ? `<span>Bearbeitet von <strong>${escapeHtml(userLabel(entry.updated_by))}</strong>${entry.updated_at ? ` · ${escapeHtml(formatTimestamp(entry.updated_at))}` : ""}</span>` : ""}
+        ${entryWasEdited(entry) ? `<span>Bearbeitet von <strong>${escapeHtml(userLabel(entry.updated_by))}</strong>${entry.updated_at ? ` · ${escapeHtml(formatTimestamp(entry.updated_at))}` : ""}</span>` : ""}
       </div>
       ${symptoms.length ? `
         <div class="detail-row symptom-row">

@@ -1,6 +1,6 @@
 # KindGesund Home Assistant Add-on
 
-Version 1.6.0
+Version 1.6.1
 
 Mobile, tageszentrierte Gesundheits-Tagebuch-App für Home Assistant Ingress.
 
@@ -274,3 +274,10 @@ Die Daten liegen im Add-on unter:
 - Neues Theme: Dunkles Slate
 - Neue Themes: Ocean, Forest, Sand, Berry, Monochrom
 - Alle neuen Themes unterstützen Light- und Darkmode
+
+
+## Änderungen in 1.6.1
+
+- „Bearbeitet von“ wird jetzt auch angezeigt, wenn dieselbe Person den Eintrag später bearbeitet hat
+- Neue Einträge bekommen exakt gleiche Werte für `created_at` und `updated_at`, damit sie nicht fälschlich als bearbeitet gelten
+- Die Bearbeitet-Zeile wird in der Detailansicht optisch etwas klarer getrennt

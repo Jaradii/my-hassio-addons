@@ -182,11 +182,12 @@ def api_create_entry(entry: HealthEntryIn, request: Request):
     check_pin(request)
     store = read_store()
     user = get_ha_user(request)
+    now = utc_now()
     item = HealthEntry(
         **entry.model_dump(),
         id=str(uuid.uuid4()),
-        created_at=utc_now(),
-        updated_at=utc_now(),
+        created_at=now,
+        updated_at=now,
         created_by=user,
         updated_by=user,
     ).model_dump()

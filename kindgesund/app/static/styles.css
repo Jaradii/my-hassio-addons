@@ -3871,3 +3871,10 @@ body.dark[data-theme="mono"] {
   --danger: #f07986 !important;
   --shadow: 0 16px 38px rgba(0, 0, 0, 0.38) !important;
 }
+
+
+/* v1.6.1: Bearbeitet-von-Zeile etwas klarer darstellen */
+.entry-user-meta span + span {
+  padding-top: 3px;
+  border-top: 1px solid color-mix(in srgb, var(--kg-border) 55%, transparent);
+}
