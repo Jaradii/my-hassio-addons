@@ -5413,3 +5413,58 @@ body.quick-open > .bottom-action-bar { display: none !important; }
   .quick-panel { width: min(520px, calc(100vw - 64px)) !important; }
   .quick-symptom-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
 }
+
+
+/* v1.9.4: Datumsfläche öffnet den Datepicker */
+.date-picker-trigger {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  border: 0 !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  text-align: center !important;
+  cursor: pointer !important;
+  display: grid !important;
+  gap: 2px !important;
+  color: inherit !important;
+  font: inherit !important;
+  border-radius: 10px !important;
+}
+
+.date-picker-trigger:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--primary) 32%, transparent);
+  outline-offset: 4px;
+}
+
+.date-picker-trigger:active {
+  transform: scale(0.99) !important;
+}
+
+.date-picker-trigger::after {
+  content: "Datum wählen";
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 850;
+  opacity: 0.72;
+}
+
+/* Das native Date-Feld bleibt vorhanden, aber nimmt optisch keinen Platz weg */
+.date-picker-trigger #selectedDate {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  border: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+@media (max-width: 430px) {
+  .date-picker-trigger::after {
+    font-size: 0.64rem;
+  }
+}

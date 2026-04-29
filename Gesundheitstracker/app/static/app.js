@@ -10,6 +10,21 @@ const state = {
 
 const $ = (id) => document.getElementById(id);
 
+function openSelectedDatePicker() {
+  const picker = $("selectedDate");
+  if (!picker) return;
+  if (typeof picker.showPicker === "function") {
+    try {
+      picker.showPicker();
+      return;
+    } catch {
+      // Fallback below.
+    }
+  }
+  picker.focus({ preventScroll: true });
+  picker.click();
+}
+
 function onIfExists(id, eventName, handler) {
   const el = $(id);
   if (el) el.addEventListener(eventName, handler);
@@ -956,6 +971,11 @@ async function init() {
   $("prevDay").addEventListener("click", () => setDate(addDays(state.selectedDate, -1)));
   $("nextDay").addEventListener("click", () => setDate(addDays(state.selectedDate, 1)));
   $("selectedDate").addEventListener("change", e => setDate(e.target.value || today()));
+
+  $("datePickerButton").addEventListener("click", (event) => {
+    if (event.target && event.target.id === "selectedDate") return;
+    openSelectedDatePicker();
+  });
 
   $("openEntry").addEventListener("click", () => {
     resetEntryForm();
