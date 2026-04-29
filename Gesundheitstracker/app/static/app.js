@@ -1,0 +1,836 @@
+const state = {
+  config: {},
+  data: { profile: {}, entries: [] },
+  theme: localStorage.getItem("kindgesund_theme") || "babyblue",
+  pin: localStorage.getItem("kindgesund_pin") || "",
+  selectedDate: today(),
+  dayExpanded: false,
+  editingExistingEntry: false
+};
+
+const $ = (id) => document.getElementById(id);
+
+function today() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function nowTime() {
+  return new Date().toTimeString().slice(0, 5);
+}
+
+function addDays(dateStr, days) {
+  const d = new Date(`${dateStr}T12:00:00`);
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+function headers() {
+  const h = { "Content-Type": "application/json" };
+  if (state.pin) h["x-kindgesund-pin"] = state.pin;
+  return h;
+}
+
+async function api(path, options = {}) {
+  const res = await fetch(path, {
+    ...options,
+    headers: {
+      ...headers(),
+      ...(options.headers || {})
+    }
+  });
+
+  if (res.status === 401) {
+    showPin();
+    throw new Error("PIN erforderlich oder falsch.");
+  }
+
+  if (!res.ok) {
+    let message = `Fehler ${res.status}`;
+    try {
+      const body = await res.json();
+      message = body.detail || message;
+    } catch {}
+    throw new Error(message);
+  }
+
+  return res.json();
+}
+
+function showToast(message) {
+  const toast = $("toast");
+  toast.textContent = message;
+  toast.classList.remove("hidden");
+  setTimeout(() => toast.classList.add("hidden"), 2200);
+}
+
+function showPin(error = "") {
+  $("pinOverlay").classList.remove("hidden");
+  $("pinError").textContent = error;
+  setTimeout(() => $("pinInput").focus(), 100);
+}
+
+function hidePin() {
+  $("pinOverlay").classList.add("hidden");
+  $("pinInput").value = "";
+  $("pinError").textContent = "";
+}
+
+
+function symptomIcon(symptom) {
+  const s = String(symptom || "").trim().toLowerCase();
+  if (!s) return "🩺";
+  if (s.includes("fieber") || s.includes("temperatur")) return "🌡️";
+  if (s.includes("husten")) return "🤧";
+  if (s.includes("schnupfen") || s.includes("nase")) return "👃";
+  if (s.includes("halsschmerz") || s.includes("hals")) return "🗣️";
+  if (s.includes("ohr")) return "👂";
+  if (s.includes("kopf")) return "🤕";
+  if (s.includes("bauch") || s.includes("magen")) return "🤢";
+  if (s.includes("übel") || s.includes("uebel")) return "🤢";
+  if (s.includes("erbrechen")) return "🤮";
+  if (s.includes("durchfall")) return "🚽";
+  if (s.includes("verstopfung")) return "🚽";
+  if (s.includes("ausschlag") || s.includes("haut")) return "🩹";
+  if (s.includes("schlaf")) return "😴";
+  if (s.includes("müde") || s.includes("muede")) return "😴";
+  if (s.includes("appetit")) return "🍽️";
+  if (s.includes("trinken") || s.includes("durst")) return "💧";
+  if (s.includes("schmerz")) return "⚠️";
+  if (s.includes("unruh")) return "😣";
+  if (s.includes("weinen")) return "😢";
+  return "🩺";
+}
+
+function renderSymptomTag(symptom, count = 1) {
+  const icon = symptomIcon(symptom);
+  return `<span class="tag symptom-tag"><span class="symptom-icon">${icon}</span><span>${escapeHtml(symptom)}${count > 1 ? ` ×${count}` : ""}</span></span>`;
+}
+
+function renderSymptomList(symptoms) {
+  if (!symptoms || !symptoms.length) return "";
+  return `<div class="symptom-list">${symptoms.map(symptom => {
+    const name = String(symptom || "").trim();
+    if (!name) return "";
+    return `<span class="symptom-chip"><span class="symptom-icon">${symptomIcon(name)}</span><span>${escapeHtml(name)}</span></span>`;
+  }).join("")}</div>`;
+}
+
+function applyTheme(theme) {
+  const allowed = ["babyblue", "mint", "lavender", "peach", "rose", "slate", "darkslate", "ocean", "forest", "sand", "berry", "mono"];
+  const next = allowed.includes(theme) ? theme : "babyblue";
+  state.theme = next;
+  document.body.dataset.theme = next;
+  localStorage.setItem("kindgesund_theme", next);
+  const selector = $("themeSelect");
+  if (selector) selector.value = next;
+}
+
+async function loadConfig() {
+  state.config = await api("./api/config", { headers: {} });
+  document.title = state.config.app_title || "KindGesund";
+  document.body.classList.toggle("dark", Boolean(state.config.dark_mode));
+  applyTheme(state.theme);
+  if (state.config.pin_required && !state.pin) showPin();
+}
+
+async function loadState() {
+  state.data = await api("./api/state");
+  renderAll();
+}
+
+function renderAll() {
+  renderProfile();
+  renderDay();
+}
+
+function renderProfile() {
+  const profile = state.data.profile || {};
+  const name = profile.child_name || state.config.child_name || "Kind";
+  $("activeProfileTitle").textContent = name;
+  $("profileName").value = name;
+  $("profileBirthDate").value = profile.birth_date || "";
+  $("profileNotes").value = profile.notes || "";
+  const themeSelector = $("themeSelect");
+  if (themeSelector) themeSelector.value = state.theme;
+}
+
+function selectedEntries() {
+  return (state.data.entries || [])
+    .filter(e => e.date === state.selectedDate)
+    .sort((a, b) => (b.time || "").localeCompare(a.time || ""));
+}
+
+function renderDateHeader(entries) {
+  $("selectedDate").value = state.selectedDate;
+
+  const d = new Date(`${state.selectedDate}T12:00:00`);
+  const isToday = state.selectedDate === today();
+  $("prettyDate").textContent = isToday
+    ? "Heute"
+    : d.toLocaleDateString("de-DE", { weekday: "long", day: "2-digit", month: "long" });
+
+  $("daySummary").textContent = entries.length
+    ? `${entries.length} Eintrag${entries.length === 1 ? "" : "e"} an diesem Tag`
+    : "Noch kein Eintrag";
+}
+
+function renderDay() {
+  const entries = selectedEntries();
+  renderDateHeader(entries);
+
+  const container = $("dayEntries");
+  if (!entries.length) {
+    container.innerHTML = `
+      <div class="empty-day">
+        <div>
+          <div class="empty-icon">＋</div>
+          <h2>Noch nichts eingetragen</h2>
+          <p>Tippe unten auf „Neuer Eintrag“, um den aktuellen Zustand für diesen Tag zu speichern.</p>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = renderDaySummaryCard(entries);
+  const expandButton = container.querySelector("#toggleDetails");
+  if (expandButton) {
+    expandButton.addEventListener("click", () => {
+      state.dayExpanded = !state.dayExpanded;
+      renderDay();
+    });
+  }
+
+  container.querySelectorAll(".edit-entry").forEach(btn => {
+    btn.addEventListener("click", () => editEntry(btn.dataset.id));
+  });
+  container.querySelectorAll(".delete-entry").forEach(btn => {
+    btn.addEventListener("click", () => deleteEntry(btn.dataset.id));
+  });
+}
+
+function buildDaySummary(entries) {
+  const fluidsTotal = entries.reduce((sum, e) => sum + (Number(e.fluids_ml) || 0), 0);
+  const temperatures = entries
+    .map(e => e.temperature)
+    .filter(v => v !== null && v !== undefined && v !== "")
+    .map(Number)
+    .filter(v => !Number.isNaN(v));
+
+  const latestTempEntry = entries.find(e => e.temperature !== null && e.temperature !== undefined && e.temperature !== "");
+  const maxTemp = temperatures.length ? Math.max(...temperatures) : null;
+  const minTemp = temperatures.length ? Math.min(...temperatures) : null;
+
+  const symptomCounts = {};
+  const addSymptom = (symptom) => {
+    const s = String(symptom || "").trim();
+    if (!s) return;
+    symptomCounts[s] = (symptomCounts[s] || 0) + 1;
+  };
+
+  entries.forEach(entry => {
+    (entry.symptoms || []).forEach(addSymptom);
+    if (entry.custom_symptoms) {
+      entry.custom_symptoms.split(",").forEach(addSymptom);
+    }
+  });
+
+  const symptoms = Object.entries(symptomCounts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+
+  const moods = entries.map(e => e.mood).filter(Boolean);
+  const medications = entries.filter(e => e.medication);
+  const foods = entries.filter(e => e.food);
+  const sleeps = entries.filter(e => e.sleep);
+  const diaper = entries.filter(e => e.diaper_or_toilet);
+  const notes = entries.filter(e => e.notes);
+
+  return {
+    count: entries.length,
+    fluidsTotal,
+    temperatures,
+    latestTempEntry,
+    maxTemp,
+    minTemp,
+    symptoms,
+    moods,
+    medications,
+    foods,
+    sleeps,
+    diaper,
+    notes
+  };
+}
+
+function renderDaySummaryCard(entries) {
+  const summary = buildDaySummary(entries);
+  const latestTempText = summary.latestTempEntry
+    ? `${Number(summary.latestTempEntry.temperature).toFixed(1)}°`
+    : "Keine";
+
+  const tempMeta = summary.temperatures.length
+    ? `Max ${summary.maxTemp.toFixed(1)}°${summary.minTemp !== summary.maxTemp ? ` · Min ${summary.minTemp.toFixed(1)}°` : ""}`
+    : "Keine Messung";
+
+  const symptomText = summary.symptoms.length
+    ? summary.symptoms.slice(0, 4).map(([name, count]) => `${escapeHtml(name)}${count > 1 ? ` ×${count}` : ""}`).join(", ")
+    : "Keine";
+
+  const moodText = summary.moods.length
+    ? escapeHtml(summary.moods[0])
+    : "Keine";
+
+  const expanded = state.dayExpanded;
+
+  return `
+    <article class="entry-card day-summary-card">
+      <div class="entry-card-head">
+        <div>
+          <span class="entry-time">${summary.count} Eintrag${summary.count === 1 ? "" : "e"} zusammengefasst</span>
+          <div class="entry-title">Tagesübersicht</div>
+        </div>
+        ${""}
+      </div>
+
+      <div class="day-tile-grid">
+        <div class="day-tile">
+          <span class="tile-icon">💧</span>
+          <span class="tile-label">Flüssigkeit</span>
+          <strong>${summary.fluidsTotal ? `${summary.fluidsTotal} ml` : "Keine"}</strong>
+        </div>
+        <div class="day-tile temperature-tile ${summary.latestTempEntry ? feverClass(summary.latestTempEntry.temperature) : ""}">
+          <span class="tile-icon">🌡️</span>
+          <span class="tile-label">Temperatur</span>
+          <strong>${escapeHtml(latestTempText)}</strong>
+          <small>${escapeHtml(tempMeta)}</small>
+        </div>
+        <div class="day-tile">
+          <span class="tile-icon">🙂</span>
+          <span class="tile-label">Stimmung</span>
+          <strong>${moodText}</strong>
+          <small>${summary.moods.length > 1 ? `${summary.moods.length} Angaben` : "Letzte Angabe"}</small>
+        </div>
+        <div class="day-tile">
+          <span class="tile-icon">🤧</span>
+          <span class="tile-label">Symptome</span>
+          <strong>${summary.symptoms.length || "Keine"}</strong>
+          <small>${symptomText}</small>
+        </div>
+        <div class="day-tile">
+          <span class="tile-icon">💊</span>
+          <span class="tile-label">Medikamente</span>
+          <strong>${summary.medications.length || "Keine"}</strong>
+          <small>${summary.medications.length ? "Einträge" : "Nicht eingetragen"}</small>
+        </div>
+        <div class="day-tile">
+          <span class="tile-icon tile-duo"><span>🍽️</span><span>😴</span></span>
+          <span class="tile-label">Essen / Schlaf</span>
+          <strong>${summary.foods.length + summary.sleeps.length || "Keine"}</strong>
+          <small>${summary.foods.length} Essen · ${summary.sleeps.length} Schlaf</small>
+        </div>
+      </div>
+
+      ${summary.symptoms.length ? `<div class="tags symptom-tags">${summary.symptoms.map(([s, count]) => renderSymptomTag(s, count)).join("")}</div>` : ""}
+
+      ${renderSummaryTextBlocks(summary)}
+
+      <div class="card-actions">
+        <button id="toggleDetails" class="btn secondary">${expanded ? "Details ausblenden" : "Details"}</button>
+      </div>
+
+      ${expanded ? renderExpandedEntries(entries) : ""}
+    </article>
+  `;
+}
+
+function renderSummaryTextBlocks(summary) {
+  const blocks = [];
+
+  const renderItems = (items, key, icon, title) => {
+    if (!items.length) return "";
+    return `
+      <section class="summary-info-card">
+        <div class="summary-info-head">
+          <span class="summary-info-icon">${icon}</span>
+          <strong>${title}</strong>
+        </div>
+        <div class="summary-info-list">
+          ${items.map(e => `
+            <div class="summary-info-item">
+              <span class="summary-info-time">${escapeHtml(e.time || "--:--")}</span>
+              <p>${escapeHtml(e[key] || "")}</p>
+            </div>
+          `).join("")}
+        </div>
+      </section>
+    `;
+  };
+
+  blocks.push(renderItems(summary.medications, "medication", "💊", "Medikamente"));
+  blocks.push(renderItems(summary.foods, "food", "🍽️", "Essen"));
+  blocks.push(renderItems(summary.sleeps, "sleep", "😴", "Schlaf"));
+  blocks.push(renderItems(summary.diaper, "diaper_or_toilet", "🚽", "Windel / Toilette"));
+  blocks.push(renderItems(summary.notes, "notes", "📝", "Notizen"));
+
+  return blocks.filter(Boolean).join("");
+}
+
+function renderExpandedEntries(entries) {
+  return `
+    <div class="expanded-details">
+      <h3>Einzelne Einträge</h3>
+      ${entries.map(renderEntryDetail).join("")}
+    </div>
+  `;
+}
+
+function userLabel(user) {
+  if (!user || typeof user !== "object") return "Unbekannt";
+  return user.display_name || user.name || user.label || "Unbekannt";
+}
+
+function formatTimestamp(value) {
+  if (!value) return "";
+  try {
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return "";
+    return d.toLocaleString("de-DE", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  } catch {
+    return "";
+  }
+}
+
+function entryWasEdited(entry) {
+  if (!entry || !entry.updated_at || !entry.created_at) return false;
+
+  const created = new Date(entry.created_at).getTime();
+  const updated = new Date(entry.updated_at).getTime();
+
+  if (Number.isNaN(created) || Number.isNaN(updated)) return false;
+
+  const timeChanged = Math.abs(updated - created) > 1000;
+  const createdUser = userLabel(entry.created_by);
+  const updatedUser = userLabel(entry.updated_by);
+  const userChanged = updatedUser !== "Unbekannt" && updatedUser !== createdUser;
+
+  return timeChanged || userChanged;
+}
+
+function historyActionLabel(action) {
+  if (action === "created") return "Erstellt";
+  if (action === "updated") return "Bearbeitet";
+  if (action === "deleted") return "Gelöscht";
+  return action || "Ereignis";
+}
+
+function fieldLabel(field) {
+  const labels = {
+    date: "Datum",
+    time: "Uhrzeit",
+    temperature: "Temperatur",
+    mood: "Stimmung",
+    symptoms: "Symptome",
+    custom_symptoms: "Weitere Symptome",
+    medication: "Medikamente",
+    fluids_ml: "Flüssigkeit",
+    food: "Essen",
+    sleep: "Schlaf",
+    diaper_or_toilet: "Windel / Toilette",
+    notes: "Notizen"
+  };
+  return labels[field] || field;
+}
+
+function renderEntryHistory(entry) {
+  let history = Array.isArray(entry.history) ? entry.history.filter(Boolean) : [];
+
+  if (!history.length) {
+    history = [{
+      action: "created",
+      at: entry.created_at,
+      by: entry.created_by || {},
+      fields: []
+    }];
+
+    if (entryWasEdited(entry)) {
+      history.push({
+        action: "updated",
+        at: entry.updated_at,
+        by: entry.updated_by || {},
+        fields: []
+      });
+    }
+  }
+
+  const sorted = history.slice().sort((a, b) => {
+    const atA = new Date(a.at || 0).getTime();
+    const atB = new Date(b.at || 0).getTime();
+    return atB - atA;
+  });
+
+  return `
+    <details class="history-box compact-history">
+      <summary aria-label="Historie anzeigen">
+        <span class="history-summary-icon">↻</span>
+        <span class="history-summary-text">Historie</span>
+        <span class="history-summary-count">${sorted.length}</span>
+      </summary>
+      <div class="history-list compact-history-list">
+        ${sorted.map(event => {
+          const fields = Array.isArray(event.fields) ? event.fields.map(fieldLabel).join(", ") : "";
+          const fieldsText = fields ? ` · ${escapeHtml(fields)}` : "";
+          return `
+            <div class="history-row">
+              <span class="history-action">${escapeHtml(historyActionLabel(event.action))}</span>
+              <span class="history-user-inline">${escapeHtml(userLabel(event.by))}</span>
+              <span class="history-date">${escapeHtml(formatTimestamp(event.at) || "")}</span>
+              ${fieldsText ? `<span class="history-fields-inline">${fieldsText}</span>` : ""}
+            </div>
+          `;
+        }).join("")}
+      </div>
+    </details>
+  `;
+}
+
+function renderEntryDetail(entry) {
+  const symptoms = [...(entry.symptoms || [])];
+  if (entry.custom_symptoms) symptoms.push(...entry.custom_symptoms.split(",").map(s => s.trim()).filter(Boolean));
+
+  const rows = [
+    entry.temperature !== null && entry.temperature !== undefined && entry.temperature !== "" ? ["Temperatur", `${Number(entry.temperature).toFixed(1)} °C`] : null,
+    entry.fluids_ml ? ["Flüssigkeit", `${entry.fluids_ml} ml`] : null,
+    entry.mood ? ["Stimmung", entry.mood] : null,
+
+    entry.medication ? ["Medikamente", entry.medication] : null,
+    entry.food ? ["Essen", entry.food] : null,
+    entry.sleep ? ["Schlaf", entry.sleep] : null,
+    entry.diaper_or_toilet ? ["Windel / Toilette", entry.diaper_or_toilet] : null,
+    entry.notes ? ["Notizen", entry.notes] : null
+  ].filter(Boolean);
+
+  return `
+    <div class="entry-detail">
+      <div class="entry-detail-head">
+        <strong>${escapeHtml(entry.time || "--:--")} Uhr</strong>
+        <div class="entry-detail-actions">
+          <button class="btn secondary edit-entry" data-id="${entry.id}">Bearbeiten</button>
+          <button class="btn danger delete-entry" data-id="${entry.id}">Löschen</button>
+        </div>
+      </div>
+      ${renderEntryHistory(entry)}
+      ${symptoms.length ? `
+        <div class="detail-row symptom-row">
+          <span>Symptome</span>
+          ${renderSymptomList(symptoms)}
+        </div>
+      ` : ""}
+      ${rows.length ? rows.map(([label, value]) => `
+        <div class="detail-row">
+          <span>${escapeHtml(label)}</span>
+          <p>${escapeHtml(value)}</p>
+        </div>
+      `).join("") : `${!symptoms.length ? `<p class="muted-detail">Keine Details eingetragen.</p>` : ""}`}
+    </div>
+  `;
+}
+
+function feverClass(temp) {
+  if (temp === null || temp === undefined || temp === "") return "";
+  const value = Number(temp);
+  if (Number.isNaN(value)) return "";
+  if (value >= 39.0) return "temp-red";
+  if (value >= 38.5) return "temp-orange";
+  if (value >= 37.6) return "temp-yellow";
+  return "temp-green";
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function openSheet() {
+  document.body.classList.add("sheet-open");
+  $("entrySheet").classList.remove("hidden");
+  $("entrySheet").setAttribute("aria-hidden", "false");
+}
+
+function closeSheet() {
+  $("entrySheet").classList.add("hidden");
+  $("entrySheet").setAttribute("aria-hidden", "true");
+  document.body.classList.remove("sheet-open");
+  resetEntryForm();
+}
+
+function resetEntryForm() {
+  state.editingExistingEntry = false;
+  $("entryId").value = "";
+  $("time").value = "";
+  $("entryFormTitle").textContent = "Neuer Eintrag";
+  $("autoTimeText").textContent = "Uhrzeit wird automatisch gespeichert";
+  $("temperature").value = "";
+  $("temperatureSlider").value = "37.0";
+  setMood("");
+  $("fluidsMl").value = "";
+  $("customSymptoms").value = "";
+  $("medication").value = "";
+  $("food").value = "";
+  $("sleep").value = "";
+  $("diaperOrToilet").value = "";
+  $("notes").value = "";
+  $("deleteCurrent").classList.add("hidden");
+  document.querySelectorAll("#symptomChips input").forEach(i => i.checked = false);
+}
+
+function selectedSymptoms() {
+  return [...document.querySelectorAll("#symptomChips input:checked")].map(i => i.value);
+}
+
+function setMood(value) {
+  $("mood").value = value || "";
+  document.querySelectorAll(".mood-option").forEach(btn => {
+    const active = btn.dataset.mood === value;
+    btn.classList.toggle("active", active);
+    btn.setAttribute("aria-checked", active ? "true" : "false");
+  });
+}
+
+function setTemperatureValue(value, source = "input") {
+  const input = $("temperature");
+  const slider = $("temperatureSlider");
+
+  if (value === "" || value === null || value === undefined) {
+    if (source !== "slider") return;
+    input.value = "";
+    return;
+  }
+
+  const normalized = String(value).replace(",", ".");
+  const num = Number(normalized);
+  if (Number.isNaN(num)) return;
+
+  if (source === "slider") {
+    const rounded = Math.round(num * 10) / 10;
+    input.value = rounded.toFixed(1);
+    slider.value = Math.min(42, Math.max(34, rounded)).toFixed(1);
+    return;
+  }
+
+  if (source === "blur") {
+    const rounded = Math.round(num * 10) / 10;
+    input.value = rounded.toFixed(1);
+    slider.value = Math.min(42, Math.max(34, rounded)).toFixed(1);
+    return;
+  }
+
+  // Beim normalen Tippen nicht formatieren, sonst springt der Cursor auf iOS/Android.
+  slider.value = Math.min(42, Math.max(34, num)).toFixed(1);
+}
+
+function formEntry() {
+  const temp = $("temperature").value;
+  const fluids = $("fluidsMl").value;
+  const existingTime = $("time").value;
+
+  return {
+    date: state.selectedDate,
+    time: state.editingExistingEntry && existingTime ? existingTime : nowTime(),
+    temperature: temp === "" ? null : Number(temp),
+    mood: $("mood").value,
+    symptoms: selectedSymptoms(),
+    custom_symptoms: $("customSymptoms").value.trim(),
+    medication: $("medication").value.trim(),
+    fluids_ml: fluids === "" ? null : Number(fluids),
+    food: $("food").value.trim(),
+    sleep: $("sleep").value.trim(),
+    diaper_or_toilet: $("diaperOrToilet").value.trim(),
+    notes: $("notes").value.trim()
+  };
+}
+
+function editEntry(id) {
+  const entry = (state.data.entries || []).find(e => e.id === id);
+  if (!entry) return;
+
+  state.editingExistingEntry = true;
+  $("entryId").value = entry.id;
+  $("time").value = entry.time || "";
+  $("entryFormTitle").textContent = "Eintrag bearbeiten";
+  $("autoTimeText").textContent = entry.time ? `Gespeichert um ${entry.time} Uhr` : "Gespeicherte Uhrzeit bleibt erhalten";
+  $("temperature").value = entry.temperature ?? "";
+  if (entry.temperature !== null && entry.temperature !== undefined && entry.temperature !== "") {
+    setTemperatureValue(entry.temperature);
+  } else {
+    $("temperatureSlider").value = "37.0";
+  }
+  setMood(entry.mood || "");
+  $("fluidsMl").value = entry.fluids_ml ?? "";
+  $("customSymptoms").value = entry.custom_symptoms || "";
+  $("medication").value = entry.medication || "";
+  $("food").value = entry.food || "";
+  $("sleep").value = entry.sleep || "";
+  $("diaperOrToilet").value = entry.diaper_or_toilet || "";
+  $("notes").value = entry.notes || "";
+  $("deleteCurrent").classList.remove("hidden");
+  document.querySelectorAll("#symptomChips input").forEach(i => i.checked = (entry.symptoms || []).includes(i.value));
+  openSheet();
+}
+
+async function deleteCurrentEntry() {
+  const id = $("entryId").value;
+  if (!id) return;
+  if (!confirm("Diesen Eintrag löschen?")) return;
+  await api(`./api/entries/${id}`, { method: "DELETE" });
+  await loadState();
+  closeSheet();
+  showToast("Eintrag gelöscht");
+}
+
+async function deleteEntry(id) {
+  if (!id) return;
+  if (!confirm("Diesen Eintrag löschen?")) return;
+  await api(`./api/entries/${id}`, { method: "DELETE" });
+  await loadState();
+  showToast("Eintrag gelöscht");
+}
+
+function setDate(date) {
+  state.selectedDate = date;
+  state.dayExpanded = false;
+  renderDay();
+}
+
+function openView(id) {
+  document.body.classList.add("modal-open");
+  document.querySelectorAll(".modal-view").forEach(v => v.classList.add("hidden"));
+  $(id).classList.remove("hidden");
+}
+
+function closeViews() {
+  document.querySelectorAll(".modal-view").forEach(v => v.classList.add("hidden"));
+  document.body.classList.remove("modal-open");
+}
+
+async function init() {
+  $("selectedDate").value = state.selectedDate;
+
+  $("todayButton").addEventListener("click", () => setDate(today()));
+  $("prevDay").addEventListener("click", () => setDate(addDays(state.selectedDate, -1)));
+  $("nextDay").addEventListener("click", () => setDate(addDays(state.selectedDate, 1)));
+  $("selectedDate").addEventListener("change", e => setDate(e.target.value || today()));
+
+  $("openEntry").addEventListener("click", () => {
+    resetEntryForm();
+    openSheet();
+  });
+  $("closeEntry").addEventListener("click", closeSheet);
+  $("sheetBackdrop").addEventListener("click", closeSheet);
+  $("deleteCurrent").addEventListener("click", deleteCurrentEntry);
+
+  $("temperature").addEventListener("input", (event) => {
+    setTemperatureValue(event.target.value, "input");
+  });
+
+  $("temperature").addEventListener("blur", (event) => {
+    setTemperatureValue(event.target.value, "blur");
+  });
+
+  $("temperatureSlider").addEventListener("input", (event) => {
+    setTemperatureValue(event.target.value, "slider");
+  });
+
+  document.querySelectorAll(".mood-option").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const nextMood = $("mood").value === btn.dataset.mood ? "" : btn.dataset.mood;
+      setMood(nextMood);
+    });
+  });
+
+  $("pinButton").addEventListener("click", async () => {
+    state.pin = $("pinInput").value;
+    localStorage.setItem("kindgesund_pin", state.pin);
+    try {
+      await loadState();
+      hidePin();
+    } catch (err) {
+      localStorage.removeItem("kindgesund_pin");
+      state.pin = "";
+      showPin(err.message);
+    }
+  });
+
+  $("pinInput").addEventListener("keydown", (event) => {
+    if (event.key === "Enter") $("pinButton").click();
+  });
+
+  $("entryForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    const id = $("entryId").value;
+    const payload = formEntry();
+
+    if (id) {
+      await api(`./api/entries/${id}`, { method: "PUT", body: JSON.stringify(payload) });
+      showToast("Aktualisiert");
+    } else {
+      await api("./api/entries", { method: "POST", body: JSON.stringify(payload) });
+      showToast("Gespeichert");
+    }
+
+    await loadState();
+    closeSheet();
+  });
+
+  $("saveProfileButton").addEventListener("click", async () => {
+    const payload = {
+      child_name: $("profileName").value.trim() || "Kind",
+      birth_date: $("profileBirthDate").value,
+      notes: $("profileNotes").value.trim()
+    };
+    await api("./api/profile", { method: "PUT", body: JSON.stringify(payload) });
+    await loadState();
+    showToast("Profil gespeichert");
+    closeViews();
+  });
+
+  $("themeSelect").addEventListener("change", (event) => {
+    applyTheme(event.target.value);
+    showToast("Theme geändert");
+  });
+
+  $("importFile").addEventListener("change", async event => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (!confirm("Import überschreibt die aktuellen Daten. Fortfahren?")) return;
+    const data = JSON.parse(await file.text());
+    await api("./api/import", { method: "POST", body: JSON.stringify(data) });
+    await loadState();
+    showToast("Import abgeschlossen");
+    event.target.value = "";
+    closeViews();
+  });
+
+  $("profileButton").addEventListener("click", () => openView("profileView"));
+  $("backupButton").addEventListener("click", () => openView("backupView"));
+
+  document.querySelectorAll(".close-view").forEach(btn => btn.addEventListener("click", closeViews));
+
+  try {
+    await loadConfig();
+    if (!state.config.pin_required || state.pin) await loadState();
+  } catch (err) {
+    if (String(err.message).includes("PIN")) showPin(err.message);
+    else showToast(err.message);
+  }
+}
+
+init();
