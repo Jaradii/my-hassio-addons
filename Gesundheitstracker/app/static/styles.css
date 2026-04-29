@@ -4300,3 +4300,253 @@ body.dark[data-theme="mono"] {
 .symptom-tag {
   gap: 6px !important;
 }
+
+
+/* v1.7.6: weichere, langsamere und wahrnehmbare Animationen */
+:root {
+  --anim-fast: 180ms;
+  --anim-normal: 340ms;
+  --anim-slow: 460ms;
+  --anim-ease: cubic-bezier(.22, .9, .28, 1);
+  --anim-soft: cubic-bezier(.2, .8, .2, 1);
+}
+
+/* Grundsätzlich sanftere Zustandswechsel */
+button,
+.btn,
+.icon-btn,
+.round-btn,
+.bottom-add-button,
+.day-tile,
+.entry-card,
+.entry-detail,
+.summary-info-card,
+.summary-info-item,
+.chips label,
+#symptomChips label,
+.mood-option,
+input,
+select,
+textarea,
+.tag,
+.symptom-chip,
+.toast {
+  transition:
+    background-color var(--anim-normal) var(--anim-ease),
+    border-color var(--anim-normal) var(--anim-ease),
+    color var(--anim-normal) var(--anim-ease),
+    opacity var(--anim-normal) var(--anim-ease),
+    transform var(--anim-normal) var(--anim-ease),
+    filter var(--anim-normal) var(--anim-ease),
+    box-shadow var(--anim-normal) var(--anim-ease) !important;
+}
+
+/* Buttons bekommen ein leichtes, nicht hektisches Tap-Feedback */
+button:active,
+.btn:active,
+.icon-btn:active,
+.round-btn:active,
+.bottom-add-button:active,
+.mood-option:active,
+#symptomChips label:active {
+  transform: scale(0.985) !important;
+}
+
+/* Eintrags-Popup deutlich wahrnehmbarer */
+.sheet:not(.hidden) .sheet-backdrop {
+  animation: kgBackdropInSlow var(--anim-slow) ease-out both !important;
+}
+
+.sheet:not(.hidden) .sheet-panel {
+  animation: kgSheetInSlow 520ms var(--anim-ease) both !important;
+  transform-origin: center bottom;
+}
+
+/* Profil/Backup Dialoge weicher */
+.modal-view:not(.hidden) {
+  animation: kgBackdropInSlow var(--anim-slow) ease-out both !important;
+}
+
+.modal-view:not(.hidden) .view-card {
+  animation: kgModalInSlow 500ms var(--anim-ease) both !important;
+  transform-origin: center center;
+}
+
+/* Toast weich einblenden */
+.toast:not(.hidden) {
+  animation: kgToastIn 420ms var(--anim-ease) both !important;
+}
+
+/* Details und Historie weicher */
+.history-box[open] .history-list,
+.expanded-details {
+  animation: kgExpandIn 380ms var(--anim-ease) both !important;
+}
+
+.history-row,
+.entry-detail,
+.summary-info-card {
+  animation: kgSubtleItemIn 320ms var(--anim-ease) both;
+}
+
+/* Kacheln beim Laden minimal weicher */
+.day-summary-card .day-tile {
+  animation: kgTileIn 380ms var(--anim-ease) both;
+}
+
+.day-summary-card .day-tile:nth-child(1) { animation-delay: 20ms; }
+.day-summary-card .day-tile:nth-child(2) { animation-delay: 50ms; }
+.day-summary-card .day-tile:nth-child(3) { animation-delay: 80ms; }
+.day-summary-card .day-tile:nth-child(4) { animation-delay: 110ms; }
+.day-summary-card .day-tile:nth-child(5) { animation-delay: 140ms; }
+.day-summary-card .day-tile:nth-child(6) { animation-delay: 170ms; }
+
+/* Mood/Symptom Auswahl sichtbar, aber nicht übertrieben */
+.mood-option.active,
+#symptomChips label:has(input:checked) {
+  animation: kgSelectPop 260ms var(--anim-ease) both;
+}
+
+/* Date-card und Tageskarte bei Datumswechsel subtil */
+.date-card,
+.day-summary-card,
+.empty-day {
+  animation: kgFadeUp 340ms var(--anim-ease) both;
+}
+
+/* Keyframes */
+@keyframes kgBackdropInSlow {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+}
+
+@keyframes kgSheetInSlow {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(38px) scale(0.975);
+  }
+  70% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-2px) scale(1.002);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+@keyframes kgModalInSlow {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.965);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.002);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes kgToastIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+@keyframes kgExpandIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+    clip-path: inset(0 0 18px 0 round 10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    clip-path: inset(0 0 0 0 round 10px);
+  }
+}
+
+@keyframes kgSubtleItemIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes kgTileIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes kgSelectPop {
+  from {
+    transform: scale(0.98);
+  }
+  70% {
+    transform: scale(1.018);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes kgFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Native Details Marker bleibt sauber */
+.history-box summary {
+  transition:
+    background-color var(--anim-normal) var(--anim-ease),
+    border-color var(--anim-normal) var(--anim-ease),
+    color var(--anim-normal) var(--anim-ease),
+    transform var(--anim-normal) var(--anim-ease) !important;
+}
+
+.history-box[open] summary {
+  animation: kgSelectPop 260ms var(--anim-ease) both;
+}
+
+/* Nutzer mit reduzierter Bewegung respektieren */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}
