@@ -208,6 +208,7 @@ function escapeHtml(value) {
 }
 
 function openSheet() {
+  document.body.classList.add("sheet-open");
   $("entrySheet").classList.remove("hidden");
   $("entrySheet").setAttribute("aria-hidden", "false");
 }
@@ -215,6 +216,7 @@ function openSheet() {
 function closeSheet() {
   $("entrySheet").classList.add("hidden");
   $("entrySheet").setAttribute("aria-hidden", "true");
+  document.body.classList.remove("sheet-open");
   resetEntryForm();
 }
 
@@ -301,12 +303,14 @@ function setDate(date) {
 }
 
 function openView(id) {
+  document.body.classList.add("modal-open");
   document.querySelectorAll(".modal-view").forEach(v => v.classList.add("hidden"));
   $(id).classList.remove("hidden");
 }
 
 function closeViews() {
   document.querySelectorAll(".modal-view").forEach(v => v.classList.add("hidden"));
+  document.body.classList.remove("modal-open");
 }
 
 async function init() {
