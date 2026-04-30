@@ -6134,3 +6134,158 @@ body.calendar-open > .bottom-action-bar {
     pointer-events: auto !important;
   }
 }
+
+
+/* v2.2.6: Eigener Timepicker statt nativer iOS/WebView Timepicker */
+body.time-open > .bottom-action-bar {
+  display: none !important;
+}
+
+.time-sheet {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1280 !important;
+  display: block !important;
+  overflow: hidden !important;
+}
+
+.time-sheet.hidden {
+  display: none !important;
+}
+
+.time-backdrop {
+  position: absolute !important;
+  inset: 0 !important;
+  background: color-mix(in srgb, var(--bg) 72%, rgba(17, 19, 24, 0.28) 28%) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+.time-panel {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: min(380px, calc(100vw - 28px)) !important;
+  max-width: calc(100vw - 28px) !important;
+  padding: 14px !important;
+  border-radius: 10px !important;
+  background: var(--kg-surface) !important;
+  border: 1px solid var(--kg-border) !important;
+  box-sizing: border-box !important;
+}
+
+.time-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--kg-border) 65%, transparent);
+}
+
+.time-head h2 {
+  margin: 0 0 4px 0;
+  font-size: 1.22rem;
+  line-height: 1.15;
+}
+
+.time-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.time-picker-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.time-picker-grid select {
+  min-height: 48px !important;
+  font-size: 1.05rem !important;
+  font-weight: 900 !important;
+  text-align: center !important;
+  text-align-last: center !important;
+}
+
+.time-preview {
+  margin: 12px auto 0;
+  width: fit-content;
+  min-width: 104px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--primary) 12%, var(--card) 88%);
+  border: 1px solid color-mix(in srgb, var(--primary) 35%, var(--kg-border) 65%);
+  color: var(--text);
+  font-size: 1.35rem;
+  font-weight: 950;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.time-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid color-mix(in srgb, var(--kg-border) 65%, transparent);
+}
+
+.time-actions .btn {
+  width: 100% !important;
+  min-height: 48px !important;
+}
+
+.time-sheet:not(.hidden):not(.closing) .time-backdrop {
+  animation: kgSheetBackdropIn var(--sheet-motion-duration, 420ms) var(--sheet-motion-ease, cubic-bezier(.22,.9,.28,1)) both !important;
+}
+
+.time-sheet:not(.hidden):not(.closing) .time-panel {
+  animation: kgTimeOpen 420ms cubic-bezier(.22,.9,.28,1) both !important;
+}
+
+.time-sheet.closing {
+  display: block !important;
+  pointer-events: none !important;
+}
+
+.time-sheet.closing .time-backdrop {
+  animation: kgSheetBackdropOut var(--sheet-motion-duration, 420ms) var(--sheet-motion-ease, cubic-bezier(.22,.9,.28,1)) both !important;
+}
+
+.time-sheet.closing .time-panel {
+  animation: kgTimeClose 420ms cubic-bezier(.22,.9,.28,1) both !important;
+}
+
+@keyframes kgTimeOpen {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 26px)) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes kgTimeClose {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 26px)) scale(0.985);
+  }
+}
+
+@media (max-width: 360px) {
+  .time-actions {
+    grid-template-columns: 1fr;
+  }
+}

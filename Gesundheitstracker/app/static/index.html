@@ -88,6 +88,38 @@
     </section>
 
 
+
+    <section id="timeSheet" class="time-sheet hidden" aria-hidden="true">
+      <div id="timeBackdrop" class="time-backdrop"></div>
+      <div class="time-panel">
+        <div class="time-head">
+          <div>
+            <h2>Uhrzeit wählen</h2>
+            <p>Stunde und Minute auswählen</p>
+          </div>
+          <button id="closeTimePicker" type="button" class="round-btn">×</button>
+        </div>
+
+        <div class="time-picker-grid">
+          <label class="field">
+            <span>Stunde</span>
+            <select id="timeHour"></select>
+          </label>
+          <label class="field">
+            <span>Minute</span>
+            <select id="timeMinute"></select>
+          </label>
+        </div>
+
+        <div class="time-preview" id="timePreview">--:--</div>
+
+        <div class="time-actions">
+          <button id="timeNowButton" type="button" class="btn secondary">Jetzt</button>
+          <button id="applyTimeButton" type="button" class="btn primary">Übernehmen</button>
+        </div>
+      </div>
+    </section>
+
 <section id="entrySheet" class="sheet hidden" aria-hidden="true">
       <div class="sheet-backdrop" id="sheetBackdrop"></div>
       <form id="entryForm" class="sheet-panel">

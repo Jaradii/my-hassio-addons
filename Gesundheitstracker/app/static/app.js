@@ -1056,6 +1056,60 @@ function formatTimeInputLive(value) {
   return `${digits.slice(0, 2)}:${digits.slice(2)}`;
 }
 
+function fillTimePickerOptions() {
+  const hour = $("timeHour");
+  const minute = $("timeMinute");
+  if (!hour || !minute || hour.dataset.filled === "true") return;
+
+  hour.innerHTML = Array.from({ length: 24 }, (_, i) => {
+    const value = String(i).padStart(2, "0");
+    return `<option value="${value}">${value}</option>`;
+  }).join("");
+
+  minute.innerHTML = Array.from({ length: 60 }, (_, i) => {
+    const value = String(i).padStart(2, "0");
+    return `<option value="${value}">${value}</option>`;
+  }).join("");
+
+  hour.dataset.filled = "true";
+  minute.dataset.filled = "true";
+}
+
+function updateTimePreview() {
+  const hour = $("timeHour")?.value || "00";
+  const minute = $("timeMinute")?.value || "00";
+  const preview = $("timePreview");
+  if (preview) preview.textContent = `${hour}:${minute}`;
+}
+
+function openTimePicker() {
+  fillTimePickerOptions();
+
+  const current = normalizeTimeInput($("entryTime").value || nowTime());
+  const [hour, minute] = current.split(":");
+  $("timeHour").value = hour;
+  $("timeMinute").value = minute;
+  updateTimePreview();
+
+  const sheet = $("timeSheet");
+  sheet.classList.remove("closing", "hidden");
+  sheet.setAttribute("aria-hidden", "false");
+  document.body.classList.add("time-open");
+}
+
+function closeTimePicker() {
+  const sheet = $("timeSheet");
+  if (!sheet || sheet.classList.contains("hidden")) return;
+  sheet.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("time-open");
+  animateHide(sheet, "closing");
+}
+
+function applyTimePickerValue() {
+  $("entryTime").value = `${$("timeHour").value}:${$("timeMinute").value}`;
+  closeTimePicker();
+}
+
 function formEntry() {
   const temp = $("temperature").value;
   const fluids = $("fluidsMl").value;
@@ -1217,6 +1271,23 @@ async function init() {
   $("entryTime").addEventListener("blur", event => {
     event.target.value = normalizeTimeInput(event.target.value);
   });
+
+  $("entryTime").addEventListener("click", openTimePicker);
+  $("entryTime").addEventListener("focus", event => {
+    event.target.blur();
+    openTimePicker();
+  });
+  $("timeBackdrop").addEventListener("click", closeTimePicker);
+  $("closeTimePicker").addEventListener("click", closeTimePicker);
+  $("applyTimeButton").addEventListener("click", applyTimePickerValue);
+  $("timeNowButton").addEventListener("click", () => {
+    const [hour, minute] = nowTime().split(":");
+    $("timeHour").value = hour;
+    $("timeMinute").value = minute;
+    updateTimePreview();
+  });
+  $("timeHour").addEventListener("change", updateTimePreview);
+  $("timeMinute").addEventListener("change", updateTimePreview);
 
   document.querySelectorAll("#symptomChips input").forEach(input => {
     input.addEventListener("change", updateSymptomIntensityControls);
