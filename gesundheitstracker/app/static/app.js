@@ -210,8 +210,14 @@ function renderProfile() {
 }
 
 function selectedEntries() {
-  return (state.data.entries || [])
-    .filter(e => e.date === state.selectedDate)
+  const entries = state.data.entries || [];
+  const current = entries.filter(e => e.date === state.selectedDate);
+  const carries = entries
+    .filter(e => e.date === previousDateString(state.selectedDate))
+    .map(e => overnightCarryEntry(e, state.selectedDate))
+    .filter(Boolean);
+
+  return [...current, ...carries]
     .sort((a, b) => (b.time || "").localeCompare(a.time || ""));
 }
 
@@ -611,12 +617,12 @@ function renderSummaryTextBlocks(summary) {
         </div>
         <div class="summary-info-list">
           ${items.map(e => `
-            <div class="summary-info-item ${key === "temperature" ? feverClass(e.temperature) : ""}">
+            <div class="summary-info-item ${key === "temperature" ? feverClass(e.temperature) : ""} ${e.is_overnight_carry ? "overnight-carry-item" : ""}">
               <span class="summary-info-time">${escapeHtml(e.time || "--:--")}</span>
               <p>${escapeHtml(summaryDisplayValue(e, key))}</p>
               <div class="summary-row-actions">
-                <button type="button" class="summary-edit-button summary-history-button" data-id="${e.id}" aria-label="Historie anzeigen">↻</button>
-                <button type="button" class="summary-edit-button edit-summary-field" data-id="${e.id}" data-field="${key}" aria-label="${title} bearbeiten">✎</button>
+                <button type="button" class="summary-edit-button summary-history-button" data-id="${e.original_id || e.id}" aria-label="Historie anzeigen">↻</button>
+                <button type="button" class="summary-edit-button edit-summary-field" data-id="${e.original_id || e.id}" data-field="${key}" aria-label="${title} bearbeiten">✎</button>
               </div>
             </div>
           `).join("")}
@@ -1508,13 +1514,67 @@ function calculateSleepDuration(startValue, endValue) {
   return diff;
 }
 
+
+function isOvernightSleepRange(startValue, endValue) {
+  const start = minutesFromTimeString(startValue);
+  const end = minutesFromTimeString(endValue);
+  return start !== null && end !== null && end < start;
+}
+
+function extractSleepRange(text) {
+  const match = String(text || "").match(/Von\s+(\d{1,2}:\d{2})\s+bis\s+(\d{1,2}:\d{2})/i);
+  if (!match) return null;
+  return {
+    start: normalizeTimeInput(match[1]),
+    end: normalizeTimeInput(match[2])
+  };
+}
+
+function nextDateString(dateStr) {
+  return addDays(dateStr, 1);
+}
+
+function previousDateString(dateStr) {
+  return addDays(dateStr, -1);
+}
+
+function overnightCarryEntry(entry, selectedDate) {
+  if (!entry || !entry.sleep || !entry.date) return null;
+  const range = extractSleepRange(entry.sleep);
+  if (!range || !isOvernightSleepRange(range.start, range.end)) return null;
+  if (nextDateString(entry.date) !== selectedDate) return null;
+
+  const end = minutesFromTimeString(range.end);
+  if (end === null || end <= 0) return null;
+
+  const textRest = stripGeneratedSleepDuration(entry.sleep);
+  return {
+    ...entry,
+    id: `${entry.id || "sleep"}__overnight`,
+    original_id: entry.id,
+    date: selectedDate,
+    time: "00:00",
+    sleep: `Nachtschlaf von gestern: 00:00 bis ${range.end} (${formatSleepDurationMinutes(end)})${textRest ? ` · ${textRest}` : ""}`,
+    is_overnight_carry: true
+  };
+}
+
+function overnightStartText(startValue) {
+  const start = minutesFromTimeString(startValue);
+  if (start === null) return "";
+  return formatSleepDurationMinutes((24 * 60) - start);
+}
+
 function buildSleepText(baseText, startValue, endValue) {
   const start = normalizeTimeInput(startValue || "");
   const end = normalizeTimeInput(endValue || "");
   const duration = calculateSleepDuration(start, end);
   const durationText = duration ? formatSleepDurationMinutes(duration) : "";
   const parts = [];
-  if (start && end && durationText) parts.push(`Von ${start} bis ${end} (${durationText})`);
+  if (start && end && durationText) {
+    const overnight = isOvernightSleepRange(start, end);
+    parts.push(`Von ${start} bis ${end} (${durationText}${overnight ? ", bis nächster Tag" : ""})`);
+  }
   const base = String(baseText || "").trim();
   if (base) parts.push(base);
   return parts.join(" · ");
@@ -1768,14 +1828,15 @@ function openFieldEdit(entryId, field) {
       </label>
     `;
   } else if (field === "sleep") {
+    const range = extractSleepRange(value);
     const cleanSleepText = stripGeneratedSleepDuration(value);
     $("fieldEditContent").innerHTML = `
       ${timeFieldHtml}
       <div class="field field-edit-value sleep-duration-field">
         <span>${escapeHtml(config.title)}</span>
         <div class="sleep-time-grid">
-          <label><small>Von</small><input id="fieldEditSleepStart" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" /></label>
-          <label><small>Bis</small><input id="fieldEditSleepEnd" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" /></label>
+          <label><small>Von</small><input id="fieldEditSleepStart" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="${escapeHtml(range?.start || "")}" /></label>
+          <label><small>Bis</small><input id="fieldEditSleepEnd" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="${escapeHtml(range?.end || "")}" /></label>
         </div>
         <div id="fieldEditSleepDurationPreview" class="sleep-duration-preview hidden"></div>
         <textarea id="fieldEditValue" rows="${config.rows}" placeholder="${escapeHtml(config.placeholder)}">${escapeHtml(cleanSleepText)}</textarea>
@@ -1783,6 +1844,7 @@ function openFieldEdit(entryId, field) {
     `;
 
     bindSleepTimeInputs($("fieldEditContent"));
+    updateFieldEditSleepDurationPreview();
   } else if (config.input === "number") {
     const inputValue = field === "temperature" && value !== "" && value !== null && value !== undefined
       ? Number(value).toFixed(1)

@@ -9006,3 +9006,20 @@ body.dark .analysis-result-row.temp-red p { color: #ff8f8f; }
 #fieldEditSleepDurationPreview {
   margin: 0 0 2px 0;
 }
+
+
+/* v1.0.27: Nachtschlaf über Mitternacht am Folgetag anzeigen */
+.overnight-carry-item {
+  border-color: color-mix(in srgb, var(--primary) 28%, var(--kg-border) 72%) !important;
+  background: color-mix(in srgb, var(--primary) 8%, var(--card) 92%) !important;
+}
+
+.overnight-carry-item .summary-info-time::after {
+  content: " Folgetag";
+  display: block;
+  color: var(--muted);
+  font-size: 0.58rem;
+  font-weight: 850;
+  line-height: 1.1;
+  margin-top: 2px;
+}

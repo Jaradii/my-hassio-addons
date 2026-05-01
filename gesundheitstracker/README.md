@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.26
+- Basis ist die funktionierende Version 1.0.27
 
 
 ## Änderungen in 1.0.10
@@ -211,3 +211,12 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Schlaf-Bearbeiten-Popup hat jetzt ebenfalls Von/Bis-Zeitfelder
 - Schlafdauer wird beim Bearbeiten automatisch neu berechnet
 - Bereits automatisch erzeugter Von/Bis-Text wird beim Bearbeiten aus dem Textfeld entfernt, damit er nicht doppelt gespeichert wird
+
+
+## Änderungen in 1.0.27
+
+- Schlaf über Mitternacht wird erkannt
+- Beispiel: Von 20:30 bis 06:45 wird als 10 h 15 min, bis nächster Tag gespeichert
+- Am Folgetag wird der Schlaf zusätzlich als Nachtschlaf von gestern angezeigt
+- Der Eintrag wird nicht dupliziert, Bearbeiten/Historie bleiben beim Originaleintrag
+- Beim Bearbeiten werden Von/Bis-Zeiten aus bestehendem Schlaftext wieder in die Felder übernommen
