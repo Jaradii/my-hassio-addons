@@ -1,0 +1,7712 @@
+:root {
+  --bg: #f6f7fb;
+  --card: #ffffff;
+  --card2: #fef3f2;
+  --text: #16181d;
+  --muted: #747985;
+  --line: #eceef3;
+  --primary: #ff7664;
+  --primary2: #ff9f68;
+  --green: #35b98f;
+  --blue: #5b8def;
+  --danger: #e5484d;
+  --shadow: 0 12px 30px rgba(34, 38, 54, 0.08);
+  --radius: 24px;
+}
+
+body.dark {
+  --bg: #111318;
+  --card: #1b1f27;
+  --card2: #2a1c1d;
+  --text: #f4f6fb;
+  --muted: #a3a8b3;
+  --line: #2c323c;
+  --primary: #ff8a78;
+  --primary2: #ffb072;
+  --green: #56d3aa;
+  --blue: #80aaff;
+  --danger: #ff7075;
+  --shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  min-height: 100%;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at top right, rgba(255, 118, 100, 0.18), transparent 18rem),
+    var(--bg);
+  color: var(--text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 15px;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  border: 0;
+  cursor: pointer;
+}
+
+.app {
+  width: min(540px, 100%);
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: 14px 14px 96px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 6px 2px 10px;
+}
+
+.kicker {
+  margin: 0 0 2px;
+  color: var(--primary);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.icon-btn,
+.round-btn,
+.btn {
+  border-radius: 999px;
+  font-weight: 800;
+}
+
+.icon-btn {
+  padding: 8px 12px;
+  background: var(--card);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+.date-card,
+.child-card,
+.entry-card,
+.section-card,
+.view-card,
+.pin-card {
+  background: color-mix(in srgb, var(--card) 94%, transparent);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.date-card {
+  border-radius: 28px;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 42px 1fr 42px;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.round-btn {
+  width: 42px;
+  height: 42px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 1.35rem;
+  display: grid;
+  place-items: center;
+}
+
+.date-main {
+  display: grid;
+  place-items: center;
+  gap: 2px;
+}
+
+.date-main input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.date-main strong {
+  font-size: 1.2rem;
+}
+
+.date-main span {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.child-card {
+  border-radius: 22px;
+  padding: 12px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--primary) 16%, var(--card)), var(--card));
+}
+
+.avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 17px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--primary), var(--primary2));
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 900;
+}
+
+.child-card span,
+.entry-time,
+.empty-day p,
+.field span {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.child-card strong {
+  display: block;
+  font-size: 1.25rem;
+}
+
+.day-entries {
+  display: grid;
+  gap: 10px;
+}
+
+.empty-day {
+  min-height: 260px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: var(--muted);
+  padding: 26px 18px;
+}
+
+.empty-icon {
+  width: 76px;
+  height: 76px;
+  border-radius: 28px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 14px;
+  background: var(--card2);
+  color: var(--primary);
+  font-size: 2rem;
+}
+
+.empty-day h2 {
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.entry-card {
+  border-radius: 24px;
+  padding: 14px;
+  overflow: hidden;
+}
+
+.entry-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.entry-time {
+  display: block;
+  margin-bottom: 3px;
+}
+
+.entry-title {
+  font-size: 1.1rem;
+  font-weight: 900;
+}
+
+.temp-pill {
+  min-width: 68px;
+  text-align: center;
+  padding: 8px 10px;
+  border-radius: 18px;
+  background: var(--card2);
+  color: var(--primary);
+  font-weight: 900;
+}
+
+.temp-pill.warn {
+  background: #fff3d7;
+  color: #996100;
+}
+
+.temp-pill.high {
+  background: #ffe4e4;
+  color: var(--danger);
+}
+
+body.dark .temp-pill.warn {
+  background: #352812;
+  color: #ffd186;
+}
+
+body.dark .temp-pill.high {
+  background: #3b1719;
+  color: #ff9397;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.metric {
+  background: var(--bg);
+  border-radius: 18px;
+  padding: 10px;
+  min-height: 70px;
+}
+
+.metric span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.76rem;
+  margin-bottom: 4px;
+}
+
+.metric strong {
+  font-size: 0.95rem;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0;
+}
+
+.tag {
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 13%, var(--card));
+  color: var(--primary);
+  font-weight: 800;
+  font-size: 0.8rem;
+}
+
+.note-block {
+  background: var(--bg);
+  border-radius: 18px;
+  padding: 10px;
+  color: var(--text);
+  white-space: pre-wrap;
+  line-height: 1.4;
+  font-size: 0.92rem;
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 10px 14px;
+  text-decoration: none;
+}
+
+.primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary2));
+  color: white;
+}
+
+.secondary {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.danger {
+  background: color-mix(in srgb, var(--danger) 14%, transparent);
+  color: var(--danger);
+}
+
+.floating-add {
+  position: fixed;
+  left: 50%;
+  bottom: 74px;
+  transform: translateX(-50%);
+  width: min(500px, calc(100% - 28px));
+  border-radius: 22px;
+  min-height: 52px;
+  background: linear-gradient(135deg, var(--primary), var(--primary2));
+  color: white;
+  font-size: 1rem;
+  font-weight: 900;
+  box-shadow: 0 16px 34px rgba(255, 118, 100, 0.28);
+  z-index: 20;
+}
+
+.bottom-nav {
+  position: fixed;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  width: min(500px, calc(100% - 28px));
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  background: color-mix(in srgb, var(--card) 90%, transparent);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 6px;
+  box-shadow: var(--shadow);
+  z-index: 19;
+  backdrop-filter: blur(16px);
+}
+
+.nav-btn {
+  padding: 10px 6px;
+  border-radius: 18px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.nav-btn.active {
+  background: var(--text);
+  color: var(--bg);
+}
+
+.sheet,
+.modal-view,
+.pin-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+
+.sheet-backdrop,
+.modal-view {
+  background: rgba(17, 19, 24, 0.42);
+  backdrop-filter: blur(10px);
+}
+
+.sheet-panel,
+.view-card {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: min(540px, 100%);
+  max-height: 92dvh;
+  overflow: auto;
+  background: var(--bg);
+  border-radius: 30px 30px 0 0;
+  padding: 14px;
+  box-shadow: 0 -16px 40px rgba(0,0,0,.18);
+}
+
+.view-card {
+  top: 50%;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  border-radius: 28px;
+  max-height: 82dvh;
+}
+
+.sheet-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.sheet-head h2 {
+  margin-bottom: 2px;
+}
+
+.sheet-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.quick-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.quick-grid .field:nth-child(3) {
+  grid-column: 1 / -1;
+}
+
+.field {
+  display: grid;
+  gap: 5px;
+  margin-bottom: 8px;
+  font-weight: 800;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--text);
+  border-radius: 16px;
+  padding: 10px 11px;
+  outline: none;
+}
+
+textarea {
+  resize: vertical;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 14%, transparent);
+}
+
+.section-card {
+  border-radius: 22px;
+  padding: 12px;
+  margin-top: 10px;
+}
+
+.section-card h3 {
+  margin-bottom: 10px;
+  font-size: 1rem;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 10px;
+}
+
+.chips label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 999px;
+  padding: 8px 10px;
+  background: var(--bg);
+  font-weight: 850;
+  font-size: 0.86rem;
+}
+
+.chips input {
+  width: auto;
+}
+
+.sheet-actions {
+  position: sticky;
+  bottom: -14px;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 8px;
+  padding: 10px 0 4px;
+  background: var(--bg);
+}
+
+.sheet-actions .primary {
+  grid-column: auto;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 142px;
+  transform: translateX(-50%);
+  z-index: 80;
+  background: var(--text);
+  color: var(--bg);
+  border-radius: 999px;
+  padding: 10px 14px;
+  box-shadow: var(--shadow);
+}
+
+.file-label input {
+  display: none;
+}
+
+.pin-overlay {
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+  padding: 16px;
+}
+
+.pin-card {
+  width: min(360px, 100%);
+  border-radius: 28px;
+  padding: 18px;
+  text-align: center;
+}
+
+.pin-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 22px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 10px;
+  background: linear-gradient(135deg, var(--primary), var(--primary2));
+  color: white;
+  font-size: 1.7rem;
+}
+
+.error {
+  color: var(--danger);
+  min-height: 18px;
+}
+
+@media (max-width: 380px) {
+  .metric-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .topbar h1 {
+    font-size: 1.7rem;
+  }
+
+  .quick-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-grid .field:nth-child(3) {
+    grid-column: auto;
+  }
+}
+
+
+/* v1.1.2: echter Overflow-Fix ohne optische Umstellung der Tagesansicht */
+*,
+*::before,
+*::after {
+  min-width: 0;
+}
+
+.app {
+  max-width: 540px;
+  overflow-x: hidden;
+}
+
+.topbar,
+.date-card,
+.child-card,
+.entry-card-head,
+.metric-grid,
+.card-actions,
+.sheet-head,
+.quick-grid,
+.bottom-nav {
+  min-width: 0;
+}
+
+.date-main,
+.child-card > div,
+.entry-card,
+.entry-title,
+.note-block,
+.metric,
+.tag,
+.field,
+.section-card,
+.view-card,
+.sheet-panel {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.entry-title,
+.note-block,
+.metric strong,
+.tag,
+.child-card strong,
+.date-main strong,
+.date-main span {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.floating-add,
+.bottom-nav {
+  box-sizing: border-box;
+  width: calc(100% - 28px);
+  max-width: 500px;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+}
+
+.sheet-panel,
+.view-card {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 540px;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+}
+
+input,
+select,
+textarea,
+button,
+.btn {
+  min-width: 0;
+  max-width: 100%;
+}
+
+@media (max-width: 540px) {
+  .app {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .floating-add,
+  .bottom-nav {
+    width: calc(100% - 28px);
+    max-width: calc(100% - 28px);
+  }
+
+  .sheet-panel,
+  .view-card {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 390px) {
+  .app {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .date-card {
+    grid-template-columns: 38px minmax(0, 1fr) 38px;
+    gap: 8px;
+  }
+
+  .round-btn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .floating-add,
+  .bottom-nav {
+    width: calc(100% - 20px);
+    max-width: calc(100% - 20px);
+  }
+}
+
+
+/* v1.1.7: echte untere Menüleiste, kein Floating-Button mehr */
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.app {
+  padding-bottom: calc(118px + env(safe-area-inset-bottom, 0px));
+}
+
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+}
+
+.top-actions .icon-btn {
+  min-width: 42px;
+  min-height: 38px;
+  padding: 8px 10px;
+}
+
+/* alte Navigation/Floating-Regeln endgültig deaktivieren */
+.bottom-nav,
+.floating-add {
+  display: none !important;
+}
+
+/*
+  Das ist jetzt eine eigene feste Leiste.
+  Nicht mehr der Button selbst hängt am Rand, sondern die Leiste sitzt unten,
+  und der Button liegt optisch in dieser Leiste.
+*/
+.bottom-action-bar {
+  position: fixed;
+  left: 50%;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 950;
+  width: min(500px, calc(100vw - 28px));
+  max-width: calc(100vw - 28px);
+  min-height: 74px;
+  padding: 8px;
+  border-radius: 28px;
+  background: color-mix(in srgb, var(--card) 92%, transparent);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bottom-add-button {
+  width: 100%;
+  min-height: 54px;
+  border: 0;
+  border-radius: 22px;
+  background: linear-gradient(135deg, var(--primary), var(--primary2));
+  color: white;
+  font-weight: 950;
+  font-size: 1rem;
+  box-shadow: 0 10px 24px rgba(255, 118, 100, 0.24);
+}
+
+.day-entries {
+  padding-bottom: 28px;
+}
+
+/* mittige, animierte Dialoge für Profil und Backup */
+.modal-view {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1100 !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: 18px !important;
+  background: rgba(17, 19, 24, 0.46) !important;
+  backdrop-filter: blur(12px) !important;
+  overflow: hidden !important;
+  animation: kgFadeIn 160ms ease-out both;
+}
+
+.modal-view.hidden {
+  display: none !important;
+}
+
+.modal-view .view-card {
+  position: relative !important;
+  left: auto !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  width: min(520px, 100%) !important;
+  max-width: 520px !important;
+  height: auto !important;
+  max-height: min(78dvh, 680px) !important;
+  overflow-y: auto !important;
+  border-radius: 28px !important;
+  padding: 16px !important;
+  background:
+    radial-gradient(circle at top right, rgba(255, 118, 100, 0.12), transparent 16rem),
+    var(--bg) !important;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.30) !important;
+  border: 1px solid var(--line) !important;
+  animation: kgDialogIn 190ms cubic-bezier(.2,.8,.2,1) both;
+}
+
+.modal-view .sheet-head {
+  position: sticky;
+  top: -16px;
+  z-index: 2;
+  padding: 0 0 12px;
+  margin-bottom: 12px;
+  background: linear-gradient(var(--bg), var(--bg));
+}
+
+.modal-view .view-card > .btn,
+.modal-view .file-label {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.sheet:not(.hidden) .sheet-backdrop {
+  animation: kgFadeIn 160ms ease-out both;
+}
+
+.sheet:not(.hidden) .sheet-panel {
+  animation: kgSheetIn 210ms cubic-bezier(.2,.8,.2,1) both;
+}
+
+@keyframes kgFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes kgDialogIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.965);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes kgSheetIn {
+  from {
+    transform: translateX(-50%) translateY(24px);
+  }
+  to {
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@media (max-width: 430px) {
+  .top-actions {
+    gap: 5px;
+  }
+
+  .top-actions .icon-btn {
+    min-width: 38px;
+    min-height: 36px;
+    padding: 7px 9px;
+  }
+
+  .bottom-action-bar {
+    width: calc(100vw - 24px);
+    max-width: calc(100vw - 24px);
+    min-height: 72px;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    border-radius: 26px;
+  }
+
+  .bottom-add-button {
+    min-height: 52px;
+    border-radius: 20px;
+  }
+
+  .modal-view {
+    padding: 14px !important;
+  }
+
+  .modal-view .view-card {
+    max-height: min(82dvh, 680px) !important;
+    border-radius: 24px !important;
+    padding: 14px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-view,
+  .modal-view .view-card,
+  .sheet:not(.hidden) .sheet-backdrop,
+  .sheet:not(.hidden) .sheet-panel {
+    animation: none !important;
+  }
+}
+
+
+/* v1.1.8: Variante B, schwebendes Dock oberhalb des unteren Rands */
+.app {
+  padding-bottom: calc(132px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Der Container ist jetzt kein vollbreites Dock mehr, sondern eine kleine schwebende Fläche */
+.bottom-action-bar {
+  position: fixed !important;
+  left: 50% !important;
+  bottom: calc(34px + env(safe-area-inset-bottom, 0px)) !important;
+  transform: translateX(-50%) !important;
+  width: auto !important;
+  max-width: calc(100vw - 32px) !important;
+  min-height: auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  z-index: 950 !important;
+  display: flex !important;
+  justify-content: center !important;
+  pointer-events: none !important;
+}
+
+/* Das sichtbare Dock ist der Button selbst: mittig, schwebend, nicht am Rand klebend */
+.bottom-add-button {
+  pointer-events: auto !important;
+  width: auto !important;
+  min-width: 220px !important;
+  max-width: calc(100vw - 48px) !important;
+  min-height: 56px !important;
+  padding: 0 28px !important;
+  border: 1px solid color-mix(in srgb, white 24%, transparent) !important;
+  border-radius: 999px !important;
+  background: linear-gradient(135deg, var(--primary), var(--primary2)) !important;
+  color: white !important;
+  font-weight: 950 !important;
+  font-size: 1rem !important;
+  box-shadow:
+    0 18px 42px rgba(255, 118, 100, 0.34),
+    0 8px 18px rgba(34, 38, 54, 0.16) !important;
+}
+
+.day-entries {
+  padding-bottom: 46px !important;
+}
+
+@media (max-width: 430px) {
+  .bottom-action-bar {
+    bottom: calc(28px + env(safe-area-inset-bottom, 0px)) !important;
+    width: auto !important;
+    max-width: calc(100vw - 24px) !important;
+  }
+
+  .bottom-add-button {
+    min-width: 210px !important;
+    min-height: 54px !important;
+    padding: 0 24px !important;
+  }
+}
+
+
+/* v1.1.9: Dock aus dem scrollenden Main herausgelöst */
+.app {
+  contain: none !important;
+  transform: none !important;
+  padding-bottom: calc(132px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* eigene feste Ebene außerhalb von main.app */
+body > .bottom-action-bar {
+  position: fixed !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: calc(28px + env(safe-area-inset-bottom, 0px)) !important;
+  transform: none !important;
+  z-index: 2147483000 !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  pointer-events: none !important;
+}
+
+body > .bottom-action-bar > .bottom-add-button {
+  pointer-events: auto !important;
+  width: auto !important;
+  min-width: 220px !important;
+  max-width: calc(100vw - 48px) !important;
+  min-height: 56px !important;
+  padding: 0 28px !important;
+  border: 1px solid color-mix(in srgb, white 24%, transparent) !important;
+  border-radius: 999px !important;
+  background: linear-gradient(135deg, var(--primary), var(--primary2)) !important;
+  color: white !important;
+  font-weight: 950 !important;
+  font-size: 1rem !important;
+  box-shadow:
+    0 18px 42px rgba(255, 118, 100, 0.34),
+    0 8px 18px rgba(34, 38, 54, 0.16) !important;
+}
+
+.day-entries {
+  padding-bottom: 56px !important;
+}
+
+.toast {
+  z-index: 2147483001 !important;
+  bottom: calc(98px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+@media (max-width: 430px) {
+  body > .bottom-action-bar {
+    bottom: calc(24px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  body > .bottom-action-bar > .bottom-add-button {
+    min-width: 210px !important;
+    min-height: 54px !important;
+    padding: 0 24px !important;
+  }
+}
+
+
+/* v1.1.10: mobiler Dock-Abstand + seitlicher Scroll-Fix */
+html,
+body {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+body {
+  position: relative;
+}
+
+body > * {
+  max-width: 100vw;
+}
+
+.app {
+  width: 100% !important;
+  max-width: 540px !important;
+  overflow-x: hidden !important;
+  box-sizing: border-box !important;
+}
+
+.topbar,
+.date-card,
+.child-card,
+.day-entries,
+.entry-card,
+.entry-card-head,
+.metric-grid,
+.metric,
+.section-card,
+.sheet-panel,
+.view-card,
+.modal-view,
+.sheet,
+.sheet-backdrop {
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.entry-title,
+.note-block,
+.metric strong,
+.tag,
+.date-main,
+.date-main strong,
+.date-main span,
+.child-card strong,
+.child-card span,
+.field,
+input,
+select,
+textarea {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+  box-sizing: border-box !important;
+}
+
+/* Desktop bleibt wie vorher */
+body > .bottom-action-bar {
+  bottom: calc(28px + env(safe-area-inset-bottom, 0px)) !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+/* Handy: Button tiefer setzen */
+@media (max-width: 600px) {
+  body > .bottom-action-bar {
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .app {
+    padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+@media (max-width: 430px) {
+  body > .bottom-action-bar {
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  body > .bottom-action-bar > .bottom-add-button {
+    max-width: calc(100vw - 36px) !important;
+  }
+}
+
+/* Verhindert, dass fixed Layer einen horizontalen Scrollbereich erzeugen */
+body > .bottom-action-bar,
+.toast {
+  left: 0 !important;
+  right: 0 !important;
+  transform: none !important;
+}
+
+body > .bottom-action-bar > .bottom-add-button {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+
+/* v1.2.0: Layout-Überarbeitung für Formular, Popups und Dock */
+html,
+body {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 100% !important;
+  overflow-x: hidden !important;
+}
+
+body {
+  overscroll-behavior-x: none;
+}
+
+/* Hauptansicht bleibt scrollfähig, aber mit genug Platz hinter dem Dock */
+.app {
+  width: 100% !important;
+  max-width: 540px !important;
+  min-height: 100dvh !important;
+  margin: 0 auto !important;
+  padding: 14px 14px calc(116px + env(safe-area-inset-bottom, 0px)) !important;
+  overflow-x: hidden !important;
+  box-sizing: border-box !important;
+}
+
+/* Dock nur auf der Tagesansicht sichtbar */
+body.sheet-open > .bottom-action-bar,
+body.modal-open > .bottom-action-bar {
+  display: none !important;
+}
+
+body > .bottom-action-bar {
+  position: fixed !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+  transform: none !important;
+  z-index: 900 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 0 14px !important;
+  margin: 0 !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  pointer-events: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  box-sizing: border-box !important;
+}
+
+body > .bottom-action-bar > .bottom-add-button {
+  pointer-events: auto !important;
+  width: min(360px, 100%) !important;
+  max-width: 360px !important;
+  min-width: 0 !important;
+  min-height: 54px !important;
+  padding: 0 24px !important;
+  border-radius: 999px !important;
+  border: 0 !important;
+  background: linear-gradient(135deg, var(--primary), var(--primary2)) !important;
+  color: white !important;
+  font-weight: 950 !important;
+  font-size: 1rem !important;
+  box-shadow: 0 16px 38px rgba(255, 118, 100, 0.32) !important;
+}
+
+/* Eintragsformular: nicht mehr von unten gequetscht, sondern sauberer Modal-Sheet-Hybrid */
+.sheet {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1200 !important;
+  display: block !important;
+  overflow: hidden !important;
+}
+
+.sheet.hidden {
+  display: none !important;
+}
+
+.sheet-backdrop {
+  position: absolute !important;
+  inset: 0 !important;
+  background: rgba(17, 19, 24, 0.48) !important;
+  backdrop-filter: blur(12px) !important;
+  animation: kgFadeIn 160ms ease-out both;
+}
+
+.sheet-panel {
+  position: absolute !important;
+  left: 50% !important;
+  top: calc(14px + env(safe-area-inset-top, 0px)) !important;
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px)) !important;
+  transform: translateX(-50%) !important;
+  width: min(540px, calc(100vw - 20px)) !important;
+  max-width: calc(100vw - 20px) !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 14px !important;
+  border-radius: 28px !important;
+  background:
+    radial-gradient(circle at top right, rgba(255, 118, 100, 0.13), transparent 16rem),
+    var(--bg) !important;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.32) !important;
+  border: 1px solid var(--line) !important;
+  box-sizing: border-box !important;
+  animation: kgDialogIn 190ms cubic-bezier(.2,.8,.2,1) both;
+}
+
+/* Kopf bleibt sichtbar, aber nicht abgeschnitten */
+.sheet-panel .sheet-head {
+  position: sticky !important;
+  top: -14px !important;
+  z-index: 5 !important;
+  padding: 14px 0 12px !important;
+  margin: -14px 0 12px !important;
+  background:
+    linear-gradient(var(--bg), var(--bg)) !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 78%, transparent) !important;
+}
+
+/* Speichern liegt innerhalb des Formulars und kann nicht hinter dem Dock verschwinden */
+.sheet-actions {
+  position: sticky !important;
+  bottom: -14px !important;
+  z-index: 6 !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+  padding: 12px 0 14px !important;
+  margin-top: 12px !important;
+  background:
+    linear-gradient(to top, var(--bg) 72%, color-mix(in srgb, var(--bg) 0%, transparent)) !important;
+  box-sizing: border-box !important;
+}
+
+.sheet-actions .btn {
+  min-height: 50px !important;
+  border-radius: 18px !important;
+}
+
+.sheet-actions .btn.primary {
+  grid-column: auto !important;
+}
+
+.sheet-actions .danger.hidden + .primary,
+.sheet-actions .primary:only-child {
+  grid-column: 1 / -1 !important;
+}
+
+/* Wenn Löschen versteckt ist, soll Speichern volle Breite haben */
+#deleteCurrent.hidden {
+  display: none !important;
+}
+
+#deleteCurrent.hidden ~ .primary {
+  grid-column: 1 / -1 !important;
+}
+
+/* Eingabebereiche etwas ruhiger und kompakter */
+.quick-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+}
+
+.quick-grid .field:nth-child(3) {
+  grid-column: 1 / -1 !important;
+}
+
+.section-card {
+  border-radius: 22px !important;
+  padding: 12px !important;
+  margin-top: 10px !important;
+  overflow: hidden !important;
+}
+
+.field,
+input,
+select,
+textarea,
+.chips,
+.chips label,
+.section-card,
+.quick-grid,
+.sheet-head,
+.sheet-actions {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+input,
+select,
+textarea {
+  font-size: 16px !important;
+}
+
+/* Profil/Backup: mittig, größer, weich, aber nicht Fullscreen und nicht abgeschnitten */
+.modal-view {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1150 !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: calc(18px + env(safe-area-inset-top, 0px)) 18px calc(18px + env(safe-area-inset-bottom, 0px)) !important;
+  background: rgba(17, 19, 24, 0.46) !important;
+  backdrop-filter: blur(12px) !important;
+  overflow: hidden !important;
+  animation: kgFadeIn 160ms ease-out both;
+}
+
+.modal-view.hidden {
+  display: none !important;
+}
+
+.modal-view .view-card {
+  position: relative !important;
+  left: auto !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  width: min(520px, 100%) !important;
+  max-width: 520px !important;
+  max-height: min(82dvh, 680px) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  border-radius: 28px !important;
+  padding: 16px !important;
+  background:
+    radial-gradient(circle at top right, rgba(255, 118, 100, 0.12), transparent 16rem),
+    var(--bg) !important;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.30) !important;
+  border: 1px solid var(--line) !important;
+  animation: kgDialogIn 190ms cubic-bezier(.2,.8,.2,1) both;
+  box-sizing: border-box !important;
+}
+
+.modal-view .sheet-head {
+  position: sticky !important;
+  top: -16px !important;
+  z-index: 2 !important;
+  padding: 0 0 12px !important;
+  margin-bottom: 12px !important;
+  background: linear-gradient(var(--bg), var(--bg)) !important;
+}
+
+.modal-view .view-card > .btn,
+.modal-view .file-label {
+  width: 100% !important;
+  margin-bottom: 10px !important;
+}
+
+/* Seitliches Scrollen endgültig vermeiden */
+.topbar,
+.date-card,
+.child-card,
+.day-entries,
+.entry-card,
+.entry-card-head,
+.metric-grid,
+.metric,
+.note-block,
+.tag,
+.date-main,
+.child-card > div {
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  overflow-wrap: anywhere !important;
+}
+
+@keyframes kgFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes kgDialogIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.965);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 430px) {
+  .app {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  body > .bottom-action-bar {
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+    padding: 0 12px !important;
+  }
+
+  body > .bottom-action-bar > .bottom-add-button {
+    width: min(330px, 100%) !important;
+    min-height: 52px !important;
+  }
+
+  .sheet-panel {
+    top: calc(8px + env(safe-area-inset-top, 0px)) !important;
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+    width: calc(100vw - 14px) !important;
+    max-width: calc(100vw - 14px) !important;
+    padding: 12px !important;
+    border-radius: 24px !important;
+  }
+
+  .sheet-panel .sheet-head {
+    top: -12px !important;
+    margin: -12px 0 12px !important;
+    padding: 12px 0 10px !important;
+  }
+
+  .quick-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .quick-grid .field:nth-child(3) {
+    grid-column: auto !important;
+  }
+
+  .sheet-actions {
+    bottom: -12px !important;
+    padding-bottom: 12px !important;
+  }
+
+  .modal-view {
+    padding: calc(14px + env(safe-area-inset-top, 0px)) 14px calc(14px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .modal-view .view-card {
+    max-height: min(84dvh, 680px) !important;
+    border-radius: 24px !important;
+    padding: 14px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-view,
+  .modal-view .view-card,
+  .sheet-backdrop,
+  .sheet-panel {
+    animation: none !important;
+  }
+}
+
+
+/* v1.2.1: Überschriften-Hintergründe in Popups entfernen */
+.sheet-panel .sheet-head,
+.modal-view .sheet-head {
+  background: transparent !important;
+  background-image: none !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+.sheet-panel .sheet-head {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+  top: 0 !important;
+}
+
+.modal-view .sheet-head {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+  top: 0 !important;
+}
+
+/* Der Abstand bleibt sauber, aber ohne sichtbaren Balken */
+.sheet-head h2,
+.sheet-head p {
+  background: transparent !important;
+}
+
+
+/* v1.2.2: Date-Input Overflow im Profil beheben */
+#profileBirthDate,
+input[type="date"] {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  display: block !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+/* iOS/Safari innere Date-Input-Breite begrenzen */
+input[type="date"]::-webkit-date-and-time-value {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  text-align: left !important;
+}
+
+input[type="date"]::-webkit-datetime-edit {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  margin-left: 4px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Profilfelder dürfen nie breiter als der Dialog werden */
+#profileView .field,
+#profileView input,
+#profileView textarea,
+#profileView .view-card {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+}
+
+
+/* v1.2.3: ALLE sichtbaren UI-Felder/Karten/Dialoge auf 10px Kantenradius */
+:root {
+  --radius: 10px !important;
+}
+
+button,
+input,
+select,
+textarea,
+.btn,
+.icon-btn,
+.round-btn,
+.bottom-add-button,
+.bottom-action-bar,
+.date-card,
+.child-card,
+.entry-card,
+.section-card,
+.view-card,
+.pin-card,
+.sheet-panel,
+.metric,
+.temp-pill,
+.tag,
+.chips label,
+.avatar,
+.empty-icon,
+.pin-icon,
+.toast,
+.file-label,
+.modal-view .view-card,
+.sheet-actions .btn,
+.hero-card,
+.panel,
+.stat-card,
+.entry-card,
+.empty-state,
+.link-button {
+  border-radius: 10px !important;
+}
+
+/* Auch runde/pillenförmige Spezialelemente explizit auf 10px zurücksetzen */
+.primary,
+.secondary,
+.danger,
+.danger-button,
+.nav-btn,
+.tab,
+.badge,
+.floating-add,
+body > .bottom-action-bar > .bottom-add-button {
+  border-radius: 10px !important;
+}
+
+/* Checkboxen/kleine native Controls nicht verformen */
+input[type="checkbox"],
+input[type="radio"] {
+  border-radius: 3px !important;
+}
+
+/* Falls Browser innere Date-Input-Schaltflächen rund rendert */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  border-radius: 10px !important;
+}
+
+/* Dialoge und Sheets inklusive Mobile-Overrides hart fixieren */
+.sheet-panel,
+.modal-view .view-card,
+#profileView .view-card,
+#backupView .view-card {
+  border-radius: 10px !important;
+}
+
+/* Bottom-Dock und Eintragsbutton ebenfalls exakt 10px */
+body > .bottom-action-bar,
+body > .bottom-action-bar > .bottom-add-button {
+  border-radius: 10px !important;
+}
+
+/* Abschnittscontainer innerhalb des Formulars */
+.quick-grid .field,
+.field.full,
+.section-card,
+.chips label {
+  border-radius: 10px !important;
+}
+
+/* Kleine visuelle Karten */
+.metric,
+.note-block,
+.temp-pill,
+.empty-day,
+.entry-card {
+  border-radius: 10px !important;
+}
+
+
+/* v1.3.0: Tageswerte zusammenfassen + Eintrags-Popup Animation verstärken */
+.day-summary-card {
+  display: grid;
+  gap: 10px;
+}
+
+.day-summary-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.metric small {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.expanded-details {
+  display: grid;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.expanded-details h3 {
+  margin: 4px 0 0;
+  font-size: 1rem;
+}
+
+.entry-detail {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.entry-detail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.entry-detail-head .btn {
+  min-height: 36px;
+  padding: 7px 10px;
+  font-size: 0.86rem;
+}
+
+.detail-row {
+  display: grid;
+  gap: 2px;
+  padding-top: 7px;
+  border-top: 1px solid color-mix(in srgb, var(--line) 75%, transparent);
+}
+
+.detail-row span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.detail-row p {
+  margin: 0;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.muted-detail {
+  margin: 0;
+  color: var(--muted);
+}
+
+/* Sichtbarere Öffnungsanimation für Neuer-Eintrag-Popup */
+.sheet:not(.hidden) .sheet-backdrop {
+  animation: kgBackdropIn 220ms ease-out both !important;
+}
+
+.sheet:not(.hidden) .sheet-panel {
+  animation: kgEntryPopupIn 260ms cubic-bezier(.16, .84, .32, 1) both !important;
+  transform-origin: bottom center;
+}
+
+@keyframes kgBackdropIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(12px);
+  }
+}
+
+@keyframes kgEntryPopupIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(34px) scale(0.965);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 430px) {
+  .day-summary-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .entry-detail-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .entry-detail-head .btn {
+    width: 100%;
+  }
+}
+
+
+/* v1.3.1: quadratische Tageskacheln + bessere Buttonposition/-größe */
+.day-tile-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+}
+
+.day-tile {
+  aspect-ratio: 1 / 1;
+  min-width: 0;
+  border-radius: 10px !important;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  padding: 10px;
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.tile-icon {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.tile-label {
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 850;
+  line-height: 1.1;
+}
+
+.day-tile strong {
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.day-tile small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.68rem;
+  line-height: 1.15;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* Speichern-Button im Eintragsformular optisch gleich groß wie „Neuer Eintrag“ */
+.sheet-actions {
+  grid-template-columns: 1fr !important;
+}
+
+.sheet-actions .btn.primary {
+  width: min(360px, 100%) !important;
+  max-width: 360px !important;
+  min-height: 54px !important;
+  justify-self: center !important;
+  border-radius: 10px !important;
+  font-weight: 950 !important;
+  font-size: 1rem !important;
+}
+
+.sheet-actions .btn.danger:not(.hidden) {
+  width: min(360px, 100%) !important;
+  max-width: 360px !important;
+  min-height: 48px !important;
+  justify-self: center !important;
+  border-radius: 10px !important;
+}
+
+/* Smartphone: Neuer-Eintrag-Dock deutlich weiter nach unten */
+@media (max-width: 600px) {
+  body > .bottom-action-bar {
+    bottom: calc(2px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .app {
+    padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+@media (max-width: 430px) {
+  body > .bottom-action-bar {
+    bottom: calc(0px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  body > .bottom-action-bar > .bottom-add-button {
+    width: min(330px, 100%) !important;
+    max-width: 330px !important;
+    min-height: 52px !important;
+  }
+
+  .day-tile-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px;
+  }
+
+  .day-tile {
+    padding: 8px;
+    place-items: center;
+    align-content: center;
+    text-align: center;
+  }
+
+  .tile-icon {
+    font-size: 1.45rem;
+  }
+
+  .tile-label {
+    font-size: 0;
+    line-height: 0;
+    height: 0;
+    overflow: hidden;
+  }
+
+  .day-tile strong {
+    font-size: 0.92rem;
+  }
+
+  .day-tile small {
+    font-size: 0.62rem;
+    -webkit-line-clamp: 2;
+  }
+
+  .sheet-actions .btn.primary {
+    width: min(330px, 100%) !important;
+    max-width: 330px !important;
+    min-height: 52px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .day-tile-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+
+/* v1.3.2: Löschen-Button beim Bearbeiten vollflächig und gleich groß wie Speichern */
+.sheet-actions {
+  grid-template-columns: 1fr !important;
+  justify-items: center !important;
+}
+
+.sheet-actions .btn.primary,
+.sheet-actions .btn.danger,
+#deleteCurrent {
+  width: min(360px, 100%) !important;
+  max-width: 360px !important;
+  min-height: 54px !important;
+  justify-self: center !important;
+  border-radius: 10px !important;
+  font-weight: 950 !important;
+  font-size: 1rem !important;
+  border: 0 !important;
+  opacity: 1 !important;
+}
+
+#deleteCurrent {
+  background: #e5484d !important;
+  color: #ffffff !important;
+  box-shadow: 0 12px 28px rgba(229, 72, 77, 0.24) !important;
+}
+
+body.dark #deleteCurrent {
+  background: #ff7075 !important;
+  color: #111318 !important;
+  box-shadow: 0 12px 28px rgba(255, 112, 117, 0.22) !important;
+}
+
+#deleteCurrent.hidden {
+  display: none !important;
+}
+
+@media (max-width: 430px) {
+  .sheet-actions .btn.primary,
+  .sheet-actions .btn.danger,
+  #deleteCurrent {
+    width: min(330px, 100%) !important;
+    max-width: 330px !important;
+    min-height: 52px !important;
+  }
+}
+
+
+/* v1.3.3: Profilname oben, separate Profilkarte entfernt, Löschen in Details */
+.topbar h1#activeProfileTitle {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  overflow-wrap: anywhere;
+}
+
+.child-card {
+  display: none !important;
+}
+
+.entry-detail-head {
+  align-items: center !important;
+}
+
+.entry-detail-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.entry-detail-actions .btn {
+  min-height: 36px !important;
+  padding: 7px 10px !important;
+  font-size: 0.86rem !important;
+  border-radius: 10px !important;
+}
+
+.entry-detail-actions .btn.danger,
+.entry-detail-actions .delete-entry {
+  background: #e5484d !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+body.dark .entry-detail-actions .btn.danger,
+body.dark .entry-detail-actions .delete-entry {
+  background: #ff7075 !important;
+  color: #111318 !important;
+}
+
+@media (max-width: 430px) {
+  .topbar h1#activeProfileTitle {
+    font-size: 1.75rem;
+  }
+
+  .entry-detail-head {
+    align-items: stretch !important;
+    flex-direction: column;
+  }
+
+  .entry-detail-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+
+  .entry-detail-actions .btn {
+    width: 100% !important;
+  }
+}
+
+
+/* v1.3.4: dunkles Babyblau + Toast auf Buttonbreite */
+:root {
+  --bg: #eef6fb !important;
+  --card: #f8fcff !important;
+  --card2: #d9ecf8 !important;
+  --text: #122431 !important;
+  --muted: #5d7281 !important;
+  --line: #cfe1ec !important;
+  --primary: #4f9fca !important;
+  --primary2: #2f7fb4 !important;
+  --green: #4baea0 !important;
+  --blue: #3b8fc6 !important;
+  --danger: #d94b5a !important;
+  --shadow: 0 14px 34px rgba(26, 68, 96, 0.13) !important;
+}
+
+body.dark {
+  --bg: #0e1a22 !important;
+  --card: #152630 !important;
+  --card2: #1d3542 !important;
+  --text: #eef8ff !important;
+  --muted: #9eb8c8 !important;
+  --line: #294657 !important;
+  --primary: #7ec7ee !important;
+  --primary2: #3e93c8 !important;
+  --green: #65c7b8 !important;
+  --blue: #7ec7ee !important;
+  --danger: #ff7b87 !important;
+  --shadow: 0 16px 38px rgba(0, 0, 0, 0.35) !important;
+}
+
+body {
+  background:
+    radial-gradient(circle at top right, rgba(79, 159, 202, 0.22), transparent 18rem),
+    linear-gradient(180deg, color-mix(in srgb, var(--bg) 96%, white 4%), var(--bg)) !important;
+}
+
+body.dark {
+  background:
+    radial-gradient(circle at top right, rgba(126, 199, 238, 0.16), transparent 18rem),
+    linear-gradient(180deg, #0e1a22, #0b151c) !important;
+}
+
+.kicker {
+  color: var(--primary2) !important;
+}
+
+body.dark .kicker {
+  color: var(--primary) !important;
+}
+
+.primary,
+.bottom-add-button,
+body > .bottom-action-bar > .bottom-add-button,
+.sheet-actions .btn.primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary2)) !important;
+  color: #ffffff !important;
+  box-shadow: 0 14px 32px rgba(47, 127, 180, 0.28) !important;
+}
+
+.day-tile,
+.metric,
+.note-block,
+.entry-detail,
+.round-btn,
+.icon-btn,
+.secondary {
+  background: color-mix(in srgb, var(--card2) 55%, var(--card) 45%) !important;
+}
+
+.entry-card,
+.date-card,
+.section-card,
+.view-card,
+.sheet-panel,
+.pin-card {
+  background:
+    radial-gradient(circle at top right, rgba(79, 159, 202, 0.10), transparent 14rem),
+    var(--card) !important;
+}
+
+.tag {
+  background: color-mix(in srgb, var(--primary) 18%, var(--card)) !important;
+  color: color-mix(in srgb, var(--primary2) 82%, var(--text)) !important;
+}
+
+body.dark .tag {
+  color: var(--primary) !important;
+}
+
+.temp-pill {
+  background: color-mix(in srgb, var(--primary) 16%, var(--card)) !important;
+  color: var(--primary2) !important;
+}
+
+body.dark .temp-pill {
+  color: var(--primary) !important;
+}
+
+/* Toast: gleiche Breite wie die Hauptbuttons */
+.toast {
+  width: min(360px, calc(100vw - 48px)) !important;
+  max-width: calc(100vw - 48px) !important;
+  min-height: 54px !important;
+  padding: 0 24px !important;
+  border-radius: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  font-weight: 950 !important;
+  background: linear-gradient(135deg, var(--primary), var(--primary2)) !important;
+  color: #ffffff !important;
+  box-shadow: 0 16px 38px rgba(47, 127, 180, 0.30) !important;
+}
+
+@media (max-width: 430px) {
+  .toast {
+    width: min(330px, calc(100vw - 36px)) !important;
+    max-width: calc(100vw - 36px) !important;
+    min-height: 52px !important;
+  }
+}
+
+
+/* v1.3.5: Toast-Balken korrigieren, damit er den Neuer-Eintrag-Button nicht überlagert */
+.toast {
+  position: fixed !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: calc(86px + env(safe-area-inset-bottom, 0px)) !important;
+  transform: translateX(-50%) !important;
+  z-index: 1400 !important;
+  width: auto !important;
+  min-width: 220px !important;
+  max-width: min(360px, calc(100vw - 48px)) !important;
+  min-height: 44px !important;
+  padding: 0 18px !important;
+  border-radius: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  font-weight: 900 !important;
+  background: color-mix(in srgb, var(--primary2) 92%, #000 8%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 12px 30px rgba(26, 68, 96, 0.25) !important;
+  pointer-events: none !important;
+}
+
+.toast.hidden {
+  display: none !important;
+}
+
+/* Wenn ein Popup offen ist, kann der Toast tiefer stehen, weil der Dock-Button ausgeblendet ist */
+body.sheet-open .toast,
+body.modal-open .toast {
+  bottom: calc(22px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+@media (max-width: 430px) {
+  .toast {
+    bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+    max-width: calc(100vw - 36px) !important;
+    min-height: 42px !important;
+    padding: 0 16px !important;
+  }
+
+  body.sheet-open .toast,
+  body.modal-open .toast {
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+
+/* v1.3.6: Toast wieder dezent, transparent, aber maximal buttonbreit */
+.toast {
+  position: fixed !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: calc(86px + env(safe-area-inset-bottom, 0px)) !important;
+  transform: translateX(-50%) !important;
+  z-index: 1400 !important;
+
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: min(360px, calc(100vw - 48px)) !important;
+  min-height: 0 !important;
+  height: auto !important;
+
+  padding: 8px 12px !important;
+  border-radius: 10px !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  font-size: 0.86rem !important;
+  line-height: 1.15 !important;
+  font-weight: 850 !important;
+  text-align: center !important;
+
+  background: color-mix(in srgb, var(--card) 72%, transparent) !important;
+  color: var(--text) !important;
+  border: 1px solid color-mix(in srgb, var(--line) 70%, transparent) !important;
+  box-shadow: 0 10px 26px rgba(26, 68, 96, 0.14) !important;
+  backdrop-filter: blur(14px) !important;
+  pointer-events: none !important;
+}
+
+body.dark .toast {
+  background: color-mix(in srgb, var(--card) 68%, transparent) !important;
+  color: var(--text) !important;
+  border-color: color-mix(in srgb, var(--line) 76%, transparent) !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28) !important;
+}
+
+.toast.hidden {
+  display: none !important;
+}
+
+body.sheet-open .toast,
+body.modal-open .toast {
+  bottom: calc(22px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+@media (max-width: 430px) {
+  .toast {
+    bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+    max-width: min(330px, calc(100vw - 36px)) !important;
+    padding: 7px 11px !important;
+    font-size: 0.84rem !important;
+  }
+
+  body.sheet-open .toast,
+  body.modal-open .toast {
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+
+/* v1.3.7: „Neuer Eintrag“ im iOS Liquid-Glass-Stil */
+body > .bottom-action-bar {
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+body > .bottom-action-bar > .bottom-add-button {
+  position: relative !important;
+  overflow: hidden !important;
+
+  background:
+    linear-gradient(135deg,
+      color-mix(in srgb, rgba(255,255,255,0.86) 56%, var(--primary) 44%),
+      color-mix(in srgb, rgba(255,255,255,0.42) 30%, var(--primary2) 70%)
+    ) !important;
+
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.54) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.72),
+    inset 0 -1px 0 rgba(255,255,255,0.18),
+    0 18px 42px rgba(47, 127, 180, 0.28),
+    0 8px 18px rgba(18, 36, 49, 0.16) !important;
+
+  backdrop-filter: blur(22px) saturate(180%) brightness(1.08) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(180%) brightness(1.08) !important;
+
+  text-shadow: 0 1px 2px rgba(18, 36, 49, 0.26) !important;
+}
+
+body > .bottom-action-bar > .bottom-add-button::before {
+  content: "";
+  position: absolute;
+  inset: 1px 1px auto 1px;
+  height: 52%;
+  border-radius: 9px 9px 6px 6px;
+  background:
+    linear-gradient(180deg,
+      rgba(255,255,255,0.62),
+      rgba(255,255,255,0.20) 58%,
+      rgba(255,255,255,0.00)
+    );
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+body > .bottom-action-bar > .bottom-add-button::after {
+  content: "";
+  position: absolute;
+  width: 64px;
+  height: 160%;
+  left: -82px;
+  top: -30%;
+  transform: rotate(18deg);
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0),
+    rgba(255,255,255,0.34),
+    rgba(255,255,255,0)
+  );
+  pointer-events: none;
+  opacity: 0.72;
+}
+
+body > .bottom-action-bar > .bottom-add-button:active {
+  transform: scale(0.985) !important;
+  filter: brightness(0.98) saturate(1.05);
+}
+
+/* Darkmode: dunkleres Glas mit babyblauem Schimmer */
+body.dark > .bottom-action-bar > .bottom-add-button {
+  background:
+    linear-gradient(135deg,
+      rgba(126, 199, 238, 0.36),
+      rgba(62, 147, 200, 0.54)
+    ) !important;
+
+  color: #f7fcff !important;
+  border: 1px solid rgba(183, 226, 249, 0.38) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.26),
+    inset 0 -1px 0 rgba(255,255,255,0.10),
+    0 18px 42px rgba(0, 0, 0, 0.38),
+    0 8px 18px rgba(126, 199, 238, 0.12) !important;
+
+  backdrop-filter: blur(24px) saturate(180%) brightness(1.16) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) brightness(1.16) !important;
+}
+
+body.dark > .bottom-action-bar > .bottom-add-button::before {
+  background:
+    linear-gradient(180deg,
+      rgba(255,255,255,0.24),
+      rgba(255,255,255,0.08) 58%,
+      rgba(255,255,255,0.00)
+    );
+}
+
+@media (hover: hover) {
+  body > .bottom-action-bar > .bottom-add-button:hover {
+    filter: brightness(1.04) saturate(1.08);
+  }
+}
+
+
+/* v1.3.8: Temperaturfarben nach Höhe
+   Grün bis 37,5 °C
+   Gelb ab 37,6 °C
+   Orange ab 38,5 °C
+   Rot ab 39,0 °C
+*/
+.temp-green {
+  --temp-bg: #dff7e9;
+  --temp-border: #8ad7a7;
+  --temp-text: #17683a;
+}
+
+.temp-yellow {
+  --temp-bg: #fff6cf;
+  --temp-border: #f0d05d;
+  --temp-text: #7a5a00;
+}
+
+.temp-orange {
+  --temp-bg: #ffe6c8;
+  --temp-border: #f2a24c;
+  --temp-text: #8a3f00;
+}
+
+.temp-red {
+  --temp-bg: #ffe0e2;
+  --temp-border: #ed6b73;
+  --temp-text: #9b1f2a;
+}
+
+body.dark .temp-green {
+  --temp-bg: #183728;
+  --temp-border: #3f9d68;
+  --temp-text: #8ff0b5;
+}
+
+body.dark .temp-yellow {
+  --temp-bg: #3a3214;
+  --temp-border: #d6b93d;
+  --temp-text: #ffe583;
+}
+
+body.dark .temp-orange {
+  --temp-bg: #3f2815;
+  --temp-border: #e28b36;
+  --temp-text: #ffc07a;
+}
+
+body.dark .temp-red {
+  --temp-bg: #421b20;
+  --temp-border: #e25a66;
+  --temp-text: #ff9aa3;
+}
+
+.temp-pill.temp-green,
+.temp-pill.temp-yellow,
+.temp-pill.temp-orange,
+.temp-pill.temp-red,
+.temperature-tile.temp-green,
+.temperature-tile.temp-yellow,
+.temperature-tile.temp-orange,
+.temperature-tile.temp-red {
+  background: var(--temp-bg) !important;
+  border-color: var(--temp-border) !important;
+  color: var(--temp-text) !important;
+}
+
+.temp-pill.temp-green,
+.temp-pill.temp-yellow,
+.temp-pill.temp-orange,
+.temp-pill.temp-red {
+  font-weight: 950 !important;
+}
+
+.temperature-tile.temp-green .tile-icon,
+.temperature-tile.temp-yellow .tile-icon,
+.temperature-tile.temp-orange .tile-icon,
+.temperature-tile.temp-red .tile-icon,
+.temperature-tile.temp-green strong,
+.temperature-tile.temp-yellow strong,
+.temperature-tile.temp-orange strong,
+.temperature-tile.temp-red strong,
+.temperature-tile.temp-green small,
+.temperature-tile.temp-yellow small,
+.temperature-tile.temp-orange small,
+.temperature-tile.temp-red small,
+.temperature-tile.temp-green .tile-label,
+.temperature-tile.temp-yellow .tile-label,
+.temperature-tile.temp-orange .tile-label,
+.temperature-tile.temp-red .tile-label {
+  color: var(--temp-text) !important;
+}
+
+
+/* v1.4.0: auswählbare Farbthemes */
+body[data-theme="babyblue"] {
+  --bg: #eef6fb !important;
+  --card: #f8fcff !important;
+  --card2: #d9ecf8 !important;
+  --text: #122431 !important;
+  --muted: #5d7281 !important;
+  --line: #cfe1ec !important;
+  --primary: #4f9fca !important;
+  --primary2: #2f7fb4 !important;
+  --green: #4baea0 !important;
+  --blue: #3b8fc6 !important;
+  --danger: #d94b5a !important;
+  --shadow: 0 14px 34px rgba(26, 68, 96, 0.13) !important;
+}
+
+body.dark[data-theme="babyblue"] {
+  --bg: #0e1a22 !important;
+  --card: #152630 !important;
+  --card2: #1d3542 !important;
+  --text: #eef8ff !important;
+  --muted: #9eb8c8 !important;
+  --line: #294657 !important;
+  --primary: #7ec7ee !important;
+  --primary2: #3e93c8 !important;
+  --green: #65c7b8 !important;
+  --blue: #7ec7ee !important;
+  --danger: #ff7b87 !important;
+  --shadow: 0 16px 38px rgba(0, 0, 0, 0.35) !important;
+}
+
+body[data-theme="mint"] {
+  --bg: #effaf6 !important;
+  --card: #fbfffd !important;
+  --card2: #d9f2e9 !important;
+  --text: #10261e !important;
+  --muted: #587568 !important;
+  --line: #c9e7db !important;
+  --primary: #57b99f !important;
+  --primary2: #2d8d78 !important;
+  --green: #45a878 !important;
+  --blue: #4fa3bd !important;
+  --danger: #d85a66 !important;
+  --shadow: 0 14px 34px rgba(26, 89, 72, 0.13) !important;
+}
+
+body.dark[data-theme="mint"] {
+  --bg: #0d1c18 !important;
+  --card: #142a23 !important;
+  --card2: #1d3d33 !important;
+  --text: #effff8 !important;
+  --muted: #a1c3b8 !important;
+  --line: #2a5246 !important;
+  --primary: #77d9c0 !important;
+  --primary2: #39a58c !important;
+  --green: #78ddb5 !important;
+  --blue: #7fcde0 !important;
+  --danger: #ff7d8a !important;
+  --shadow: 0 16px 38px rgba(0, 0, 0, 0.35) !important;
+}
+
+body[data-theme="lavender"] {
+  --bg: #f6f1fb !important;
+  --card: #fdfaff !important;
+  --card2: #eadff6 !important;
+  --text: #21172c !important;
+  --muted: #715f83 !important;
+  --line: #dfd1ed !important;
+  --primary: #a387d6 !important;
+  --primary2: #7d5eb8 !important;
+  --green: #66ab8c !important;
+  --blue: #7d94d6 !important;
+  --danger: #d85a75 !important;
+  --shadow: 0 14px 34px rgba(71, 42, 110, 0.13) !important;
+}
+
+body.dark[data-theme="lavender"] {
+  --bg: #171221 !important;
+  --card: #241c31 !important;
+  --card2: #332640 !important;
+  --text: #fbf7ff !important;
+  --muted: #c1b2d3 !important;
+  --line: #493a5f !important;
+  --primary: #bfa6f0 !important;
+  --primary2: #8b6acb !important;
+  --green: #87d0ac !important;
+  --blue: #a7b7ff !important;
+  --danger: #ff7b98 !important;
+  --shadow: 0 16px 38px rgba(0, 0, 0, 0.35) !important;
+}
+
+body[data-theme="peach"] {
+  --bg: #fff4ed !important;
+  --card: #fffaf7 !important;
+  --card2: #ffe2d1 !important;
+  --text: #2c1b14 !important;
+  --muted: #876555 !important;
+  --line: #efcdbc !important;
+  --primary: #ee996d !important;
+  --primary2: #cf6f45 !important;
+  --green: #76a878 !important;
+  --blue: #6f9fc6 !important;
+  --danger: #d84f5c !important;
+  --shadow: 0 14px 34px rgba(115, 60, 35, 0.13) !important;
+}
+
+body.dark[data-theme="peach"] {
+  --bg: #21150f !important;
+  --card: #301f17 !important;
+  --card2: #44291c !important;
+  --text: #fff7f1 !important;
+  --muted: #d1ae9d !important;
+  --line: #5a3a2a !important;
+  --primary: #ffb184 !important;
+  --primary2: #df7b50 !important;
+  --green: #98cf99 !important;
+  --blue: #91c5ee !important;
+  --danger: #ff7884 !important;
+  --shadow: 0 16px 38px rgba(0, 0, 0, 0.35) !important;
+}
+
+body[data-theme="rose"] {
+  --bg: #fff1f5 !important;
+  --card: #fffafd !important;
+  --card2: #f9dce7 !important;
+  --text: #2c1420 !important;
+  --muted: #845b6c !important;
+  --line: #edc8d7 !important;
+  --primary: #e48ead !important;
+  --primary2: #c65d85 !important;
+  --green: #79aa8b !important;
+  --blue: #7c9fd4 !important;
+  --danger: #d6465b !important;
+  --shadow: 0 14px 34px rgba(115, 42, 70, 0.13) !important;
+}
+
+body.dark[data-theme="rose"] {
+  --bg: #211018 !important;
+  --card: #311a25 !important;
+  --card2: #442333 !important;
+  --text: #fff7fb !important;
+  --muted: #d5aebe !important;
+  --line: #5a3244 !important;
+  --primary: #f5a8c4 !important;
+  --primary2: #d96c98 !important;
+  --green: #99d2aa !important;
+  --blue: #a2bfff !important;
+  --danger: #ff7588 !important;
+  --shadow: 0 16px 38px rgba(0, 0, 0, 0.35) !important;
+}
+
+body[data-theme="slate"] {
+  --bg: #eef3f7 !important;
+  --card: #fbfdff !important;
+  --card2: #dce7ef !important;
+  --text: #162330 !important;
+  --muted: #617080 !important;
+  --line: #ccd9e4 !important;
+  --primary: #6e94b8 !important;
+  --primary2: #426c93 !important;
+  --green: #68a58d !important;
+  --blue: #5b8fbf !important;
+  --danger: #cf5865 !important;
+  --shadow: 0 14px 34px rgba(35, 58, 81, 0.13) !important;
+}
+
+body.dark[data-theme="slate"] {
+  --bg: #101820 !important;
+  --card: #182430 !important;
+  --card2: #223240 !important;
+  --text: #f1f7fb !important;
+  --muted: #a8b8c6 !important;
+  --line: #33495c !important;
+  --primary: #91b7da !important;
+  --primary2: #5f8fbd !important;
+  --green: #86ccb0 !important;
+  --blue: #91b7da !important;
+  --danger: #f47d8b !important;
+  --shadow: 0 16px 38px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* Themeabhängige Hintergründe zentral */
+body {
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--primary) 22%, transparent), transparent 18rem),
+    linear-gradient(180deg, color-mix(in srgb, var(--bg) 96%, white 4%), var(--bg)) !important;
+}
+
+body.dark {
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--primary) 16%, transparent), transparent 18rem),
+    linear-gradient(180deg, color-mix(in srgb, var(--bg) 92%, black 8%), var(--bg)) !important;
+}
+
+/* Theme Select optisch passend */
+#themeSelect {
+  background: var(--card) !important;
+  color: var(--text) !important;
+  border-color: var(--line) !important;
+}
+
+
+/* v1.4.1: konsistentes Theme-Styling für Popups, Dock, Speichern und Löschen */
+
+/* Gemeinsame Designvariablen, abhängig vom gewählten Theme */
+body {
+  --kg-surface: color-mix(in srgb, var(--card) 88%, var(--bg) 12%);
+  --kg-surface-strong: color-mix(in srgb, var(--card) 76%, var(--primary) 8%);
+  --kg-soft: color-mix(in srgb, var(--primary) 13%, var(--card) 87%);
+  --kg-soft-2: color-mix(in srgb, var(--primary2) 12%, var(--card2) 88%);
+  --kg-border: color-mix(in srgb, var(--line) 82%, var(--primary) 18%);
+  --kg-button-bg: linear-gradient(135deg,
+    color-mix(in srgb, var(--primary) 82%, white 18%),
+    color-mix(in srgb, var(--primary2) 88%, black 4%)
+  );
+  --kg-button-shadow: 0 14px 32px color-mix(in srgb, var(--primary2) 28%, transparent);
+  --kg-danger-bg: linear-gradient(135deg,
+    color-mix(in srgb, var(--danger) 88%, white 12%),
+    color-mix(in srgb, var(--danger) 72%, #7a1f2a 28%)
+  );
+  --kg-danger-shadow: 0 14px 32px color-mix(in srgb, var(--danger) 24%, transparent);
+}
+
+body.dark {
+  --kg-surface: color-mix(in srgb, var(--card) 88%, black 12%);
+  --kg-surface-strong: color-mix(in srgb, var(--card) 78%, var(--primary) 10%);
+  --kg-soft: color-mix(in srgb, var(--primary) 12%, var(--card) 88%);
+  --kg-soft-2: color-mix(in srgb, var(--primary2) 16%, var(--card2) 84%);
+  --kg-border: color-mix(in srgb, var(--line) 76%, var(--primary) 24%);
+  --kg-button-bg: linear-gradient(135deg,
+    color-mix(in srgb, var(--primary) 76%, white 10%),
+    color-mix(in srgb, var(--primary2) 88%, black 8%)
+  );
+  --kg-button-shadow: 0 16px 38px rgba(0,0,0,0.34);
+  --kg-danger-bg: linear-gradient(135deg,
+    color-mix(in srgb, var(--danger) 82%, white 10%),
+    color-mix(in srgb, var(--danger) 70%, black 16%)
+  );
+  --kg-danger-shadow: 0 16px 38px rgba(0,0,0,0.32);
+}
+
+/* Popup-Hintergründe folgen jetzt jedem Theme */
+.sheet-backdrop,
+.modal-view {
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--primary) 20%, transparent), transparent 22rem),
+    color-mix(in srgb, var(--bg) 62%, rgba(17, 19, 24, 0.48) 38%) !important;
+  backdrop-filter: blur(14px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(150%) !important;
+}
+
+.sheet-panel,
+.modal-view .view-card,
+#profileView .view-card,
+#backupView .view-card,
+.pin-card {
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--primary) 16%, transparent), transparent 16rem),
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--kg-surface) 94%, white 6%),
+      var(--kg-surface)
+    ) !important;
+  border: 1px solid var(--kg-border) !important;
+  box-shadow:
+    0 24px 70px rgba(0,0,0,0.24),
+    inset 0 1px 0 color-mix(in srgb, white 50%, transparent) !important;
+}
+
+body.dark .sheet-panel,
+body.dark .modal-view .view-card,
+body.dark #profileView .view-card,
+body.dark #backupView .view-card,
+body.dark .pin-card {
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--primary) 12%, transparent), transparent 16rem),
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--kg-surface) 92%, white 3%),
+      var(--kg-surface)
+    ) !important;
+  box-shadow:
+    0 24px 70px rgba(0,0,0,0.42),
+    inset 0 1px 0 rgba(255,255,255,0.08) !important;
+}
+
+/* Kacheln, Eingaben und Sektionen im Popup einheitlich */
+.section-card,
+.day-tile,
+.entry-detail,
+.note-block,
+.metric,
+input,
+select,
+textarea {
+  background: var(--kg-soft) !important;
+  border-color: var(--kg-border) !important;
+  color: var(--text) !important;
+}
+
+.chips label,
+.icon-btn,
+.round-btn,
+.secondary {
+  background: var(--kg-soft-2) !important;
+  border: 1px solid var(--kg-border) !important;
+  color: var(--text) !important;
+}
+
+/* Einheitlicher Hauptbutton-Stil */
+.primary,
+.bottom-add-button,
+body > .bottom-action-bar > .bottom-add-button,
+.sheet-actions .btn.primary,
+#saveProfileButton,
+#pinButton {
+  background: var(--kg-button-bg) !important;
+  color: #ffffff !important;
+  border: 1px solid color-mix(in srgb, white 28%, var(--primary) 72%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.34),
+    var(--kg-button-shadow) !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.18) !important;
+  opacity: 1 !important;
+}
+
+/* Neuer Eintrag: weniger übertriebener Liquid-Glass-Look, mehr konsistent */
+body > .bottom-action-bar > .bottom-add-button {
+  background:
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--primary) 74%, rgba(255,255,255,0.36) 26%),
+      color-mix(in srgb, var(--primary2) 84%, rgba(255,255,255,0.12) 16%)
+    ) !important;
+  border: 1px solid color-mix(in srgb, white 34%, var(--primary) 66%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.42),
+    inset 0 -1px 0 rgba(255,255,255,0.12),
+    0 16px 36px color-mix(in srgb, var(--primary2) 28%, transparent) !important;
+  backdrop-filter: blur(18px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(150%) !important;
+}
+
+body > .bottom-action-bar > .bottom-add-button::before {
+  background:
+    linear-gradient(180deg,
+      rgba(255,255,255,0.34),
+      rgba(255,255,255,0.11) 58%,
+      rgba(255,255,255,0.00)
+    ) !important;
+  opacity: 0.82 !important;
+}
+
+body > .bottom-action-bar > .bottom-add-button::after {
+  opacity: 0 !important;
+}
+
+/* Einheitlicher Speichern-Button im Eintragsformular */
+.sheet-actions .btn.primary {
+  width: min(360px, 100%) !important;
+  max-width: 360px !important;
+  min-height: 54px !important;
+  border-radius: 10px !important;
+  font-weight: 950 !important;
+  font-size: 1rem !important;
+}
+
+/* Einheitlicher Löschen-Button, gleiche Größe wie Speichern */
+.sheet-actions .btn.danger,
+#deleteCurrent,
+.entry-detail-actions .delete-entry {
+  background: var(--kg-danger-bg) !important;
+  color: #ffffff !important;
+  border: 1px solid color-mix(in srgb, white 20%, var(--danger) 80%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.24),
+    var(--kg-danger-shadow) !important;
+  opacity: 1 !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.18) !important;
+}
+
+.sheet-actions .btn.danger,
+#deleteCurrent {
+  width: min(360px, 100%) !important;
+  max-width: 360px !important;
+  min-height: 54px !important;
+  justify-self: center !important;
+  border-radius: 10px !important;
+  font-weight: 950 !important;
+  font-size: 1rem !important;
+}
+
+/* Detail-Buttons optisch zusammenführen */
+.entry-detail-actions .btn.secondary {
+  background: var(--kg-soft-2) !important;
+  border: 1px solid var(--kg-border) !important;
+  color: var(--text) !important;
+  box-shadow: none !important;
+}
+
+.entry-detail-actions .delete-entry {
+  min-height: 36px !important;
+  padding: 7px 10px !important;
+  border-radius: 10px !important;
+  font-size: 0.86rem !important;
+}
+
+/* Profil und Backup Buttons ebenfalls angleichen */
+#profileView .btn.primary,
+#backupView .btn.secondary,
+#backupView .file-label {
+  border-radius: 10px !important;
+  min-height: 48px !important;
+}
+
+#backupView .btn.secondary,
+#backupView .file-label {
+  background: var(--kg-soft-2) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--kg-border) !important;
+  box-shadow: none !important;
+}
+
+/* Toast bleibt dezent und themetreu */
+.toast {
+  background: color-mix(in srgb, var(--kg-surface) 72%, transparent) !important;
+  color: var(--text) !important;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 70%, transparent) !important;
+  box-shadow: 0 10px 26px color-mix(in srgb, var(--primary2) 16%, transparent) !important;
+}
+
+/* Mobile Größen */
+@media (max-width: 430px) {
+  .sheet-actions .btn.primary,
+  .sheet-actions .btn.danger,
+  #deleteCurrent {
+    width: min(330px, 100%) !important;
+    max-width: 330px !important;
+    min-height: 52px !important;
+  }
+
+  body > .bottom-action-bar > .bottom-add-button {
+    width: min(330px, 100%) !important;
+    max-width: 330px !important;
+    min-height: 52px !important;
+  }
+}
+
+
+/* v1.4.2: flacheres, ruhigeres Design ohne pseudo-3D Effekte */
+body {
+  --kg-surface: color-mix(in srgb, var(--card) 92%, var(--bg) 8%);
+  --kg-surface-strong: color-mix(in srgb, var(--card) 84%, var(--primary) 6%);
+  --kg-soft: color-mix(in srgb, var(--card2) 58%, var(--card) 42%);
+  --kg-soft-2: color-mix(in srgb, var(--card2) 42%, var(--card) 58%);
+  --kg-border: color-mix(in srgb, var(--line) 88%, var(--primary) 12%);
+  --kg-button-bg: var(--primary);
+  --kg-button-shadow: none;
+  --kg-danger-bg: var(--danger);
+  --kg-danger-shadow: none;
+}
+
+/* Allgemein deutlich flacher */
+.entry-card,
+.date-card,
+.section-card,
+.view-card,
+.sheet-panel,
+.pin-card,
+.day-tile,
+.entry-detail,
+.note-block,
+.metric,
+.child-card,
+.toast,
+.bottom-action-bar,
+input,
+select,
+textarea,
+button,
+.btn,
+.icon-btn,
+.round-btn,
+.chips label,
+.file-label {
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+.entry-card,
+.date-card,
+.section-card,
+.view-card,
+.sheet-panel,
+.pin-card,
+.day-tile,
+.entry-detail,
+.note-block,
+.metric,
+.child-card {
+  background: var(--kg-surface) !important;
+  background-image: none !important;
+  border: 1px solid var(--kg-border) !important;
+}
+
+/* Popup-Hintergründe zurückhaltender */
+.sheet-backdrop,
+.modal-view {
+  background: color-mix(in srgb, var(--bg) 72%, rgba(17, 19, 24, 0.28) 28%) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+.sheet-panel,
+.modal-view .view-card,
+#profileView .view-card,
+#backupView .view-card,
+.pin-card {
+  background: var(--kg-surface) !important;
+  background-image: none !important;
+  border: 1px solid var(--kg-border) !important;
+}
+
+/* Flachere Eingaben und Sekundär-Elemente */
+input,
+select,
+textarea,
+.chips label,
+.icon-btn,
+.round-btn,
+.secondary,
+.file-label {
+  background: var(--kg-soft) !important;
+  background-image: none !important;
+  border: 1px solid var(--kg-border) !important;
+  color: var(--text) !important;
+}
+
+/* Primärbuttons flach und sauber */
+.primary,
+.bottom-add-button,
+body > .bottom-action-bar > .bottom-add-button,
+.sheet-actions .btn.primary,
+#saveProfileButton,
+#pinButton {
+  background: var(--primary) !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  border: 1px solid color-mix(in srgb, var(--primary2) 60%, var(--primary) 40%) !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+/* Neuer Eintrag Button: clean, ruhig, ohne Gloss/Glas-Spielereien */
+body > .bottom-action-bar {
+  background: transparent !important;
+  border: 0 !important;
+}
+
+body > .bottom-action-bar > .bottom-add-button {
+  position: relative !important;
+  overflow: hidden !important;
+  background: color-mix(in srgb, var(--primary) 92%, white 8%) !important;
+  border: 1px solid color-mix(in srgb, var(--primary2) 64%, var(--primary) 36%) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+body > .bottom-action-bar > .bottom-add-button::before,
+body > .bottom-action-bar > .bottom-add-button::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Löschen ebenfalls clean und konsistent */
+.sheet-actions .btn.danger,
+#deleteCurrent,
+.entry-detail-actions .delete-entry {
+  background: var(--danger) !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  border: 1px solid color-mix(in srgb, #9b1f2a 46%, var(--danger) 54%) !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+/* Detail-Buttons */
+.entry-detail-actions .btn.secondary {
+  background: var(--kg-soft) !important;
+  border: 1px solid var(--kg-border) !important;
+  color: var(--text) !important;
+}
+
+/* Toast zurückhaltend */
+.toast {
+  background: color-mix(in srgb, var(--kg-surface) 86%, transparent) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--kg-border) !important;
+  box-shadow: none !important;
+}
+
+/* Symptom-Icons */
+.symptom-tags,
+.symptom-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.symptom-tag,
+.symptom-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.symptom-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.symptom-chip {
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: var(--kg-soft) !important;
+  border: 1px solid var(--kg-border);
+  color: var(--text);
+}
+
+.symptom-row {
+  gap: 8px !important;
+}
+
+.symptom-row .symptom-list {
+  margin-top: 2px;
+}
+
+.tag.symptom-tag {
+  background: var(--kg-soft-2) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--kg-border) !important;
+}
+
+/* Tageskacheln ebenfalls cleaner */
+.day-tile {
+  background: var(--kg-surface) !important;
+}
+
+.day-tile small,
+.tile-label {
+  color: var(--muted) !important;
+}
+
+@media (hover: hover) {
+  .btn:hover,
+  button:hover,
+  .icon-btn:hover,
+  .round-btn:hover,
+  .file-label:hover {
+    filter: brightness(0.98);
+  }
+}
+
+
+/* v1.4.3: Symptom-Icons auch im Neuer-Eintrag-Popup */
+#symptomChips label {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+#symptomChips label .symptom-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+#symptomChips label input {
+  margin: 0 !important;
+  flex-shrink: 0;
+}
+
+#symptomChips label span:last-child {
+  line-height: 1;
+}
+
+@media (max-width: 430px) {
+  #symptomChips {
+    gap: 6px !important;
+  }
+
+  #symptomChips label {
+    padding: 7px 8px !important;
+    gap: 5px !important;
+  }
+
+  #symptomChips label .symptom-icon {
+    font-size: 1.05rem;
+  }
+}
+
+
+/* v1.4.4: Neuer-Eintrag-Button folgt sicher dem aktiven Theme */
+body > .bottom-action-bar > .bottom-add-button,
+body[data-theme] > .bottom-action-bar > .bottom-add-button,
+body.dark[data-theme] > .bottom-action-bar > .bottom-add-button {
+  background: var(--primary) !important;
+  background-image: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--primary) 92%, white 8%),
+    color-mix(in srgb, var(--primary2) 92%, black 8%)
+  ) !important;
+  border-color: color-mix(in srgb, var(--primary2) 70%, var(--primary) 30%) !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+body.dark[data-theme] > .bottom-action-bar > .bottom-add-button {
+  background-image: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--primary) 84%, white 6%),
+    color-mix(in srgb, var(--primary2) 88%, black 12%)
+  ) !important;
+  border-color: color-mix(in srgb, var(--primary) 54%, var(--line) 46%) !important;
+}
+
+body > .bottom-action-bar > .bottom-add-button::before,
+body > .bottom-action-bar > .bottom-add-button::after,
+body[data-theme] > .bottom-action-bar > .bottom-add-button::before,
+body[data-theme] > .bottom-action-bar > .bottom-add-button::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+}
+
+/* Auch beim Antippen nicht auf alte Farb-/Filter-Regeln zurückfallen */
+body > .bottom-action-bar > .bottom-add-button:active,
+body[data-theme] > .bottom-action-bar > .bottom-add-button:active {
+  filter: brightness(0.96) !important;
+  transform: none !important;
+}
+
+
+/* v1.4.5: Formular-Kopf im Neuer-Eintrag-Popup nicht mehr sticky */
+.sheet-panel .sheet-head {
+  position: relative !important;
+  top: auto !important;
+  z-index: auto !important;
+  margin: 0 0 14px 0 !important;
+  padding: 0 0 12px 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--kg-border) 65%, transparent) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+.sheet-panel {
+  padding-top: calc(18px + env(safe-area-inset-top, 0px)) !important;
+  scroll-padding-top: calc(18px + env(safe-area-inset-top, 0px)) !important;
+}
+
+.sheet-panel .sheet-head h2 {
+  margin: 0 0 4px 0 !important;
+  line-height: 1.15 !important;
+  overflow-wrap: anywhere !important;
+}
+
+.sheet-panel .sheet-head p {
+  margin: 0 !important;
+  line-height: 1.35 !important;
+  color: var(--muted) !important;
+}
+
+.sheet-panel .sheet-head .round-btn {
+  flex-shrink: 0 !important;
+}
+
+/* Profil/Backup-Köpfe dürfen weiterhin im Dialog normal aussehen, aber nicht oben kleben */
+.modal-view .sheet-head {
+  position: relative !important;
+  top: auto !important;
+  z-index: auto !important;
+  margin: 0 0 14px 0 !important;
+  padding: 0 0 12px 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--kg-border) 65%, transparent) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+@media (max-width: 430px) {
+  .sheet-panel {
+    padding-top: calc(16px + env(safe-area-inset-top, 0px)) !important;
+  }
+
+  .sheet-panel .sheet-head {
+    gap: 10px !important;
+  }
+
+  .sheet-panel .sheet-head h2 {
+    font-size: 1.28rem !important;
+  }
+
+  .sheet-panel .sheet-head p {
+    font-size: 0.86rem !important;
+  }
+}
+
+
+/* v1.5.0: Temperatur-Slider und Stimmung als Icon-Auswahl */
+.temperature-field {
+  gap: 8px !important;
+}
+
+.temperature-slider {
+  width: 100% !important;
+  padding: 0 !important;
+  height: 28px !important;
+  background: transparent !important;
+  border: 0 !important;
+  accent-color: var(--primary) !important;
+}
+
+.temperature-slider::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #69b980 0%, #69b980 43%, #e4c84e 43%, #e4c84e 56%, #e89038 56%, #e89038 65%, #d94b5a 65%, #d94b5a 100%);
+}
+
+.temperature-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  margin-top: -7px;
+  border-radius: 10px;
+  background: var(--card);
+  border: 2px solid var(--primary);
+}
+
+.temperature-slider::-moz-range-track {
+  height: 8px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #69b980 0%, #69b980 43%, #e4c84e 43%, #e4c84e 56%, #e89038 56%, #e89038 65%, #d94b5a 65%, #d94b5a 100%);
+}
+
+.temperature-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  background: var(--card);
+  border: 2px solid var(--primary);
+}
+
+.slider-scale {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 750;
+  line-height: 1;
+}
+
+.mood-field {
+  grid-column: 1 / -1;
+}
+
+.mood-options {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.mood-option {
+  min-width: 0;
+  min-height: 68px;
+  padding: 8px 6px;
+  border-radius: 10px !important;
+  border: 1px solid var(--kg-border) !important;
+  background: var(--kg-soft) !important;
+  color: var(--text) !important;
+  display: grid;
+  place-items: center;
+  gap: 4px;
+  box-shadow: none !important;
+}
+
+.mood-option span {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.mood-option small {
+  font-size: 0.68rem;
+  font-weight: 850;
+  line-height: 1;
+  color: var(--muted);
+}
+
+.mood-option.active {
+  background: color-mix(in srgb, var(--primary) 20%, var(--card) 80%) !important;
+  border-color: var(--primary) !important;
+  color: var(--text) !important;
+}
+
+.mood-option.active small {
+  color: color-mix(in srgb, var(--primary2) 75%, var(--text) 25%) !important;
+}
+
+body.dark .mood-option.active small {
+  color: var(--primary) !important;
+}
+
+@media (max-width: 430px) {
+  .mood-options {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .mood-option {
+    min-height: 58px;
+    padding: 7px 6px;
+  }
+
+  .mood-option span {
+    font-size: 1.3rem;
+  }
+
+  .mood-option small {
+    font-size: 0.66rem;
+  }
+}
+
+
+/* v1.5.1: Home-Assistant-Benutzer pro Eintrag anzeigen */
+.entry-user-meta {
+  display: grid;
+  gap: 3px;
+  padding: 8px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--kg-soft) 72%, transparent) !important;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 72%, transparent);
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.entry-user-meta strong {
+  color: var(--text);
+  font-weight: 900;
+}
+
+
+/* v1.5.3: Tagesübersicht aufräumen und Textfelder schöner gestalten */
+.temperature-tile small {
+  display: none !important;
+}
+
+.tile-duo {
+  display: inline-flex !important;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+}
+
+.tile-duo span {
+  line-height: 1;
+}
+
+/* Textfelder mit Icon und ruhigerer Fläche */
+.icon-textarea-field {
+  gap: 7px !important;
+}
+
+.icon-textarea-field > span {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 7px;
+  color: var(--text) !important;
+  font-weight: 900 !important;
+}
+
+.field-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 10px;
+  display: inline-grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--primary) 12%, var(--card) 88%);
+  border: 1px solid color-mix(in srgb, var(--kg-border) 78%, transparent);
+  font-size: 0.95rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.icon-textarea-field textarea {
+  min-height: 74px;
+  padding: 11px 12px !important;
+  line-height: 1.42 !important;
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--kg-soft) 82%, var(--card) 18%),
+      var(--kg-soft)
+    ) !important;
+  border: 1px solid var(--kg-border) !important;
+}
+
+.icon-textarea-field textarea::placeholder {
+  color: color-mix(in srgb, var(--muted) 78%, transparent);
+}
+
+.icon-textarea-field textarea:focus {
+  border-color: var(--primary) !important;
+  background: color-mix(in srgb, var(--card) 72%, var(--kg-soft) 28%) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 15%, transparent) !important;
+}
+
+@media (max-width: 430px) {
+  .field-icon {
+    width: 22px;
+    height: 22px;
+    font-size: 0.9rem;
+  }
+
+  .icon-textarea-field textarea {
+    min-height: 68px;
+  }
+
+  .tile-duo {
+    gap: 3px;
+  }
+}
+
+
+/* v1.5.4: richtige Temperaturanzeige + schönere Tages-Detailfelder */
+.temperature-tile small {
+  display: block !important;
+}
+
+/* Die zusätzliche Temperaturanzeige oben rechts in der Tageskarte wurde im HTML entfernt.
+   Falls alte Browser-Caches sie noch rendern, ausblenden. */
+.day-summary-card > .entry-card-head .temp-pill {
+  display: none !important;
+}
+
+/* Zusammengeführte Tagesfelder wie Medikamente/Schlaf schöner darstellen */
+.summary-info-card {
+  border-radius: 10px;
+  border: 1px solid var(--kg-border);
+  background: color-mix(in srgb, var(--kg-soft) 72%, var(--card) 28%);
+  padding: 10px;
+  display: grid;
+  gap: 9px;
+}
+
+.summary-info-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.summary-info-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  display: inline-grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--primary) 12%, var(--card) 88%);
+  border: 1px solid color-mix(in srgb, var(--kg-border) 78%, transparent);
+  font-size: 1rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.summary-info-head strong {
+  font-size: 0.95rem;
+  font-weight: 950;
+  color: var(--text);
+}
+
+.summary-info-list {
+  display: grid;
+  gap: 7px;
+}
+
+.summary-info-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+  align-items: start;
+  padding: 8px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--card) 58%, transparent);
+  border: 1px solid color-mix(in srgb, var(--kg-border) 55%, transparent);
+}
+
+.summary-info-time {
+  min-width: 48px;
+  padding: 4px 6px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--primary) 11%, var(--card) 89%);
+  color: color-mix(in srgb, var(--primary2) 74%, var(--text) 26%);
+  font-size: 0.76rem;
+  font-weight: 950;
+  text-align: center;
+  line-height: 1;
+}
+
+body.dark .summary-info-time {
+  color: var(--primary);
+}
+
+.summary-info-item p {
+  margin: 0;
+  color: var(--text);
+  line-height: 1.38;
+  overflow-wrap: anywhere;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 430px) {
+  .summary-info-card {
+    padding: 9px;
+  }
+
+  .summary-info-item {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .summary-info-time {
+    width: fit-content;
+    min-width: 0;
+  }
+}
+
+
+/* v1.6.0: zusätzliche Farbthemes */
+body[data-theme="darkslate"] {
+  --bg: #101820 !important;
+  --card: #182431 !important;
+  --card2: #223244 !important;
+  --text: #edf5fb !important;
+  --muted: #9fb1bf !important;
+  --line: #33495c !important;
+  --primary: #7fa7c9 !important;
+  --primary2: #4d779d !important;
+  --green: #77bea0 !important;
+  --blue: #85add0 !important;
+  --danger: #ee7180 !important;
+  --shadow: 0 16px 38px rgba(0, 0, 0, 0.34) !important;
+}
+
+body.dark[data-theme="darkslate"] {
+  --bg: #0b1118 !important;
+  --card: #111b25 !important;
+  --card2: #1a2835 !important;
+  --text: #f2f8fc !important;
+  --muted: #9fb1bf !important;
+  --line: #2c4153 !important;
+  --primary: #8eb8d9 !important;
+  --primary2: #5d8ab3 !important;
+  --green: #85d0ad !important;
+  --blue: #9ac2e2 !important;
+  --danger: #ff7c8b !important;
+  --shadow: 0 16px 38px rgba(0, 0, 0, 0.42) !important;
+}
+
+body[data-theme="ocean"] {
+  --bg: #edf8fa !important;
+  --card: #f8fdff !important;
+  --card2: #d7eef3 !important;
+  --text: #10272f !important;
+  --muted: #5c7780 !important;
+  --line: #c8e2e8 !important;
+  --primary: #4aa9c2 !important;
+  --primary2: #247c9a !important;
+  --green: #53ad95 !important;
+  --blue: #3e98c9 !important;
+  --danger: #d95767 !important;
+  --shadow: 0 14px 34px rgba(25, 91, 110, 0.13) !important;
+}
+
+body.dark[data-theme="ocean"] {
+  --bg: #0a1a20 !important;
+  --card: #102831 !important;
+  --card2: #193945 !important;
+  --text: #effcff !important;
+  --muted: #9cc2cc !important;
+  --line: #285160 !important;
+  --primary: #68c7df !important;
+  --primary2: #2e93b2 !important;
+  --green: #6ed0b9 !important;
+  --blue: #75c5f3 !important;
+  --danger: #ff7888 !important;
+  --shadow: 0 16px 38px rgba(0, 0, 0, 0.38) !important;
+}
+
+body[data-theme="forest"] {
+  --bg: #f0f7ef !important;
+  --card: #fbfffa !important;
+  --card2: #dcebd8 !important;
+  --text: #172816 !important;
+  --muted: #61765e !important;
+  --line: #cfdfca !important;
+  --primary: #6da95f !important;
+  --primary2: #477f3f !important;
+  --green: #5ba66f !important;
+  --blue: #5a93ad !important;
+  --danger: #cf5865 !important;
+  --shadow: 0 14px 34px rgba(55, 93, 48, 0.13) !important;
+}
+
+body.dark[data-theme="forest"] {
+  --bg: #101b10 !important;
+  --card: #192818 !important;
+  --card2: #253823 !important;
+  --text: #f2fbef !important;
+  --muted: #abc0a6 !important;
+  --line: #394f35 !important;
+  --primary: #8ac87a !important;
+  --primary2: #5a9d4f !important;
+  --green: #8ed8a2 !important;
+  --blue: #83bdd4 !important;
+  --danger: #ff7c8b !important;
+  --shadow: 0 16px 38px rgba(0, 0, 0, 0.38) !important;
+}
+
+body[data-theme="sand"] {
+  --bg: #fbf5e9 !important;
+  --card: #fffdf8 !important;
+  --card2: #efe2c8 !important;
+  --text: #2a2215 !important;
+  --muted: #7d6d55 !important;
+  --line: #e4d3b4 !important;
+  --primary: #c59a57 !important;
+  --primary2: #987139 !important;
+  --green: #7ea46a !important;
+  --blue: #739abc !important;
+  --danger: #ce5c5c !important;
+  --shadow: 0 14px 34px rgba(95, 71, 34, 0.13) !important;
+}
+
+body.dark[data-theme="sand"] {
+  --bg: #1d1710 !important;
+  --card: #2a2116 !important;
+  --card2: #3a2d1d !important;
+  --text: #fff8ed !important;
+  --muted: #c9b796 !important;
+  --line: #51402a !important;
+  --primary: #d7ad68 !important;
+  --primary2: #aa7d3f !important;
+  --green: #a4cc87 !important;
+  --blue: #9ac2e2 !important;
+  --danger: #ff7f84 !important;
+  --shadow: 0 16px 38px rgba(0, 0, 0, 0.38) !important;
+}
+
+body[data-theme="berry"] {
+  --bg: #fbf0f8 !important;
+  --card: #fffafd !important;
+  --card2: #efd7e8 !important;
+  --text: #2b1427 !important;
+  --muted: #7f5c78 !important;
+  --line: #e2c3d8 !important;
+  --primary: #bf6aa7 !important;
+  --primary2: #91447d !important;
+  --green: #70a982 !important;
+  --blue: #7e98cf !important;
+  --danger: #d84e68 !important;
+  --shadow: 0 14px 34px rgba(102, 41, 87, 0.13) !important;
+}
+
+body.dark[data-theme="berry"] {
+  --bg: #1f101d !important;
+  --card: #2d1929 !important;
+  --card2: #41233b !important;
+  --text: #fff6fc !important;
+  --muted: #d1abc9 !important;
+  --line: #57314f !important;
+  --primary: #d883c1 !important;
+  --primary2: #a95593 !important;
+  --green: #96d2a7 !important;
+  --blue: #a4baff !important;
+  --danger: #ff768d !important;
+  --shadow: 0 16px 38px rgba(0, 0, 0, 0.38) !important;
+}
+
+body[data-theme="mono"] {
+  --bg: #f2f3f5 !important;
+  --card: #ffffff !important;
+  --card2: #e3e6ea !important;
+  --text: #1b1f24 !important;
+  --muted: #68707a !important;
+  --line: #d5dae0 !important;
+  --primary: #5f6f82 !important;
+  --primary2: #3f4d5d !important;
+  --green: #638f72 !important;
+  --blue: #607d9f !important;
+  --danger: #c95865 !important;
+  --shadow: 0 14px 34px rgba(43, 50, 58, 0.10) !important;
+}
+
+body.dark[data-theme="mono"] {
+  --bg: #111316 !important;
+  --card: #1b1f24 !important;
+  --card2: #252b31 !important;
+  --text: #f4f5f6 !important;
+  --muted: #a8afb7 !important;
+  --line: #38414a !important;
+  --primary: #9aa6b2 !important;
+  --primary2: #6f7d8c !important;
+  --green: #8bb89a !important;
+  --blue: #9cadc1 !important;
+  --danger: #f07986 !important;
+  --shadow: 0 16px 38px rgba(0, 0, 0, 0.38) !important;
+}
+
+
+/* v1.6.1: Bearbeitet-von-Zeile etwas klarer darstellen */
+.entry-user-meta span + span {
+  padding-top: 3px;
+  border-top: 1px solid color-mix(in srgb, var(--kg-border) 55%, transparent);
+}
+
+
+/* v1.7.0: Historie pro Eintrag */
+.history-box {
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 72%, transparent);
+  background: color-mix(in srgb, var(--kg-soft) 62%, transparent);
+  overflow: hidden;
+}
+
+.history-box summary {
+  cursor: pointer;
+  padding: 9px 10px;
+  font-weight: 950;
+  color: var(--text);
+  list-style: none;
+}
+
+.history-box summary::-webkit-details-marker {
+  display: none;
+}
+
+.history-box summary::after {
+  content: "▾";
+  float: right;
+  color: var(--muted);
+  transition: transform 160ms ease;
+}
+
+.history-box[open] summary::after {
+  transform: rotate(180deg);
+}
+
+.history-list {
+  display: grid;
+  gap: 7px;
+  padding: 0 10px 10px;
+}
+
+.history-item {
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--card) 58%, transparent);
+  border: 1px solid color-mix(in srgb, var(--kg-border) 50%, transparent);
+}
+
+.history-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.history-line strong {
+  font-size: 0.86rem;
+}
+
+.history-line span,
+.history-user {
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.2;
+}
+
+.history-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.history-fields span {
+  padding: 4px 6px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--primary) 10%, var(--card) 90%);
+  border: 1px solid color-mix(in srgb, var(--kg-border) 60%, transparent);
+  font-size: 0.72rem;
+  font-weight: 850;
+  color: var(--text);
+}
+
+
+/* v1.7.1: Historie subtiler und zuverlässig als kleiner Icon-Button */
+.history-box {
+  justify-self: start;
+  width: auto;
+  max-width: 100%;
+  border: 0 !important;
+  background: transparent !important;
+  overflow: visible;
+}
+
+.history-box summary {
+  cursor: pointer;
+  padding: 5px 8px !important;
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 68%, transparent);
+  background: color-mix(in srgb, var(--kg-soft) 68%, transparent) !important;
+  color: var(--muted);
+  font-weight: 850;
+  font-size: 0.76rem;
+  line-height: 1;
+  list-style: none;
+}
+
+.history-box summary::-webkit-details-marker {
+  display: none;
+}
+
+.history-box summary::after {
+  content: none !important;
+}
+
+.history-summary-icon {
+  font-size: 0.86rem;
+  line-height: 1;
+}
+
+.history-summary-text {
+  line-height: 1;
+}
+
+.history-summary-count {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--primary) 15%, var(--card) 85%);
+  color: var(--text);
+  font-size: 0.68rem;
+  font-weight: 950;
+}
+
+.history-box[open] summary {
+  color: var(--text);
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 10%, var(--card) 90%) !important;
+}
+
+.history-list {
+  width: min(100%, 420px);
+  display: grid;
+  gap: 7px;
+  padding: 8px 0 0 !important;
+}
+
+.history-item {
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--kg-soft) 58%, transparent) !important;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 52%, transparent);
+}
+
+.history-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.history-line strong {
+  font-size: 0.82rem;
+}
+
+.history-line span,
+.history-user {
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.2;
+}
+
+.history-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.history-fields span {
+  padding: 3px 6px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--primary) 8%, var(--card) 92%);
+  border: 1px solid color-mix(in srgb, var(--kg-border) 52%, transparent);
+  font-size: 0.68rem;
+  font-weight: 850;
+  color: var(--text);
+}
+
+@media (max-width: 430px) {
+  .history-summary-text {
+    display: none;
+  }
+
+  .history-list {
+    width: 100%;
+  }
+}
+
+
+/* v1.7.2: Historie als kompakte Zeilenliste, separate Erstellt/Bearbeitet-Zeilen entfernt */
+.entry-user-meta {
+  display: none !important;
+}
+
+.compact-history {
+  width: 100%;
+}
+
+.compact-history-list {
+  width: 100% !important;
+  display: grid;
+  gap: 5px !important;
+  padding: 7px 0 0 !important;
+}
+
+.history-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+  padding: 7px 8px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--kg-soft) 62%, transparent);
+  border: 1px solid color-mix(in srgb, var(--kg-border) 50%, transparent);
+  font-size: 0.74rem;
+  line-height: 1.2;
+}
+
+.history-action {
+  font-weight: 950;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.history-user-inline {
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history-date {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.history-fields-inline {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-size: 0.7rem;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 430px) {
+  .history-row {
+    grid-template-columns: auto 1fr;
+  }
+
+  .history-date {
+    grid-column: 1 / -1;
+    font-size: 0.7rem;
+  }
+
+  .history-fields-inline {
+    font-size: 0.68rem;
+  }
+}
+
+
+/* v1.7.4: Symptom-Auswahl im Neuer-Eintrag-Popup als sauberes 3er-Grid */
+#symptomChips {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 7px !important;
+  width: 100% !important;
+}
+
+#symptomChips label {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 44px !important;
+  padding: 7px 6px !important;
+  border-radius: 10px !important;
+  display: grid !important;
+  grid-template-columns: auto 1fr !important;
+  align-items: center !important;
+  justify-content: start !important;
+  gap: 5px !important;
+  font-size: 0.76rem !important;
+  line-height: 1.05 !important;
+  font-weight: 850 !important;
+  text-align: left !important;
+  overflow: hidden !important;
+}
+
+#symptomChips label input {
+  display: none !important;
+}
+
+#symptomChips label .symptom-icon {
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 10px !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  font-size: 1rem !important;
+  line-height: 1 !important;
+  background: color-mix(in srgb, var(--primary) 10%, var(--card) 90%) !important;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 64%, transparent) !important;
+  flex-shrink: 0 !important;
+}
+
+#symptomChips label span:last-child {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Ausgewählte Symptome klar, aber ruhig markieren */
+#symptomChips label:has(input:checked) {
+  background: color-mix(in srgb, var(--primary) 18%, var(--card) 82%) !important;
+  border-color: var(--primary) !important;
+  color: var(--text) !important;
+}
+
+#symptomChips label:has(input:checked) .symptom-icon {
+  background: color-mix(in srgb, var(--primary) 26%, var(--card) 74%) !important;
+  border-color: var(--primary) !important;
+}
+
+/* Fallback, falls :has nicht greift: Checkbox ist unsichtbar, Funktion bleibt trotzdem erhalten */
+@supports not selector(:has(*)) {
+  #symptomChips label input {
+    display: inline-block !important;
+    width: 12px !important;
+    height: 12px !important;
+  }
+
+  #symptomChips label {
+    grid-template-columns: auto auto 1fr !important;
+  }
+}
+
+@media (max-width: 360px) {
+  #symptomChips {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (min-width: 700px) {
+  #symptomChips label {
+    min-height: 46px !important;
+    font-size: 0.8rem !important;
+  }
+}
+
+
+/* v1.7.5: Kreise/Hintergründe um Icons entfernen */
+
+/* Symptom-Icons im Neuer-Eintrag-Popup */
+#symptomChips label .symptom-icon,
+#symptomChips label:has(input:checked) .symptom-icon {
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Symptom-Icons in Übersicht/Details */
+.symptom-icon,
+.symptom-chip .symptom-icon,
+.symptom-tag .symptom-icon {
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Detailfeld-Icons bei Medikamente, Essen, Schlaf, Windel/Toilette, Notizen */
+.field-icon,
+.summary-info-icon {
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Icon-Abstände nach Entfernen der Kreise etwas harmonischer */
+.icon-textarea-field > span,
+.summary-info-head,
+#symptomChips label,
+.symptom-chip,
+.symptom-tag {
+  gap: 6px !important;
+}
+
+
+/* v1.7.6: weichere, langsamere und wahrnehmbare Animationen */
+:root {
+  --anim-fast: 180ms;
+  --anim-normal: 340ms;
+  --anim-slow: 460ms;
+  --anim-ease: cubic-bezier(.22, .9, .28, 1);
+  --anim-soft: cubic-bezier(.2, .8, .2, 1);
+}
+
+/* Grundsätzlich sanftere Zustandswechsel */
+button,
+.btn,
+.icon-btn,
+.round-btn,
+.bottom-add-button,
+.day-tile,
+.entry-card,
+.entry-detail,
+.summary-info-card,
+.summary-info-item,
+.chips label,
+#symptomChips label,
+.mood-option,
+input,
+select,
+textarea,
+.tag,
+.symptom-chip,
+.toast {
+  transition:
+    background-color var(--anim-normal) var(--anim-ease),
+    border-color var(--anim-normal) var(--anim-ease),
+    color var(--anim-normal) var(--anim-ease),
+    opacity var(--anim-normal) var(--anim-ease),
+    transform var(--anim-normal) var(--anim-ease),
+    filter var(--anim-normal) var(--anim-ease),
+    box-shadow var(--anim-normal) var(--anim-ease) !important;
+}
+
+/* Buttons bekommen ein leichtes, nicht hektisches Tap-Feedback */
+button:active,
+.btn:active,
+.icon-btn:active,
+.round-btn:active,
+.bottom-add-button:active,
+.mood-option:active,
+#symptomChips label:active {
+  transform: scale(0.985) !important;
+}
+
+/* Eintrags-Popup deutlich wahrnehmbarer */
+.sheet:not(.hidden) .sheet-backdrop {
+  animation: kgBackdropInSlow var(--anim-slow) ease-out both !important;
+}
+
+.sheet:not(.hidden) .sheet-panel {
+  animation: kgSheetInSlow 520ms var(--anim-ease) both !important;
+  transform-origin: center bottom;
+}
+
+/* Profil/Backup Dialoge weicher */
+.modal-view:not(.hidden) {
+  animation: kgBackdropInSlow var(--anim-slow) ease-out both !important;
+}
+
+.modal-view:not(.hidden) .view-card {
+  animation: kgModalInSlow 500ms var(--anim-ease) both !important;
+  transform-origin: center center;
+}
+
+/* Toast weich einblenden */
+.toast:not(.hidden) {
+  animation: kgToastIn 420ms var(--anim-ease) both !important;
+}
+
+/* Details und Historie weicher */
+.history-box[open] .history-list,
+.expanded-details {
+  animation: kgExpandIn 380ms var(--anim-ease) both !important;
+}
+
+.history-row,
+.entry-detail,
+.summary-info-card {
+  animation: kgSubtleItemIn 320ms var(--anim-ease) both;
+}
+
+/* Kacheln beim Laden minimal weicher */
+.day-summary-card .day-tile {
+  animation: kgTileIn 380ms var(--anim-ease) both;
+}
+
+.day-summary-card .day-tile:nth-child(1) { animation-delay: 20ms; }
+.day-summary-card .day-tile:nth-child(2) { animation-delay: 50ms; }
+.day-summary-card .day-tile:nth-child(3) { animation-delay: 80ms; }
+.day-summary-card .day-tile:nth-child(4) { animation-delay: 110ms; }
+.day-summary-card .day-tile:nth-child(5) { animation-delay: 140ms; }
+.day-summary-card .day-tile:nth-child(6) { animation-delay: 170ms; }
+
+/* Mood/Symptom Auswahl sichtbar, aber nicht übertrieben */
+.mood-option.active,
+#symptomChips label:has(input:checked) {
+  animation: kgSelectPop 260ms var(--anim-ease) both;
+}
+
+/* Date-card und Tageskarte bei Datumswechsel subtil */
+.date-card,
+.day-summary-card,
+.empty-day {
+  animation: kgFadeUp 340ms var(--anim-ease) both;
+}
+
+/* Keyframes */
+@keyframes kgBackdropInSlow {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+}
+
+@keyframes kgSheetInSlow {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(38px) scale(0.975);
+  }
+  70% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-2px) scale(1.002);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+@keyframes kgModalInSlow {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.965);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.002);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes kgToastIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+@keyframes kgExpandIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+    clip-path: inset(0 0 18px 0 round 10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    clip-path: inset(0 0 0 0 round 10px);
+  }
+}
+
+@keyframes kgSubtleItemIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes kgTileIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes kgSelectPop {
+  from {
+    transform: scale(0.98);
+  }
+  70% {
+    transform: scale(1.018);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes kgFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Native Details Marker bleibt sauber */
+.history-box summary {
+  transition:
+    background-color var(--anim-normal) var(--anim-ease),
+    border-color var(--anim-normal) var(--anim-ease),
+    color var(--anim-normal) var(--anim-ease),
+    transform var(--anim-normal) var(--anim-ease) !important;
+}
+
+.history-box[open] summary {
+  animation: kgSelectPop 260ms var(--anim-ease) both;
+}
+
+/* Nutzer mit reduzierter Bewegung respektieren */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+
+/* v1.7.7: Animationen stabilisieren und Schließen animieren */
+
+/* Kacheln nicht bei jedem Render/Togglen der Details neu animieren.
+   Das hat beim Öffnen der Details das Flackern ausgelöst. */
+.day-summary-card .day-tile,
+.date-card,
+.day-summary-card,
+.empty-day,
+.history-row,
+.entry-detail,
+.summary-info-card {
+  animation-delay: 0ms !important;
+}
+
+/* Tageskacheln bekommen nur noch weiche Zustandsübergänge, keine Render-Animation */
+.day-summary-card .day-tile {
+  animation: none !important;
+}
+
+/* Details/Historie dürfen weiterhin sanft aufgehen, ohne die Übersicht neu zu animieren */
+.expanded-details {
+  animation: kgDetailsIn 320ms var(--anim-ease, cubic-bezier(.22,.9,.28,1)) both !important;
+}
+
+.history-box[open] .history-list {
+  animation: kgDetailsIn 300ms var(--anim-ease, cubic-bezier(.22,.9,.28,1)) both !important;
+}
+
+@keyframes kgDetailsIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Eintrags-Popup schließen */
+.sheet.closing {
+  display: block !important;
+  pointer-events: none !important;
+}
+
+.sheet.closing .sheet-backdrop {
+  animation: kgBackdropOut 260ms ease-in both !important;
+}
+
+.sheet.closing .sheet-panel {
+  animation: kgSheetOut 280ms cubic-bezier(.4, 0, .8, .2) both !important;
+}
+
+/* Profil/Backup schließen */
+.modal-view.closing {
+  display: grid !important;
+  pointer-events: none !important;
+  animation: kgBackdropOut 260ms ease-in both !important;
+}
+
+.modal-view.closing .view-card {
+  animation: kgModalOut 280ms cubic-bezier(.4, 0, .8, .2) both !important;
+}
+
+@keyframes kgBackdropOut {
+  from {
+    opacity: 1;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  to {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+  }
+}
+
+@keyframes kgSheetOut {
+  from {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-50%) translateY(28px) scale(0.975);
+  }
+}
+
+@keyframes kgModalOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+}
+
+/* Öffnungsanimationen etwas entschärfen, damit sie nicht mit Schließen kollidieren */
+.sheet:not(.hidden):not(.closing) .sheet-backdrop {
+  animation: kgBackdropInSlow 320ms ease-out both !important;
+}
+
+.sheet:not(.hidden):not(.closing) .sheet-panel {
+  animation: kgSheetInSlow 380ms var(--anim-ease, cubic-bezier(.22,.9,.28,1)) both !important;
+}
+
+.modal-view:not(.hidden):not(.closing) {
+  animation: kgBackdropInSlow 320ms ease-out both !important;
+}
+
+.modal-view:not(.hidden):not(.closing) .view-card {
+  animation: kgModalInSlow 380ms var(--anim-ease, cubic-bezier(.22,.9,.28,1)) both !important;
+}
+
+/* Keine mehrfachen Item-Animationen beim Detail-Toggle */
+.history-row,
+.entry-detail,
+.summary-info-card {
+  animation: none !important;
+}
+
+/* Auswahlfeedback bleibt, aber kein Flackern durch Re-Render */
+.mood-option.active,
+#symptomChips label:has(input:checked),
+.history-box[open] summary {
+  animation: none !important;
+  transition:
+    background-color 260ms var(--anim-ease, cubic-bezier(.22,.9,.28,1)),
+    border-color 260ms var(--anim-ease, cubic-bezier(.22,.9,.28,1)),
+    transform 180ms var(--anim-ease, cubic-bezier(.22,.9,.28,1)) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet.closing .sheet-backdrop,
+  .sheet.closing .sheet-panel,
+  .modal-view.closing,
+  .modal-view.closing .view-card,
+  .expanded-details,
+  .history-box[open] .history-list {
+    animation: none !important;
+  }
+}
+
+
+/* v1.7.8: Details ohne kompletten Re-Render öffnen, dadurch kein Zucken der Übersicht */
+#expandedDetails.hidden {
+  display: none !important;
+}
+
+#expandedDetails:not(.hidden) {
+  animation: kgDetailsOnlyIn 260ms cubic-bezier(.22, .9, .28, 1) both !important;
+}
+
+/* Beim Details-Toggle keine Animationen auf der Tageskarte/Kacheln auslösen */
+.day-summary-card,
+.day-summary-card *,
+.day-tile,
+.date-card {
+  animation-delay: 0ms !important;
+}
+
+.day-summary-card .day-tile,
+.day-summary-card,
+.date-card {
+  animation-name: none !important;
+}
+
+/* Nur der neu eingeblendete Detailbereich darf animieren */
+#expandedDetails .expanded-details {
+  animation: none !important;
+}
+
+@keyframes kgDetailsOnlyIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Der Details-Button verändert nur sich selbst, keine umliegenden Layoutanimationen */
+#toggleDetails {
+  transition:
+    background-color 220ms cubic-bezier(.22, .9, .28, 1),
+    border-color 220ms cubic-bezier(.22, .9, .28, 1),
+    color 220ms cubic-bezier(.22, .9, .28, 1),
+    transform 160ms cubic-bezier(.22, .9, .28, 1) !important;
+}
+
+
+/* v1.7.9: Neuer-Eintrag-Popup: Öffnen/Schließen gleiche Animation, nur Richtung anders */
+:root {
+  --sheet-motion-duration: 420ms;
+  --sheet-motion-ease: cubic-bezier(.22, .9, .28, 1);
+}
+
+.sheet:not(.hidden):not(.closing) .sheet-backdrop {
+  animation: kgSheetBackdropIn var(--sheet-motion-duration) var(--sheet-motion-ease) both !important;
+}
+
+.sheet:not(.hidden):not(.closing) .sheet-panel {
+  animation: kgSheetOpenMatched var(--sheet-motion-duration) var(--sheet-motion-ease) both !important;
+  transform-origin: center center !important;
+}
+
+.sheet.closing .sheet-backdrop {
+  animation: kgSheetBackdropOut var(--sheet-motion-duration) var(--sheet-motion-ease) both !important;
+}
+
+.sheet.closing .sheet-panel {
+  animation: kgSheetCloseMatched var(--sheet-motion-duration) var(--sheet-motion-ease) both !important;
+  transform-origin: center center !important;
+}
+
+@keyframes kgSheetOpenMatched {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(32px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+@keyframes kgSheetCloseMatched {
+  from {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-50%) translateY(32px) scale(0.985);
+  }
+}
+
+@keyframes kgSheetBackdropIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+}
+
+@keyframes kgSheetBackdropOut {
+  from {
+    opacity: 1;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  to {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+  }
+}
+
+
+/* v1.8.0: detaillierte Historie mit Vorher/Nachher-Werten */
+.history-row {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 6px !important;
+  align-items: stretch !important;
+}
+
+.history-row-main {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+}
+
+.history-change-list {
+  display: grid;
+  gap: 5px;
+  padding-top: 2px;
+}
+
+.history-change-row {
+  display: grid;
+  gap: 4px;
+  padding: 6px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--card) 56%, transparent);
+  border: 1px solid color-mix(in srgb, var(--kg-border) 46%, transparent);
+}
+
+.history-change-field {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 950;
+  line-height: 1.1;
+}
+
+.history-change-values {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+}
+
+.history-old,
+.history-new {
+  padding: 5px 6px;
+  border-radius: 10px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 0.72rem;
+  line-height: 1.22;
+}
+
+.history-old {
+  background: color-mix(in srgb, var(--danger) 8%, var(--card) 92%);
+  color: var(--muted);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.history-new {
+  background: color-mix(in srgb, var(--green) 12%, var(--card) 88%);
+  color: var(--text);
+  font-weight: 850;
+}
+
+.history-arrow {
+  color: var(--muted);
+  font-weight: 950;
+  font-size: 0.8rem;
+}
+
+/* Fallback-Feldliste in alten Historienereignissen */
+.history-fields-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.history-fields-inline span {
+  padding: 4px 6px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--primary) 8%, var(--card) 92%);
+  border: 1px solid color-mix(in srgb, var(--kg-border) 52%, transparent);
+  font-size: 0.68rem;
+  font-weight: 850;
+  color: var(--text);
+}
+
+/* Symptom-Auswahl deutlicher markieren */
+#symptomChips label {
+  position: relative;
+  transition:
+    background-color 220ms cubic-bezier(.22,.9,.28,1),
+    border-color 220ms cubic-bezier(.22,.9,.28,1),
+    color 220ms cubic-bezier(.22,.9,.28,1),
+    transform 160ms cubic-bezier(.22,.9,.28,1) !important;
+}
+
+#symptomChips label:has(input:checked) {
+  background: color-mix(in srgb, var(--primary) 26%, var(--card) 74%) !important;
+  border-color: var(--primary) !important;
+  color: var(--text) !important;
+  font-weight: 950 !important;
+}
+
+#symptomChips label:has(input:checked)::after {
+  content: "✓";
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 950;
+  line-height: 1;
+}
+
+#symptomChips label:has(input:checked) .symptom-icon {
+  transform: scale(1.08);
+}
+
+@supports not selector(:has(*)) {
+  #symptomChips label input:checked {
+    accent-color: var(--primary);
+  }
+}
+
+@media (max-width: 430px) {
+  .history-row-main {
+    grid-template-columns: auto 1fr;
+  }
+
+  .history-date {
+    grid-column: 1 / -1;
+  }
+
+  .history-change-values {
+    grid-template-columns: 1fr;
+  }
+
+  .history-arrow {
+    transform: rotate(90deg);
+    justify-self: center;
+  }
+
+  #symptomChips label:has(input:checked)::after {
+    right: 4px;
+    top: 4px;
+    width: 15px;
+    height: 15px;
+  }
+}
+
+
+/* v1.8.1: Desktop breiter nutzen, Smartphone unverändert lassen */
+@media (min-width: 900px) {
+  .app {
+    width: min(1120px, calc(100vw - 48px)) !important;
+    max-width: 1120px !important;
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+
+  .topbar,
+  .date-card,
+  .day-entries {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .topbar {
+    align-items: center !important;
+  }
+
+  .topbar h1#activeProfileTitle {
+    font-size: 2.4rem !important;
+  }
+
+  .date-card {
+    grid-template-columns: 48px minmax(0, 1fr) 48px !important;
+    padding: 14px !important;
+  }
+
+  .day-summary-card {
+    padding: 18px !important;
+  }
+
+  .day-tile-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+
+  .day-tile {
+    min-height: 142px !important;
+    padding: 14px !important;
+  }
+
+  .tile-icon {
+    font-size: 1.55rem !important;
+  }
+
+  .tile-label {
+    font-size: 0.78rem !important;
+  }
+
+  .day-tile strong {
+    font-size: 1.08rem !important;
+  }
+
+  .day-tile small {
+    font-size: 0.72rem !important;
+  }
+
+  .summary-info-card {
+    padding: 12px !important;
+  }
+
+  .summary-info-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .expanded-details {
+    gap: 12px !important;
+  }
+
+  .entry-detail {
+    padding: 12px !important;
+  }
+
+  .entry-detail .detail-row {
+    grid-template-columns: 160px minmax(0, 1fr) !important;
+    align-items: start !important;
+    gap: 12px !important;
+  }
+
+  .entry-detail .detail-row span {
+    padding-top: 2px !important;
+  }
+
+  .entry-detail .symptom-row {
+    grid-template-columns: 160px minmax(0, 1fr) !important;
+  }
+
+  .history-list.compact-history-list {
+    width: min(720px, 100%) !important;
+  }
+
+  .history-row-main {
+    grid-template-columns: 110px minmax(0, 1fr) auto !important;
+  }
+
+  .history-change-row {
+    grid-template-columns: 150px minmax(0, 1fr) !important;
+    align-items: center !important;
+  }
+
+  .history-change-values {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) !important;
+  }
+
+  body > .bottom-action-bar > .bottom-add-button {
+    max-width: 420px !important;
+    width: 420px !important;
+  }
+
+  .toast {
+    max-width: 420px !important;
+  }
+}
+
+@media (min-width: 1280px) {
+  .app {
+    width: min(1220px, calc(100vw - 72px)) !important;
+    max-width: 1220px !important;
+  }
+
+  .day-tile {
+    min-height: 150px !important;
+  }
+}
+
+/* Popup-Formulare auf Desktop breiter und übersichtlicher, Smartphone bleibt wie bisher */
+@media (min-width: 900px) {
+  .sheet-panel {
+    width: min(860px, calc(100vw - 64px)) !important;
+    max-width: 860px !important;
+  }
+
+  .quick-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+
+  .temperature-field {
+    grid-column: span 1 !important;
+  }
+
+  .mood-field {
+    grid-column: span 2 !important;
+  }
+
+  .quick-grid .field:nth-child(3) {
+    grid-column: span 1 !important;
+  }
+
+  .mood-options {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  }
+
+  #symptomChips {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .section-card {
+    padding: 14px !important;
+  }
+
+  .section-card:has(.icon-textarea-field) {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+
+  .section-card:has(.icon-textarea-field) h3 {
+    grid-column: 1 / -1 !important;
+  }
+
+  .icon-textarea-field textarea {
+    min-height: 92px !important;
+  }
+
+  .sheet-actions .btn.primary,
+  .sheet-actions .btn.danger,
+  #deleteCurrent {
+    width: 420px !important;
+    max-width: 420px !important;
+  }
+
+  .modal-view .view-card,
+  #profileView .view-card,
+  #backupView .view-card {
+    width: min(680px, calc(100vw - 64px)) !important;
+    max-width: 680px !important;
+  }
+}
+
+
+/* v1.8.2: Haken auch bei ausgewählter Stimmung */
+.mood-option {
+  position: relative !important;
+}
+
+.mood-option.active {
+  background: color-mix(in srgb, var(--primary) 26%, var(--card) 74%) !important;
+  border-color: var(--primary) !important;
+  color: var(--text) !important;
+  font-weight: 950 !important;
+}
+
+.mood-option.active::after {
+  content: "✓";
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.mood-option.active span {
+  transform: scale(1.08);
+}
+
+.mood-option span {
+  transition: transform 180ms cubic-bezier(.22, .9, .28, 1);
+}
+
+@media (max-width: 430px) {
+  .mood-option.active::after {
+    right: 4px;
+    top: 4px;
+    width: 15px;
+    height: 15px;
+  }
+}
+
+
+/* v1.8.3: Tageskacheln als Schnellaktionen */
+button.day-tile {
+  appearance: none;
+  -webkit-appearance: none;
+  font: inherit;
+  text-align: inherit;
+  cursor: pointer;
+  color: inherit;
+}
+
+.quick-tile {
+  position: relative;
+}
+
+.quick-tile::after {
+  content: "+";
+  position: absolute;
+  right: 7px;
+  top: 7px;
+  width: 17px;
+  height: 17px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--primary) 18%, var(--card) 82%);
+  border: 1px solid color-mix(in srgb, var(--primary) 55%, transparent);
+  color: var(--primary2);
+  font-size: 0.72rem;
+  font-weight: 950;
+  line-height: 1;
+  opacity: 0.88;
+}
+
+body.dark .quick-tile::after {
+  color: var(--primary);
+}
+
+.quick-tile:active {
+  transform: scale(0.985) !important;
+}
+
+.quick-tile:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--primary) 35%, transparent);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .quick-tile:hover {
+    border-color: var(--primary) !important;
+    background: color-mix(in srgb, var(--primary) 10%, var(--kg-surface) 90%) !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .quick-tile::after {
+    right: 5px;
+    top: 5px;
+    width: 15px;
+    height: 15px;
+    font-size: 0.66rem;
+  }
+}
+
+
+/* v1.9.2: Mini-Popups für Kachel-Schnellaktionen */
+body.quick-open > .bottom-action-bar { display: none !important; }
+
+.quick-sheet {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1260 !important;
+  display: block !important;
+  overflow: hidden !important;
+}
+.quick-sheet.hidden { display: none !important; }
+
+.quick-backdrop {
+  position: absolute !important;
+  inset: 0 !important;
+  background: color-mix(in srgb, var(--bg) 72%, rgba(17, 19, 24, 0.28) 28%) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+.quick-panel {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: min(430px, calc(100vw - 28px)) !important;
+  max-width: calc(100vw - 28px) !important;
+  max-height: min(78dvh, 620px) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 14px !important;
+  border-radius: 10px !important;
+  background: var(--kg-surface) !important;
+  border: 1px solid var(--kg-border) !important;
+  box-sizing: border-box !important;
+}
+
+.quick-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--kg-border) 65%, transparent);
+}
+.quick-head h2 { margin: 0 0 4px 0; font-size: 1.25rem; line-height: 1.15; }
+.quick-head p { margin: 0; color: var(--muted); font-size: 0.86rem; line-height: 1.35; }
+
+.quick-content { display: grid; gap: 12px; }
+.quick-field { gap: 8px !important; }
+
+.quick-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid color-mix(in srgb, var(--kg-border) 65%, transparent);
+}
+.quick-actions .btn.primary { width: min(330px, 100%) !important; min-height: 52px !important; }
+
+.quick-symptom-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 7px !important;
+}
+.quick-symptom-grid label {
+  position: relative;
+  min-height: 44px;
+  padding: 7px 24px 7px 7px;
+  border-radius: 10px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.76rem;
+  font-weight: 850;
+  background: var(--kg-soft);
+  border: 1px solid var(--kg-border);
+  overflow: hidden;
+}
+.quick-symptom-grid label input { display: none !important; }
+.quick-symptom-grid label span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.quick-symptom-grid label:has(input:checked) {
+  background: color-mix(in srgb, var(--primary) 26%, var(--card) 74%) !important;
+  border-color: var(--primary) !important;
+  font-weight: 950;
+}
+.quick-symptom-grid label:has(input:checked)::after {
+  content: "✓";
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 950;
+}
+
+.quick-sheet:not(.hidden):not(.closing) .quick-backdrop {
+  animation: kgSheetBackdropIn var(--sheet-motion-duration, 420ms) var(--sheet-motion-ease, cubic-bezier(.22,.9,.28,1)) both !important;
+}
+.quick-sheet:not(.hidden):not(.closing) .quick-panel { animation: kgQuickOpen 420ms cubic-bezier(.22,.9,.28,1) both !important; }
+.quick-sheet.closing { display: block !important; pointer-events: none !important; }
+.quick-sheet.closing .quick-backdrop { animation: kgSheetBackdropOut var(--sheet-motion-duration, 420ms) var(--sheet-motion-ease, cubic-bezier(.22,.9,.28,1)) both !important; }
+.quick-sheet.closing .quick-panel { animation: kgQuickClose 420ms cubic-bezier(.22,.9,.28,1) both !important; }
+
+@keyframes kgQuickOpen {
+  from { opacity: 0; transform: translate(-50%, calc(-50% + 26px)) scale(0.985); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes kgQuickClose {
+  from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  to { opacity: 0; transform: translate(-50%, calc(-50% + 26px)) scale(0.985); }
+}
+
+@media (min-width: 900px) {
+  .quick-panel { width: min(520px, calc(100vw - 64px)) !important; }
+  .quick-symptom-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+}
+
+
+/* v1.9.4: Datumsfläche öffnet den Datepicker */
+.date-picker-trigger {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  border: 0 !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  text-align: center !important;
+  cursor: pointer !important;
+  display: grid !important;
+  gap: 2px !important;
+  color: inherit !important;
+  font: inherit !important;
+  border-radius: 10px !important;
+}
+
+.date-picker-trigger:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--primary) 32%, transparent);
+  outline-offset: 4px;
+}
+
+.date-picker-trigger:active {
+  transform: scale(0.99) !important;
+}
+
+.date-picker-trigger::after {
+  content: "Datum wählen";
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 850;
+  opacity: 0.72;
+}
+
+/* Das native Date-Feld bleibt vorhanden, aber nimmt optisch keinen Platz weg */
+.date-picker-trigger #selectedDate {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  border: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+@media (max-width: 430px) {
+  .date-picker-trigger::after {
+    font-size: 0.64rem;
+  }
+}
+
+
+/* v1.9.5: Datepicker zuverlässig öffnend durch echtes klickbares Date-Input */
+.date-picker-trigger {
+  position: relative !important;
+  isolation: isolate;
+}
+
+/*
+  Nicht mehr pointer-events:none:
+  Das echte native Date-Input liegt als transparente Klickfläche über dem Datum.
+  Das ist zuverlässiger in iOS/Home-Assistant-WebViews als showPicker().
+*/
+.date-picker-trigger #selectedDate {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 4 !important;
+  width: 100% !important;
+  height: 100% !important;
+  opacity: 0.001 !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  border: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  color: transparent !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+/* sichtbare Texte bleiben oberhalb optisch normal, aber unter der transparenten Input-Klickfläche */
+.date-picker-trigger strong,
+.date-picker-trigger span,
+.date-picker-trigger::after {
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.date-picker-trigger:focus-within {
+  outline: 3px solid color-mix(in srgb, var(--primary) 32%, transparent);
+  outline-offset: 4px;
+}
+
+/* Verhindert, dass Browser ein Kalender-Icon sichtbar ins Layout malt */
+.date-picker-trigger #selectedDate::-webkit-calendar-picker-indicator {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.date-picker-trigger #selectedDate::-webkit-date-and-time-value,
+.date-picker-trigger #selectedDate::-webkit-datetime-edit {
+  color: transparent;
+}
+
+
+/* v2.0.0: Eigener Kalender mit Markierungen für Tage mit Einträgen */
+body.calendar-open > .bottom-action-bar {
+  display: none !important;
+}
+
+.calendar-sheet {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1270 !important;
+  display: block !important;
+  overflow: hidden !important;
+}
+
+.calendar-sheet.hidden {
+  display: none !important;
+}
+
+.calendar-backdrop {
+  position: absolute !important;
+  inset: 0 !important;
+  background: color-mix(in srgb, var(--bg) 72%, rgba(17, 19, 24, 0.28) 28%) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+.calendar-panel {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: min(430px, calc(100vw - 28px)) !important;
+  max-width: calc(100vw - 28px) !important;
+  max-height: min(82dvh, 680px) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 14px !important;
+  border-radius: 10px !important;
+  background: var(--kg-surface) !important;
+  border: 1px solid var(--kg-border) !important;
+  box-sizing: border-box !important;
+}
+
+.calendar-head {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 12px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid color-mix(in srgb, var(--kg-border) 65%, transparent);
+}
+
+.calendar-head h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  line-height: 1.2;
+  text-transform: capitalize;
+}
+
+.calendar-head p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.25;
+}
+
+.calendar-close {
+  margin-left: 2px;
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 950;
+  text-align: center;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.calendar-day {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  min-width: 0;
+  aspect-ratio: 1 / 1;
+  border-radius: 10px !important;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 70%, transparent);
+  background: color-mix(in srgb, var(--kg-soft) 74%, transparent);
+  color: var(--text);
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.calendar-day.empty {
+  background: transparent;
+  border: 0;
+  pointer-events: none;
+}
+
+.calendar-day.has-entry::after {
+  content: "";
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+.calendar-day.today {
+  border-color: color-mix(in srgb, var(--primary) 60%, var(--kg-border) 40%);
+}
+
+.calendar-day.selected {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: #fff !important;
+}
+
+.calendar-day.selected.has-entry::after {
+  background: #fff;
+}
+
+.calendar-day:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--primary) 35%, transparent);
+  outline-offset: 2px;
+}
+
+.calendar-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid color-mix(in srgb, var(--kg-border) 65%, transparent);
+}
+
+.calendar-footer .btn {
+  width: min(240px, 100%);
+  min-height: 44px;
+}
+
+/* Der alte native Date-Input soll nicht mehr über der Datumsfläche liegen */
+.date-picker-trigger #selectedDate {
+  display: none !important;
+}
+
+.calendar-sheet:not(.hidden):not(.closing) .calendar-backdrop {
+  animation: kgSheetBackdropIn var(--sheet-motion-duration, 420ms) var(--sheet-motion-ease, cubic-bezier(.22,.9,.28,1)) both !important;
+}
+
+.calendar-sheet:not(.hidden):not(.closing) .calendar-panel {
+  animation: kgCalendarOpen 420ms cubic-bezier(.22,.9,.28,1) both !important;
+}
+
+.calendar-sheet.closing {
+  display: block !important;
+  pointer-events: none !important;
+}
+
+.calendar-sheet.closing .calendar-backdrop {
+  animation: kgSheetBackdropOut var(--sheet-motion-duration, 420ms) var(--sheet-motion-ease, cubic-bezier(.22,.9,.28,1)) both !important;
+}
+
+.calendar-sheet.closing .calendar-panel {
+  animation: kgCalendarClose 420ms cubic-bezier(.22,.9,.28,1) both !important;
+}
+
+@keyframes kgCalendarOpen {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 26px)) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes kgCalendarClose {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 26px)) scale(0.985);
+  }
+}
+
+@media (min-width: 900px) {
+  .calendar-panel {
+    width: min(500px, calc(100vw - 64px)) !important;
+  }
+
+  .calendar-day {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 370px) {
+  .calendar-panel {
+    padding: 12px !important;
+  }
+
+  .calendar-grid,
+  .calendar-weekdays {
+    gap: 4px;
+  }
+
+  .calendar-head {
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .calendar-close {
+    grid-column: 1 / -1;
+    justify-self: end;
+  }
+}
+
+
+/* v2.2.0: Nachträge, Datum/Uhrzeit bearbeiten, Symptom-Intensität */
+.entry-date-time-card {
+  margin-bottom: 10px !important;
+}
+
+.entry-date-time-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.symptom-intensity {
+  grid-column: 1 / -1;
+  width: 100% !important;
+  min-height: 34px !important;
+  padding: 5px 8px !important;
+  font-size: 0.72rem !important;
+  font-weight: 850 !important;
+  border-radius: 10px !important;
+  background: color-mix(in srgb, var(--card) 78%, var(--kg-soft) 22%) !important;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 70%, transparent) !important;
+  color: var(--text) !important;
+  opacity: 0.55;
+}
+
+#symptomChips label.with-intensity .symptom-intensity,
+#symptomChips label:has(input:checked) .symptom-intensity {
+  opacity: 1;
+}
+
+#symptomChips label {
+  align-content: center !important;
+}
+
+#symptomChips label:has(input:checked) {
+  align-content: start !important;
+}
+
+#symptomChips label:has(input:checked) span:last-of-type {
+  white-space: normal !important;
+}
+
+/* Kalender immer gleich hoch: 6 Wochen Raster */
+.calendar-grid {
+  grid-template-rows: repeat(6, minmax(0, 1fr)) !important;
+  min-height: 282px !important;
+}
+
+.calendar-day.empty {
+  display: block !important;
+  visibility: hidden !important;
+}
+
+/* Backup-Icon etwas ruhiger */
+#backupButton {
+  font-size: 1.05rem !important;
+}
+
+@media (max-width: 430px) {
+  .entry-date-time-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .symptom-intensity {
+    min-height: 32px !important;
+    font-size: 0.68rem !important;
+    padding: 4px 7px !important;
+  }
+
+  .calendar-grid {
+    min-height: 264px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .entry-date-time-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* v2.2.1: Symptom-Intensität sichtbar machen */
+#symptomChips {
+  align-items: stretch !important;
+}
+
+#symptomChips label {
+  min-height: 44px !important;
+  height: auto !important;
+  overflow: visible !important;
+  align-content: center !important;
+  grid-template-rows: auto auto !important;
+}
+
+#symptomChips label:has(input:checked),
+#symptomChips label.with-intensity {
+  min-height: 82px !important;
+  align-content: start !important;
+  padding-bottom: 7px !important;
+}
+
+#symptomChips label:has(input:checked) .symptom-intensity,
+#symptomChips label.with-intensity .symptom-intensity {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+#symptomChips label:not(:has(input:checked)) .symptom-intensity {
+  display: none !important;
+}
+
+.symptom-intensity {
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+  margin-top: 4px !important;
+  min-height: 30px !important;
+  height: 30px !important;
+  padding: 3px 7px !important;
+  font-size: 0.7rem !important;
+  border-radius: 10px !important;
+  background: color-mix(in srgb, var(--card) 86%, var(--primary) 14%) !important;
+  border: 1px solid color-mix(in srgb, var(--primary) 42%, var(--kg-border) 58%) !important;
+  color: var(--text) !important;
+}
+
+/* Auf dem Smartphone lieber 2 Spalten, damit die Auswahlmenüs lesbar bleiben */
+@media (max-width: 430px) {
+  #symptomChips {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  #symptomChips label:has(input:checked),
+  #symptomChips label.with-intensity {
+    min-height: 80px !important;
+  }
+}
+
+/* Auf sehr breiten Screens kann es bei 3 Spalten bleiben */
+@media (min-width: 900px) {
+  #symptomChips {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+
+/* v2.2.2: Symptom-Intensität auch im kleinen Symptome-Kachel-Popup */
+.quick-symptom-intensity {
+  display: none !important;
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+  margin-top: 4px !important;
+  min-height: 30px !important;
+  height: 30px !important;
+  padding: 3px 7px !important;
+  font-size: 0.7rem !important;
+  font-weight: 850 !important;
+  border-radius: 10px !important;
+  background: color-mix(in srgb, var(--card) 86%, var(--primary) 14%) !important;
+  border: 1px solid color-mix(in srgb, var(--primary) 42%, var(--kg-border) 58%) !important;
+  color: var(--text) !important;
+}
+
+.quick-symptom-grid label:has(input:checked),
+.quick-symptom-grid label.with-intensity {
+  min-height: 82px !important;
+  align-content: start !important;
+  overflow: visible !important;
+}
+
+.quick-symptom-grid label:has(input:checked) .quick-symptom-intensity,
+.quick-symptom-grid label.with-intensity .quick-symptom-intensity {
+  display: block !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+.quick-symptom-grid label {
+  height: auto !important;
+  overflow: visible !important;
+  grid-template-rows: auto auto !important;
+}
+
+@media (max-width: 430px) {
+  .quick-symptom-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .quick-symptom-grid label:has(input:checked),
+  .quick-symptom-grid label.with-intensity {
+    min-height: 80px !important;
+  }
+
+  .quick-symptom-intensity {
+    min-height: 32px !important;
+    font-size: 0.68rem !important;
+  }
+}
+
+
+/* v2.2.3: Uhrzeitfeld WebView-sicher, Buttons begrenzen, Intensität immer sichtbar */
+
+/* Uhrzeit ist jetzt ein Textfeld, damit iOS/Home-Assistant nicht durch den nativen Timepicker abstürzt */
+#entryTime {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Button darf nicht mehr über das Popup hinausragen */
+.sheet-actions,
+.quick-actions {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  display: grid !important;
+  justify-items: center !important;
+  overflow: hidden !important;
+}
+
+.sheet-actions .btn,
+.sheet-actions .btn.primary,
+.sheet-actions .btn.danger,
+#deleteCurrent,
+.quick-actions .btn,
+.quick-actions .btn.primary {
+  width: min(100%, 330px) !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Intensität immer sichtbar, nicht erst nach Auswahl */
+.symptom-intensity,
+.quick-symptom-intensity {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+  margin-top: 4px !important;
+  min-height: 30px !important;
+  height: 30px !important;
+  padding: 3px 7px !important;
+  font-size: 0.68rem !important;
+  font-weight: 850 !important;
+  border-radius: 10px !important;
+  background: color-mix(in srgb, var(--card) 86%, var(--primary) 14%) !important;
+  border: 1px solid color-mix(in srgb, var(--primary) 35%, var(--kg-border) 65%) !important;
+  color: var(--text) !important;
+}
+
+/* Chips dauerhaft höher, damit Selects nicht abgeschnitten werden */
+#symptomChips label,
+.quick-symptom-grid label {
+  min-height: 82px !important;
+  height: auto !important;
+  overflow: visible !important;
+  align-content: start !important;
+  grid-template-rows: auto auto !important;
+  padding-bottom: 7px !important;
+}
+
+/* Auswahl trotzdem klar markieren */
+#symptomChips label:not(:has(input:checked)),
+.quick-symptom-grid label:not(:has(input:checked)) {
+  opacity: 0.82;
+}
+
+#symptomChips label:not(:has(input:checked)) .symptom-intensity,
+.quick-symptom-grid label:not(:has(input:checked)) .quick-symptom-intensity {
+  opacity: 0.72 !important;
+}
+
+/* Auf Smartphone lieber 2 Spalten, damit Icon/Text/Select sauber passen */
+@media (max-width: 430px) {
+  #symptomChips,
+  .quick-symptom-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .sheet-actions .btn,
+  .sheet-actions .btn.primary,
+  .sheet-actions .btn.danger,
+  #deleteCurrent,
+  .quick-actions .btn,
+  .quick-actions .btn.primary {
+    width: min(100%, 310px) !important;
+  }
+}
+
+@media (max-width: 360px) {
+  #symptomChips,
+  .quick-symptom-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+
+/* v2.2.4: Intensitätsmenüs wirklich dauerhaft sichtbar machen.
+   Überschreibt ältere Regeln, die Selects erst bei :has(input:checked) anzeigen. */
+#symptomChips label .symptom-intensity,
+#symptomChips label:not(:has(input:checked)) .symptom-intensity,
+#symptomChips label:has(input:checked) .symptom-intensity,
+#symptomChips label.with-intensity .symptom-intensity,
+.quick-symptom-grid label .quick-symptom-intensity,
+.quick-symptom-grid label:not(:has(input:checked)) .quick-symptom-intensity,
+.quick-symptom-grid label:has(input:checked) .quick-symptom-intensity,
+.quick-symptom-grid label.with-intensity .quick-symptom-intensity {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 2 !important;
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 30px !important;
+  min-height: 30px !important;
+  margin-top: 5px !important;
+  padding: 3px 7px !important;
+  border-radius: 10px !important;
+  box-sizing: border-box !important;
+  font-size: 0.68rem !important;
+  font-weight: 850 !important;
+  background: color-mix(in srgb, var(--card) 86%, var(--primary) 14%) !important;
+  border: 1px solid color-mix(in srgb, var(--primary) 35%, var(--kg-border) 65%) !important;
+  color: var(--text) !important;
+  appearance: auto !important;
+  -webkit-appearance: menulist !important;
+}
+
+/* Chips immer hoch genug für Icon/Text + Intensität */
+#symptomChips label,
+#symptomChips label:not(:has(input:checked)),
+#symptomChips label:has(input:checked),
+#symptomChips label.with-intensity,
+.quick-symptom-grid label,
+.quick-symptom-grid label:not(:has(input:checked)),
+.quick-symptom-grid label:has(input:checked),
+.quick-symptom-grid label.with-intensity {
+  min-height: 84px !important;
+  height: auto !important;
+  overflow: visible !important;
+  align-content: start !important;
+  grid-template-rows: auto auto !important;
+  padding-bottom: 7px !important;
+}
+
+/* Nicht ausgewählte Chips bleiben etwas ruhiger, aber das Menü bleibt sichtbar */
+#symptomChips label:not(:has(input:checked)),
+.quick-symptom-grid label:not(:has(input:checked)) {
+  opacity: 0.92 !important;
+}
+
+#symptomChips label:not(:has(input:checked)) .symptom-intensity,
+.quick-symptom-grid label:not(:has(input:checked)) .quick-symptom-intensity {
+  opacity: 0.88 !important;
+}
+
+/* Fallback für WebViews ohne :has: auch dort immer anzeigen */
+@supports not selector(:has(*)) {
+  #symptomChips label .symptom-intensity,
+  .quick-symptom-grid label .quick-symptom-intensity {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+}
+
+
+/* v2.2.6: Eigener Timepicker statt nativer iOS/WebView Timepicker */
+body.time-open > .bottom-action-bar {
+  display: none !important;
+}
+
+.time-sheet {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1280 !important;
+  display: block !important;
+  overflow: hidden !important;
+}
+
+.time-sheet.hidden {
+  display: none !important;
+}
+
+.time-backdrop {
+  position: absolute !important;
+  inset: 0 !important;
+  background: color-mix(in srgb, var(--bg) 72%, rgba(17, 19, 24, 0.28) 28%) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+.time-panel {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: min(380px, calc(100vw - 28px)) !important;
+  max-width: calc(100vw - 28px) !important;
+  padding: 14px !important;
+  border-radius: 10px !important;
+  background: var(--kg-surface) !important;
+  border: 1px solid var(--kg-border) !important;
+  box-sizing: border-box !important;
+}
+
+.time-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--kg-border) 65%, transparent);
+}
+
+.time-head h2 {
+  margin: 0 0 4px 0;
+  font-size: 1.22rem;
+  line-height: 1.15;
+}
+
+.time-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.time-picker-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.time-picker-grid select {
+  min-height: 48px !important;
+  font-size: 1.05rem !important;
+  font-weight: 900 !important;
+  text-align: center !important;
+  text-align-last: center !important;
+}
+
+.time-preview {
+  margin: 12px auto 0;
+  width: fit-content;
+  min-width: 104px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--primary) 12%, var(--card) 88%);
+  border: 1px solid color-mix(in srgb, var(--primary) 35%, var(--kg-border) 65%);
+  color: var(--text);
+  font-size: 1.35rem;
+  font-weight: 950;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.time-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid color-mix(in srgb, var(--kg-border) 65%, transparent);
+}
+
+.time-actions .btn {
+  width: 100% !important;
+  min-height: 48px !important;
+}
+
+.time-sheet:not(.hidden):not(.closing) .time-backdrop {
+  animation: kgSheetBackdropIn var(--sheet-motion-duration, 420ms) var(--sheet-motion-ease, cubic-bezier(.22,.9,.28,1)) both !important;
+}
+
+.time-sheet:not(.hidden):not(.closing) .time-panel {
+  animation: kgTimeOpen 420ms cubic-bezier(.22,.9,.28,1) both !important;
+}
+
+.time-sheet.closing {
+  display: block !important;
+  pointer-events: none !important;
+}
+
+.time-sheet.closing .time-backdrop {
+  animation: kgSheetBackdropOut var(--sheet-motion-duration, 420ms) var(--sheet-motion-ease, cubic-bezier(.22,.9,.28,1)) both !important;
+}
+
+.time-sheet.closing .time-panel {
+  animation: kgTimeClose 420ms cubic-bezier(.22,.9,.28,1) both !important;
+}
+
+@keyframes kgTimeOpen {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 26px)) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes kgTimeClose {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 26px)) scale(0.985);
+  }
+}
+
+@media (max-width: 360px) {
+  .time-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* v2.2.9: Einträge direkt in der Tagesübersicht bearbeiten */
+.summary-info-item {
+  grid-template-columns: auto minmax(0, 1fr) auto !important;
+  align-items: start !important;
+}
+
+.summary-edit-button {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 70%, transparent);
+  background: color-mix(in srgb, var(--kg-soft) 78%, var(--card) 22%);
+  color: var(--text);
+  display: inline-grid;
+  place-items: center;
+  font-size: 0.86rem;
+  font-weight: 950;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: none !important;
+}
+
+.summary-edit-button:hover {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, var(--card) 88%);
+}
+
+.summary-edit-button:active {
+  transform: scale(0.96);
+}
+
+.summary-edit-button:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--primary) 32%, transparent);
+  outline-offset: 2px;
+}
+
+@media (max-width: 430px) {
+  .summary-info-item {
+    grid-template-columns: auto minmax(0, 1fr) auto !important;
+  }
+
+  .summary-edit-button {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    font-size: 0.8rem;
+  }
+}
+
+
+/* v2.3.0: Feldspezifisches Bearbeiten aus der Tagesübersicht */
+body.field-edit-open > .bottom-action-bar {
+  display: none !important;
+}
+
+.field-edit-sheet {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1290 !important;
+  display: block !important;
+  overflow: hidden !important;
+}
+
+.field-edit-sheet.hidden {
+  display: none !important;
+}
+
+.field-edit-backdrop {
+  position: absolute !important;
+  inset: 0 !important;
+  background: color-mix(in srgb, var(--bg) 72%, rgba(17, 19, 24, 0.28) 28%) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+.field-edit-panel {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: min(430px, calc(100vw - 28px)) !important;
+  max-width: calc(100vw - 28px) !important;
+  max-height: min(78dvh, 620px) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 14px !important;
+  border-radius: 10px !important;
+  background: var(--kg-surface) !important;
+  border: 1px solid var(--kg-border) !important;
+  box-sizing: border-box !important;
+}
+
+.field-edit-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--kg-border) 65%, transparent);
+}
+
+.field-edit-head h2 {
+  margin: 0 0 4px 0;
+  font-size: 1.24rem;
+  line-height: 1.15;
+}
+
+.field-edit-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.field-edit-content {
+  display: grid;
+  gap: 12px;
+}
+
+.field-edit-value textarea {
+  min-height: 118px !important;
+}
+
+.field-edit-actions {
+  display: grid !important;
+  justify-items: center !important;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid color-mix(in srgb, var(--kg-border) 65%, transparent);
+}
+
+.field-edit-actions .btn {
+  width: min(100%, 330px) !important;
+  max-width: 100% !important;
+  min-height: 52px !important;
+}
+
+.field-edit-sheet:not(.hidden):not(.closing) .field-edit-backdrop {
+  animation: kgSheetBackdropIn var(--sheet-motion-duration, 420ms) var(--sheet-motion-ease, cubic-bezier(.22,.9,.28,1)) both !important;
+}
+
+.field-edit-sheet:not(.hidden):not(.closing) .field-edit-panel {
+  animation: kgFieldEditOpen 420ms cubic-bezier(.22,.9,.28,1) both !important;
+}
+
+.field-edit-sheet.closing {
+  display: block !important;
+  pointer-events: none !important;
+}
+
+.field-edit-sheet.closing .field-edit-backdrop {
+  animation: kgSheetBackdropOut var(--sheet-motion-duration, 420ms) var(--sheet-motion-ease, cubic-bezier(.22,.9,.28,1)) both !important;
+}
+
+.field-edit-sheet.closing .field-edit-panel {
+  animation: kgFieldEditClose 420ms cubic-bezier(.22,.9,.28,1) both !important;
+}
+
+@keyframes kgFieldEditOpen {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 26px)) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes kgFieldEditClose {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 26px)) scale(0.985);
+  }
+}
+
+
+/* v2.3.1: Intensität in Symptom-Tags unter den Kacheln */
+.symptom-tags .symptom-tag span:last-child {
+  white-space: normal !important;
+  line-height: 1.2 !important;
+}
+
+
+/* v2.3.2: Löschen Button im feldspezifischen Bearbeiten-Popup */
+.field-edit-actions {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+  justify-items: stretch !important;
+}
+
+.field-edit-actions .btn {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 52px !important;
+}
+
+@media (max-width: 360px) {
+  .field-edit-actions {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+
+/* v2.3.4: Detailansicht optisch aufwerten */
+.expanded-details {
+  gap: 12px !important;
+}
+
+.expanded-details > h3 {
+  margin: 4px 2px 0 !important;
+  font-size: 1rem !important;
+  font-weight: 950 !important;
+  color: var(--text) !important;
+  letter-spacing: -0.02em;
+}
+
+.redesigned-detail {
+  border-radius: 10px !important;
+  padding: 12px !important;
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--card) 84%, var(--primary) 16%),
+      color-mix(in srgb, var(--card) 96%, var(--kg-soft) 4%)
+    ) !important;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 72%, transparent) !important;
+  box-shadow: 0 10px 26px color-mix(in srgb, var(--shadow) 24%, transparent) !important;
+  display: grid !important;
+  gap: 10px !important;
+}
+
+.redesigned-detail .entry-detail-head {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: 10px !important;
+  align-items: start !important;
+  padding-bottom: 10px !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--kg-border) 60%, transparent) !important;
+}
+
+.entry-detail-title {
+  min-width: 0 !important;
+  display: grid !important;
+  gap: 3px !important;
+}
+
+.entry-detail-clock {
+  width: fit-content;
+  padding: 5px 8px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--primary) 12%, var(--card) 88%);
+  border: 1px solid color-mix(in srgb, var(--primary) 30%, var(--kg-border) 70%);
+  color: color-mix(in srgb, var(--primary2) 76%, var(--text) 24%);
+  font-size: 0.76rem !important;
+  font-weight: 950 !important;
+  font-variant-numeric: tabular-nums;
+}
+
+body.dark .entry-detail-clock {
+  color: var(--primary);
+}
+
+.entry-detail-title strong {
+  font-size: 0.9rem !important;
+  color: var(--muted) !important;
+  font-weight: 850 !important;
+}
+
+.redesigned-detail .entry-detail-actions {
+  display: flex !important;
+  gap: 6px !important;
+  align-items: center !important;
+}
+
+.redesigned-detail .entry-detail-actions .btn {
+  min-height: 34px !important;
+  padding: 7px 10px !important;
+  border-radius: 10px !important;
+  font-size: 0.76rem !important;
+  white-space: nowrap;
+}
+
+.detail-section-card {
+  padding: 10px !important;
+  border-radius: 10px !important;
+  background: color-mix(in srgb, var(--kg-soft) 66%, var(--card) 34%) !important;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 58%, transparent) !important;
+  display: grid;
+  gap: 8px;
+}
+
+.detail-section-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--text);
+}
+
+.detail-section-title strong {
+  font-size: 0.88rem;
+  font-weight: 950;
+}
+
+.detail-value-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.detail-value-card {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) !important;
+  gap: 9px !important;
+  align-items: start !important;
+  padding: 10px !important;
+  border-radius: 10px !important;
+  background: color-mix(in srgb, var(--kg-soft) 66%, var(--card) 34%) !important;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 58%, transparent) !important;
+}
+
+.detail-value-icon {
+  width: 24px;
+  height: 24px;
+  display: inline-grid;
+  place-items: center;
+  font-size: 1.08rem;
+  line-height: 1;
+  margin-top: 1px;
+}
+
+.detail-value-body {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.detail-value-label {
+  color: var(--muted) !important;
+  font-size: 0.72rem !important;
+  font-weight: 950 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.045em;
+}
+
+.detail-value-card strong {
+  color: var(--text) !important;
+  font-size: 0.92rem !important;
+  font-weight: 850 !important;
+  line-height: 1.34 !important;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.redesigned-detail .symptom-list {
+  gap: 6px !important;
+}
+
+.redesigned-detail .symptom-chip {
+  border-radius: 10px !important;
+  background: color-mix(in srgb, var(--primary) 10%, var(--card) 90%) !important;
+  border: 1px solid color-mix(in srgb, var(--primary) 28%, var(--kg-border) 72%) !important;
+  padding: 6px 8px !important;
+  font-weight: 850 !important;
+}
+
+.detail-history-wrap .history-box {
+  margin-top: 0 !important;
+  justify-self: stretch !important;
+}
+
+.detail-history-wrap .history-box summary {
+  background: color-mix(in srgb, var(--kg-soft) 70%, var(--card) 30%) !important;
+  border-color: color-mix(in srgb, var(--kg-border) 60%, transparent) !important;
+}
+
+.detail-history-wrap .history-list {
+  width: 100% !important;
+}
+
+@media (min-width: 900px) {
+  .detail-value-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 430px) {
+  .redesigned-detail {
+    padding: 10px !important;
+    gap: 9px !important;
+  }
+
+  .redesigned-detail .entry-detail-head {
+    grid-template-columns: 1fr !important;
+  }
+
+  .redesigned-detail .entry-detail-actions {
+    width: 100%;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .redesigned-detail .entry-detail-actions .btn {
+    width: 100% !important;
+  }
+
+  .detail-value-card {
+    padding: 9px !important;
+  }
+}
+
+
+/* v2.3.6: Neuer Ansatz Detailansicht, Journal/Timeline statt Kartenraster */
+.expanded-details {
+  gap: 14px !important;
+}
+
+.expanded-details > h3 {
+  margin: 6px 4px 2px !important;
+  font-size: 1.02rem !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.025em;
+  color: var(--text);
+}
+
+.journal-detail {
+  display: grid !important;
+  grid-template-columns: 18px minmax(0, 1fr) !important;
+  gap: 8px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.journal-rail {
+  position: relative;
+  display: grid;
+  justify-items: center;
+}
+
+.journal-rail::before {
+  content: "";
+  position: absolute;
+  top: 18px;
+  bottom: 8px;
+  width: 2px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 24%, var(--kg-border) 76%);
+}
+
+.journal-rail span {
+  position: relative;
+  z-index: 1;
+  width: 12px;
+  height: 12px;
+  margin-top: 18px;
+  border-radius: 999px;
+  background: var(--primary);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--primary) 14%, transparent);
+}
+
+.journal-card {
+  min-width: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--card) 94%, var(--primary) 6%),
+      color-mix(in srgb, var(--card) 98%, var(--kg-soft) 2%)
+    );
+  border: 1px solid color-mix(in srgb, var(--kg-border) 66%, transparent);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--shadow) 18%, transparent);
+}
+
+.journal-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+  padding: 13px 13px 11px;
+  border-bottom: 1px solid color-mix(in srgb, var(--kg-border) 58%, transparent);
+  background: color-mix(in srgb, var(--kg-soft) 36%, transparent);
+}
+
+.journal-head-main {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.journal-kicker {
+  width: fit-content;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 12%, var(--card) 88%);
+  color: color-mix(in srgb, var(--primary2) 76%, var(--text) 24%);
+  border: 1px solid color-mix(in srgb, var(--primary) 28%, var(--kg-border) 72%);
+  font-size: 0.68rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+body.dark .journal-kicker {
+  color: var(--primary);
+}
+
+.journal-head-main strong {
+  font-size: 1.2rem;
+  line-height: 1.05;
+  font-weight: 950;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.journal-head-main small {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.journal-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.journal-action-button {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 68%, transparent);
+  background: color-mix(in srgb, var(--card) 82%, var(--kg-soft) 18%);
+  color: var(--text);
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.journal-action-button.danger {
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 8%, var(--card) 92%);
+  border-color: color-mix(in srgb, var(--danger) 24%, var(--kg-border) 76%);
+}
+
+.journal-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding: 11px 13px 0;
+}
+
+.journal-metric {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 7px;
+  align-items: center;
+  padding: 9px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--kg-soft) 56%, var(--card) 44%);
+  border: 1px solid color-mix(in srgb, var(--kg-border) 52%, transparent);
+}
+
+.journal-metric > span {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.journal-metric div {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+
+.journal-metric small {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+.journal-metric strong {
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 950;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.journal-metric.temp-green strong { color: #2e8b57; }
+.journal-metric.temp-yellow strong { color: #b8860b; }
+.journal-metric.temp-orange strong { color: #d2691e; }
+.journal-metric.temp-red strong { color: #c62828; }
+
+body.dark .journal-metric.temp-green strong { color: #7fd6a2; }
+body.dark .journal-metric.temp-yellow strong { color: #ffd66b; }
+body.dark .journal-metric.temp-orange strong { color: #ffb36b; }
+body.dark .journal-metric.temp-red strong { color: #ff8f8f; }
+
+.journal-section {
+  margin: 11px 13px 0;
+  padding: 0 0 11px;
+  border-bottom: 1px solid color-mix(in srgb, var(--kg-border) 48%, transparent);
+}
+
+.journal-section-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 8px;
+}
+
+.journal-section-title span {
+  font-size: 1rem;
+}
+
+.journal-section-title strong {
+  color: var(--text);
+  font-size: 0.84rem;
+  font-weight: 950;
+}
+
+.journal-section .symptom-list {
+  gap: 7px !important;
+}
+
+.journal-section .symptom-chip {
+  padding: 7px 9px !important;
+  border-radius: 10px !important;
+  background: color-mix(in srgb, var(--primary) 9%, var(--card) 91%) !important;
+  border: 1px solid color-mix(in srgb, var(--primary) 24%, var(--kg-border) 76%) !important;
+  font-weight: 850 !important;
+}
+
+.journal-field-list {
+  display: grid;
+  gap: 7px;
+}
+
+.journal-field {
+  padding: 9px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--kg-soft) 48%, var(--card) 52%);
+  border: 1px solid color-mix(in srgb, var(--kg-border) 48%, transparent);
+}
+
+.journal-field-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+}
+
+.journal-field-label span {
+  font-size: 1rem;
+}
+
+.journal-field-label strong {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.045em;
+}
+
+.journal-field p {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1.38;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.journal-empty {
+  margin: 11px 13px 0;
+  padding: 13px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--kg-soft) 48%, var(--card) 52%);
+  border: 1px solid color-mix(in srgb, var(--kg-border) 48%, transparent);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--muted);
+}
+
+.journal-empty span {
+  font-size: 1.1rem;
+}
+
+.journal-empty strong {
+  color: var(--text);
+  font-size: 0.88rem;
+}
+
+.journal-history {
+  padding: 11px 13px 13px;
+}
+
+.journal-history .history-box {
+  width: 100% !important;
+  justify-self: stretch !important;
+}
+
+.journal-history .history-box summary {
+  width: fit-content;
+  background: color-mix(in srgb, var(--kg-soft) 70%, var(--card) 30%) !important;
+  border-color: color-mix(in srgb, var(--kg-border) 56%, transparent) !important;
+}
+
+.journal-history .history-list {
+  width: 100% !important;
+}
+
+@media (max-width: 430px) {
+  .journal-detail {
+    grid-template-columns: 14px minmax(0, 1fr) !important;
+    gap: 6px !important;
+  }
+
+  .journal-head {
+    padding: 12px;
+  }
+
+  .journal-metrics {
+    grid-template-columns: 1fr;
+    padding: 10px 12px 0;
+  }
+
+  .journal-section,
+  .journal-empty {
+    margin-left: 12px;
+    margin-right: 12px;
+  }
+
+  .journal-history {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
+@media (min-width: 900px) {
+  .journal-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .journal-field-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+
+/* v2.3.7: Historie-Icon oben + kurzes Datumsformat */
+.journal-history-toggle {
+  color: var(--text);
+  background: color-mix(in srgb, var(--primary) 8%, var(--card) 92%);
+  border-color: color-mix(in srgb, var(--primary) 22%, var(--kg-border) 78%);
+}
+
+.journal-history-toggle:hover {
+  background: color-mix(in srgb, var(--primary) 14%, var(--card) 86%);
+  border-color: var(--primary);
+}
+
+.journal-actions {
+  align-items: center;
+}
+
+/* Da das Historie-Icon nun oben sitzt, wirkt die untere Historie zurückhaltender */
+.journal-history .history-box summary {
+  font-size: 0.72rem !important;
+  opacity: 0.9;
+}
+
+@media (max-width: 430px) {
+  .journal-action-button {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+
+/* v2.4.0: Details als Popups statt Inline-Liste */
+body.day-detail-open > .bottom-action-bar,
+body.entry-detail-popup-open > .bottom-action-bar {
+  display: none !important;
+}
+
+.day-detail-sheet,
+.entry-detail-popup {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1300 !important;
+  display: block !important;
+  overflow: hidden !important;
+}
+
+.entry-detail-popup {
+  z-index: 1310 !important;
+}
+
+.day-detail-sheet.hidden,
+.entry-detail-popup.hidden {
+  display: none !important;
+}
+
+.day-detail-backdrop,
+.entry-detail-popup-backdrop {
+  position: absolute !important;
+  inset: 0 !important;
+  background: color-mix(in srgb, var(--bg) 72%, rgba(17, 19, 24, 0.28) 28%) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+.day-detail-panel,
+.entry-detail-popup-panel {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: min(520px, calc(100vw - 28px)) !important;
+  max-width: calc(100vw - 28px) !important;
+  max-height: min(82dvh, 720px) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 14px !important;
+  border-radius: 10px !important;
+  background: var(--kg-surface) !important;
+  border: 1px solid var(--kg-border) !important;
+  box-sizing: border-box !important;
+}
+
+.entry-detail-popup-panel {
+  width: min(560px, calc(100vw - 28px)) !important;
+}
+
+.day-detail-head,
+.entry-detail-popup-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--kg-border) 65%, transparent);
+}
+
+.day-detail-head h2,
+.entry-detail-popup-head h2 {
+  margin: 0 0 4px 0;
+  font-size: 1.22rem;
+  line-height: 1.15;
+}
+
+.day-detail-head p,
+.entry-detail-popup-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.day-detail-list {
+  display: grid;
+  gap: 8px;
+}
+
+.day-detail-entry {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 62%, transparent);
+  background: color-mix(in srgb, var(--card) 90%, var(--kg-soft) 10%);
+  color: var(--text);
+  padding: 10px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  text-align: left;
+  cursor: pointer;
+}
+
+.day-detail-entry:hover {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 8%, var(--card) 92%);
+}
+
+.day-detail-entry-time {
+  min-width: 54px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--primary) 10%, var(--card) 90%);
+  border: 1px solid color-mix(in srgb, var(--primary) 26%, var(--kg-border) 74%);
+  font-size: 0.76rem;
+  font-weight: 950;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.day-detail-entry-body {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.day-detail-entry-body strong {
+  font-size: 0.88rem;
+  font-weight: 900;
+  color: var(--text);
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.day-detail-entry-body small {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-weight: 850;
+}
+
+.day-detail-entry-arrow {
+  color: var(--muted);
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.day-detail-sheet:not(.hidden):not(.closing) .day-detail-backdrop,
+.entry-detail-popup:not(.hidden):not(.closing) .entry-detail-popup-backdrop {
+  animation: kgSheetBackdropIn var(--sheet-motion-duration, 420ms) var(--sheet-motion-ease, cubic-bezier(.22,.9,.28,1)) both !important;
+}
+
+.day-detail-sheet:not(.hidden):not(.closing) .day-detail-panel,
+.entry-detail-popup:not(.hidden):not(.closing) .entry-detail-popup-panel {
+  animation: kgDetailPopupOpen 420ms cubic-bezier(.22,.9,.28,1) both !important;
+}
+
+.day-detail-sheet.closing,
+.entry-detail-popup.closing {
+  display: block !important;
+  pointer-events: none !important;
+}
+
+.day-detail-sheet.closing .day-detail-backdrop,
+.entry-detail-popup.closing .entry-detail-popup-backdrop {
+  animation: kgSheetBackdropOut var(--sheet-motion-duration, 420ms) var(--sheet-motion-ease, cubic-bezier(.22,.9,.28,1)) both !important;
+}
+
+.day-detail-sheet.closing .day-detail-panel,
+.entry-detail-popup.closing .entry-detail-popup-panel {
+  animation: kgDetailPopupClose 420ms cubic-bezier(.22,.9,.28,1) both !important;
+}
+
+@keyframes kgDetailPopupOpen {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 26px)) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes kgDetailPopupClose {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 26px)) scale(0.985);
+  }
+}
+
+/* Detailkarte im Popup etwas enger */
+.entry-detail-popup-content .journal-detail {
+  margin: 0 !important;
+}
+
+.entry-detail-popup-content .journal-card {
+  box-shadow: none !important;
+}
+
+@media (max-width: 430px) {
+  .day-detail-panel,
+  .entry-detail-popup-panel {
+    width: min(100vw - 18px, 520px) !important;
+    max-height: min(84dvh, 720px) !important;
+    padding: 12px !important;
+  }
+
+  .day-detail-entry {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .day-detail-entry-arrow {
+    display: none;
+  }
+
+  .day-detail-entry-body strong {
+    white-space: normal;
+  }
+}
+
+
+/* v2.4.2: Historie direkt aus der Tagesübersicht als Popup */
+.summary-row-actions {
+  display: inline-grid;
+  grid-template-columns: auto auto;
+  gap: 5px;
+  align-items: center;
+}
+
+.summary-history-button {
+  color: var(--text);
+  background: color-mix(in srgb, var(--primary) 8%, var(--card) 92%);
+  border-color: color-mix(in srgb, var(--primary) 22%, var(--kg-border) 78%);
+}
+
+.summary-history-button:hover {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 14%, var(--card) 86%);
+}
+
+body.entry-history-open > .bottom-action-bar {
+  display: none !important;
+}
+
+.entry-history-popup {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1320 !important;
+  display: block !important;
+  overflow: hidden !important;
+}
+
+.entry-history-popup.hidden {
+  display: none !important;
+}
+
+.entry-history-backdrop {
+  position: absolute !important;
+  inset: 0 !important;
+  background: color-mix(in srgb, var(--bg) 72%, rgba(17, 19, 24, 0.28) 28%) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+.entry-history-panel {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: min(480px, calc(100vw - 28px)) !important;
+  max-width: calc(100vw - 28px) !important;
+  max-height: min(78dvh, 680px) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 14px !important;
+  border-radius: 10px !important;
+  background: var(--kg-surface) !important;
+  border: 1px solid var(--kg-border) !important;
+  box-sizing: border-box !important;
+}
+
+.entry-history-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--kg-border) 65%, transparent);
+}
+
+.entry-history-head h2 {
+  margin: 0 0 4px 0;
+  font-size: 1.22rem;
+  line-height: 1.15;
+}
+
+.entry-history-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.entry-history-content {
+  display: grid;
+  gap: 10px;
+}
+
+.entry-history-list {
+  display: grid;
+  gap: 8px;
+}
+
+.entry-history-row {
+  border-radius: 10px;
+  padding: 10px;
+  background: color-mix(in srgb, var(--card) 90%, var(--kg-soft) 10%);
+  border: 1px solid color-mix(in srgb, var(--kg-border) 58%, transparent);
+  display: grid;
+  gap: 6px;
+}
+
+.entry-history-row-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
+
+.entry-history-action {
+  font-size: 0.78rem;
+  font-weight: 950;
+  color: var(--text);
+}
+
+.entry-history-date,
+.entry-history-user {
+  font-size: 0.72rem;
+  font-weight: 850;
+  color: var(--muted);
+}
+
+.entry-history-user {
+  margin-top: -3px;
+}
+
+.entry-history-empty {
+  min-height: 140px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--card) 90%, var(--kg-soft) 10%);
+  border: 1px solid color-mix(in srgb, var(--kg-border) 58%, transparent);
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 7px;
+  text-align: center;
+  padding: 16px;
+}
+
+.entry-history-empty span {
+  font-size: 1.45rem;
+}
+
+.entry-history-empty strong {
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.entry-history-empty p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.entry-history-popup:not(.hidden):not(.closing) .entry-history-backdrop {
+  animation: kgSheetBackdropIn var(--sheet-motion-duration, 420ms) var(--sheet-motion-ease, cubic-bezier(.22,.9,.28,1)) both !important;
+}
+
+.entry-history-popup:not(.hidden):not(.closing) .entry-history-panel {
+  animation: kgEntryHistoryOpen 420ms cubic-bezier(.22,.9,.28,1) both !important;
+}
+
+.entry-history-popup.closing {
+  display: block !important;
+  pointer-events: none !important;
+}
+
+.entry-history-popup.closing .entry-history-backdrop {
+  animation: kgSheetBackdropOut var(--sheet-motion-duration, 420ms) var(--sheet-motion-ease, cubic-bezier(.22,.9,.28,1)) both !important;
+}
+
+.entry-history-popup.closing .entry-history-panel {
+  animation: kgEntryHistoryClose 420ms cubic-bezier(.22,.9,.28,1) both !important;
+}
+
+@keyframes kgEntryHistoryOpen {
+  from { opacity: 0; transform: translate(-50%, calc(-50% + 26px)) scale(0.985); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes kgEntryHistoryClose {
+  from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  to { opacity: 0; transform: translate(-50%, calc(-50% + 26px)) scale(0.985); }
+}
+
+@media (max-width: 430px) {
+  .summary-info-item {
+    grid-template-columns: auto minmax(0, 1fr) auto !important;
+  }
+
+  .summary-row-actions {
+    gap: 4px;
+  }
+
+  .entry-history-panel {
+    width: min(100vw - 18px, 480px) !important;
+    padding: 12px !important;
+  }
+}
+
+
+/* v2.4.3: Unteren Details-Button entfernen */
+#toggleDetails,
+.card-actions:has(#toggleDetails) {
+  display: none !important;
+}
+
+
+/* v2.4.4: Stimmung wieder als Mehrfachliste in der Tagesübersicht */
+.summary-info-card .summary-info-head .summary-info-icon {
+  flex: 0 0 auto;
+}
+
+
+/* v2.4.5: Stimmung wieder als Mehrfachauswahl */
+#moodOptions .mood-option,
+#quickMoodOptions .mood-option {
+  position: relative;
+}
+
+#moodOptions .mood-option.active,
+#quickMoodOptions .mood-option.active {
+  background: color-mix(in srgb, var(--primary) 26%, var(--card) 74%) !important;
+  border-color: var(--primary) !important;
+  color: var(--text) !important;
+  font-weight: 950 !important;
+}
+
+#moodOptions .mood-option.active::after,
+#quickMoodOptions .mood-option.active::after {
+  content: "✓";
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 950;
+  line-height: 1;
+}
+
+
+/* v2.4.6: Flüssigkeit und Temperatur als bearbeitbare Mehrfachlisten */
+.summary-info-item.temp-green p { color: #2e8b57; font-weight: 950; }
+.summary-info-item.temp-yellow p { color: #b8860b; font-weight: 950; }
+.summary-info-item.temp-orange p { color: #d2691e; font-weight: 950; }
+.summary-info-item.temp-red p { color: #c62828; font-weight: 950; }
+
+body.dark .summary-info-item.temp-green p { color: #7fd6a2; }
+body.dark .summary-info-item.temp-yellow p { color: #ffd66b; }
+body.dark .summary-info-item.temp-orange p { color: #ffb36b; }
+body.dark .summary-info-item.temp-red p { color: #ff8f8f; }
+
+.field-edit-value input[type="number"] {
+  width: 100% !important;
+  min-height: 48px !important;
+  border-radius: 10px !important;
+}
+
+
+/* v2.4.7: Kompaktere Tageskacheln + Notizen-Kachel */
+.compact-day-tile-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+}
+
+.compact-day-tile {
+  min-height: 86px !important;
+  padding: 9px 7px !important;
+  gap: 4px !important;
+  border-radius: 10px !important;
+}
+
+.compact-day-tile .tile-icon {
+  font-size: 1.22rem !important;
+  line-height: 1 !important;
+}
+
+.compact-day-tile .tile-duo {
+  display: inline-flex !important;
+  gap: 1px !important;
+  justify-content: center !important;
+}
+
+.compact-day-tile .tile-label {
+  font-size: 0.66rem !important;
+  line-height: 1.05 !important;
+  font-weight: 900 !important;
+}
+
+.compact-day-tile strong {
+  font-size: 0.86rem !important;
+  line-height: 1.12 !important;
+  font-weight: 950 !important;
+}
+
+.compact-day-tile small {
+  display: none !important;
+}
+
+.compact-day-tile.quick-tile::after {
+  width: 14px !important;
+  height: 14px !important;
+  right: 4px !important;
+  top: 4px !important;
+  font-size: 0.62rem !important;
+}
+
+@media (min-width: 900px) {
+  .compact-day-tile-grid {
+    grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+  }
+
+  .compact-day-tile {
+    min-height: 92px !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .compact-day-tile-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+  }
+
+  .compact-day-tile {
+    min-height: 82px !important;
+    padding: 8px 6px !important;
+  }
+}
+
+@media (max-width: 345px) {
+  .compact-day-tile-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+
+/* v2.4.9: Kachelbeschreibungen auf Smartphone wieder anzeigen */
+.compact-day-tile small {
+  display: block !important;
+  font-size: 0.62rem !important;
+  line-height: 1.1 !important;
+  color: var(--muted) !important;
+  font-weight: 800 !important;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.compact-day-tile {
+  min-height: 98px !important;
+}
+
+@media (max-width: 430px) {
+  .compact-day-tile {
+    min-height: 96px !important;
+  }
+
+  .compact-day-tile small {
+    font-size: 0.6rem !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    white-space: normal !important;
+  }
+}
+
+@media (min-width: 900px) {
+  .compact-day-tile-grid {
+    grid-template-columns: repeat(8, minmax(0, 1fr)) !important;
+  }
+}
+
+
+/* v2.4.11: Kachelwerte mit Bedeutung anzeigen */
+.compact-day-tile strong {
+  font-size: 0.78rem !important;
+  line-height: 1.12 !important;
+  max-width: 100%;
+  white-space: normal !important;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 430px) {
+  .compact-day-tile strong {
+    font-size: 0.74rem !important;
+  }
+
+  .compact-day-tile .tile-label {
+    font-size: 0.64rem !important;
+  }
+}
