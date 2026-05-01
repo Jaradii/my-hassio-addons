@@ -7558,3 +7558,21 @@ body.entry-history-open > .bottom-action-bar {
   font-weight: 950;
   line-height: 1;
 }
+
+
+/* v2.4.6: Flüssigkeit und Temperatur als bearbeitbare Mehrfachlisten */
+.summary-info-item.temp-green p { color: #2e8b57; font-weight: 950; }
+.summary-info-item.temp-yellow p { color: #b8860b; font-weight: 950; }
+.summary-info-item.temp-orange p { color: #d2691e; font-weight: 950; }
+.summary-info-item.temp-red p { color: #c62828; font-weight: 950; }
+
+body.dark .summary-info-item.temp-green p { color: #7fd6a2; }
+body.dark .summary-info-item.temp-yellow p { color: #ffd66b; }
+body.dark .summary-info-item.temp-orange p { color: #ffb36b; }
+body.dark .summary-info-item.temp-red p { color: #ff8f8f; }
+
+.field-edit-value input[type="number"] {
+  width: 100% !important;
+  min-height: 48px !important;
+  border-radius: 10px !important;
+}

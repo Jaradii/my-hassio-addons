@@ -375,6 +375,8 @@ function buildDaySummary(entries) {
     .map(([name, count]) => [name, count, symptomIntensities[name] || []])
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
 
+  const fluidEntries = entries.filter(e => e.fluids_ml);
+  const temperatureEntries = entries.filter(e => e.temperature !== null && e.temperature !== undefined && e.temperature !== "");
   const moods = entries.filter(e => e.mood);
   const medications = entries.filter(e => e.medication);
   const foods = entries.filter(e => e.food);
@@ -390,6 +392,8 @@ function buildDaySummary(entries) {
     maxTemp,
     minTemp,
     symptoms,
+    fluidEntries,
+    temperatureEntries,
     moods,
     medications,
     foods,
@@ -476,6 +480,12 @@ function renderDaySummaryCard(entries) {
   `;
 }
 
+function summaryDisplayValue(entry, key) {
+  if (key === "fluids_ml") return `${entry.fluids_ml} ml`;
+  if (key === "temperature") return `${Number(entry.temperature).toFixed(1)} °C`;
+  return entry[key] || "";
+}
+
 function renderSummaryTextBlocks(summary) {
   const blocks = [];
 
@@ -489,9 +499,9 @@ function renderSummaryTextBlocks(summary) {
         </div>
         <div class="summary-info-list">
           ${items.map(e => `
-            <div class="summary-info-item">
+            <div class="summary-info-item ${key === "temperature" ? feverClass(e.temperature) : ""}">
               <span class="summary-info-time">${escapeHtml(e.time || "--:--")}</span>
-              <p>${escapeHtml(e[key] || "")}</p>
+              <p>${escapeHtml(summaryDisplayValue(e, key))}</p>
               <div class="summary-row-actions">
                 <button type="button" class="summary-edit-button summary-history-button" data-id="${e.id}" aria-label="Historie anzeigen">↻</button>
                 <button type="button" class="summary-edit-button edit-summary-field" data-id="${e.id}" data-field="${key}" aria-label="${title} bearbeiten">✎</button>
@@ -503,6 +513,8 @@ function renderSummaryTextBlocks(summary) {
     `;
   };
 
+  blocks.push(renderItems(summary.fluidEntries, "fluids_ml", "💧", "Flüssigkeit"));
+  blocks.push(renderItems(summary.temperatureEntries, "temperature", "🌡️", "Temperatur / Fieber"));
   blocks.push(renderItems(summary.moods, "mood", "🙂", "Stimmung"));
   blocks.push(renderItems(summary.medications, "medication", "💊", "Medikamente"));
   blocks.push(renderItems(summary.foods, "food", "🍽️", "Essen"));
@@ -1413,6 +1425,18 @@ function closeEntryHistoryPopup() {
 
 function fieldEditConfig(field) {
   const configs = {
+    fluids_ml: {
+      title: "Flüssigkeit",
+      subtitle: "Nur Flüssigkeit dieses Eintrags bearbeiten.",
+      input: "number",
+      placeholder: "z. B. 250"
+    },
+    temperature: {
+      title: "Temperatur",
+      subtitle: "Nur Temperatur dieses Eintrags bearbeiten.",
+      input: "number",
+      placeholder: "z. B. 38.5"
+    },
     mood: {
       title: "Stimmung",
       subtitle: "Nur Stimmung dieses Eintrags bearbeiten.",
@@ -1470,12 +1494,24 @@ function openFieldEdit(entryId, field) {
   $("fieldEditSubtitle").textContent = config.subtitle;
 
   const value = entry[field] || "";
-  $("fieldEditContent").innerHTML = `
-    <label class="field field-edit-value">
-      <span>${escapeHtml(config.title)}</span>
-      <textarea id="fieldEditValue" rows="${config.rows}" placeholder="${escapeHtml(config.placeholder)}">${escapeHtml(value)}</textarea>
-    </label>
-  `;
+  if (config.input === "number") {
+    const inputValue = field === "temperature" && value !== "" && value !== null && value !== undefined
+      ? Number(value).toFixed(1)
+      : value;
+    $("fieldEditContent").innerHTML = `
+      <label class="field field-edit-value">
+        <span>${escapeHtml(config.title)}</span>
+        <input id="fieldEditValue" type="number" inputmode="decimal" step="${field === "temperature" ? "0.1" : "10"}" min="0" placeholder="${escapeHtml(config.placeholder)}" value="${escapeHtml(inputValue)}" />
+      </label>
+    `;
+  } else {
+    $("fieldEditContent").innerHTML = `
+      <label class="field field-edit-value">
+        <span>${escapeHtml(config.title)}</span>
+        <textarea id="fieldEditValue" rows="${config.rows}" placeholder="${escapeHtml(config.placeholder)}">${escapeHtml(value)}</textarea>
+      </label>
+    `;
+  }
 
   const sheet = $("fieldEditSheet");
   sheet.classList.remove("closing", "hidden");
@@ -1535,7 +1571,14 @@ async function saveFieldEdit(event) {
     notes: entry.notes || ""
   };
 
-  payload[field] = $("fieldEditValue").value.trim();
+  const rawValue = $("fieldEditValue").value.trim();
+  if (field === "fluids_ml") {
+    payload[field] = rawValue === "" ? null : Number(rawValue);
+  } else if (field === "temperature") {
+    payload[field] = rawValue === "" ? null : Number(String(rawValue).replace(",", "."));
+  } else {
+    payload[field] = rawValue;
+  }
 
   await api(`./api/entries/${entryId}`, { method: "PUT", body: JSON.stringify(payload) });
   state.selectedDate = payload.date || state.selectedDate;
