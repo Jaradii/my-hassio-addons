@@ -6474,3 +6474,10 @@ body.field-edit-open > .bottom-action-bar {
     transform: translate(-50%, calc(-50% + 26px)) scale(0.985);
   }
 }
+
+
+/* v2.3.1: Intensität in Symptom-Tags unter den Kacheln */
+.symptom-tags .symptom-tag span:last-child {
+  white-space: normal !important;
+  line-height: 1.2 !important;
+}

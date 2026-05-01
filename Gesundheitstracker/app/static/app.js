@@ -128,9 +128,11 @@ function symptomIcon(symptom) {
   return "🩺";
 }
 
-function renderSymptomTag(symptom, count = 1) {
+function renderSymptomTag(symptom, count = 1, intensities = []) {
   const icon = symptomIcon(symptom);
-  return `<span class="tag symptom-tag"><span class="symptom-icon">${icon}</span><span>${escapeHtml(symptom)}${count > 1 ? ` ×${count}` : ""}</span></span>`;
+  const uniqueIntensities = [...new Set((intensities || []).filter(Boolean))];
+  const intensityText = uniqueIntensities.length ? ` · ${uniqueIntensities.join("/")}` : "";
+  return `<span class="tag symptom-tag"><span class="symptom-icon">${icon}</span><span>${escapeHtml(symptom)}${count > 1 ? ` ×${count}` : ""}${escapeHtml(intensityText)}</span></span>`;
 }
 
 function renderSymptomList(symptoms) {
@@ -346,20 +348,28 @@ function buildDaySummary(entries) {
   const minTemp = temperatures.length ? Math.min(...temperatures) : null;
 
   const symptomCounts = {};
-  const addSymptom = (symptom) => {
+  const symptomIntensities = {};
+  const addSymptom = (symptom, intensity = "") => {
     const s = String(symptom || "").trim();
     if (!s) return;
     symptomCounts[s] = (symptomCounts[s] || 0) + 1;
+    if (intensity) {
+      if (!symptomIntensities[s]) symptomIntensities[s] = [];
+      symptomIntensities[s].push(intensity);
+    }
   };
 
   entries.forEach(entry => {
-    (entry.symptoms || []).forEach(addSymptom);
+    const intensityMap = entry.symptom_intensity || {};
+    (entry.symptoms || []).forEach(symptom => addSymptom(symptom, intensityMap[symptom] || ""));
     if (entry.custom_symptoms) {
-      entry.custom_symptoms.split(",").forEach(addSymptom);
+      entry.custom_symptoms.split(",").forEach(symptom => addSymptom(symptom));
     }
   });
 
-  const symptoms = Object.entries(symptomCounts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  const symptoms = Object.entries(symptomCounts)
+    .map(([name, count]) => [name, count, symptomIntensities[name] || []])
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
 
   const moods = entries.map(e => e.mood).filter(Boolean);
   const medications = entries.filter(e => e.medication);
@@ -453,7 +463,7 @@ function renderDaySummaryCard(entries) {
         </button>
       </div>
 
-      ${summary.symptoms.length ? `<div class="tags symptom-tags">${summary.symptoms.map(([s, count]) => renderSymptomTag(s, count)).join("")}</div>` : ""}
+      ${summary.symptoms.length ? `<div class="tags symptom-tags">${summary.symptoms.map(([s, count, intensities]) => renderSymptomTag(s, count, intensities)).join("")}</div>` : ""}
 
       ${renderSummaryTextBlocks(summary)}
 
