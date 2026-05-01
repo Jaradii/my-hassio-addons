@@ -304,6 +304,7 @@ function renderCalendar() {
 
 function renderDateHeader(entries) {
   $("selectedDate").value = state.selectedDate;
+  bindSleepTimeInputs(document);
 
   const d = new Date(`${state.selectedDate}T12:00:00`);
   const isToday = state.selectedDate === today();
@@ -1127,7 +1128,7 @@ function quickDefinition(kind) {
     symptoms: { title: "Symptome", subtitle: "Ein oder mehrere Symptome auswählen.", content: symptomsHtml },
     medication: { title: "Medikamente", subtitle: "Medikament, Dosis oder Uhrzeit notieren.", content: `<label class="field quick-field icon-textarea-field"><span><span class="field-icon">💊</span>Medikamente</span><textarea id="quickMedication" rows="3" placeholder="Name, Dosis, Uhrzeit"></textarea></label>` },
     food: { title: "Essen", subtitle: "Essen kurz eintragen.", content: `<label class="field quick-field icon-textarea-field"><span><span class="field-icon">🍽️</span>Essen</span><textarea id="quickFood" rows="3" placeholder="Was wurde gegessen?"></textarea></label>` },
-    sleep: { title: "Schlaf", subtitle: "Schlaf kurz eintragen.", content: `<label class="field quick-field icon-textarea-field"><span><span class="field-icon">😴</span>Schlaf</span><textarea id="quickSleep" rows="3" placeholder="Dauer, Qualität, Auffälligkeiten"></textarea></label>` },
+    sleep: { title: "Schlaf", subtitle: "Schlaf kurz eintragen.", content: `<div class="field quick-field sleep-duration-field"><span><span class="field-icon">😴</span>Schlaf</span><div class="sleep-time-grid"><label><small>Von</small><input id="quickSleepStart" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" /></label><label><small>Bis</small><input id="quickSleepEnd" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" /></label></div><div id="quickSleepDurationPreview" class="sleep-duration-preview hidden"></div><textarea id="quickSleep" rows="3" placeholder="Qualität, Auffälligkeiten"></textarea></div>` },
     diaper_or_toilet: { title: "Windel / Toilette", subtitle: "Windel oder Toilettengang kurz eintragen.", content: `<label class="field quick-field icon-textarea-field"><span><span class="field-icon">🚽</span>Windel / Toilette</span><textarea id="quickDiaperOrToilet" rows="3" placeholder="z. B. nass, Stuhlgang, Toilette, Auffälligkeiten"></textarea></label>` },
     notes: { title: "Notizen / Auffälligkeiten", subtitle: "Sonstige Beobachtung kurz notieren.", content: `<label class="field quick-field icon-textarea-field"><span><span class="field-icon">📝</span>Notiz / Auffälligkeit</span><textarea id="quickNotes" rows="3" placeholder="Was ist aufgefallen?"></textarea></label>` }
   };
@@ -1146,6 +1147,8 @@ function openQuickEntry(kind) {
   sheet.classList.remove("closing", "hidden");
   sheet.setAttribute("aria-hidden", "false");
   bindQuickControls(kind);
+  bindSleepTimeInputs($("quickContent"));
+  updateQuickSleepDurationPreview();
   window.setTimeout(() => {
     const first = $("quickContent").querySelector("input:not([type='hidden']), textarea, button");
     if (first) first.focus({ preventScroll: true });
@@ -1243,7 +1246,7 @@ function quickPayload(kind) {
   } else if (kind === "food") {
     payload.food = $("quickFood").value.trim();
   } else if (kind === "sleep") {
-    payload.sleep = $("quickSleep").value.trim();
+    payload.sleep = buildSleepText($("quickSleep").value, $("quickSleepStart")?.value || "", $("quickSleepEnd")?.value || "");
   } else if (kind === "diaper_or_toilet") {
     payload.diaper_or_toilet = $("quickDiaperOrToilet").value.trim();
   } else if (kind === "notes") {
@@ -1286,6 +1289,9 @@ function resetEntryForm() {
   $("medication").value = "";
   $("food").value = "";
   $("sleep").value = "";
+  if ($("sleepStart")) $("sleepStart").value = "";
+  if ($("sleepEnd")) $("sleepEnd").value = "";
+  updateSleepDurationPreview();
   $("diaperOrToilet").value = "";
   $("notes").value = "";
   $("deleteCurrent").classList.add("hidden");
@@ -1475,6 +1481,90 @@ function applyTimePickerValue() {
   closeTimePicker();
 }
 
+
+function minutesFromTimeString(value) {
+  const normalized = normalizeTimeInput(value || "");
+  const match = normalized.match(/^(\d{2}):(\d{2})$/);
+  if (!match) return null;
+  return (Number(match[1]) * 60) + Number(match[2]);
+}
+
+function formatSleepDurationMinutes(minutes) {
+  const value = Number(minutes);
+  if (!Number.isFinite(value) || value <= 0) return "";
+  const h = Math.floor(value / 60);
+  const m = value % 60;
+  if (h && m) return `${h} h ${m} min`;
+  if (h) return `${h} h`;
+  return `${m} min`;
+}
+
+function calculateSleepDuration(startValue, endValue) {
+  const start = minutesFromTimeString(startValue);
+  const end = minutesFromTimeString(endValue);
+  if (start === null || end === null) return null;
+  let diff = end - start;
+  if (diff < 0) diff += 24 * 60;
+  return diff;
+}
+
+function buildSleepText(baseText, startValue, endValue) {
+  const start = normalizeTimeInput(startValue || "");
+  const end = normalizeTimeInput(endValue || "");
+  const duration = calculateSleepDuration(start, end);
+  const durationText = duration ? formatSleepDurationMinutes(duration) : "";
+  const parts = [];
+  if (start && end && durationText) parts.push(`Von ${start} bis ${end} (${durationText})`);
+  const base = String(baseText || "").trim();
+  if (base) parts.push(base);
+  return parts.join(" · ");
+}
+
+function updateSleepDurationPreview() {
+  const preview = $("sleepDurationPreview");
+  if (!preview) return;
+  const duration = calculateSleepDuration($("sleepStart")?.value || "", $("sleepEnd")?.value || "");
+  if (!duration) {
+    preview.classList.add("hidden");
+    preview.textContent = "";
+    return;
+  }
+  preview.textContent = `Dauer: ${formatSleepDurationMinutes(duration)}`;
+  preview.classList.remove("hidden");
+}
+
+function updateQuickSleepDurationPreview() {
+  const preview = $("quickSleepDurationPreview");
+  if (!preview) return;
+  const duration = calculateSleepDuration($("quickSleepStart")?.value || "", $("quickSleepEnd")?.value || "");
+  if (!duration) {
+    preview.classList.add("hidden");
+    preview.textContent = "";
+    return;
+  }
+  preview.textContent = `Dauer: ${formatSleepDurationMinutes(duration)}`;
+  preview.classList.remove("hidden");
+}
+
+function bindSleepTimeInputs(root = document) {
+  root.querySelectorAll("#sleepStart, #sleepEnd, #quickSleepStart, #quickSleepEnd").forEach(input => {
+    if (input.dataset.sleepBound === "1") return;
+    input.dataset.sleepBound = "1";
+    input.addEventListener("input", event => {
+      const cursorAtEnd = event.target.selectionStart === event.target.value.length;
+      event.target.value = formatTimeInputLive(event.target.value);
+      if (cursorAtEnd) event.target.selectionStart = event.target.selectionEnd = event.target.value.length;
+      updateSleepDurationPreview();
+      updateQuickSleepDurationPreview();
+    });
+    input.addEventListener("blur", event => {
+      event.target.value = normalizeTimeInput(event.target.value);
+      updateSleepDurationPreview();
+      updateQuickSleepDurationPreview();
+    });
+  });
+}
+
 function formEntry() {
   const temp = $("temperature").value;
   const fluids = $("fluidsMl").value;
@@ -1489,7 +1579,7 @@ function formEntry() {
     medication: $("medication").value.trim(),
     fluids_ml: fluids === "" ? null : Number(fluids),
     food: $("food").value.trim(),
-    sleep: $("sleep").value.trim(),
+    sleep: buildSleepText($("sleep").value, $("sleepStart")?.value || "", $("sleepEnd")?.value || ""),
     diaper_or_toilet: $("diaperOrToilet").value.trim(),
     notes: $("notes").value.trim()
   };
@@ -1794,6 +1884,9 @@ function editEntry(id) {
   $("medication").value = entry.medication || "";
   $("food").value = entry.food || "";
   $("sleep").value = entry.sleep || "";
+  if ($("sleepStart")) $("sleepStart").value = "";
+  if ($("sleepEnd")) $("sleepEnd").value = "";
+  updateSleepDurationPreview();
   $("diaperOrToilet").value = entry.diaper_or_toilet || "";
   $("notes").value = entry.notes || "";
   $("deleteCurrent").classList.remove("hidden");
@@ -1945,6 +2038,50 @@ function renderTemperatureAnalysis(entries) {
   `;
 }
 
+
+function renderSymptomTrendAnalysis(entries) {
+  const symptomMap = {};
+  entries.forEach(entry => {
+    const names = new Set();
+    (entry.symptoms || []).forEach(symptom => {
+      const s = String(symptom || "").trim();
+      if (s) names.add(s);
+    });
+    if (entry.custom_symptoms) {
+      entry.custom_symptoms.split(",").map(s => s.trim()).filter(Boolean).forEach(s => names.add(s));
+    }
+    names.forEach(name => {
+      if (!symptomMap[name]) symptomMap[name] = new Set();
+      if (entry.date) symptomMap[name].add(entry.date);
+    });
+  });
+
+  const rows = Object.entries(symptomMap)
+    .map(([name, dates]) => ({ name, dates: [...dates].sort() }))
+    .sort((a, b) => b.dates.length - a.dates.length || a.name.localeCompare(b.name));
+
+  if (!rows.length) {
+    return `<div class="analysis-empty">Keine Symptome im gewählten Zeitraum.</div>`;
+  }
+
+  return `
+    <div class="symptom-trend-list">
+      ${rows.map(row => `
+        <div class="symptom-trend-row">
+          <div class="symptom-trend-title">
+            <span>${symptomIcon(row.name)}</span>
+            <strong>${escapeHtml(row.name)}</strong>
+            <em>${row.dates.length} Tag${row.dates.length === 1 ? "" : "e"}</em>
+          </div>
+          <div class="symptom-trend-dates">
+            ${row.dates.map(date => `<span>${escapeHtml(formatDateShortGerman(date))}</span>`).join("")}
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
 function renderAnalysis() {
   const from = $("analysisFrom")?.value || "";
   const to = $("analysisTo")?.value || "";
@@ -1960,6 +2097,8 @@ function renderAnalysis() {
 
   if (category === "temperature") {
     summary.innerHTML = renderTemperatureAnalysis(entries);
+  } else if (category === "symptoms") {
+    summary.innerHTML = renderSymptomTrendAnalysis(entries);
   } else {
     summary.innerHTML = `
       <div class="analysis-simple-summary">

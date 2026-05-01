@@ -270,7 +270,15 @@
           <h3>Details</h3>
           <label class="field full icon-textarea-field"><span><span class="field-icon">💊</span>Medikamente</span><textarea id="medication" rows="2" placeholder="Name, Dosis, Uhrzeit"></textarea></label>
           <label class="field full icon-textarea-field"><span><span class="field-icon">🍽️</span>Essen</span><textarea id="food" rows="2" placeholder="Was wurde gegessen?"></textarea></label>
-          <label class="field full icon-textarea-field"><span><span class="field-icon">😴</span>Schlaf</span><textarea id="sleep" rows="2" placeholder="Dauer, Qualität, Auffälligkeiten"></textarea></label>
+          <div class="field full sleep-duration-field">
+            <span><span class="field-icon">😴</span>Schlaf</span>
+            <div class="sleep-time-grid">
+              <label><small>Von</small><input id="sleepStart" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" /></label>
+              <label><small>Bis</small><input id="sleepEnd" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" /></label>
+            </div>
+            <div id="sleepDurationPreview" class="sleep-duration-preview hidden"></div>
+            <textarea id="sleep" rows="2" placeholder="Qualität, Auffälligkeiten"></textarea>
+          </div>
           <label class="field full icon-textarea-field"><span><span class="field-icon">🚽</span>Windel / Toilette</span><textarea id="diaperOrToilet" rows="2" placeholder="Urin, Stuhlgang, Auffälligkeiten"></textarea></label>
           <label class="field full icon-textarea-field"><span><span class="field-icon">📝</span>Notizen</span><textarea id="notes" rows="2" placeholder="Alles, was wichtig sein könnte"></textarea></label>
         </div>

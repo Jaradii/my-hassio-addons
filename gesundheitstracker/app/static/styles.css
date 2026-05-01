@@ -8903,3 +8903,96 @@ body.dark .analysis-result-row.temp-red p { color: #ff8f8f; }
     display: block;
   }
 }
+
+
+/* v1.0.25: Schlafdauer + Symptom-Verlauf */
+.sleep-duration-field {
+  display: grid !important;
+  gap: 8px !important;
+}
+
+.sleep-time-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.sleep-time-grid label {
+  display: grid;
+  gap: 4px;
+}
+
+.sleep-time-grid small {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+.sleep-time-grid input {
+  min-height: 40px !important;
+  border-radius: 10px !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.sleep-duration-preview {
+  width: fit-content;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 12%, var(--card) 88%);
+  border: 1px solid color-mix(in srgb, var(--primary) 24%, var(--kg-border) 76%);
+  color: var(--text);
+  font-size: 0.74rem;
+  font-weight: 900;
+}
+
+.symptom-trend-list {
+  display: grid;
+  gap: 8px;
+}
+
+.symptom-trend-row {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 62%, transparent);
+  background: color-mix(in srgb, var(--card) 90%, var(--kg-soft) 10%);
+  display: grid;
+  gap: 7px;
+}
+
+.symptom-trend-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.symptom-trend-title strong {
+  color: var(--text);
+  font-size: 0.88rem;
+  font-weight: 950;
+  min-width: 0;
+}
+
+.symptom-trend-title em {
+  margin-left: auto;
+  color: var(--muted);
+  font-style: normal;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.symptom-trend-dates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.symptom-trend-dates span {
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 9%, var(--card) 91%);
+  border: 1px solid color-mix(in srgb, var(--primary) 18%, var(--kg-border) 82%);
+  color: var(--text);
+  font-size: 0.68rem;
+  font-weight: 850;
+}

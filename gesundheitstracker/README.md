@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.24
+- Basis ist die funktionierende Version 1.0.25
 
 
 ## Änderungen in 1.0.10
@@ -196,3 +196,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Such-/Auswertungsergebnisse werden jetzt nach Tagen gebündelt
 - Jeder Tag bekommt eine eigene Überschrift mit Trefferanzahl
 - Innerhalb eines Tages werden die Einträge nach Uhrzeit sortiert
+
+
+## Änderungen in 1.0.25
+
+- Schlaf kann optional mit Von/Bis-Zeit eingetragen werden
+- Schlafdauer wird automatisch berechnet und im Schlaftext gespeichert
+- Schlaf-Schnelleingabe unterstützt ebenfalls Von/Bis-Zeit
+- Auswertung Kategorie Symptome zeigt zusätzlich einen Symptom-Verlauf nach Tagen
