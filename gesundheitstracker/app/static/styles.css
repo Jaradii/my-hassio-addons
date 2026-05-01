@@ -9023,3 +9023,53 @@ body.dark .analysis-result-row.temp-red p { color: #ff8f8f; }
   line-height: 1.1;
   margin-top: 2px;
 }
+
+
+/* v1.0.28: Schlaf-Bearbeiten optisch wie Schlaf-Neueingabe */
+#fieldEditContent .sleep-duration-field {
+  display: grid !important;
+  gap: 8px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+}
+
+#fieldEditContent .sleep-time-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+
+#fieldEditContent .sleep-time-grid label {
+  display: grid !important;
+  gap: 4px !important;
+  margin: 0 !important;
+}
+
+#fieldEditContent .sleep-time-grid small {
+  color: var(--muted) !important;
+  font-size: 0.68rem !important;
+  font-weight: 900 !important;
+}
+
+#fieldEditContent .sleep-time-grid input,
+#fieldEditContent .sleep-time-input {
+  width: 100% !important;
+  min-height: 40px !important;
+  border-radius: 10px !important;
+  font-variant-numeric: tabular-nums !important;
+  text-align: center !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.02em !important;
+}
+
+#fieldEditSleepDurationPreview.sleep-duration-preview {
+  display: inline-block;
+  width: fit-content;
+  margin: 0 !important;
+}
+
+#fieldEditSleepDurationPreview.sleep-duration-preview.hidden {
+  display: none !important;
+}

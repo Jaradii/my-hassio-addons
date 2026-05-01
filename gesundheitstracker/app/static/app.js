@@ -1601,6 +1601,25 @@ function stripGeneratedSleepDuration(text) {
     .trim();
 }
 
+
+function bindFieldEditSleepInputs() {
+  ["fieldEditSleepStart", "fieldEditSleepEnd"].forEach(id => {
+    const input = $(id);
+    if (!input || input.dataset.fieldSleepBound === "1") return;
+    input.dataset.fieldSleepBound = "1";
+    input.addEventListener("input", event => {
+      const cursorAtEnd = event.target.selectionStart === event.target.value.length;
+      event.target.value = formatTimeInputLive(event.target.value);
+      if (cursorAtEnd) event.target.selectionStart = event.target.selectionEnd = event.target.value.length;
+      updateFieldEditSleepDurationPreview();
+    });
+    input.addEventListener("blur", event => {
+      event.target.value = normalizeTimeInput(event.target.value);
+      updateFieldEditSleepDurationPreview();
+    });
+  });
+}
+
 function updateFieldEditSleepDurationPreview() {
   const preview = $("fieldEditSleepDurationPreview");
   if (!preview) return;
@@ -1835,8 +1854,8 @@ function openFieldEdit(entryId, field) {
       <div class="field field-edit-value sleep-duration-field">
         <span>${escapeHtml(config.title)}</span>
         <div class="sleep-time-grid">
-          <label><small>Von</small><input id="fieldEditSleepStart" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="${escapeHtml(range?.start || "")}" /></label>
-          <label><small>Bis</small><input id="fieldEditSleepEnd" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="${escapeHtml(range?.end || "")}" /></label>
+          <label><small>Von</small><input id="fieldEditSleepStart" class="sleep-time-input" type="text" inputmode="numeric" autocomplete="off" maxlength="5" placeholder="HH:MM" value="${escapeHtml(range?.start || "")}" /></label>
+          <label><small>Bis</small><input id="fieldEditSleepEnd" class="sleep-time-input" type="text" inputmode="numeric" autocomplete="off" maxlength="5" placeholder="HH:MM" value="${escapeHtml(range?.end || "")}" /></label>
         </div>
         <div id="fieldEditSleepDurationPreview" class="sleep-duration-preview hidden"></div>
         <textarea id="fieldEditValue" rows="${config.rows}" placeholder="${escapeHtml(config.placeholder)}">${escapeHtml(cleanSleepText)}</textarea>
@@ -1844,6 +1863,7 @@ function openFieldEdit(entryId, field) {
     `;
 
     bindSleepTimeInputs($("fieldEditContent"));
+    bindFieldEditSleepInputs();
     updateFieldEditSleepDurationPreview();
   } else if (config.input === "number") {
     const inputValue = field === "temperature" && value !== "" && value !== null && value !== undefined
