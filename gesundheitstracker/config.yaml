@@ -1,5 +1,5 @@
 name: "Gesundheitstracker"
-version: "1.0.0"
+version: "1.0.1"
 slug: gesundheitstracker
 description: "Gesundheitstracker für Home Assistant"
 url: "https://github.com/Jaradii/my-hassio-addons"
@@ -18,20 +18,14 @@ panel_admin: false
 homeassistant_api: false
 host_network: false
 ports: {}
-ports_description: "Gesundheitstracker für Home Assistant"
+ports_description: {}
 options:
   app_title: "Gesundheitstracker"
-  child_name: "Gesundheitstracker"
-  fever_threshold: 38.5
-  high_fever_threshold: 39.5
-  dark_mode: false
-  pin_enabled: false
-  pin_code: ""
+  child_name: ""
+  pin: ""
 schema:
-  app_title: "Gesundheitstracker"
-  child_name: "Gesundheitstracker"
-  fever_threshold: float
-  high_fever_threshold: float
-  dark_mode: bool
-  pin_enabled: bool
-  pin_code: password?
+  app_title: str
+  child_name: str
+  pin: str
+map:
+  - addon_config:rw

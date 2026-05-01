@@ -9,7 +9,6 @@ RUN pip install --no-cache-dir -r /app/requirements.txt
 
 COPY app /app
 COPY run.sh /run.sh
-
 RUN chmod +x /run.sh
 
 EXPOSE 8099
