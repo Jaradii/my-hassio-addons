@@ -405,8 +405,12 @@
           <button class="round-btn close-view">×</button>
         </div>
         <div class="print-export-actions print-hide">
-          <button id="copyReportButton" type="button" class="btn primary">Bericht kopieren</button>
+          <button id="selectReportButton" type="button" class="btn primary">Text zum Kopieren markieren</button>
           <button id="closePrintExportButton" type="button" class="btn secondary">Schließen</button>
+        </div>
+        <div id="reportCopyBox" class="report-copy-box print-hide hidden">
+          <p>Falls automatisches Kopieren auf dem iPhone blockiert wird: Textfeld antippen, alles ist markiert, dann „Kopieren“ wählen.</p>
+          <textarea id="reportCopyText" readonly></textarea>
         </div>
         <article id="printExportContent" class="print-export-content"></article>
       </div>

@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.49
+- Basis ist die funktionierende Version 1.0.50
 
 
 ## Änderungen in 1.0.10
@@ -382,3 +382,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - TXT-Export und Bericht-Ansicht sind jetzt nach Kategorien gruppiert
 - Innerhalb jeder Kategorie sind die Einträge nach Datum und Uhrzeit sortiert
 - Export ist nicht mehr nur chronologisch gemischt
+
+
+## Änderungen in 1.0.50
+
+- iPhone-sicherer Kopier-Fallback für die Berichtansicht ergänzt
+- Automatische Clipboard-API entfernt, da sie in der Home-Assistant-App/WebView blockiert werden kann
+- Button „Text zum Kopieren markieren“ zeigt ein auswählbares Textfeld und markiert den Bericht
+- Bericht bleibt weiterhin nach Kategorien gruppiert

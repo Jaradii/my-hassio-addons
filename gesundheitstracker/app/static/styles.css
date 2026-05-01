@@ -10355,3 +10355,42 @@ body.dark[data-theme="aubergine"] .bottom-add-button {
 }
 
 /* Kein automatischer Print-Flow mehr nötig, die Ansicht ist auch auf iPhone direkt lesbar/kopierbar. */
+
+
+/* v1.0.50: iPhone-sicherer Kopier-Fallback für Bericht */
+.report-copy-box {
+  margin: 0 0 12px 0;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 62%, transparent);
+  background: color-mix(in srgb, var(--card) 90%, var(--kg-soft) 10%);
+  display: grid;
+  gap: 8px;
+}
+
+.report-copy-box.hidden {
+  display: none !important;
+}
+
+.report-copy-box p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.35;
+  font-weight: 850;
+}
+
+#reportCopyText {
+  width: 100%;
+  min-height: 220px;
+  resize: vertical;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 68%, transparent);
+  background: var(--card);
+  color: var(--text);
+  padding: 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  white-space: pre;
+}

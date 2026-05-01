@@ -2653,19 +2653,32 @@ function openPrintableExport() {
   const content = $("printExportContent");
   if (!content) return;
   content.innerHTML = buildPrintableExportHtml();
+  if ($("reportCopyBox")) $("reportCopyBox").classList.add("hidden");
+  if ($("reportCopyText")) $("reportCopyText").value = "";
   openView("printExportView");
 }
 
-async function copyCurrentReport() {
-  const content = $("printExportContent");
-  if (!content) return;
-  const text = content.innerText || "";
-  try {
-    await navigator.clipboard.writeText(text);
-    showToast("Bericht kopiert");
-  } catch (err) {
-    showToast("Kopieren nicht möglich");
-  }
+function plainTextFromReport() {
+  const from = $("exportFrom")?.value || "offen";
+  const to = $("exportTo")?.value || "offen";
+  return buildFullExportText() || ($("printExportContent")?.innerText || "");
+}
+
+function showSelectableReportText() {
+  const box = $("reportCopyBox");
+  const textarea = $("reportCopyText");
+  if (!box || !textarea) return;
+
+  textarea.value = plainTextFromReport();
+  box.classList.remove("hidden");
+
+  requestAnimationFrame(() => {
+    textarea.focus();
+    textarea.select();
+    textarea.setSelectionRange(0, textarea.value.length);
+  });
+
+  showToast("Text ist markiert");
 }
 
 function exportAnalysisSymptoms() {
@@ -2982,7 +2995,7 @@ async function init() {
   if ($("analysisExportButton")) $("analysisExportButton").addEventListener("click", exportAnalysisSymptoms);
   $("exportCreateButton").addEventListener("click", exportAnalysisSymptoms);
   $("exportPrintButton").addEventListener("click", openPrintableExport);
-  $("copyReportButton").addEventListener("click", copyCurrentReport);
+  $("selectReportButton").addEventListener("click", showSelectableReportText);
   $("closePrintExportButton").addEventListener("click", closeViews);
 
   $("importFile").addEventListener("change", async event => {
