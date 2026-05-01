@@ -8372,3 +8372,86 @@ body.dark[data-theme] > .bottom-action-bar > #openEntry .fab-plus-symbol {
   -webkit-backdrop-filter: none !important;
   filter: none !important;
 }
+
+
+/* v1.0.16: Speichern-Button im Neuer-Eintrag-Popup endgültig flach.
+   Ursache war nicht der Button selbst, sondern alte Overlay/Glass-Regeln auf Button/Kindern/Wrappern. */
+#entrySheet .sheet-actions {
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  border: 0 !important;
+}
+
+#entrySheet .sheet-actions::before,
+#entrySheet .sheet-actions::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+
+#entrySheet .sheet-actions button,
+#entrySheet .sheet-actions .btn,
+#entrySheet .sheet-actions .primary,
+#entrySheet button[type="submit"],
+#entrySheet button#saveEntry,
+#entrySheet #saveEntry,
+#entrySheet .sheet-actions button[type="submit"] {
+  isolation: auto !important;
+  position: relative !important;
+  z-index: 1 !important;
+  overflow: visible !important;
+  background-color: var(--primary) !important;
+  background: var(--primary) !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  border: 1px solid color-mix(in srgb, var(--primary2) 60%, var(--primary) 40%) !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  opacity: 1 !important;
+}
+
+#entrySheet .sheet-actions button *,
+#entrySheet .sheet-actions .btn *,
+#entrySheet .sheet-actions .primary *,
+#entrySheet button[type="submit"] * {
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  filter: none !important;
+}
+
+#entrySheet .sheet-actions button::before,
+#entrySheet .sheet-actions button::after,
+#entrySheet .sheet-actions .btn::before,
+#entrySheet .sheet-actions .btn::after,
+#entrySheet .sheet-actions .primary::before,
+#entrySheet .sheet-actions .primary::after,
+#entrySheet button[type="submit"]::before,
+#entrySheet button[type="submit"]::after,
+#entrySheet button#saveEntry::before,
+#entrySheet button#saveEntry::after,
+#entrySheet #saveEntry::before,
+#entrySheet #saveEntry::after {
+  content: "" !important;
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Falls Safari/iOS den Button über appearance anders rendert */
+#entrySheet .sheet-actions button[type="submit"],
+#entrySheet button[type="submit"] {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
