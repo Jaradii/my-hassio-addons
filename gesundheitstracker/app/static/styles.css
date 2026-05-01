@@ -8002,3 +8002,114 @@ body.dark .summary-info-item.temp-red p { color: #ff8f8f; }
     font-size: 0.66rem !important;
   }
 }
+
+
+/* v1.0.13: Datumsleiste entschlacken und Neuer-Eintrag als schwebender Plus-Button */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Ohne sichtbaren Eintrags-Text kann die Datumsleiste noch niedriger sein */
+.date-main,
+#datePickerButton {
+  justify-content: center !important;
+  min-height: 38px !important;
+  padding-top: 5px !important;
+  padding-bottom: 5px !important;
+}
+
+#prettyDate {
+  margin: 0 !important;
+}
+
+/* Der alte Dock-Bereich soll den Inhalt nicht mehr groß verdecken */
+.bottom-action-bar {
+  position: fixed !important;
+  right: max(14px, env(safe-area-inset-right)) !important;
+  bottom: max(14px, env(safe-area-inset-bottom)) !important;
+  left: auto !important;
+  width: auto !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  z-index: 900 !important;
+  pointer-events: none !important;
+}
+
+/* Gleiche ID behalten, damit bestehendes JavaScript unverändert funktioniert */
+#newEntryButton {
+  pointer-events: auto !important;
+  width: 56px !important;
+  height: 56px !important;
+  min-width: 56px !important;
+  min-height: 56px !important;
+  max-width: 56px !important;
+  max-height: 56px !important;
+  padding: 0 !important;
+  border-radius: 10px !important;
+  display: grid !important;
+  place-items: center !important;
+  font-size: 2rem !important;
+  line-height: 1 !important;
+  font-weight: 850 !important;
+  color: white !important;
+  background: linear-gradient(145deg, var(--primary), var(--primary2)) !important;
+  border: 1px solid color-mix(in srgb, white 22%, var(--primary) 78%) !important;
+  box-shadow:
+    0 14px 34px color-mix(in srgb, var(--primary) 34%, transparent),
+    0 4px 10px color-mix(in srgb, var(--shadow) 26%, transparent) !important;
+}
+
+#newEntryButton::before,
+#newEntryButton::after {
+  display: none !important;
+  content: none !important;
+}
+
+#newEntryButton:hover {
+  transform: translateY(-1px) !important;
+}
+
+#newEntryButton:active {
+  transform: scale(0.96) !important;
+}
+
+/* Inhalt braucht nur noch etwas Abstand für den kleinen Plus-Button */
+.app {
+  padding-bottom: calc(78px + env(safe-area-inset-bottom)) !important;
+}
+
+@media (max-width: 430px) {
+  .date-main,
+  #datePickerButton {
+    min-height: 36px !important;
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+  }
+
+  #newEntryButton {
+    width: 52px !important;
+    height: 52px !important;
+    min-width: 52px !important;
+    min-height: 52px !important;
+    max-width: 52px !important;
+    max-height: 52px !important;
+    font-size: 1.85rem !important;
+  }
+
+  .bottom-action-bar {
+    right: max(12px, env(safe-area-inset-right)) !important;
+    bottom: max(12px, env(safe-area-inset-bottom)) !important;
+  }
+}

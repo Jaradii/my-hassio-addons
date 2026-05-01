@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.12
+- Basis ist die funktionierende Version 1.0.13
 
 
 ## Änderungen in 1.0.10
@@ -101,3 +101,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Heute-Button auf Smartphone niedriger gemacht
 - Pfeile bleiben weiterhin auf gleicher Höhe
 - JavaScript wurde nicht geändert
+
+
+## Änderungen in 1.0.13
+
+- Text „Einträge an diesem Tag“/Tageszusammenfassung aus der Datumsleiste optisch entfernt
+- Datumsleiste dadurch kompakter gemacht
+- Unterer breiter „Neuer Eintrag“-Button durch kleinen schwebenden Plus-Button rechts unten ersetzt
+- Die bestehende Button-ID bleibt erhalten, damit die vorhandene JavaScript-Logik nicht bricht
