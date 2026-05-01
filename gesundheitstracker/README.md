@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.32
+- Basis ist die funktionierende Version 1.0.33
 
 
 ## Änderungen in 1.0.10
@@ -262,3 +262,10 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Option „Alle Kategorien“ ergänzt
 - Symptomfilter bleibt zusätzlich verfügbar, wenn Symptome exportiert werden
 - Exportdatei enthält nur die ausgewählten Kategorien
+
+
+## Änderungen in 1.0.33
+
+- Theme-Auswahl aus dem Profil entfernt und in das Drei-Punkte-Menü verschoben
+- Profil-Button oben nutzt jetzt ein Profil/Kopf-Symbol
+- Theme-Auswahl im Menü synchronisiert weiterhin mit der bestehenden Theme-Logik

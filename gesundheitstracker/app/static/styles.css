@@ -9340,3 +9340,46 @@ body.dark .analysis-result-row.temp-red p { color: #ff8f8f; }
 .export-category-chip.all span {
   font-weight: 950;
 }
+
+
+/* v1.0.33: Theme-Auswahl im Drei-Punkte-Menü + Profil-Icon */
+#profileButton {
+  font-size: 1rem !important;
+}
+
+.top-menu-theme {
+  display: grid;
+  gap: 6px;
+  padding: 7px 9px 9px 9px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--kg-soft) 40%, transparent);
+}
+
+.top-menu-theme label {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  color: var(--text);
+}
+
+.top-menu-theme label span {
+  text-align: center;
+}
+
+.top-menu-theme label strong {
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+#menuThemeSelect {
+  width: 100%;
+  min-height: 34px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 68%, transparent);
+  background: var(--card);
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 850;
+  padding: 6px 8px;
+}

@@ -2778,8 +2778,16 @@ async function init() {
     closeViews();
   });
 
-  $("themeSelect").addEventListener("change", (event) => {
+  if ($("themeSelect")) {
+    $("themeSelect").addEventListener("change", (event) => {
+      applyTheme(event.target.value);
+      showToast("Theme geändert");
+    });
+  }
+
+  $("menuThemeSelect").addEventListener("change", (event) => {
     applyTheme(event.target.value);
+    closeTopMenu();
     showToast("Theme geändert");
   });
 
