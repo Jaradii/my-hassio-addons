@@ -8543,3 +8543,90 @@ button.edit-entry {
     font-size: 1.36rem !important;
   }
 }
+
+
+/* v1.0.21: Tageskacheln etwas kompakter, aber weiterhin lesbar */
+.compact-day-tile-grid {
+  gap: 6px !important;
+}
+
+.compact-day-tile {
+  min-height: 78px !important;
+  padding: 7px 5px !important;
+  gap: 3px !important;
+  border-radius: 10px !important;
+}
+
+.compact-day-tile .tile-icon {
+  font-size: 1.05rem !important;
+  line-height: 1 !important;
+}
+
+.compact-day-tile .tile-label {
+  font-size: 0.58rem !important;
+  line-height: 1.05 !important;
+  font-weight: 900 !important;
+}
+
+.compact-day-tile strong {
+  font-size: 0.7rem !important;
+  line-height: 1.1 !important;
+  font-weight: 950 !important;
+}
+
+.compact-day-tile small {
+  font-size: 0.55rem !important;
+  line-height: 1.05 !important;
+  max-height: 2.15em !important;
+}
+
+.compact-day-tile.quick-tile::after {
+  width: 12px !important;
+  height: 12px !important;
+  right: 4px !important;
+  top: 4px !important;
+  font-size: 0.56rem !important;
+}
+
+@media (min-width: 900px) {
+  .compact-day-tile {
+    min-height: 82px !important;
+    padding: 8px 6px !important;
+  }
+
+  .compact-day-tile .tile-icon {
+    font-size: 1.12rem !important;
+  }
+
+  .compact-day-tile strong {
+    font-size: 0.74rem !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .compact-day-tile-grid {
+    gap: 6px !important;
+  }
+
+  .compact-day-tile {
+    min-height: 76px !important;
+    padding: 6px 5px !important;
+  }
+
+  .compact-day-tile .tile-icon {
+    font-size: 1rem !important;
+  }
+
+  .compact-day-tile .tile-label {
+    font-size: 0.56rem !important;
+  }
+
+  .compact-day-tile strong {
+    font-size: 0.68rem !important;
+  }
+
+  .compact-day-tile small {
+    font-size: 0.53rem !important;
+    -webkit-line-clamp: 2;
+  }
+}

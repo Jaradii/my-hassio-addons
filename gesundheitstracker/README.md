@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.20
+- Basis ist die funktionierende Version 1.0.21
 
 
 ## Änderungen in 1.0.10
@@ -163,4 +163,12 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Stift-Symbol in den Bearbeiten-Buttons nochmals größer gemacht
 - Button-Größe selbst bleibt unverändert
+- Nur CSS geändert
+
+
+## Änderungen in 1.0.21
+
+- Tageskacheln etwas kompakter gemacht
+- Geringere Höhe, weniger Padding und kleinere Abstände
+- Icons/Text leicht verkleinert, aber lesbar gehalten
 - Nur CSS geändert
