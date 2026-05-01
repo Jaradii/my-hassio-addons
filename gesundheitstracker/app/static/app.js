@@ -551,6 +551,12 @@ function renderDaySummaryCard(entries) {
           <strong>${tileCountText(summary.moods.length, "Stimmung", "Stimmungen")}</strong>
           <small>${summary.moods.length ? "Angaben" : "Keine Angabe"}</small>
         </button>
+        <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="diaper_or_toilet" aria-label="Windel oder Toilette eintragen">
+          <span class="tile-icon">🚽</span>
+          <span class="tile-label">Windel/Toilette</span>
+          <strong>${tileCountText(summary.diaper.length, "Eintrag", "Einträge")}</strong>
+          <small>${summary.diaper.length ? "Einträge" : "Nicht eingetragen"}</small>
+        </button>
         <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="medication" aria-label="Medikament eintragen">
           <span class="tile-icon">💊</span>
           <span class="tile-label">Medis</span>
@@ -1122,6 +1128,7 @@ function quickDefinition(kind) {
     medication: { title: "Medikamente", subtitle: "Medikament, Dosis oder Uhrzeit notieren.", content: `<label class="field quick-field icon-textarea-field"><span><span class="field-icon">💊</span>Medikamente</span><textarea id="quickMedication" rows="3" placeholder="Name, Dosis, Uhrzeit"></textarea></label>` },
     food: { title: "Essen", subtitle: "Essen kurz eintragen.", content: `<label class="field quick-field icon-textarea-field"><span><span class="field-icon">🍽️</span>Essen</span><textarea id="quickFood" rows="3" placeholder="Was wurde gegessen?"></textarea></label>` },
     sleep: { title: "Schlaf", subtitle: "Schlaf kurz eintragen.", content: `<label class="field quick-field icon-textarea-field"><span><span class="field-icon">😴</span>Schlaf</span><textarea id="quickSleep" rows="3" placeholder="Dauer, Qualität, Auffälligkeiten"></textarea></label>` },
+    diaper_or_toilet: { title: "Windel / Toilette", subtitle: "Windel oder Toilettengang kurz eintragen.", content: `<label class="field quick-field icon-textarea-field"><span><span class="field-icon">🚽</span>Windel / Toilette</span><textarea id="quickDiaperOrToilet" rows="3" placeholder="z. B. nass, Stuhlgang, Toilette, Auffälligkeiten"></textarea></label>` },
     notes: { title: "Notizen / Auffälligkeiten", subtitle: "Sonstige Beobachtung kurz notieren.", content: `<label class="field quick-field icon-textarea-field"><span><span class="field-icon">📝</span>Notiz / Auffälligkeit</span><textarea id="quickNotes" rows="3" placeholder="Was ist aufgefallen?"></textarea></label>` }
   };
   return defs[kind] || null;
@@ -1237,6 +1244,8 @@ function quickPayload(kind) {
     payload.food = $("quickFood").value.trim();
   } else if (kind === "sleep") {
     payload.sleep = $("quickSleep").value.trim();
+  } else if (kind === "diaper_or_toilet") {
+    payload.diaper_or_toilet = $("quickDiaperOrToilet").value.trim();
   } else if (kind === "notes") {
     payload.notes = $("quickNotes").value.trim();
   }
@@ -1244,7 +1253,7 @@ function quickPayload(kind) {
 }
 
 function quickPayloadHasValue(payload) {
-  return [payload.temperature !== null && !Number.isNaN(payload.temperature), payload.fluids_ml !== null && !Number.isNaN(payload.fluids_ml), payload.mood, payload.symptoms.length, payload.custom_symptoms, payload.medication, payload.food, payload.sleep, payload.notes].some(Boolean);
+  return [payload.temperature !== null && !Number.isNaN(payload.temperature), payload.fluids_ml !== null && !Number.isNaN(payload.fluids_ml), payload.mood, payload.symptoms.length, payload.custom_symptoms, payload.medication, payload.food, payload.sleep, payload.diaper_or_toilet, payload.notes].some(Boolean);
 }
 
 function openSheet() {

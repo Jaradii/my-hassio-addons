@@ -8455,3 +8455,21 @@ body.dark[data-theme] > .bottom-action-bar > #openEntry .fab-plus-symbol {
   appearance: none !important;
   -webkit-appearance: none !important;
 }
+
+
+/* v1.0.17: Zusätzliche Kachel Windel / Toilette */
+@media (min-width: 900px) {
+  .compact-day-tile-grid {
+    grid-template-columns: repeat(9, minmax(0, 1fr)) !important;
+  }
+}
+
+.compact-day-tile .tile-label {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 430px) {
+  .compact-day-tile .tile-label {
+    font-size: 0.6rem !important;
+  }
+}

@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.16
+- Basis ist die funktionierende Version 1.0.17
 
 
 ## Änderungen in 1.0.10
@@ -135,3 +135,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Speichern-Button im Neuer-Eintrag-Popup stärker bereinigt
 - Alte Overlay-/Glass-Regeln auf Button, Wrapper, Kind-Elementen und Pseudo-Elementen werden jetzt überschrieben
 - Nur CSS geändert, JavaScript bleibt unverändert
+
+
+## Änderungen in 1.0.17
+
+- Neue Kachel „Windel / Toilette“ oben ergänzt
+- Die Kachel sitzt vor der Medis-Kachel
+- Klick auf die Kachel öffnet eine eigene Schnelleingabe für Windel / Toilette
+- Desktop-Grid auf 9 Kacheln angepasst
