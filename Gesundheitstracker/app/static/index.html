@@ -120,6 +120,29 @@
       </div>
     </section>
 
+
+    <section id="fieldEditSheet" class="field-edit-sheet hidden" aria-hidden="true">
+      <div id="fieldEditBackdrop" class="field-edit-backdrop"></div>
+      <form id="fieldEditForm" class="field-edit-panel">
+        <input id="fieldEditEntryId" type="hidden" />
+        <input id="fieldEditKey" type="hidden" />
+
+        <div class="field-edit-head">
+          <div>
+            <h2 id="fieldEditTitle">Bearbeiten</h2>
+            <p id="fieldEditSubtitle">Nur dieser Wert wird geändert.</p>
+          </div>
+          <button id="closeFieldEdit" type="button" class="round-btn">×</button>
+        </div>
+
+        <div id="fieldEditContent" class="field-edit-content"></div>
+
+        <div class="field-edit-actions">
+          <button type="submit" class="btn primary">Speichern</button>
+        </div>
+      </form>
+    </section>
+
 <section id="entrySheet" class="sheet hidden" aria-hidden="true">
       <div class="sheet-backdrop" id="sheetBackdrop"></div>
       <form id="entryForm" class="sheet-panel">

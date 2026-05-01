@@ -322,6 +322,9 @@ function renderDay() {
   container.querySelectorAll(".edit-entry").forEach(btn => {
     btn.addEventListener("click", () => editEntry(btn.dataset.id));
   });
+  container.querySelectorAll(".edit-summary-field").forEach(btn => {
+    btn.addEventListener("click", () => openFieldEdit(btn.dataset.id, btn.dataset.field));
+  });
   container.querySelectorAll(".delete-entry").forEach(btn => {
     btn.addEventListener("click", () => deleteEntry(btn.dataset.id));
   });
@@ -481,7 +484,7 @@ function renderSummaryTextBlocks(summary) {
             <div class="summary-info-item">
               <span class="summary-info-time">${escapeHtml(e.time || "--:--")}</span>
               <p>${escapeHtml(e[key] || "")}</p>
-              <button type="button" class="summary-edit-button edit-entry" data-id="${e.id}" aria-label="Eintrag bearbeiten">✎</button>
+              <button type="button" class="summary-edit-button edit-summary-field" data-id="${e.id}" data-field="${key}" aria-label="${title} bearbeiten">✎</button>
             </div>
           `).join("")}
         </div>
@@ -1131,6 +1134,121 @@ function formEntry() {
   };
 }
 
+function fieldEditConfig(field) {
+  const configs = {
+    medication: {
+      title: "Medikamente",
+      subtitle: "Nur Medikamente dieses Eintrags bearbeiten.",
+      input: "textarea",
+      rows: 3,
+      placeholder: "Name, Dosis, Uhrzeit"
+    },
+    food: {
+      title: "Essen",
+      subtitle: "Nur Essen dieses Eintrags bearbeiten.",
+      input: "textarea",
+      rows: 3,
+      placeholder: "Was wurde gegessen?"
+    },
+    sleep: {
+      title: "Schlaf",
+      subtitle: "Nur Schlaf dieses Eintrags bearbeiten.",
+      input: "textarea",
+      rows: 3,
+      placeholder: "Dauer, Qualität, Auffälligkeiten"
+    },
+    diaper_or_toilet: {
+      title: "Windel / Toilette",
+      subtitle: "Nur Windel/Toilette dieses Eintrags bearbeiten.",
+      input: "textarea",
+      rows: 3,
+      placeholder: "Urin, Stuhlgang, Auffälligkeiten"
+    },
+    notes: {
+      title: "Notizen",
+      subtitle: "Nur Notizen dieses Eintrags bearbeiten.",
+      input: "textarea",
+      rows: 4,
+      placeholder: "Notiz"
+    }
+  };
+  return configs[field] || null;
+}
+
+function openFieldEdit(entryId, field) {
+  const entry = (state.data.entries || []).find(e => e.id === entryId);
+  const config = fieldEditConfig(field);
+  if (!entry || !config) return;
+
+  $("fieldEditEntryId").value = entryId;
+  $("fieldEditKey").value = field;
+  $("fieldEditTitle").textContent = config.title;
+  $("fieldEditSubtitle").textContent = config.subtitle;
+
+  const value = entry[field] || "";
+  $("fieldEditContent").innerHTML = `
+    <label class="field field-edit-value">
+      <span>${escapeHtml(config.title)}</span>
+      <textarea id="fieldEditValue" rows="${config.rows}" placeholder="${escapeHtml(config.placeholder)}">${escapeHtml(value)}</textarea>
+    </label>
+  `;
+
+  const sheet = $("fieldEditSheet");
+  sheet.classList.remove("closing", "hidden");
+  sheet.setAttribute("aria-hidden", "false");
+  document.body.classList.add("field-edit-open");
+
+  window.setTimeout(() => {
+    const input = $("fieldEditValue");
+    if (input) input.focus({ preventScroll: true });
+  }, 220);
+}
+
+function closeFieldEdit() {
+  const sheet = $("fieldEditSheet");
+  if (!sheet || sheet.classList.contains("hidden")) return;
+  sheet.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("field-edit-open");
+  animateHide(sheet, "closing", () => {
+    $("fieldEditContent").innerHTML = "";
+    $("fieldEditEntryId").value = "";
+    $("fieldEditKey").value = "";
+  });
+}
+
+async function saveFieldEdit(event) {
+  event.preventDefault();
+
+  const entryId = $("fieldEditEntryId").value;
+  const field = $("fieldEditKey").value;
+  const entry = (state.data.entries || []).find(e => e.id === entryId);
+  if (!entry || !fieldEditConfig(field)) return;
+
+  const payload = {
+    date: entry.date,
+    time: entry.time || nowTime(),
+    temperature: entry.temperature ?? null,
+    mood: entry.mood || "",
+    symptoms: entry.symptoms || [],
+    symptom_intensity: entry.symptom_intensity || {},
+    custom_symptoms: entry.custom_symptoms || "",
+    medication: entry.medication || "",
+    fluids_ml: entry.fluids_ml ?? null,
+    food: entry.food || "",
+    sleep: entry.sleep || "",
+    diaper_or_toilet: entry.diaper_or_toilet || "",
+    notes: entry.notes || ""
+  };
+
+  payload[field] = $("fieldEditValue").value.trim();
+
+  await api(`./api/entries/${entryId}`, { method: "PUT", body: JSON.stringify(payload) });
+  state.selectedDate = payload.date || state.selectedDate;
+  await loadState();
+  closeFieldEdit();
+  showToast("Aktualisiert");
+}
+
 function editEntry(id) {
   const entry = (state.data.entries || []).find(e => e.id === id);
   if (!entry) return;
@@ -1247,6 +1365,9 @@ async function init() {
   });
   $("closeEntry").addEventListener("click", closeSheet);
   $("sheetBackdrop").addEventListener("click", closeSheet);
+  $("closeFieldEdit").addEventListener("click", closeFieldEdit);
+  $("fieldEditBackdrop").addEventListener("click", closeFieldEdit);
+  $("fieldEditForm").addEventListener("submit", saveFieldEdit);
   onIfExists("closeQuick", "click", closeQuickSheet);
   onIfExists("quickBackdrop", "click", closeQuickSheet);
   onIfExists("quickForm", "submit", async event => {
