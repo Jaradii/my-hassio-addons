@@ -999,7 +999,7 @@ function quickDefinition(kind) {
   const defs = {
     fluids: { title: "Flüssigkeit", subtitle: "Getrunkene Menge in ml eintragen.", content: `<label class="field quick-field"><span>Flüssigkeit in ml</span><input id="quickFluidsMl" type="number" min="0" step="10" inputmode="numeric" placeholder="z. B. 250"></label>` },
     temperature: { title: "Temperatur", subtitle: "Temperatur für diesen Tag speichern.", content: `<label class="field quick-field"><span>Temperatur in °C</span><input id="quickTemperature" type="number" step="0.1" min="30" max="45" placeholder="z. B. 38,5"><input id="quickTemperatureSlider" class="temperature-slider" type="range" min="34" max="42" step="0.1" value="37.0"><div class="slider-scale"><span>34°</span><span>37°</span><span>39°</span><span>42°</span></div></label>` },
-    mood: { title: "Stimmung", subtitle: "Aktuelle Stimmung auswählen.", content: `<input id="quickMood" type="hidden"><div id="quickMoodOptions" class="mood-options quick-mood-options"><button type="button" class="mood-option" data-mood="Gut drauf"><span>😊</span><small>Gut</small></button><button type="button" class="mood-option" data-mood="Müde"><span>😴</span><small>Müde</small></button><button type="button" class="mood-option" data-mood="Quengelig"><span>😣</span><small>Quengelig</small></button><button type="button" class="mood-option" data-mood="Schlapp"><span>🥱</span><small>Schlapp</small></button><button type="button" class="mood-option" data-mood="Schmerzen"><span>🤕</span><small>Schmerz</small></button><button type="button" class="mood-option" data-mood="Unruhig"><span>😟</span><small>Unruhig</small></button></div>` },
+    mood: { title: "Stimmung", subtitle: "Eine oder mehrere Stimmungen auswählen.", content: `<input id="quickMood" type="hidden"><div id="quickMoodOptions" class="mood-options quick-mood-options"><button type="button" class="mood-option" data-mood="Gut drauf"><span>😊</span><small>Gut</small></button><button type="button" class="mood-option" data-mood="Müde"><span>😴</span><small>Müde</small></button><button type="button" class="mood-option" data-mood="Quengelig"><span>😣</span><small>Quengelig</small></button><button type="button" class="mood-option" data-mood="Schlapp"><span>🥱</span><small>Schlapp</small></button><button type="button" class="mood-option" data-mood="Schmerzen"><span>🤕</span><small>Schmerz</small></button><button type="button" class="mood-option" data-mood="Unruhig"><span>😟</span><small>Unruhig</small></button></div>` },
     symptoms: { title: "Symptome", subtitle: "Ein oder mehrere Symptome auswählen.", content: symptomsHtml },
     medication: { title: "Medikamente", subtitle: "Medikament, Dosis oder Uhrzeit notieren.", content: `<label class="field quick-field icon-textarea-field"><span><span class="field-icon">💊</span>Medikamente</span><textarea id="quickMedication" rows="3" placeholder="Name, Dosis, Uhrzeit"></textarea></label>` },
     food: { title: "Essen / Schlaf", subtitle: "Essen oder Schlaf kurz eintragen.", content: `<label class="field quick-field icon-textarea-field"><span><span class="field-icon">🍽️</span>Essen</span><textarea id="quickFood" rows="2" placeholder="Was wurde gegessen?"></textarea></label><label class="field quick-field icon-textarea-field"><span><span class="field-icon">😴</span>Schlaf</span><textarea id="quickSleep" rows="2" placeholder="Dauer, Qualität, Auffälligkeiten"></textarea></label>` }
@@ -1057,9 +1057,15 @@ function bindQuickControls(kind) {
   if (kind === "mood") {
     $("quickContent").querySelectorAll(".mood-option").forEach(btn => {
       btn.addEventListener("click", () => {
-        const next = $("quickMood").value === btn.dataset.mood ? "" : btn.dataset.mood;
-        $("quickMood").value = next;
-        $("quickContent").querySelectorAll(".mood-option").forEach(item => item.classList.toggle("active", item.dataset.mood === next));
+        const values = parseMoodValues($("quickMood").value);
+        const next = values.includes(btn.dataset.mood)
+          ? values.filter(item => item !== btn.dataset.mood)
+          : [...values, btn.dataset.mood];
+
+        $("quickMood").value = serializeMoodValues(next);
+        $("quickContent").querySelectorAll(".mood-option").forEach(item => {
+          item.classList.toggle("active", next.includes(item.dataset.mood));
+        });
       });
     });
   }
@@ -1192,13 +1198,33 @@ function setSymptomIntensityMap(map = {}) {
   updateSymptomIntensityControls();
 }
 
+function parseMoodValues(value) {
+  return String(value || "")
+    .split(",")
+    .map(item => item.trim())
+    .filter(Boolean);
+}
+
+function serializeMoodValues(values) {
+  return [...new Set((values || []).map(item => String(item || "").trim()).filter(Boolean))].join(", ");
+}
+
 function setMood(value) {
-  $("mood").value = value || "";
-  document.querySelectorAll(".mood-option").forEach(btn => {
-    const active = btn.dataset.mood === value;
+  const values = parseMoodValues(value);
+  $("mood").value = serializeMoodValues(values);
+  document.querySelectorAll("#moodOptions .mood-option").forEach(btn => {
+    const active = values.includes(btn.dataset.mood);
     btn.classList.toggle("active", active);
     btn.setAttribute("aria-checked", active ? "true" : "false");
   });
+}
+
+function toggleMood(value) {
+  const values = parseMoodValues($("mood").value);
+  const next = values.includes(value)
+    ? values.filter(item => item !== value)
+    : [...values, value];
+  setMood(serializeMoodValues(next));
 }
 
 function setTemperatureValue(value, source = "input") {
@@ -1703,10 +1729,9 @@ async function init() {
     setTemperatureValue(event.target.value, "slider");
   });
 
-  document.querySelectorAll(".mood-option").forEach(btn => {
+  document.querySelectorAll("#moodOptions .mood-option").forEach(btn => {
     btn.addEventListener("click", () => {
-      const nextMood = $("mood").value === btn.dataset.mood ? "" : btn.dataset.mood;
-      setMood(nextMood);
+      toggleMood(btn.dataset.mood);
     });
   });
 

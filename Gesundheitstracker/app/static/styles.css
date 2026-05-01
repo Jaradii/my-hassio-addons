@@ -7525,3 +7525,36 @@ body.entry-history-open > .bottom-action-bar {
 .summary-info-card .summary-info-head .summary-info-icon {
   flex: 0 0 auto;
 }
+
+
+/* v2.4.5: Stimmung wieder als Mehrfachauswahl */
+#moodOptions .mood-option,
+#quickMoodOptions .mood-option {
+  position: relative;
+}
+
+#moodOptions .mood-option.active,
+#quickMoodOptions .mood-option.active {
+  background: color-mix(in srgb, var(--primary) 26%, var(--card) 74%) !important;
+  border-color: var(--primary) !important;
+  color: var(--text) !important;
+  font-weight: 950 !important;
+}
+
+#moodOptions .mood-option.active::after,
+#quickMoodOptions .mood-option.active::after {
+  content: "✓";
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 950;
+  line-height: 1;
+}
