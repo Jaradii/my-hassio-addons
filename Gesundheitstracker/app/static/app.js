@@ -718,56 +718,76 @@ function renderEntryDetail(entry) {
   if (entry.custom_symptoms) symptoms.push(...entry.custom_symptoms.split(",").map(s => s.trim()).filter(Boolean));
 
   const rows = [
-    entry.temperature !== null && entry.temperature !== undefined && entry.temperature !== "" ? ["Temperatur", `${Number(entry.temperature).toFixed(1)} °C`] : null,
-    entry.fluids_ml ? ["Flüssigkeit", `${entry.fluids_ml} ml`] : null,
-    entry.mood ? ["Stimmung", entry.mood] : null,
-    entry.medication ? ["Medikamente", entry.medication] : null,
-    entry.food ? ["Essen", entry.food] : null,
-    entry.sleep ? ["Schlaf", entry.sleep] : null,
-    entry.diaper_or_toilet ? ["Windel / Toilette", entry.diaper_or_toilet] : null,
-    entry.notes ? ["Notizen", entry.notes] : null
+    entry.temperature !== null && entry.temperature !== undefined && entry.temperature !== "" ? ["Temperatur", `${Number(entry.temperature).toFixed(1)} °C`, feverClass(entry.temperature)] : null,
+    entry.fluids_ml ? ["Flüssigkeit", `${entry.fluids_ml} ml`, ""] : null,
+    entry.mood ? ["Stimmung", entry.mood, ""] : null,
+    entry.medication ? ["Medikamente", entry.medication, ""] : null,
+    entry.food ? ["Essen", entry.food, ""] : null,
+    entry.sleep ? ["Schlaf", entry.sleep, ""] : null,
+    entry.diaper_or_toilet ? ["Windel / Toilette", entry.diaper_or_toilet, ""] : null,
+    entry.notes ? ["Notizen", entry.notes, ""] : null
   ].filter(Boolean);
 
   return `
-    <div class="entry-detail redesigned-detail">
-      <div class="entry-detail-head">
-        <div class="entry-detail-title">
-          <span class="entry-detail-clock">🕒 ${escapeHtml(entry.time || "--:--")} Uhr</span>
-          <strong>${escapeHtml(entry.date || "")}</strong>
+    <div class="entry-detail alt-detail">
+      <div class="alt-detail-hero">
+        <div class="alt-detail-badges">
+          <span class="alt-detail-badge">Eintrag</span>
+          <span class="alt-detail-time">🕒 ${escapeHtml(entry.time || "--:--")} Uhr</span>
         </div>
-        <div class="entry-detail-actions">
-          <button class="btn secondary edit-entry" data-id="${entry.id}">Bearbeiten</button>
-          <button class="btn danger delete-entry" data-id="${entry.id}">Löschen</button>
-        </div>
+        <strong class="alt-detail-date">${escapeHtml(entry.date || "")}</strong>
+        <p class="alt-detail-subtitle">Alle Angaben dieses Eintrags in einer ruhigen Listenansicht.</p>
       </div>
 
       ${symptoms.length ? `
-        <section class="detail-section-card detail-symptom-card">
-          <div class="detail-section-title">
-            <span>🤧</span>
-            <strong>Symptome</strong>
+        <section class="alt-detail-section">
+          <div class="alt-detail-section-title">
+            <span>Symptome</span>
           </div>
-          ${renderSymptomList(symptoms)}
+          <div class="alt-detail-symptoms">
+            ${renderSymptomList(symptoms)}
+          </div>
         </section>
       ` : ""}
 
       ${rows.length ? `
-        <div class="detail-value-grid">
-          ${rows.map(([label, value]) => `
-            <div class="detail-value-card">
-              <span class="detail-value-icon">${detailIcon(label)}</span>
-              <div class="detail-value-body">
-                <span class="detail-value-label">${escapeHtml(label)}</span>
-                <strong>${escapeHtml(value)}</strong>
+        <section class="alt-detail-section">
+          <div class="alt-detail-section-title">
+            <span>Details</span>
+          </div>
+          <div class="alt-detail-list">
+            ${rows.map(([label, value, extraClass]) => `
+              <div class="alt-detail-row ${extraClass || ""}">
+                <div class="alt-detail-row-icon">${detailIcon(label)}</div>
+                <div class="alt-detail-row-body">
+                  <span class="alt-detail-row-label">${escapeHtml(label)}</span>
+                  <strong class="alt-detail-row-value">${escapeHtml(value)}</strong>
+                </div>
               </div>
-            </div>
-          `).join("")}
-        </div>
-      ` : `${!symptoms.length ? `<p class="muted-detail">Keine Details eingetragen.</p>` : ""}`}
+            `).join("")}
+          </div>
+        </section>
+      ` : `${!symptoms.length ? `
+        <section class="alt-detail-section alt-empty-state">
+          <div class="alt-detail-empty-icon">📝</div>
+          <strong>Noch keine Details vorhanden</strong>
+          <p>Dieser Eintrag enthält aktuell keine weiteren Angaben.</p>
+        </section>
+      ` : ""}`}
 
-      <div class="detail-history-wrap">
-        ${renderEntryHistory(entry)}
+      <div class="alt-detail-actions">
+        <button type="button" class="btn secondary edit-entry" data-id="${entry.id}">Bearbeiten</button>
+        <button type="button" class="btn danger delete-entry" data-id="${entry.id}">Löschen</button>
       </div>
+
+      <section class="alt-detail-section alt-history-section">
+        <div class="alt-detail-section-title">
+          <span>Historie</span>
+        </div>
+        <div class="alt-detail-history">
+          ${renderEntryHistory(entry)}
+        </div>
+      </section>
     </div>
   `;
 }
