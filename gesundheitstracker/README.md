@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.11
+- Basis ist die funktionierende Version 1.0.12
 
 
 ## Änderungen in 1.0.10
@@ -91,4 +91,13 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Smartphone-Layout der Datumsnavigation korrigiert
 - Vorheriger- und Nächster-Tag-Pfeil bleiben wieder auf gleicher Höhe
 - Heute-Button sitzt auf Smartphone darunter mittig
+- JavaScript wurde nicht geändert
+
+
+## Änderungen in 1.0.12
+
+- Datumsleiste vertikal kompakter gemacht
+- Weniger Padding und geringere Abstände
+- Heute-Button auf Smartphone niedriger gemacht
+- Pfeile bleiben weiterhin auf gleicher Höhe
 - JavaScript wurde nicht geändert

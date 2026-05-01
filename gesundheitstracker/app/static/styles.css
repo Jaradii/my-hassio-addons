@@ -7925,3 +7925,80 @@ body.dark .summary-info-item.temp-red p { color: #ff8f8f; }
     font-size: 0.68rem !important;
   }
 }
+
+
+/* v1.0.12: Datumsleiste vertikal kompakter */
+.date-card {
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+  min-height: unset !important;
+}
+
+.date-main,
+#datePickerButton {
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+  min-height: 46px !important;
+}
+
+#prettyDate {
+  font-size: 0.96rem !important;
+  line-height: 1.1 !important;
+}
+
+#daySummary {
+  font-size: 0.72rem !important;
+  line-height: 1.15 !important;
+}
+
+#prevDay,
+#nextDay {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+}
+
+.today-inline-btn {
+  height: 32px !important;
+  min-height: 32px !important;
+}
+
+@media (max-width: 430px) {
+  .date-card {
+    padding-top: 7px !important;
+    padding-bottom: 7px !important;
+    row-gap: 3px !important;
+  }
+
+  .date-main,
+  #datePickerButton {
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+    min-height: 42px !important;
+  }
+
+  #prettyDate {
+    font-size: 0.9rem !important;
+    line-height: 1.05 !important;
+  }
+
+  #daySummary {
+    font-size: 0.68rem !important;
+    line-height: 1.1 !important;
+  }
+
+  #prevDay,
+  #nextDay {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+  }
+
+  #todayButton.today-inline-btn {
+    height: 24px !important;
+    min-height: 24px !important;
+    min-width: 48px !important;
+    padding: 0 8px !important;
+    font-size: 0.66rem !important;
+  }
+}
