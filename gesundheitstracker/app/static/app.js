@@ -165,13 +165,21 @@ function applyDarkMode(enabled) {
 }
 
 function applyTheme(theme) {
-  const allowed = ["babyblue", "mint", "lavender", "peach", "rose", "slate", "darkslate", "ocean", "forest", "sand", "berry", "mono"];
+  const allowed = [
+    "babyblue", "mint", "lavender", "peach", "rose", "slate", "darkslate",
+    "ocean", "forest", "sand", "berry", "mono",
+    "midnight", "graphite", "nordnight", "mossdark", "mochadark", "aubergine"
+  ];
   const next = allowed.includes(theme) ? theme : "babyblue";
   state.theme = next;
   document.body.dataset.theme = next;
   localStorage.setItem("kindgesund_theme", next);
-  const selector = $("themeSelect");
-  if (selector) selector.value = next;
+
+  const oldSelector = $("themeSelect");
+  if (oldSelector) oldSelector.value = next;
+
+  const popupSelector = $("themePopupSelect");
+  if (popupSelector) popupSelector.value = next;
 }
 
 async function loadConfig() {
@@ -209,6 +217,8 @@ function renderProfile() {
   if ($("darkModeToggle")) $("darkModeToggle").checked = state.darkMode;
   const themeSelector = $("themeSelect");
   if (themeSelector) themeSelector.value = state.theme;
+  const popupThemeSelector = $("themePopupSelect");
+  if (popupThemeSelector) popupThemeSelector.value = state.theme;
 }
 
 function selectedEntries() {

@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.46
+- Basis ist die funktionierende Version 1.0.47
 
 
 ## Änderungen in 1.0.10
@@ -357,3 +357,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - `body.dark` hat die neuen Themes vorher teilweise überschrieben
 - Neue Themes haben jetzt eigene `body.dark[data-theme=...]` Regeln mit `!important`
 - Themes unterscheiden sich jetzt sichtbar stärker, bleiben aber gedämpft
+
+
+## Änderungen in 1.0.47
+
+- Speichern der neuen Themes repariert
+- Neue Theme-Namen in der JavaScript-Whitelist ergänzt
+- Theme-Popup wird nach Auswahl korrekt synchronisiert
+- Ursache: `applyTheme()` hat unbekannte Themes bisher automatisch auf `babyblue` zurückgesetzt

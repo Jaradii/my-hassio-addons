@@ -10039,3 +10039,11 @@ body[data-theme="aubergine"] .bottom-add-button,
 body.dark[data-theme="aubergine"] .bottom-add-button {
   background: linear-gradient(135deg, #8a7391, #6b5872) !important;
 }
+
+
+/* v1.0.47: Theme-Speicherung repariert.
+   Die neuen Theme-Namen sind jetzt in JS erlaubt. Diese CSS-Regel ist nur ein kleiner visueller Check:
+   Beim aktiven Theme bekommt die Theme-Auswahl die passende Akzentfarbe. */
+#themePopupSelect {
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--kg-border) 55%) !important;
+}
