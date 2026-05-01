@@ -6481,3 +6481,24 @@ body.field-edit-open > .bottom-action-bar {
   white-space: normal !important;
   line-height: 1.2 !important;
 }
+
+
+/* v2.3.2: Löschen Button im feldspezifischen Bearbeiten-Popup */
+.field-edit-actions {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+  justify-items: stretch !important;
+}
+
+.field-edit-actions .btn {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 52px !important;
+}
+
+@media (max-width: 360px) {
+  .field-edit-actions {
+    grid-template-columns: 1fr !important;
+  }
+}

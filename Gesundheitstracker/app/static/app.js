@@ -1226,6 +1226,17 @@ function closeFieldEdit() {
   });
 }
 
+async function deleteFieldEditEntry() {
+  const entryId = $("fieldEditEntryId").value;
+  if (!entryId) return;
+  if (!confirm("Diesen Eintrag löschen?")) return;
+
+  await api(`./api/entries/${entryId}`, { method: "DELETE" });
+  await loadState();
+  closeFieldEdit();
+  showToast("Eintrag gelöscht");
+}
+
 async function saveFieldEdit(event) {
   event.preventDefault();
 
@@ -1378,6 +1389,7 @@ async function init() {
   $("closeFieldEdit").addEventListener("click", closeFieldEdit);
   $("fieldEditBackdrop").addEventListener("click", closeFieldEdit);
   $("fieldEditForm").addEventListener("submit", saveFieldEdit);
+  $("deleteFieldEdit").addEventListener("click", deleteFieldEditEntry);
   onIfExists("closeQuick", "click", closeQuickSheet);
   onIfExists("quickBackdrop", "click", closeQuickSheet);
   onIfExists("quickForm", "submit", async event => {
