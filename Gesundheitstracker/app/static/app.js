@@ -331,6 +331,10 @@ function renderDay() {
   container.querySelectorAll(".edit-entry").forEach(btn => {
     btn.addEventListener("click", () => editEntry(btn.dataset.id));
   });
+  container.querySelectorAll(".summary-history-button").forEach(btn => {
+    btn.addEventListener("click", () => openEntryHistoryPopup(btn.dataset.id));
+  });
+
   container.querySelectorAll(".edit-summary-field").forEach(btn => {
     btn.addEventListener("click", () => openFieldEdit(btn.dataset.id, btn.dataset.field));
   });
@@ -499,7 +503,10 @@ function renderSummaryTextBlocks(summary) {
             <div class="summary-info-item">
               <span class="summary-info-time">${escapeHtml(e.time || "--:--")}</span>
               <p>${escapeHtml(e[key] || "")}</p>
-              <button type="button" class="summary-edit-button edit-summary-field" data-id="${e.id}" data-field="${key}" aria-label="${title} bearbeiten">✎</button>
+              <div class="summary-row-actions">
+                <button type="button" class="summary-edit-button summary-history-button" data-id="${e.id}" aria-label="Historie anzeigen">↻</button>
+                <button type="button" class="summary-edit-button edit-summary-field" data-id="${e.id}" data-field="${key}" aria-label="${title} bearbeiten">✎</button>
+              </div>
             </div>
           `).join("")}
         </div>
@@ -1340,6 +1347,54 @@ function formEntry() {
   };
 }
 
+function renderHistoryPopupContent(entry) {
+  const history = Array.isArray(entry.history) ? [...entry.history] : [];
+  const sorted = history.sort((a, b) => String(b.at || "").localeCompare(String(a.at || "")));
+
+  if (!sorted.length) {
+    return `<div class="entry-history-empty"><span>↻</span><strong>Keine Historie vorhanden</strong><p>Für diesen Eintrag wurden noch keine Änderungen gespeichert.</p></div>`;
+  }
+
+  return `
+    <div class="entry-history-list">
+      ${sorted.map(event => `
+        <div class="entry-history-row">
+          <div class="entry-history-row-head">
+            <span class="entry-history-action">${escapeHtml(historyActionLabel(event.action))}</span>
+            <span class="entry-history-date">${escapeHtml(formatTimestamp(event.at) || "")}</span>
+          </div>
+          <div class="entry-history-user">${escapeHtml(userLabel(event.by))}</div>
+          ${renderChangeDetails(event)}
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function openEntryHistoryPopup(entryId) {
+  const entry = (state.data.entries || []).find(e => e.id === entryId);
+  if (!entry) return;
+
+  $("entryHistoryTitle").textContent = "Historie";
+  $("entryHistorySubtitle").textContent = `${entry.time || "--:--"} Uhr · ${formatDateShortGerman(entry.date || state.selectedDate)}`;
+  $("entryHistoryContent").innerHTML = renderHistoryPopupContent(entry);
+
+  const popup = $("entryHistoryPopup");
+  popup.classList.remove("closing", "hidden");
+  popup.setAttribute("aria-hidden", "false");
+  document.body.classList.add("entry-history-open");
+}
+
+function closeEntryHistoryPopup() {
+  const popup = $("entryHistoryPopup");
+  if (!popup || popup.classList.contains("hidden")) return;
+  popup.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("entry-history-open");
+  animateHide(popup, "closing", () => {
+    $("entryHistoryContent").innerHTML = "";
+  });
+}
+
 function fieldEditConfig(field) {
   const configs = {
     medication: {
@@ -1582,6 +1637,8 @@ async function init() {
   });
   $("closeEntry").addEventListener("click", closeSheet);
   $("sheetBackdrop").addEventListener("click", closeSheet);
+  $("closeEntryHistory").addEventListener("click", closeEntryHistoryPopup);
+  $("entryHistoryBackdrop").addEventListener("click", closeEntryHistoryPopup);
   $("closeDayDetail").addEventListener("click", closeDayDetailSheet);
   $("dayDetailBackdrop").addEventListener("click", closeDayDetailSheet);
   $("closeEntryDetailPopup").addEventListener("click", closeEntryDetailPopup);
