@@ -7653,3 +7653,40 @@ body.dark .summary-info-item.temp-red p { color: #ff8f8f; }
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
 }
+
+
+/* v2.4.9: Kachelbeschreibungen auf Smartphone wieder anzeigen */
+.compact-day-tile small {
+  display: block !important;
+  font-size: 0.62rem !important;
+  line-height: 1.1 !important;
+  color: var(--muted) !important;
+  font-weight: 800 !important;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.compact-day-tile {
+  min-height: 98px !important;
+}
+
+@media (max-width: 430px) {
+  .compact-day-tile {
+    min-height: 96px !important;
+  }
+
+  .compact-day-tile small {
+    font-size: 0.6rem !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    white-space: normal !important;
+  }
+}
+
+@media (min-width: 900px) {
+  .compact-day-tile-grid {
+    grid-template-columns: repeat(8, minmax(0, 1fr)) !important;
+  }
+}

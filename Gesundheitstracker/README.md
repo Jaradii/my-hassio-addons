@@ -1,6 +1,6 @@
 # Gesundheitstracker Home Assistant Add-on
 
-Version 2.4.7
+Version 2.4.10
 
 Mobile, tageszentrierte Gesundheits-Tagebuch-App für Home Assistant Ingress.
 
@@ -457,7 +457,7 @@ Die Daten liegen im Add-on unter:
 
 ## Änderungen in 2.1.1
 
-- Rollback auf Version 2.4.7 vor der Apple-Watch/Quick-API-Erweiterung
+- Rollback auf Version 2.4.10 vor der Apple-Watch/Quick-API-Erweiterung
 - Quick-API-Endpunkte und Apple-Watch-Skriptbeispiele entfernt
 - Eigener Kalender mit Punkten für Tage mit Einträgen bleibt erhalten
 
@@ -648,3 +648,24 @@ Die Daten liegen im Add-on unter:
 - Detailtexte bleiben unten in den Einzelauflistungen
 - Neue Kachel „Notizen“ für sonstige Notizen/Auffälligkeiten ergänzt
 - Klick auf die Notizen-Kachel öffnet ein kleines Notiz-Popup
+
+
+## Änderungen in 2.4.8
+
+- Add-on-Ordner in der ZIP heißt jetzt `gesundheitstracker` statt `kindgesund`
+- Add-on-Name auf „Gesundheitstracker“ gesetzt
+- Add-on-Slug auf `gesundheitstracker` gesetzt
+
+
+## Änderungen in 2.4.9
+
+- Kachelbeschreibungen auf dem Smartphone wieder eingeblendet
+- Essen und Schlaf sind jetzt zwei getrennte Kacheln
+- Neue separate Schlaf-Schnelleingabe über die Schlaf-Kachel
+- Symptome im Popup umbenannt: Hals → Halsschmerzen, Ohren → Ohrenschmerzen, Bauch → Bauchschmerzen, Appetit → Appetitlosigkeit
+
+
+## Änderungen in 2.4.10
+
+- Ordnername in der ZIP ist jetzt `Gesundheitstracker` mit großem G
+- Technischer Home-Assistant-Slug bleibt `gesundheitstracker`

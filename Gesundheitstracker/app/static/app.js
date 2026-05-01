@@ -438,36 +438,49 @@ function renderDaySummaryCard(entries) {
           <span class="tile-icon">💧</span>
           <span class="tile-label">Flüssigkeit</span>
           <strong>${summary.fluidsTotal ? `${summary.fluidsTotal} ml` : "Keine"}</strong>
+          <small>${summary.fluidEntries.length ? `${summary.fluidEntries.length} Einträge` : "Nicht eingetragen"}</small>
         </button>
         <button type="button" class="day-tile quick-tile compact-day-tile temperature-tile ${summary.latestTempEntry ? feverClass(summary.latestTempEntry.temperature) : ""}" data-quick="temperature" aria-label="Temperatur eintragen">
           <span class="tile-icon">🌡️</span>
           <span class="tile-label">Temperatur</span>
           <strong>${escapeHtml(latestTempText)}</strong>
+          <small>${escapeHtml(tempMeta)}</small>
         </button>
         <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="mood" aria-label="Stimmung eintragen">
           <span class="tile-icon">🙂</span>
           <span class="tile-label">Stimmung</span>
           <strong>${summary.moods.length || "Keine"}</strong>
+          <small>${summary.moods.length ? "Angaben" : "Keine Angabe"}</small>
         </button>
         <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="symptoms" aria-label="Symptome eintragen">
           <span class="tile-icon">🤧</span>
           <span class="tile-label">Symptome</span>
           <strong>${summary.symptoms.length || "Keine"}</strong>
+          <small>${symptomText}</small>
         </button>
         <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="medication" aria-label="Medikament eintragen">
           <span class="tile-icon">💊</span>
           <span class="tile-label">Medis</span>
           <strong>${summary.medications.length || "Keine"}</strong>
+          <small>${summary.medications.length ? "Einträge" : "Nicht eingetragen"}</small>
         </button>
-        <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="food" aria-label="Essen oder Schlaf eintragen">
-          <span class="tile-icon tile-duo"><span>🍽️</span><span>😴</span></span>
-          <span class="tile-label">Essen/Schlaf</span>
-          <strong>${summary.foods.length + summary.sleeps.length || "Keine"}</strong>
+        <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="food" aria-label="Essen eintragen">
+          <span class="tile-icon">🍽️</span>
+          <span class="tile-label">Essen</span>
+          <strong>${summary.foods.length || "Keine"}</strong>
+          <small>${summary.foods.length ? "Einträge" : "Nicht eingetragen"}</small>
+        </button>
+        <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="sleep" aria-label="Schlaf eintragen">
+          <span class="tile-icon">😴</span>
+          <span class="tile-label">Schlaf</span>
+          <strong>${summary.sleeps.length || "Keine"}</strong>
+          <small>${summary.sleeps.length ? "Einträge" : "Nicht eingetragen"}</small>
         </button>
         <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="notes" aria-label="Notiz oder Auffälligkeit eintragen">
           <span class="tile-icon">📝</span>
           <span class="tile-label">Notizen</span>
           <strong>${summary.notes.length || "Keine"}</strong>
+          <small>${summary.notes.length ? "Auffälligkeiten" : "Keine Notiz"}</small>
         </button>
       </div>
 
@@ -998,13 +1011,13 @@ function quickDefinition(kind) {
       <label><input type="checkbox" value="Fieber"><span class="symptom-icon">🌡️</span><span>Fieber</span><select class="quick-symptom-intensity" data-symptom="Fieber" aria-label="Intensität Fieber"><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
       <label><input type="checkbox" value="Husten"><span class="symptom-icon">🤧</span><span>Husten</span><select class="quick-symptom-intensity" data-symptom="Husten" aria-label="Intensität Husten"><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
       <label><input type="checkbox" value="Schnupfen"><span class="symptom-icon">👃</span><span>Schnupfen</span><select class="quick-symptom-intensity" data-symptom="Schnupfen" aria-label="Intensität Schnupfen"><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
-      <label><input type="checkbox" value="Halsschmerzen"><span class="symptom-icon">🗣️</span><span>Hals</span><select class="quick-symptom-intensity" data-symptom="Halsschmerzen" aria-label="Intensität Halsschmerzen"><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
-      <label><input type="checkbox" value="Ohrenschmerzen"><span class="symptom-icon">👂</span><span>Ohren</span><select class="quick-symptom-intensity" data-symptom="Ohrenschmerzen" aria-label="Intensität Ohrenschmerzen"><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
-      <label><input type="checkbox" value="Bauchschmerzen"><span class="symptom-icon">🤢</span><span>Bauch</span><select class="quick-symptom-intensity" data-symptom="Bauchschmerzen" aria-label="Intensität Bauchschmerzen"><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
+      <label><input type="checkbox" value="Halsschmerzen"><span class="symptom-icon">🗣️</span><span>Halsschmerzen</span><select class="quick-symptom-intensity" data-symptom="Halsschmerzen" aria-label="Intensität Halsschmerzen"><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
+      <label><input type="checkbox" value="Ohrenschmerzen"><span class="symptom-icon">👂</span><span>Ohrenschmerzen</span><select class="quick-symptom-intensity" data-symptom="Ohrenschmerzen" aria-label="Intensität Ohrenschmerzen"><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
+      <label><input type="checkbox" value="Bauchschmerzen"><span class="symptom-icon">🤢</span><span>Bauchschmerzen</span><select class="quick-symptom-intensity" data-symptom="Bauchschmerzen" aria-label="Intensität Bauchschmerzen"><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
       <label><input type="checkbox" value="Durchfall"><span class="symptom-icon">🚽</span><span>Durchfall</span><select class="quick-symptom-intensity" data-symptom="Durchfall" aria-label="Intensität Durchfall"><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
       <label><input type="checkbox" value="Erbrechen"><span class="symptom-icon">🤮</span><span>Erbrechen</span><select class="quick-symptom-intensity" data-symptom="Erbrechen" aria-label="Intensität Erbrechen"><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
       <label><input type="checkbox" value="Ausschlag"><span class="symptom-icon">🩹</span><span>Ausschlag</span><select class="quick-symptom-intensity" data-symptom="Ausschlag" aria-label="Intensität Ausschlag"><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
-      <label><input type="checkbox" value="Appetitlosigkeit"><span class="symptom-icon">🍽️</span><span>Appetit</span><select class="quick-symptom-intensity" data-symptom="Appetitlosigkeit" aria-label="Intensität Appetitlosigkeit"><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
+      <label><input type="checkbox" value="Appetitlosigkeit"><span class="symptom-icon">🍽️</span><span>Appetitlosigkeit</span><select class="quick-symptom-intensity" data-symptom="Appetitlosigkeit" aria-label="Intensität Appetitlosigkeit"><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
     </div>
     <label class="field quick-field"><span>Weitere Symptome</span><input id="quickCustomSymptoms" type="text" placeholder="optional"></label>
   `;
@@ -1014,7 +1027,8 @@ function quickDefinition(kind) {
     mood: { title: "Stimmung", subtitle: "Eine oder mehrere Stimmungen auswählen.", content: `<input id="quickMood" type="hidden"><div id="quickMoodOptions" class="mood-options quick-mood-options"><button type="button" class="mood-option" data-mood="Gut drauf"><span>😊</span><small>Gut</small></button><button type="button" class="mood-option" data-mood="Müde"><span>😴</span><small>Müde</small></button><button type="button" class="mood-option" data-mood="Quengelig"><span>😣</span><small>Quengelig</small></button><button type="button" class="mood-option" data-mood="Schlapp"><span>🥱</span><small>Schlapp</small></button><button type="button" class="mood-option" data-mood="Schmerzen"><span>🤕</span><small>Schmerz</small></button><button type="button" class="mood-option" data-mood="Unruhig"><span>😟</span><small>Unruhig</small></button></div>` },
     symptoms: { title: "Symptome", subtitle: "Ein oder mehrere Symptome auswählen.", content: symptomsHtml },
     medication: { title: "Medikamente", subtitle: "Medikament, Dosis oder Uhrzeit notieren.", content: `<label class="field quick-field icon-textarea-field"><span><span class="field-icon">💊</span>Medikamente</span><textarea id="quickMedication" rows="3" placeholder="Name, Dosis, Uhrzeit"></textarea></label>` },
-    food: { title: "Essen / Schlaf", subtitle: "Essen oder Schlaf kurz eintragen.", content: `<label class="field quick-field icon-textarea-field"><span><span class="field-icon">🍽️</span>Essen</span><textarea id="quickFood" rows="2" placeholder="Was wurde gegessen?"></textarea></label><label class="field quick-field icon-textarea-field"><span><span class="field-icon">😴</span>Schlaf</span><textarea id="quickSleep" rows="2" placeholder="Dauer, Qualität, Auffälligkeiten"></textarea></label>` },
+    food: { title: "Essen", subtitle: "Essen kurz eintragen.", content: `<label class="field quick-field icon-textarea-field"><span><span class="field-icon">🍽️</span>Essen</span><textarea id="quickFood" rows="3" placeholder="Was wurde gegessen?"></textarea></label>` },
+    sleep: { title: "Schlaf", subtitle: "Schlaf kurz eintragen.", content: `<label class="field quick-field icon-textarea-field"><span><span class="field-icon">😴</span>Schlaf</span><textarea id="quickSleep" rows="3" placeholder="Dauer, Qualität, Auffälligkeiten"></textarea></label>` },
     notes: { title: "Notizen / Auffälligkeiten", subtitle: "Sonstige Beobachtung kurz notieren.", content: `<label class="field quick-field icon-textarea-field"><span><span class="field-icon">📝</span>Notiz / Auffälligkeit</span><textarea id="quickNotes" rows="3" placeholder="Was ist aufgefallen?"></textarea></label>` }
   };
   return defs[kind] || null;
@@ -1128,6 +1142,7 @@ function quickPayload(kind) {
     payload.medication = $("quickMedication").value.trim();
   } else if (kind === "food") {
     payload.food = $("quickFood").value.trim();
+  } else if (kind === "sleep") {
     payload.sleep = $("quickSleep").value.trim();
   } else if (kind === "notes") {
     payload.notes = $("quickNotes").value.trim();
