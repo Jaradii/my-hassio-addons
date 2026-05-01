@@ -1848,6 +1848,163 @@ function closeViews() {
   });
 }
 
+
+function dateInRange(date, from, to) {
+  if (!date) return false;
+  if (from && date < from) return false;
+  if (to && date > to) return false;
+  return true;
+}
+
+function analysisEntryTimestamp(entry) {
+  return `${entry.date || ""} ${entry.time || ""}`;
+}
+
+function analysisValue(entry, category) {
+  if (category === "temperature") {
+    if (entry.temperature === null || entry.temperature === undefined || entry.temperature === "") return "";
+    return `${Number(entry.temperature).toFixed(1)} °C`;
+  }
+  if (category === "fluids") {
+    return entry.fluids_ml ? `${entry.fluids_ml} ml` : "";
+  }
+  if (category === "symptoms") {
+    const intensityMap = entry.symptom_intensity || {};
+    const parts = (entry.symptoms || []).map(symptom => {
+      const level = intensityMap[symptom];
+      return level ? `${symptom} (${level})` : symptom;
+    });
+    if (entry.custom_symptoms) {
+      parts.push(...entry.custom_symptoms.split(",").map(s => s.trim()).filter(Boolean));
+    }
+    return parts.join(", ");
+  }
+  if (category === "mood") return entry.mood || "";
+  if (category === "medication") return entry.medication || "";
+  if (category === "food") return entry.food || "";
+  if (category === "sleep") return entry.sleep || "";
+  if (category === "diaper_or_toilet") return entry.diaper_or_toilet || "";
+  if (category === "notes") return entry.notes || "";
+  if (category === "all") {
+    const parts = [];
+    if (entry.temperature !== null && entry.temperature !== undefined && entry.temperature !== "") parts.push(`🌡️ ${Number(entry.temperature).toFixed(1)} °C`);
+    if (entry.fluids_ml) parts.push(`💧 ${entry.fluids_ml} ml`);
+    if (entry.mood) parts.push(`🙂 ${entry.mood}`);
+    const symptoms = analysisValue(entry, "symptoms");
+    if (symptoms) parts.push(`🤧 ${symptoms}`);
+    if (entry.medication) parts.push(`💊 ${entry.medication}`);
+    if (entry.food) parts.push(`🍽️ ${entry.food}`);
+    if (entry.sleep) parts.push(`😴 ${entry.sleep}`);
+    if (entry.diaper_or_toilet) parts.push(`🚽 ${entry.diaper_or_toilet}`);
+    if (entry.notes) parts.push(`📝 ${entry.notes}`);
+    return parts.join(" · ");
+  }
+  return "";
+}
+
+function analysisCategoryLabel(category) {
+  const labels = {
+    temperature: "Fieber / Temperatur",
+    fluids: "Flüssigkeit",
+    symptoms: "Symptome",
+    mood: "Stimmung",
+    medication: "Medikamente",
+    food: "Essen",
+    sleep: "Schlaf",
+    diaper_or_toilet: "Windel / Toilette",
+    notes: "Notizen",
+    all: "Alle Einträge"
+  };
+  return labels[category] || category;
+}
+
+function renderTemperatureAnalysis(entries) {
+  const values = entries
+    .map(entry => Number(entry.temperature))
+    .filter(value => !Number.isNaN(value));
+
+  if (!values.length) {
+    return `<div class="analysis-empty">Keine Temperaturwerte im gewählten Zeitraum.</div>`;
+  }
+
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const avg = values.reduce((sum, value) => sum + value, 0) / values.length;
+  const fever = values.filter(value => value >= 38.5).length;
+  const highFever = values.filter(value => value >= 39).length;
+
+  return `
+    <div class="analysis-stat-grid">
+      <div><span>Messungen</span><strong>${values.length}</strong></div>
+      <div><span>Minimum</span><strong>${min.toFixed(1)} °C</strong></div>
+      <div><span>Maximum</span><strong>${max.toFixed(1)} °C</strong></div>
+      <div><span>Durchschnitt</span><strong>${avg.toFixed(1)} °C</strong></div>
+      <div><span>ab 38,5 °C</span><strong>${fever}</strong></div>
+      <div><span>ab 39,0 °C</span><strong>${highFever}</strong></div>
+    </div>
+  `;
+}
+
+function renderAnalysis() {
+  const from = $("analysisFrom")?.value || "";
+  const to = $("analysisTo")?.value || "";
+  const category = $("analysisCategory")?.value || "temperature";
+  const entries = (state.data.entries || [])
+    .filter(entry => dateInRange(entry.date, from, to))
+    .filter(entry => analysisValue(entry, category))
+    .sort((a, b) => analysisEntryTimestamp(a).localeCompare(analysisEntryTimestamp(b)));
+
+  const summary = $("analysisSummary");
+  const results = $("analysisResults");
+  if (!summary || !results) return;
+
+  if (category === "temperature") {
+    summary.innerHTML = renderTemperatureAnalysis(entries);
+  } else {
+    summary.innerHTML = `
+      <div class="analysis-simple-summary">
+        <span>${escapeHtml(analysisCategoryLabel(category))}</span>
+        <strong>${entries.length} Treffer</strong>
+      </div>
+    `;
+  }
+
+  if (!entries.length) {
+    results.innerHTML = `<div class="analysis-empty">Keine passenden Einträge gefunden.</div>`;
+    return;
+  }
+
+  results.innerHTML = entries.map(entry => {
+    const value = analysisValue(entry, category);
+    const tempClass = category === "temperature" ? feverClass(entry.temperature) : "";
+    return `
+      <div class="analysis-result-row ${tempClass}">
+        <div class="analysis-result-time">
+          <strong>${escapeHtml(formatDateShortGerman(entry.date))}</strong>
+          <span>${escapeHtml(entry.time || "--:--")} Uhr</span>
+        </div>
+        <p>${escapeHtml(value)}</p>
+      </div>
+    `;
+  }).join("");
+}
+
+function openAnalysisView() {
+  const todayValue = today();
+  const from = $("analysisFrom");
+  const to = $("analysisTo");
+
+  if (from && !from.value) {
+    const d = new Date(`${todayValue}T12:00:00`);
+    d.setDate(d.getDate() - 14);
+    from.value = d.toISOString().slice(0, 10);
+  }
+  if (to && !to.value) to.value = todayValue;
+
+  renderAnalysis();
+  openView("analysisView");
+}
+
 async function init() {
   $("selectedDate").value = state.selectedDate;
 
@@ -2022,6 +2179,10 @@ async function init() {
     });
   }
 
+  $("analysisFrom").addEventListener("change", renderAnalysis);
+  $("analysisTo").addEventListener("change", renderAnalysis);
+  $("analysisCategory").addEventListener("change", renderAnalysis);
+
   $("importFile").addEventListener("change", async event => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -2034,6 +2195,7 @@ async function init() {
     closeViews();
   });
 
+  $("searchButton").addEventListener("click", openAnalysisView);
   $("profileButton").addEventListener("click", () => openView("profileView"));
   $("topDarkModeButton").addEventListener("click", () => {
     applyDarkMode(!state.darkMode);

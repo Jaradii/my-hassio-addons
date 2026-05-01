@@ -26,6 +26,7 @@
       </div>
       <div class="top-actions">
         <button id="profileButton" class="icon-btn" aria-label="Profil öffnen">☰</button>
+        <button id="searchButton" class="icon-btn" aria-label="Auswertung öffnen" title="Auswertung">🔍</button>
         <button id="topDarkModeButton" class="icon-btn" aria-label="Dark Mode umschalten" title="Dark Mode">🌙</button>
         <button id="backupButton" class="icon-btn" aria-label="Backup öffnen">💾</button>
       </div>
@@ -307,6 +308,45 @@
         </label>
         <label class="field full"><span>Hinweise</span><textarea id="profileNotes" rows="3"></textarea></label>
         <button id="saveProfileButton" class="btn primary">Profil speichern</button>
+      </div>
+    </section>
+
+
+    <section id="analysisView" class="modal-view hidden">
+      <div class="view-card analysis-card">
+        <div class="sheet-head">
+          <h2>Auswertung</h2>
+          <button class="round-btn close-view">×</button>
+        </div>
+
+        <div class="analysis-controls">
+          <label class="field">
+            <span>Von</span>
+            <input id="analysisFrom" type="date" />
+          </label>
+          <label class="field">
+            <span>Bis</span>
+            <input id="analysisTo" type="date" />
+          </label>
+          <label class="field">
+            <span>Kategorie</span>
+            <select id="analysisCategory">
+              <option value="temperature">Fieber / Temperatur</option>
+              <option value="fluids">Flüssigkeit</option>
+              <option value="symptoms">Symptome</option>
+              <option value="mood">Stimmung</option>
+              <option value="medication">Medikamente</option>
+              <option value="food">Essen</option>
+              <option value="sleep">Schlaf</option>
+              <option value="diaper_or_toilet">Windel / Toilette</option>
+              <option value="notes">Notizen</option>
+              <option value="all">Alle Einträge</option>
+            </select>
+          </label>
+        </div>
+
+        <div id="analysisSummary" class="analysis-summary"></div>
+        <div id="analysisResults" class="analysis-results"></div>
       </div>
     </section>
 

@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.22
+- Basis ist die funktionierende Version 1.0.23
 
 
 ## Änderungen in 1.0.10
@@ -180,3 +180,12 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Gleiche Umrandung, gleicher Hintergrund und gleicher Hover-Stil
 - Button-Größe bleibt gleich
 - Nur CSS geändert
+
+
+## Änderungen in 1.0.23
+
+- Auswertungs-/Suchfunktion ergänzt
+- Neues Suchsymbol oben in der Leiste
+- Zeitraumfilter Von/Bis
+- Kategorie-Filter für Temperatur, Flüssigkeit, Symptome, Stimmung, Medikamente, Essen, Schlaf, Windel/Toilette, Notizen und Alle Einträge
+- Temperaturauswertung mit Anzahl, Minimum, Maximum, Durchschnitt, Werte ab 38,5 °C und Werte ab 39,0 °C
