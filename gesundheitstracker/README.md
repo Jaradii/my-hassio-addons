@@ -33,3 +33,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Dark-Mode-Schalter im Profil/Einstellungen-Popup
 - `dark_mode` wieder in `config.yaml` ergänzt
 - Dark Mode wird zusätzlich lokal im Browser gespeichert
+
+
+## Änderungen in 1.0.3
+
+- Dark-Mode-Schalter im Profil/Einstellungen-Popup repariert
+- Listener war in 1.0.2 versehentlich in den Theme-Listener gerutscht
+- In-App-Dark-Mode greift jetzt sofort und bleibt lokal im Browser gespeichert
+- Add-on-Einstellung `dark_mode` funktioniert weiterhin als Standardwert

@@ -166,7 +166,14 @@ function applyTheme(theme) {
 async function loadConfig() {
   state.config = await api("./api/config", { headers: {} });
   document.title = state.config.app_title || "Gesundheitstracker";
-  applyDarkMode(state.config.dark_mode !== undefined ? Boolean(state.config.dark_mode) : state.darkMode);
+
+  const storedDarkMode = localStorage.getItem("kindgesund_dark_mode");
+  if (storedDarkMode === null && state.config.dark_mode !== undefined) {
+    applyDarkMode(Boolean(state.config.dark_mode));
+  } else {
+    applyDarkMode(state.darkMode);
+  }
+
   applyTheme(state.theme);
   if (state.config.pin_required && !state.pin) showPin();
 }
@@ -1872,8 +1879,12 @@ async function init() {
 
   $("themeSelect").addEventListener("change", (event) => {
     applyTheme(event.target.value);
-  $("darkModeToggle").addEventListener("change", event => applyDarkMode(event.target.checked));
     showToast("Theme geändert");
+  });
+
+  $("darkModeToggle").addEventListener("change", (event) => {
+    applyDarkMode(event.target.checked);
+    showToast(event.target.checked ? "Dark Mode aktiviert" : "Dark Mode deaktiviert");
   });
 
   $("importFile").addEventListener("change", async event => {
