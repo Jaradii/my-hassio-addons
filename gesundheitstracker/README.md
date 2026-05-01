@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.38
+- Basis ist die funktionierende Version 1.0.39
 
 
 ## Änderungen in 1.0.10
@@ -308,3 +308,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Pointer-Events und Touch-Events werden parallel unterstützt
 - Zusätzlicher Fallback für iOS/WebView ergänzt
 - Swipe bleibt in Popups, Menüs und Eingabefeldern deaktiviert
+
+
+## Änderungen in 1.0.39
+
+- Swipe-Gestensteuerung vollständig entfernt
+- Zugehörige Touch-/Pointer-Event-Listener entfernt
+- Zugehörige Swipe-CSS-Regeln entfernt
+- Tageswechsel erfolgt wieder nur über die Pfeile bzw. Datumsauswahl

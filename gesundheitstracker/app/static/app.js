@@ -313,7 +313,6 @@ function renderCalendar() {
 function renderDateHeader(entries) {
   $("selectedDate").value = state.selectedDate;
   bindSleepTimeInputs(document);
-  bindGlobalDaySwipe();
 
   const d = new Date(`${state.selectedDate}T12:00:00`);
   const isToday = state.selectedDate === today();
@@ -2604,118 +2603,6 @@ function openAnalysisView() {
   openView("analysisView");
 }
 
-
-function shouldIgnoreDaySwipe(target) {
-  if (!target) return false;
-  if (target.closest("input, textarea, select, button, a, label")) return true;
-  if (target.closest(".modal-view:not(.hidden), .sheet:not(.hidden), .quick-sheet:not(.hidden), .calendar-sheet:not(.hidden), .time-sheet:not(.hidden), .field-edit-sheet:not(.hidden), .day-detail-sheet:not(.hidden), .entry-detail-popup:not(.hidden), .entry-history-popup:not(.hidden), .top-menu-dropdown:not(.hidden)")) return true;
-  return false;
-}
-
-function isSwipeAllowedNow() {
-  return !document.body.classList.contains("modal-open")
-    && !document.body.classList.contains("sheet-open")
-    && !document.body.classList.contains("quick-open")
-    && !document.body.classList.contains("calendar-open")
-    && !document.body.classList.contains("time-open")
-    && !document.body.classList.contains("field-edit-open")
-    && !document.body.classList.contains("day-detail-open")
-    && !document.body.classList.contains("entry-detail-popup-open")
-    && !document.body.classList.contains("entry-history-open");
-}
-
-function handleDaySwipeGesture(dx, dy, elapsed) {
-  if (!isSwipeAllowedNow()) return false;
-  if (elapsed > 1200) return false;
-  if (Math.abs(dx) < 55) return false;
-  if (Math.abs(dx) < Math.abs(dy) * 1.15) return false;
-
-  if (dx < 0) {
-    shiftDay(1);
-    showToast("Nächster Tag");
-  } else {
-    shiftDay(-1);
-    showToast("Vorheriger Tag");
-  }
-  return true;
-}
-
-function bindGlobalDaySwipe() {
-  if (document.body.dataset.daySwipeBound === "1") return;
-  document.body.dataset.daySwipeBound = "1";
-
-  const swipeSurface = $("dayEntries") || document.querySelector(".app") || document.body;
-
-  let startX = 0;
-  let startY = 0;
-  let startTime = 0;
-  let tracking = false;
-  let startTarget = null;
-
-  const begin = (x, y, target) => {
-    if (!isSwipeAllowedNow() || shouldIgnoreDaySwipe(target)) {
-      tracking = false;
-      return;
-    }
-    startX = x;
-    startY = y;
-    startTime = Date.now();
-    startTarget = target;
-    tracking = true;
-  };
-
-  const finish = (x, y) => {
-    if (!tracking) return;
-    tracking = false;
-    if (shouldIgnoreDaySwipe(startTarget)) return;
-    handleDaySwipeGesture(x - startX, y - startY, Date.now() - startTime);
-  };
-
-  // Primär für Home-Assistant-App/WebView: Pointer Events auf der Hauptansicht.
-  swipeSurface.addEventListener("pointerdown", event => {
-    if (event.pointerType === "mouse" && event.button !== 0) return;
-    begin(event.clientX, event.clientY, event.target);
-  }, { passive: true });
-
-  swipeSurface.addEventListener("pointerup", event => {
-    finish(event.clientX, event.clientY);
-  }, { passive: true });
-
-  swipeSurface.addEventListener("pointercancel", () => {
-    tracking = false;
-  }, { passive: true });
-
-  // Fallback für iOS WebView, falls Pointer Events nicht sauber feuern.
-  swipeSurface.addEventListener("touchstart", event => {
-    if (!event.touches || event.touches.length !== 1) return;
-    const touch = event.touches[0];
-    begin(touch.clientX, touch.clientY, event.target);
-  }, { passive: true });
-
-  swipeSurface.addEventListener("touchend", event => {
-    if (!event.changedTouches || event.changedTouches.length !== 1) return;
-    const touch = event.changedTouches[0];
-    finish(touch.clientX, touch.clientY);
-  }, { passive: true });
-
-  swipeSurface.addEventListener("touchcancel", () => {
-    tracking = false;
-  }, { passive: true });
-
-  // Zweiter Fallback auf document, falls HA die Events nicht bis #dayEntries durchreicht.
-  document.addEventListener("touchstart", event => {
-    if (tracking) return;
-    if (!event.touches || event.touches.length !== 1) return;
-    const touch = event.touches[0];
-    begin(touch.clientX, touch.clientY, event.target);
-  }, { passive: true });
-
-  document.addEventListener("touchend", event => {
-    if (!event.changedTouches || event.changedTouches.length !== 1) return;
-    const touch = event.changedTouches[0];
-    finish(touch.clientX, touch.clientY);
-  }, { passive: true });
-}
 
 async function init() {
   $("selectedDate").value = state.selectedDate;
