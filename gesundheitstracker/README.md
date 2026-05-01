@@ -25,3 +25,11 @@ Gesundheitstracker
 ## Hinweise
 
 Die Daten werden im Add-on-Datenbereich gespeichert.
+
+
+## Änderungen in 1.0.2
+
+- Dark Mode wieder ergänzt
+- Dark-Mode-Schalter im Profil/Einstellungen-Popup
+- `dark_mode` wieder in `config.yaml` ergänzt
+- Dark Mode wird zusätzlich lokal im Browser gespeichert

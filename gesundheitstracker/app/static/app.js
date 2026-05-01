@@ -2,6 +2,7 @@ const state = {
   config: {},
   data: { profile: {}, entries: [] },
   theme: localStorage.getItem("kindgesund_theme") || "babyblue",
+  darkMode: localStorage.getItem("kindgesund_dark_mode") === "true",
   pin: localStorage.getItem("kindgesund_pin") || "",
   selectedDate: today(),
   calendarMonth: today().slice(0, 7),
@@ -144,6 +145,14 @@ function renderSymptomList(symptoms) {
   }).join("")}</div>`;
 }
 
+function applyDarkMode(enabled) {
+  state.darkMode = Boolean(enabled);
+  document.body.classList.toggle("dark", state.darkMode);
+  localStorage.setItem("kindgesund_dark_mode", state.darkMode ? "true" : "false");
+  const toggle = $("darkModeToggle");
+  if (toggle) toggle.checked = state.darkMode;
+}
+
 function applyTheme(theme) {
   const allowed = ["babyblue", "mint", "lavender", "peach", "rose", "slate", "darkslate", "ocean", "forest", "sand", "berry", "mono"];
   const next = allowed.includes(theme) ? theme : "babyblue";
@@ -156,8 +165,8 @@ function applyTheme(theme) {
 
 async function loadConfig() {
   state.config = await api("./api/config", { headers: {} });
-  document.title = state.config.app_title || "KindGesund";
-  document.body.classList.toggle("dark", Boolean(state.config.dark_mode));
+  document.title = state.config.app_title || "Gesundheitstracker";
+  applyDarkMode(state.config.dark_mode !== undefined ? Boolean(state.config.dark_mode) : state.darkMode);
   applyTheme(state.theme);
   if (state.config.pin_required && !state.pin) showPin();
 }
@@ -179,6 +188,7 @@ function renderProfile() {
   $("profileName").value = name;
   $("profileBirthDate").value = profile.birth_date || "";
   $("profileNotes").value = profile.notes || "";
+  if ($("darkModeToggle")) $("darkModeToggle").checked = state.darkMode;
   const themeSelector = $("themeSelect");
   if (themeSelector) themeSelector.value = state.theme;
 }
@@ -1862,6 +1872,7 @@ async function init() {
 
   $("themeSelect").addEventListener("change", (event) => {
     applyTheme(event.target.value);
+  $("darkModeToggle").addEventListener("change", event => applyDarkMode(event.target.checked));
     showToast("Theme geändert");
   });
 

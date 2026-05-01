@@ -1,5 +1,5 @@
 name: "Gesundheitstracker"
-version: "1.0.1"
+version: "1.0.2"
 slug: gesundheitstracker
 description: "Gesundheitstracker für Home Assistant"
 url: "https://github.com/Jaradii/my-hassio-addons"
@@ -23,9 +23,11 @@ options:
   app_title: "Gesundheitstracker"
   child_name: ""
   pin: ""
+  dark_mode: false
 schema:
   app_title: str
   child_name: str
   pin: str
+  dark_mode: bool
 map:
   - addon_config:rw
