@@ -2260,6 +2260,72 @@ function renderExportSymptomChips() {
   });
 }
 
+
+function selectedExportCategories() {
+  const container = $("exportCategoryChips");
+  if (!container) return ["temperature", "fluids", "symptoms", "mood", "medication", "food", "sleep", "diaper_or_toilet", "notes"];
+  const allChecked = container.querySelector('input[value="__all__"]')?.checked;
+  const allCategories = ["temperature", "fluids", "symptoms", "mood", "medication", "food", "sleep", "diaper_or_toilet", "notes"];
+  if (allChecked) return allCategories;
+  const selected = [...container.querySelectorAll('input:not([value="__all__"]):checked')].map(input => input.value);
+  return selected.length ? selected : allCategories;
+}
+
+function bindExportCategoryChips() {
+  const container = $("exportCategoryChips");
+  if (!container || container.dataset.bound === "1") return;
+  container.dataset.bound = "1";
+  const allInput = container.querySelector('input[value="__all__"]');
+  const categoryInputs = [...container.querySelectorAll('input:not([value="__all__"])')];
+
+  allInput.addEventListener("change", () => {
+    if (allInput.checked) categoryInputs.forEach(input => input.checked = false);
+    syncExportSymptomSection();
+  });
+
+  categoryInputs.forEach(input => {
+    input.addEventListener("change", () => {
+      if (categoryInputs.some(item => item.checked)) allInput.checked = false;
+      if (!categoryInputs.some(item => item.checked)) allInput.checked = true;
+      syncExportSymptomSection();
+    });
+  });
+}
+
+function syncExportSymptomSection() {
+  const box = $("exportSymptomChips")?.closest(".export-section");
+  if (!box) return;
+  const categories = selectedExportCategories();
+  const active = categories.includes("symptoms");
+  box.classList.toggle("muted-export-section", !active);
+}
+
+function exportCategoryHasValue(entry, category) {
+  if (category === "temperature") return entry.temperature !== null && entry.temperature !== undefined && entry.temperature !== "";
+  if (category === "fluids") return Boolean(entry.fluids_ml);
+  if (category === "symptoms") return Boolean(analysisValue(entry, "symptoms"));
+  if (category === "mood") return Boolean(entry.mood);
+  if (category === "medication") return Boolean(entry.medication);
+  if (category === "food") return Boolean(entry.food);
+  if (category === "sleep") return Boolean(entry.sleep);
+  if (category === "diaper_or_toilet") return Boolean(entry.diaper_or_toilet);
+  if (category === "notes") return Boolean(entry.notes);
+  return false;
+}
+
+function exportCategoryLine(entry, category) {
+  if (category === "temperature" && exportCategoryHasValue(entry, category)) return `Temperatur: ${Number(entry.temperature).toFixed(1)} °C`;
+  if (category === "fluids" && exportCategoryHasValue(entry, category)) return `Flüssigkeit: ${entry.fluids_ml} ml`;
+  if (category === "symptoms" && exportCategoryHasValue(entry, category)) return `Symptome: ${analysisValue(entry, "symptoms")}`;
+  if (category === "mood" && exportCategoryHasValue(entry, category)) return `Stimmung: ${entry.mood}`;
+  if (category === "medication" && exportCategoryHasValue(entry, category)) return `Medikamente: ${entry.medication}`;
+  if (category === "food" && exportCategoryHasValue(entry, category)) return `Essen: ${entry.food}`;
+  if (category === "sleep" && exportCategoryHasValue(entry, category)) return `Schlaf: ${entry.sleep}`;
+  if (category === "diaper_or_toilet" && exportCategoryHasValue(entry, category)) return `Windel/Toilette: ${entry.diaper_or_toilet}`;
+  if (category === "notes" && exportCategoryHasValue(entry, category)) return `Notizen: ${entry.notes}`;
+  return "";
+}
+
 function selectedExportSymptoms() {
   const container = $("exportSymptomChips") || $("analysisSymptomExportChips");
   if (!container) return [];
@@ -2285,17 +2351,27 @@ function entryHasExportSymptom(entry, selected) {
 function buildFullExportText() {
   const from = $("exportFrom")?.value || "";
   const to = $("exportTo")?.value || "";
+  const categories = selectedExportCategories();
+  const selectedSymptoms = selectedExportSymptoms();
 
   const entries = (state.data.entries || [])
     .filter(entry => dateInRange(entry.date, from, to))
+    .filter(entry => categories.some(category => exportCategoryHasValue(entry, category)))
+    .filter(entry => {
+      if (!categories.includes("symptoms") || !selectedSymptoms.length) return true;
+      const hasOnlyNonSymptomCategory = categories.some(category => category !== "symptoms" && exportCategoryHasValue(entry, category));
+      return hasOnlyNonSymptomCategory || entryHasExportSymptom(entry, selectedSymptoms);
+    })
     .sort((a, b) => analysisEntryTimestamp(a).localeCompare(analysisEntryTimestamp(b)));
 
   const lines = [];
   lines.push("Gesundheitstracker Export");
   lines.push("========================");
   lines.push("");
-  lines.push(`Exportart: Alle Daten`);
+  lines.push(`Exportart: Benutzerdefiniert`);
   lines.push(`Zeitraum: ${from ? formatDateShortGerman(from) : "offen"} bis ${to ? formatDateShortGerman(to) : "offen"}`);
+  lines.push(`Kategorien: ${categories.map(analysisCategoryLabel).join(", ")}`);
+  if (categories.includes("symptoms")) lines.push(`Symptomfilter: ${selectedSymptoms.length ? selectedSymptoms.join(", ") : "Alle Symptome"}`);
   lines.push(`Einträge: ${entries.length}`);
   lines.push("");
 
@@ -2319,17 +2395,17 @@ function buildFullExportText() {
     dayEntries
       .sort((a, b) => (a.time || "").localeCompare(b.time || ""))
       .forEach(entry => {
+        const entryLines = categories
+          .map(category => {
+            if (category === "symptoms" && selectedSymptoms.length && !entryHasExportSymptom(entry, selectedSymptoms)) return "";
+            return exportCategoryLine(entry, category);
+          })
+          .filter(Boolean);
+
+        if (!entryLines.length) return;
+
         lines.push(`${entry.time || "--:--"} Uhr`);
-        if (entry.temperature !== null && entry.temperature !== undefined && entry.temperature !== "") lines.push(`  Temperatur: ${Number(entry.temperature).toFixed(1)} °C`);
-        if (entry.fluids_ml) lines.push(`  Flüssigkeit: ${entry.fluids_ml} ml`);
-        const symptoms = analysisValue(entry, "symptoms");
-        if (symptoms) lines.push(`  Symptome: ${symptoms}`);
-        if (entry.mood) lines.push(`  Stimmung: ${entry.mood}`);
-        if (entry.medication) lines.push(`  Medikamente: ${entry.medication}`);
-        if (entry.food) lines.push(`  Essen: ${entry.food}`);
-        if (entry.sleep) lines.push(`  Schlaf: ${entry.sleep}`);
-        if (entry.diaper_or_toilet) lines.push(`  Windel/Toilette: ${entry.diaper_or_toilet}`);
-        if (entry.notes) lines.push(`  Notizen: ${entry.notes}`);
+        entryLines.forEach(line => lines.push(`  ${line}`));
         lines.push("");
       });
   });
@@ -2412,10 +2488,8 @@ function downloadTextFile(filename, text) {
 function exportAnalysisSymptoms() {
   const from = $("exportFrom")?.value || "offen";
   const to = $("exportTo")?.value || "offen";
-  const type = $("exportType")?.value || "all";
-  const text = type === "symptoms" ? buildSymptomExportText() : buildFullExportText();
-  const label = type === "symptoms" ? "symptome" : "alle-daten";
-  downloadTextFile(`gesundheitstracker-${label}-${from}-bis-${to}.txt`, text);
+  const text = buildFullExportText();
+  downloadTextFile(`gesundheitstracker-export-${from}-bis-${to}.txt`, text);
   showToast("Export erstellt");
 }
 
@@ -2520,9 +2594,9 @@ function openExportView() {
   }
   if (to && !to.value) to.value = todayValue;
 
+  bindExportCategoryChips();
   renderExportSymptomChips();
-  const exportBox = $("exportSymptomChips")?.closest(".export-section");
-  if (exportBox) exportBox.classList.toggle("muted-export-section", ($("exportType")?.value || "all") !== "symptoms");
+  syncExportSymptomSection();
   openView("exportView");
 }
 
@@ -2721,10 +2795,6 @@ async function init() {
   $("analysisCategory").addEventListener("change", renderAnalysis);
   if ($("analysisExportButton")) $("analysisExportButton").addEventListener("click", exportAnalysisSymptoms);
   $("exportCreateButton").addEventListener("click", exportAnalysisSymptoms);
-  $("exportType").addEventListener("change", () => {
-    const box = $("exportSymptomChips")?.closest(".export-section");
-    if (box) box.classList.toggle("muted-export-section", $("exportType").value !== "symptoms");
-  });
 
   $("importFile").addEventListener("change", async event => {
     const file = event.target.files?.[0];

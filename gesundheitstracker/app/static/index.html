@@ -380,19 +380,27 @@
             <span>Bis</span>
             <input id="exportTo" type="date" />
           </label>
-          <label class="field export-type-field">
-            <span>Exportart</span>
-            <select id="exportType">
-              <option value="all">Alle Daten</option>
-              <option value="symptoms">Nur ausgewählte Symptome</option>
-            </select>
-          </label>
+          <div class="field full export-category-field">
+            <span>Kategorien</span>
+            <div id="exportCategoryChips" class="export-category-chips">
+              <label class="export-category-chip all"><input type="checkbox" value="__all__" checked /><span>Alle Kategorien</span></label>
+              <label class="export-category-chip"><input type="checkbox" value="temperature" /><span>🌡️ Fieber / Temperatur</span></label>
+              <label class="export-category-chip"><input type="checkbox" value="fluids" /><span>💧 Flüssigkeit</span></label>
+              <label class="export-category-chip"><input type="checkbox" value="symptoms" /><span>🤧 Symptome</span></label>
+              <label class="export-category-chip"><input type="checkbox" value="mood" /><span>🙂 Stimmung</span></label>
+              <label class="export-category-chip"><input type="checkbox" value="medication" /><span>💊 Medis</span></label>
+              <label class="export-category-chip"><input type="checkbox" value="food" /><span>🍽️ Essen</span></label>
+              <label class="export-category-chip"><input type="checkbox" value="sleep" /><span>😴 Schlaf</span></label>
+              <label class="export-category-chip"><input type="checkbox" value="diaper_or_toilet" /><span>🚽 Windel / Toilette</span></label>
+              <label class="export-category-chip"><input type="checkbox" value="notes" /><span>📝 Notizen</span></label>
+            </div>
+          </div>
         </div>
 
         <div class="export-section">
           <div class="export-section-head">
-            <strong>Symptome auswählen</strong>
-            <span>Nur relevant, wenn „Nur ausgewählte Symptome“ gewählt ist.</span>
+            <strong>Symptome eingrenzen</strong>
+            <span>Optional: Nur relevant, wenn die Kategorie Symptome exportiert wird.</span>
           </div>
           <div id="exportSymptomChips" class="analysis-symptom-export-chips"></div>
         </div>

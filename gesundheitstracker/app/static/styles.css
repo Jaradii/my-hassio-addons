@@ -9296,3 +9296,47 @@ body.dark .analysis-result-row.temp-red p { color: #ff8f8f; }
     min-width: 178px;
   }
 }
+
+
+/* v1.0.32: Export-Kategorien frei auswählbar */
+.export-category-field {
+  grid-column: 1 / -1;
+}
+
+.export-category-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.export-category-chip {
+  cursor: pointer;
+}
+
+.export-category-chip input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.export-category-chip span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 6px 9px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 68%, transparent);
+  background: color-mix(in srgb, var(--card) 88%, var(--kg-soft) 12%);
+  color: var(--text);
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.export-category-chip input:checked + span {
+  border-color: color-mix(in srgb, var(--primary) 58%, var(--kg-border) 42%);
+  background: color-mix(in srgb, var(--primary) 16%, var(--card) 84%);
+}
+
+.export-category-chip.all span {
+  font-weight: 950;
+}

@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.31
+- Basis ist die funktionierende Version 1.0.32
 
 
 ## Änderungen in 1.0.10
@@ -253,3 +253,12 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Menü enthält Auswertung, Export, Dark Mode und Backup
 - Export kann jetzt Alle Daten oder Nur ausgewählte Symptome exportieren
 - Exportfunktion bleibt eigener Menüpunkt, aber die Topbar ist wieder aufgeräumt
+
+
+## Änderungen in 1.0.32
+
+- Export-Kategorien frei auswählbar
+- Unterstützt: Temperatur, Flüssigkeit, Symptome, Stimmung, Medikamente, Essen, Schlaf, Windel/Toilette und Notizen
+- Option „Alle Kategorien“ ergänzt
+- Symptomfilter bleibt zusätzlich verfügbar, wenn Symptome exportiert werden
+- Exportdatei enthält nur die ausgewählten Kategorien
