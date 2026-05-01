@@ -695,6 +695,20 @@ function renderEntryHistory(entry) {
   `;
 }
 
+function detailIcon(label) {
+  const icons = {
+    "Temperatur": "🌡️",
+    "Flüssigkeit": "💧",
+    "Stimmung": "🙂",
+    "Medikamente": "💊",
+    "Essen": "🍽️",
+    "Schlaf": "😴",
+    "Windel / Toilette": "🚽",
+    "Notizen": "📝"
+  };
+  return icons[label] || "•";
+}
+
 function renderEntryDetail(entry) {
   const intensityMap = entry.symptom_intensity || {};
   const symptoms = [...(entry.symptoms || [])].map(s => {
@@ -707,7 +721,6 @@ function renderEntryDetail(entry) {
     entry.temperature !== null && entry.temperature !== undefined && entry.temperature !== "" ? ["Temperatur", `${Number(entry.temperature).toFixed(1)} °C`] : null,
     entry.fluids_ml ? ["Flüssigkeit", `${entry.fluids_ml} ml`] : null,
     entry.mood ? ["Stimmung", entry.mood] : null,
-
     entry.medication ? ["Medikamente", entry.medication] : null,
     entry.food ? ["Essen", entry.food] : null,
     entry.sleep ? ["Schlaf", entry.sleep] : null,
@@ -716,27 +729,45 @@ function renderEntryDetail(entry) {
   ].filter(Boolean);
 
   return `
-    <div class="entry-detail">
+    <div class="entry-detail redesigned-detail">
       <div class="entry-detail-head">
-        <strong>${escapeHtml(entry.time || "--:--")} Uhr</strong>
+        <div class="entry-detail-title">
+          <span class="entry-detail-clock">🕒 ${escapeHtml(entry.time || "--:--")} Uhr</span>
+          <strong>${escapeHtml(entry.date || "")}</strong>
+        </div>
         <div class="entry-detail-actions">
           <button class="btn secondary edit-entry" data-id="${entry.id}">Bearbeiten</button>
           <button class="btn danger delete-entry" data-id="${entry.id}">Löschen</button>
         </div>
       </div>
-      ${renderEntryHistory(entry)}
+
       ${symptoms.length ? `
-        <div class="detail-row symptom-row">
-          <span>Symptome</span>
+        <section class="detail-section-card detail-symptom-card">
+          <div class="detail-section-title">
+            <span>🤧</span>
+            <strong>Symptome</strong>
+          </div>
           ${renderSymptomList(symptoms)}
-        </div>
+        </section>
       ` : ""}
-      ${rows.length ? rows.map(([label, value]) => `
-        <div class="detail-row">
-          <span>${escapeHtml(label)}</span>
-          <p>${escapeHtml(value)}</p>
+
+      ${rows.length ? `
+        <div class="detail-value-grid">
+          ${rows.map(([label, value]) => `
+            <div class="detail-value-card">
+              <span class="detail-value-icon">${detailIcon(label)}</span>
+              <div class="detail-value-body">
+                <span class="detail-value-label">${escapeHtml(label)}</span>
+                <strong>${escapeHtml(value)}</strong>
+              </div>
+            </div>
+          `).join("")}
         </div>
-      `).join("") : `${!symptoms.length ? `<p class="muted-detail">Keine Details eingetragen.</p>` : ""}`}
+      ` : `${!symptoms.length ? `<p class="muted-detail">Keine Details eingetragen.</p>` : ""}`}
+
+      <div class="detail-history-wrap">
+        ${renderEntryHistory(entry)}
+      </div>
     </div>
   `;
 }
