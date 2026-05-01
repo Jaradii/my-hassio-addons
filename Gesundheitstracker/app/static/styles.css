@@ -7085,49 +7085,228 @@ body.dark .journal-metric.temp-red strong { color: #ff8f8f; }
 }
 
 
-/* v2.3.8: altes Historie-Icon unten entfernen, Historie nur über oberes Icon */
-.journal-history-inline .history-box > summary {
+/* v2.4.0: Details als Popups statt Inline-Liste */
+body.day-detail-open > .bottom-action-bar,
+body.entry-detail-popup-open > .bottom-action-bar {
   display: none !important;
 }
 
-.journal-history-inline .history-box:not([open]) {
-  display: none !important;
-}
-
-.journal-history-inline .history-box[open] {
+.day-detail-sheet,
+.entry-detail-popup {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1300 !important;
   display: block !important;
-  margin-top: 0 !important;
+  overflow: hidden !important;
 }
 
-.journal-history-inline {
-  padding-top: 0 !important;
+.entry-detail-popup {
+  z-index: 1310 !important;
 }
 
-.journal-history-inline .history-list {
-  padding-top: 0 !important;
+.day-detail-sheet.hidden,
+.entry-detail-popup.hidden {
+  display: none !important;
 }
 
-
-/* v2.3.9: Überschrift "Weitere Angaben" in Details entfernt */
-.journal-section .journal-field-list:first-child {
-  margin-top: 0 !important;
+.day-detail-backdrop,
+.entry-detail-popup-backdrop {
+  position: absolute !important;
+  inset: 0 !important;
+  background: color-mix(in srgb, var(--bg) 72%, rgba(17, 19, 24, 0.28) 28%) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
 }
 
-
-/* v2.4.0: Stimmung als Mehrfachauswahl */
-#moodOptions .mood-option.active,
-#quickMoodOptions .mood-option.active {
-  border-color: var(--primary) !important;
-  background: color-mix(in srgb, var(--primary) 24%, var(--card) 76%) !important;
-  font-weight: 950 !important;
+.day-detail-panel,
+.entry-detail-popup-panel {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: min(520px, calc(100vw - 28px)) !important;
+  max-width: calc(100vw - 28px) !important;
+  max-height: min(82dvh, 720px) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 14px !important;
+  border-radius: 10px !important;
+  background: var(--kg-surface) !important;
+  border: 1px solid var(--kg-border) !important;
+  box-sizing: border-box !important;
 }
 
-#moodOptions .mood-option.active::after,
-#quickMoodOptions .mood-option.active::after {
-  content: "✓";
+.entry-detail-popup-panel {
+  width: min(560px, calc(100vw - 28px)) !important;
 }
 
-#moodOptions .mood-option,
-#quickMoodOptions .mood-option {
-  min-height: 58px;
+.day-detail-head,
+.entry-detail-popup-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--kg-border) 65%, transparent);
+}
+
+.day-detail-head h2,
+.entry-detail-popup-head h2 {
+  margin: 0 0 4px 0;
+  font-size: 1.22rem;
+  line-height: 1.15;
+}
+
+.day-detail-head p,
+.entry-detail-popup-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.day-detail-list {
+  display: grid;
+  gap: 8px;
+}
+
+.day-detail-entry {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 62%, transparent);
+  background: color-mix(in srgb, var(--card) 90%, var(--kg-soft) 10%);
+  color: var(--text);
+  padding: 10px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  text-align: left;
+  cursor: pointer;
+}
+
+.day-detail-entry:hover {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 8%, var(--card) 92%);
+}
+
+.day-detail-entry-time {
+  min-width: 54px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--primary) 10%, var(--card) 90%);
+  border: 1px solid color-mix(in srgb, var(--primary) 26%, var(--kg-border) 74%);
+  font-size: 0.76rem;
+  font-weight: 950;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.day-detail-entry-body {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.day-detail-entry-body strong {
+  font-size: 0.88rem;
+  font-weight: 900;
+  color: var(--text);
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.day-detail-entry-body small {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-weight: 850;
+}
+
+.day-detail-entry-arrow {
+  color: var(--muted);
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.day-detail-sheet:not(.hidden):not(.closing) .day-detail-backdrop,
+.entry-detail-popup:not(.hidden):not(.closing) .entry-detail-popup-backdrop {
+  animation: kgSheetBackdropIn var(--sheet-motion-duration, 420ms) var(--sheet-motion-ease, cubic-bezier(.22,.9,.28,1)) both !important;
+}
+
+.day-detail-sheet:not(.hidden):not(.closing) .day-detail-panel,
+.entry-detail-popup:not(.hidden):not(.closing) .entry-detail-popup-panel {
+  animation: kgDetailPopupOpen 420ms cubic-bezier(.22,.9,.28,1) both !important;
+}
+
+.day-detail-sheet.closing,
+.entry-detail-popup.closing {
+  display: block !important;
+  pointer-events: none !important;
+}
+
+.day-detail-sheet.closing .day-detail-backdrop,
+.entry-detail-popup.closing .entry-detail-popup-backdrop {
+  animation: kgSheetBackdropOut var(--sheet-motion-duration, 420ms) var(--sheet-motion-ease, cubic-bezier(.22,.9,.28,1)) both !important;
+}
+
+.day-detail-sheet.closing .day-detail-panel,
+.entry-detail-popup.closing .entry-detail-popup-panel {
+  animation: kgDetailPopupClose 420ms cubic-bezier(.22,.9,.28,1) both !important;
+}
+
+@keyframes kgDetailPopupOpen {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 26px)) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes kgDetailPopupClose {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 26px)) scale(0.985);
+  }
+}
+
+/* Detailkarte im Popup etwas enger */
+.entry-detail-popup-content .journal-detail {
+  margin: 0 !important;
+}
+
+.entry-detail-popup-content .journal-card {
+  box-shadow: none !important;
+}
+
+@media (max-width: 430px) {
+  .day-detail-panel,
+  .entry-detail-popup-panel {
+    width: min(100vw - 18px, 520px) !important;
+    max-height: min(84dvh, 720px) !important;
+    padding: 12px !important;
+  }
+
+  .day-detail-entry {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .day-detail-entry-arrow {
+    display: none;
+  }
+
+  .day-detail-entry-body strong {
+    white-space: normal;
+  }
 }

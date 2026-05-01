@@ -144,6 +144,35 @@
       </form>
     </section>
 
+
+    <section id="dayDetailSheet" class="day-detail-sheet hidden" aria-hidden="true">
+      <div id="dayDetailBackdrop" class="day-detail-backdrop"></div>
+      <div class="day-detail-panel">
+        <div class="day-detail-head">
+          <div>
+            <h2>Einträge des Tages</h2>
+            <p id="dayDetailSubtitle">Wähle einen Eintrag aus.</p>
+          </div>
+          <button id="closeDayDetail" type="button" class="round-btn">×</button>
+        </div>
+        <div id="dayDetailList" class="day-detail-list"></div>
+      </div>
+    </section>
+
+    <section id="entryDetailPopup" class="entry-detail-popup hidden" aria-hidden="true">
+      <div id="entryDetailPopupBackdrop" class="entry-detail-popup-backdrop"></div>
+      <div class="entry-detail-popup-panel">
+        <div class="entry-detail-popup-head">
+          <div>
+            <h2 id="entryDetailPopupTitle">Eintrag</h2>
+            <p id="entryDetailPopupSubtitle">Details</p>
+          </div>
+          <button id="closeEntryDetailPopup" type="button" class="round-btn">×</button>
+        </div>
+        <div id="entryDetailPopupContent" class="entry-detail-popup-content"></div>
+      </div>
+    </section>
+
 <section id="entrySheet" class="sheet hidden" aria-hidden="true">
       <div class="sheet-backdrop" id="sheetBackdrop"></div>
       <form id="entryForm" class="sheet-panel">

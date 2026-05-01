@@ -310,14 +310,9 @@ function renderDay() {
 
   container.innerHTML = renderDaySummaryCard(entries);
   const expandButton = container.querySelector("#toggleDetails");
-  const detailsPanel = container.querySelector("#expandedDetails");
-  if (expandButton && detailsPanel) {
+  if (expandButton) {
     expandButton.addEventListener("click", () => {
-      state.dayExpanded = !state.dayExpanded;
-      detailsPanel.classList.toggle("hidden", !state.dayExpanded);
-      detailsPanel.setAttribute("aria-hidden", state.dayExpanded ? "false" : "true");
-      expandButton.textContent = state.dayExpanded ? "Details ausblenden" : "Details";
-      expandButton.setAttribute("aria-expanded", state.dayExpanded ? "true" : "false");
+      openDayDetailSheet(entries);
     });
   }
 
@@ -453,7 +448,7 @@ function renderDaySummaryCard(entries) {
           <span class="tile-icon">🙂</span>
           <span class="tile-label">Stimmung</span>
           <strong>${moodText}</strong>
-          <small>${summary.moods.length > 1 ? `${summary.moods.length} Angaben` : "Angabe"}</small>
+          <small>${summary.moods.length > 1 ? `${summary.moods.length} Angaben` : "Letzte Angabe"}</small>
         </button>
         <button type="button" class="day-tile quick-tile" data-quick="symptoms" aria-label="Symptome eintragen">
           <span class="tile-icon">🤧</span>
@@ -480,12 +475,10 @@ function renderDaySummaryCard(entries) {
       ${renderSummaryTextBlocks(summary)}
 
       <div class="card-actions">
-        <button id="toggleDetails" class="btn secondary" aria-expanded="${expanded ? "true" : "false"}">${expanded ? "Details ausblenden" : "Details"}</button>
+        <button id="toggleDetails" class="btn secondary" aria-haspopup="dialog">Details</button>
       </div>
 
-      <div id="expandedDetails" class="${expanded ? "" : "hidden"}" aria-hidden="${expanded ? "false" : "true"}">
-        ${renderExpandedEntries(entries)}
-      </div>
+      <div id="expandedDetails" class="hidden" aria-hidden="true"></div>
     </article>
   `;
 }
@@ -521,6 +514,111 @@ function renderSummaryTextBlocks(summary) {
   blocks.push(renderItems(summary.notes, "notes", "📝", "Notizen"));
 
   return blocks.filter(Boolean).join("");
+}
+
+function entryPreviewText(entry) {
+  const parts = [];
+
+  if (entry.temperature !== null && entry.temperature !== undefined && entry.temperature !== "") {
+    parts.push(`${Number(entry.temperature).toFixed(1)} °C`);
+  }
+  if (entry.fluids_ml) parts.push(`${entry.fluids_ml} ml`);
+  if (entry.mood) parts.push(entry.mood);
+  if ((entry.symptoms || []).length) parts.push((entry.symptoms || []).join(", "));
+  if (entry.medication) parts.push("Medikamente");
+  if (entry.food) parts.push("Essen");
+  if (entry.sleep) parts.push("Schlaf");
+  if (entry.diaper_or_toilet) parts.push("Windel/Toilette");
+  if (entry.notes) parts.push("Notiz");
+
+  return parts.length ? parts.join(" · ") : "Keine Detailwerte";
+}
+
+function openDayDetailSheet(entries) {
+  const sheet = $("dayDetailSheet");
+  const list = $("dayDetailList");
+  if (!sheet || !list) return;
+
+  const sorted = [...entries].sort((a, b) => (a.time || "").localeCompare(b.time || ""));
+
+  $("dayDetailSubtitle").textContent = `${sorted.length} Eintrag${sorted.length === 1 ? "" : "e"} am ${formatDateShortGerman(state.selectedDate)}`;
+
+  list.innerHTML = sorted.length ? sorted.map(entry => `
+    <button type="button" class="day-detail-entry" data-id="${entry.id}">
+      <span class="day-detail-entry-time">${escapeHtml(entry.time || "--:--")}</span>
+      <span class="day-detail-entry-body">
+        <strong>${escapeHtml(entryPreviewText(entry))}</strong>
+        <small>Details anzeigen</small>
+      </span>
+      <span class="day-detail-entry-arrow">›</span>
+    </button>
+  `).join("") : `<p class="muted-detail">Keine Einträge vorhanden.</p>`;
+
+  list.querySelectorAll(".day-detail-entry").forEach(button => {
+    button.addEventListener("click", () => openEntryDetailPopup(button.dataset.id));
+  });
+
+  sheet.classList.remove("closing", "hidden");
+  sheet.setAttribute("aria-hidden", "false");
+  document.body.classList.add("day-detail-open");
+}
+
+function closeDayDetailSheet() {
+  const sheet = $("dayDetailSheet");
+  if (!sheet || sheet.classList.contains("hidden")) return;
+  sheet.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("day-detail-open");
+  animateHide(sheet, "closing");
+}
+
+function openEntryDetailPopup(entryId) {
+  const entry = (state.data.entries || []).find(e => e.id === entryId);
+  if (!entry) return;
+
+  $("entryDetailPopupTitle").textContent = `${entry.time || "--:--"} Uhr`;
+  $("entryDetailPopupSubtitle").textContent = formatDateShortGerman(entry.date || state.selectedDate);
+  $("entryDetailPopupContent").innerHTML = renderEntryDetail(entry);
+
+  const popup = $("entryDetailPopup");
+  popup.classList.remove("closing", "hidden");
+  popup.setAttribute("aria-hidden", "false");
+  document.body.classList.add("entry-detail-popup-open");
+
+  // Bind buttons inside the freshly rendered detail popup.
+  $("entryDetailPopupContent").querySelectorAll(".journal-history-toggle").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const wrap = document.getElementById(`journalHistory-${btn.dataset.id}`);
+      const details = wrap ? wrap.querySelector(".history-box") : null;
+      if (!details) return;
+      details.open = !details.open;
+    });
+  });
+
+  $("entryDetailPopupContent").querySelectorAll(".edit-entry").forEach(btn => {
+    btn.addEventListener("click", () => {
+      closeEntryDetailPopup();
+      closeDayDetailSheet();
+      editEntry(btn.dataset.id);
+    });
+  });
+
+  $("entryDetailPopupContent").querySelectorAll(".delete-entry").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      await deleteEntry(btn.dataset.id);
+      closeEntryDetailPopup();
+      closeDayDetailSheet();
+    });
+  });
+}
+
+function closeEntryDetailPopup() {
+  const popup = $("entryDetailPopup");
+  if (!popup || popup.classList.contains("hidden")) return;
+  popup.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("entry-detail-popup-open");
+  animateHide(popup, "closing", () => {
+    $("entryDetailPopupContent").innerHTML = "";
+  });
 }
 
 function renderExpandedEntries(entries) {
@@ -712,15 +810,16 @@ function formatDateShortGerman(value) {
   const parts = String(value).split("-");
   if (parts.length === 3) {
     const [year, month, day] = parts;
-    return `${month}.${day}.${year}`;
+    return `${day}.${month}.${String(year).slice(-2)}`;
   }
 
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return String(value);
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  const year = String(d.getFullYear());
-  return `${month}.${day}.${year}`;
+  return d.toLocaleDateString("de-DE", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit"
+  });
 }
 
 function detailIcon(label) {
@@ -805,6 +904,10 @@ function renderEntryDetail(entry) {
 
         ${noteRows.length ? `
           <section class="journal-section">
+            <div class="journal-section-title">
+              <span>📝</span>
+              <strong>Weitere Angaben</strong>
+            </div>
             <div class="journal-field-list">
               ${noteRows.map(([label, value]) => `
                 <div class="journal-field">
@@ -826,7 +929,7 @@ function renderEntryDetail(entry) {
           </section>
         ` : ""}
 
-        <footer class="journal-history journal-history-inline" id="journalHistory-${entry.id}">
+        <footer class="journal-history" id="journalHistory-${entry.id}">
           ${renderEntryHistory(entry)}
         </footer>
       </div>
@@ -899,7 +1002,7 @@ function quickDefinition(kind) {
   const defs = {
     fluids: { title: "Flüssigkeit", subtitle: "Getrunkene Menge in ml eintragen.", content: `<label class="field quick-field"><span>Flüssigkeit in ml</span><input id="quickFluidsMl" type="number" min="0" step="10" inputmode="numeric" placeholder="z. B. 250"></label>` },
     temperature: { title: "Temperatur", subtitle: "Temperatur für diesen Tag speichern.", content: `<label class="field quick-field"><span>Temperatur in °C</span><input id="quickTemperature" type="number" step="0.1" min="30" max="45" placeholder="z. B. 38,5"><input id="quickTemperatureSlider" class="temperature-slider" type="range" min="34" max="42" step="0.1" value="37.0"><div class="slider-scale"><span>34°</span><span>37°</span><span>39°</span><span>42°</span></div></label>` },
-    mood: { title: "Stimmung", subtitle: "Eine oder mehrere Stimmungen auswählen.", content: `<input id="quickMood" type="hidden"><div id="quickMoodOptions" class="mood-options quick-mood-options"><button type="button" class="mood-option" data-mood="Gut drauf"><span>😊</span><small>Gut</small></button><button type="button" class="mood-option" data-mood="Müde"><span>😴</span><small>Müde</small></button><button type="button" class="mood-option" data-mood="Quengelig"><span>😣</span><small>Quengelig</small></button><button type="button" class="mood-option" data-mood="Schlapp"><span>🥱</span><small>Schlapp</small></button><button type="button" class="mood-option" data-mood="Schmerzen"><span>🤕</span><small>Schmerz</small></button><button type="button" class="mood-option" data-mood="Unruhig"><span>😟</span><small>Unruhig</small></button></div>` },
+    mood: { title: "Stimmung", subtitle: "Aktuelle Stimmung auswählen.", content: `<input id="quickMood" type="hidden"><div id="quickMoodOptions" class="mood-options quick-mood-options"><button type="button" class="mood-option" data-mood="Gut drauf"><span>😊</span><small>Gut</small></button><button type="button" class="mood-option" data-mood="Müde"><span>😴</span><small>Müde</small></button><button type="button" class="mood-option" data-mood="Quengelig"><span>😣</span><small>Quengelig</small></button><button type="button" class="mood-option" data-mood="Schlapp"><span>🥱</span><small>Schlapp</small></button><button type="button" class="mood-option" data-mood="Schmerzen"><span>🤕</span><small>Schmerz</small></button><button type="button" class="mood-option" data-mood="Unruhig"><span>😟</span><small>Unruhig</small></button></div>` },
     symptoms: { title: "Symptome", subtitle: "Ein oder mehrere Symptome auswählen.", content: symptomsHtml },
     medication: { title: "Medikamente", subtitle: "Medikament, Dosis oder Uhrzeit notieren.", content: `<label class="field quick-field icon-textarea-field"><span><span class="field-icon">💊</span>Medikamente</span><textarea id="quickMedication" rows="3" placeholder="Name, Dosis, Uhrzeit"></textarea></label>` },
     food: { title: "Essen / Schlaf", subtitle: "Essen oder Schlaf kurz eintragen.", content: `<label class="field quick-field icon-textarea-field"><span><span class="field-icon">🍽️</span>Essen</span><textarea id="quickFood" rows="2" placeholder="Was wurde gegessen?"></textarea></label><label class="field quick-field icon-textarea-field"><span><span class="field-icon">😴</span>Schlaf</span><textarea id="quickSleep" rows="2" placeholder="Dauer, Qualität, Auffälligkeiten"></textarea></label>` }
@@ -955,11 +1058,11 @@ function bindQuickControls(kind) {
     slider.addEventListener("input", e => sync(e.target.value, "slider"));
   }
   if (kind === "mood") {
-    $("quickContent").querySelectorAll("#quickMoodOptions .mood-option").forEach(btn => {
+    $("quickContent").querySelectorAll(".mood-option").forEach(btn => {
       btn.addEventListener("click", () => {
-        btn.classList.toggle("active");
-        btn.setAttribute("aria-checked", btn.classList.contains("active") ? "true" : "false");
-        $("quickMood").value = moodStringFromList(selectedQuickMoods());
+        const next = $("quickMood").value === btn.dataset.mood ? "" : btn.dataset.mood;
+        $("quickMood").value = next;
+        $("quickContent").querySelectorAll(".mood-option").forEach(item => item.classList.toggle("active", item.dataset.mood === next));
       });
     });
   }
@@ -1058,30 +1161,6 @@ function resetEntryForm() {
   });
 }
 
-function parseMoodList(value) {
-  if (!value) return [];
-  return String(value)
-    .split(",")
-    .map(item => item.trim())
-    .filter(Boolean);
-}
-
-function moodStringFromList(list) {
-  return [...new Set((list || []).map(item => String(item || "").trim()).filter(Boolean))].join(", ");
-}
-
-function selectedMoods() {
-  return [...document.querySelectorAll("#moodOptions .mood-option.active")]
-    .map(btn => btn.dataset.mood)
-    .filter(Boolean);
-}
-
-function selectedQuickMoods() {
-  return [...document.querySelectorAll("#quickMoodOptions .mood-option.active")]
-    .map(btn => btn.dataset.mood)
-    .filter(Boolean);
-}
-
 function selectedSymptoms() {
   return [...document.querySelectorAll("#symptomChips input:checked")].map(i => i.value);
 }
@@ -1117,10 +1196,9 @@ function setSymptomIntensityMap(map = {}) {
 }
 
 function setMood(value) {
-  const values = parseMoodList(value);
-  $("mood").value = moodStringFromList(values);
-  document.querySelectorAll("#moodOptions .mood-option").forEach(btn => {
-    const active = values.includes(btn.dataset.mood);
+  $("mood").value = value || "";
+  document.querySelectorAll(".mood-option").forEach(btn => {
+    const active = btn.dataset.mood === value;
     btn.classList.toggle("active", active);
     btn.setAttribute("aria-checked", active ? "true" : "false");
   });
@@ -1249,7 +1327,7 @@ function formEntry() {
     date: $("entryDate").value || state.selectedDate,
     time: normalizeTimeInput($("entryTime").value),
     temperature: temp === "" ? null : Number(temp),
-    mood: moodStringFromList(selectedMoods()),
+    mood: $("mood").value,
     symptoms: selectedSymptoms(),
     symptom_intensity: selectedSymptomIntensity(),
     custom_symptoms: $("customSymptoms").value.trim(),
@@ -1504,6 +1582,10 @@ async function init() {
   });
   $("closeEntry").addEventListener("click", closeSheet);
   $("sheetBackdrop").addEventListener("click", closeSheet);
+  $("closeDayDetail").addEventListener("click", closeDayDetailSheet);
+  $("dayDetailBackdrop").addEventListener("click", closeDayDetailSheet);
+  $("closeEntryDetailPopup").addEventListener("click", closeEntryDetailPopup);
+  $("entryDetailPopupBackdrop").addEventListener("click", closeEntryDetailPopup);
   $("closeFieldEdit").addEventListener("click", closeFieldEdit);
   $("fieldEditBackdrop").addEventListener("click", closeFieldEdit);
   $("fieldEditForm").addEventListener("submit", saveFieldEdit);
@@ -1567,11 +1649,10 @@ async function init() {
     setTemperatureValue(event.target.value, "slider");
   });
 
-  document.querySelectorAll("#moodOptions .mood-option").forEach(btn => {
+  document.querySelectorAll(".mood-option").forEach(btn => {
     btn.addEventListener("click", () => {
-      btn.classList.toggle("active");
-      btn.setAttribute("aria-checked", btn.classList.contains("active") ? "true" : "false");
-      $("mood").value = moodStringFromList(selectedMoods());
+      const nextMood = $("mood").value === btn.dataset.mood ? "" : btn.dataset.mood;
+      setMood(nextMood);
     });
   });
 

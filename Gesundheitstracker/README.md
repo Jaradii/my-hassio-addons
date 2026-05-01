@@ -591,23 +591,9 @@ Die Daten liegen im Add-on unter:
 - Datum in der Journal-Detailansicht wird jetzt als `DD.MM.YY` angezeigt
 
 
-## Änderungen in 2.3.8
-
-- Altes Historie-Icon beziehungsweise die alte Historie-Zeile unten entfernt
-- Historie wird jetzt nur noch über das obere Historie-Icon geöffnet
-- Datum in der Journal-Detailansicht wird jetzt als `MM.DD.YYYY` angezeigt
-
-
-## Änderungen in 2.3.9
-
-- Überschrift „Weitere Angaben“ in der Detailansicht entfernt
-- Die eigentlichen Inhalte bleiben unverändert sichtbar
-
-
 ## Änderungen in 2.4.0
 
-- Stimmung ist jetzt als Mehrfachauswahl möglich
-- Mehrere Stimmungen können gleichzeitig ausgewählt werden
-- Gespeichert wird die Auswahl als kommagetrennte Liste, z. B. `Müde, Unruhig`
-- Bestehende Einträge bleiben kompatibel
-- Das kleine Stimmung-Popup über die Stimmungskachel unterstützt ebenfalls Mehrfachauswahl
+- Details werden nicht mehr unten als Inline-Liste angezeigt
+- Klick auf „Details“ öffnet jetzt ein Popup mit den Einträgen des Tages
+- Klick auf einen Eintrag öffnet ein eigenes Detail-Popup für genau diesen Eintrag
+- Bearbeiten, Löschen und Historie bleiben in der Detail-Popup-Ansicht nutzbar
