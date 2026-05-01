@@ -353,18 +353,18 @@ function renderDay() {
   container.querySelectorAll(".edit-summary-field").forEach(btn => {
     btn.addEventListener("click", () => openFieldEdit(btn.dataset.id, btn.dataset.field));
   });
-  container.querySelectorAll(".compact-timeline-more").forEach(btn => {
+  container.querySelectorAll(".category-compact-more").forEach(btn => {
     btn.addEventListener("click", () => {
-      const card = btn.closest(".compact-timeline-card");
+      const card = btn.closest(".category-compact-card");
+      if (!card) return;
       const expanded = btn.dataset.expanded === "true";
       btn.dataset.expanded = expanded ? "false" : "true";
-      if (card) card.dataset.expanded = expanded ? "false" : "true";
-      if (card) {
-        card.querySelectorAll(".timeline-extra-item").forEach(item => {
-          item.classList.toggle("hidden", expanded);
-        });
-      }
-      btn.textContent = expanded ? `Alle ${card.querySelectorAll(".compact-timeline-item").length} Einträge anzeigen` : "Weniger anzeigen";
+      card.dataset.expanded = expanded ? "false" : "true";
+      card.querySelectorAll(".category-extra-item").forEach(item => {
+        item.classList.toggle("hidden", expanded);
+      });
+      const hiddenTotal = card.querySelectorAll(".category-extra-item").length;
+      btn.textContent = expanded ? `Weitere ${hiddenTotal} anzeigen` : "Weniger anzeigen";
     });
   });
   container.querySelectorAll(".delete-entry").forEach(btn => {
@@ -608,21 +608,26 @@ function summaryDisplayValue(entry, key) {
 }
 
 function renderSummaryTextBlocks(summary) {
-  const allItems = [
-    ...summary.symptomEntries.map(e => ({ entry: e, key: "symptoms", icon: "🤧", title: "Symptome" })),
-    ...summary.fluidEntries.map(e => ({ entry: e, key: "fluids_ml", icon: "💧", title: "Flüssigkeit" })),
-    ...summary.temperatureEntries.map(e => ({ entry: e, key: "temperature", icon: "🌡️", title: "Temperatur / Fieber" })),
-    ...summary.moods.map(e => ({ entry: e, key: "mood", icon: "🙂", title: "Stimmung" })),
-    ...summary.medications.map(e => ({ entry: e, key: "medication", icon: "💊", title: "Medikamente" })),
-    ...summary.foods.map(e => ({ entry: e, key: "food", icon: "🍽️", title: "Essen" })),
-    ...summary.sleeps.map(e => ({ entry: e, key: "sleep", icon: "😴", title: "Schlaf" })),
-    ...summary.diaper.map(e => ({ entry: e, key: "diaper_or_toilet", icon: "🚽", title: "Windel / Toilette" })),
-    ...summary.notes.map(e => ({ entry: e, key: "notes", icon: "📝", title: "Notizen" }))
-  ].sort((a, b) => (b.entry.time || "").localeCompare(a.entry.time || ""));
+  const groups = [
+    { items: summary.symptomEntries, key: "symptoms", icon: "🤧", title: "Symptome" },
+    { items: summary.fluidEntries, key: "fluids_ml", icon: "💧", title: "Flüssigkeit" },
+    { items: summary.temperatureEntries, key: "temperature", icon: "🌡️", title: "Temperatur / Fieber" },
+    { items: summary.moods, key: "mood", icon: "🙂", title: "Stimmung" },
+    { items: summary.medications, key: "medication", icon: "💊", title: "Medikamente" },
+    { items: summary.foods, key: "food", icon: "🍽️", title: "Essen" },
+    { items: summary.sleeps, key: "sleep", icon: "😴", title: "Schlaf" },
+    { items: summary.diaper, key: "diaper_or_toilet", icon: "🚽", title: "Windel / Toilette" },
+    { items: summary.notes, key: "notes", icon: "📝", title: "Notizen" }
+  ]
+    .map(group => ({
+      ...group,
+      items: [...group.items].sort((a, b) => (b.time || "").localeCompare(a.time || ""))
+    }))
+    .filter(group => group.items.length);
 
-  if (!allItems.length) {
+  if (!groups.length) {
     return `
-      <section class="compact-timeline-empty">
+      <section class="category-compact-empty">
         <span>＋</span>
         <strong>Noch keine Details eingetragen</strong>
         <p>Tippe auf eine Kachel oder den Plus-Button, um etwas einzutragen.</p>
@@ -630,38 +635,39 @@ function renderSummaryTextBlocks(summary) {
     `;
   }
 
-  const limit = 5;
-  const hiddenCount = Math.max(0, allItems.length - limit);
+  const limit = 3;
 
-  const renderTimelineItem = (item, hidden = false) => {
-    const e = item.entry;
-    const value = summaryDisplayValue(e, item.key);
-    return `
-      <div class="compact-timeline-item ${item.key === "temperature" ? feverClass(e.temperature) : ""} ${e.is_overnight_carry ? "overnight-carry-item" : ""} ${hidden ? "timeline-extra-item hidden" : ""}">
-        <span class="compact-timeline-time">${escapeHtml(e.time || "--:--")}</span>
-        <span class="compact-timeline-icon">${item.icon}</span>
-        <p><strong>${escapeHtml(item.title)}</strong><span>${escapeHtml(value)}</span></p>
-        <div class="summary-row-actions">
-          <button type="button" class="summary-edit-button summary-history-button" data-id="${e.original_id || e.id}" aria-label="Historie anzeigen">↻</button>
-          <button type="button" class="summary-edit-button edit-summary-field" data-id="${e.original_id || e.id}" data-field="${item.key}" aria-label="${item.title} bearbeiten">✎</button>
-        </div>
+  const renderItem = (group, entry, hidden = false) => `
+    <div class="summary-info-item category-compact-item ${group.key === "temperature" ? feverClass(entry.temperature) : ""} ${entry.is_overnight_carry ? "overnight-carry-item" : ""} ${hidden ? "category-extra-item hidden" : ""}">
+      <span class="summary-info-time">${escapeHtml(entry.time || "--:--")}</span>
+      <p>${escapeHtml(summaryDisplayValue(entry, group.key))}</p>
+      <div class="summary-row-actions">
+        <button type="button" class="summary-edit-button summary-history-button" data-id="${entry.original_id || entry.id}" aria-label="Historie anzeigen">↻</button>
+        <button type="button" class="summary-edit-button edit-summary-field" data-id="${entry.original_id || entry.id}" data-field="${group.key}" aria-label="${group.title} bearbeiten">✎</button>
       </div>
-    `;
-  };
+    </div>
+  `;
 
   return `
-    <section class="compact-timeline-card" data-expanded="false">
-      <div class="compact-timeline-head">
-        <div>
-          <strong>Tagesverlauf</strong>
-          <span>${allItems.length} Detail${allItems.length === 1 ? "" : "s"}</span>
-        </div>
-      </div>
-      <div class="compact-timeline-list">
-        ${allItems.slice(0, limit).map(item => renderTimelineItem(item)).join("")}
-        ${allItems.slice(limit).map(item => renderTimelineItem(item, true)).join("")}
-      </div>
-      ${hiddenCount ? `<button type="button" class="compact-timeline-more" data-expanded="false">Alle ${allItems.length} Einträge anzeigen</button>` : ""}
+    <section class="category-compact-list">
+      ${groups.map(group => {
+        const shown = group.items.slice(0, limit);
+        const hidden = group.items.slice(limit);
+        return `
+          <section class="category-compact-card" data-expanded="false">
+            <div class="category-compact-head">
+              <span class="category-compact-icon">${group.icon}</span>
+              <strong>${group.title}</strong>
+              <em>${group.items.length} ${group.items.length === 1 ? "Eintrag" : "Einträge"}</em>
+            </div>
+            <div class="summary-info-list category-compact-items">
+              ${shown.map(entry => renderItem(group, entry)).join("")}
+              ${hidden.map(entry => renderItem(group, entry, true)).join("")}
+            </div>
+            ${hidden.length ? `<button type="button" class="category-compact-more" data-expanded="false">Weitere ${hidden.length} anzeigen</button>` : ""}
+          </section>
+        `;
+      }).join("")}
     </section>
   `;
 }

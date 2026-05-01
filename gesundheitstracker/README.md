@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.41
+- Basis ist die funktionierende Version 1.0.42
 
 
 ## Änderungen in 1.0.10
@@ -318,10 +318,10 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Tageswechsel erfolgt wieder nur über die Pfeile bzw. Datumsauswahl
 
 
-## Änderungen in 1.0.41
+## Änderungen in 1.0.42
 
-- Testversion Variante 3: kompakter Tagesverlauf
-- Unten werden standardmäßig nur die letzten 5 Detail-Einträge angezeigt
-- Button „Alle Einträge anzeigen“ blendet die restlichen Details ein
-- Historie- und Bearbeiten-Buttons bleiben pro Detail-Eintrag erhalten
-- Basis ist wieder 1.0.39, nicht die gruppierte 1.0.40
+- Hybrid-Testversion: Kategorien bleiben erhalten
+- Pro Kategorie werden standardmäßig nur die letzten 3 Einträge angezeigt
+- Je Kategorie gibt es bei Bedarf einen „Weitere anzeigen“-Button
+- Historie- und Bearbeiten-Buttons bleiben pro Eintrag erhalten
+- Basis ist wieder 1.0.39, nicht 1.0.40 oder 1.0.41
