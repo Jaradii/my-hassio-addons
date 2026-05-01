@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.35
+- Basis ist die funktionierende Version 1.0.36
 
 
 ## Änderungen in 1.0.10
@@ -284,3 +284,10 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Kachellabel und Hauptwert sind besser lesbar
 - Kleine Statuszeile unten bleibt klein
 - Nur CSS geändert
+
+
+## Änderungen in 1.0.36
+
+- Tageskacheln werden jetzt immer angezeigt, auch wenn noch kein Eintrag vorhanden ist
+- Die leere Platzhalteransicht „Noch nichts eingetragen“ wurde entfernt
+- Kacheln zeigen bei leeren Tagen weiterhin „Keine“ bzw. „Nicht eingetragen“

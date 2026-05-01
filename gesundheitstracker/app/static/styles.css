@@ -9450,3 +9450,9 @@ body.dark .analysis-result-row.temp-red p { color: #ff8f8f; }
     font-size: 0.53rem !important;
   }
 }
+
+
+/* v1.0.36: Tageskacheln immer anzeigen */
+.empty-day {
+  display: none !important;
+}

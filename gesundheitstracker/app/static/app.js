@@ -330,19 +330,6 @@ function renderDay() {
   renderDateHeader(entries);
 
   const container = $("dayEntries");
-  if (!entries.length) {
-    container.innerHTML = `
-      <div class="empty-day">
-        <div>
-          <div class="empty-icon">＋</div>
-          <h2>Noch nichts eingetragen</h2>
-          <p>Tippe unten auf „Neuer Eintrag“, um den aktuellen Zustand für diesen Tag zu speichern.</p>
-        </div>
-      </div>
-    `;
-    return;
-  }
-
   container.innerHTML = renderDaySummaryCard(entries);
   container.querySelectorAll(".journal-history-toggle").forEach(btn => {
     btn.addEventListener("click", () => {
