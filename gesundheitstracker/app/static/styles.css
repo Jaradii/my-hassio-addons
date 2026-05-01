@@ -8996,3 +8996,13 @@ body.dark .analysis-result-row.temp-red p { color: #ff8f8f; }
   font-size: 0.68rem;
   font-weight: 850;
 }
+
+
+/* v1.0.26: Schlafdauer auch beim Bearbeiten berechnen */
+#fieldEditContent .sleep-time-grid {
+  margin-bottom: 2px;
+}
+
+#fieldEditSleepDurationPreview {
+  margin: 0 0 2px 0;
+}

@@ -1533,6 +1533,27 @@ function updateSleepDurationPreview() {
   preview.classList.remove("hidden");
 }
 
+
+function stripGeneratedSleepDuration(text) {
+  return String(text || "")
+    .replace(/^Von\s+\d{1,2}:\d{2}\s+bis\s+\d{1,2}:\d{2}\s+\([^)]*\)\s*·\s*/i, "")
+    .replace(/^Von\s+\d{1,2}:\d{2}\s+bis\s+\d{1,2}:\d{2}\s+\([^)]*\)\s*/i, "")
+    .trim();
+}
+
+function updateFieldEditSleepDurationPreview() {
+  const preview = $("fieldEditSleepDurationPreview");
+  if (!preview) return;
+  const duration = calculateSleepDuration($("fieldEditSleepStart")?.value || "", $("fieldEditSleepEnd")?.value || "");
+  if (!duration) {
+    preview.classList.add("hidden");
+    preview.textContent = "";
+    return;
+  }
+  preview.textContent = `Dauer: ${formatSleepDurationMinutes(duration)}`;
+  preview.classList.remove("hidden");
+}
+
 function updateQuickSleepDurationPreview() {
   const preview = $("quickSleepDurationPreview");
   if (!preview) return;
@@ -1556,11 +1577,13 @@ function bindSleepTimeInputs(root = document) {
       if (cursorAtEnd) event.target.selectionStart = event.target.selectionEnd = event.target.value.length;
       updateSleepDurationPreview();
       updateQuickSleepDurationPreview();
+      updateFieldEditSleepDurationPreview();
     });
     input.addEventListener("blur", event => {
       event.target.value = normalizeTimeInput(event.target.value);
       updateSleepDurationPreview();
       updateQuickSleepDurationPreview();
+      updateFieldEditSleepDurationPreview();
     });
   });
 }
@@ -1744,6 +1767,22 @@ function openFieldEdit(entryId, field) {
         <textarea id="fieldEditValue" rows="2" placeholder="Weitere Symptome, durch Komma getrennt">${escapeHtml(entry.custom_symptoms || "")}</textarea>
       </label>
     `;
+  } else if (field === "sleep") {
+    const cleanSleepText = stripGeneratedSleepDuration(value);
+    $("fieldEditContent").innerHTML = `
+      ${timeFieldHtml}
+      <div class="field field-edit-value sleep-duration-field">
+        <span>${escapeHtml(config.title)}</span>
+        <div class="sleep-time-grid">
+          <label><small>Von</small><input id="fieldEditSleepStart" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" /></label>
+          <label><small>Bis</small><input id="fieldEditSleepEnd" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" /></label>
+        </div>
+        <div id="fieldEditSleepDurationPreview" class="sleep-duration-preview hidden"></div>
+        <textarea id="fieldEditValue" rows="${config.rows}" placeholder="${escapeHtml(config.placeholder)}">${escapeHtml(cleanSleepText)}</textarea>
+      </div>
+    `;
+
+    bindSleepTimeInputs($("fieldEditContent"));
   } else if (config.input === "number") {
     const inputValue = field === "temperature" && value !== "" && value !== null && value !== undefined
       ? Number(value).toFixed(1)
@@ -1851,6 +1890,8 @@ async function saveFieldEdit(event) {
     payload[field] = rawValue === "" ? null : Number(rawValue);
   } else if (field === "temperature") {
     payload[field] = rawValue === "" ? null : Number(String(rawValue).replace(",", "."));
+  } else if (field === "sleep") {
+    payload.sleep = buildSleepText(rawValue, $("fieldEditSleepStart")?.value || "", $("fieldEditSleepEnd")?.value || "");
   } else {
     payload[field] = rawValue;
   }
