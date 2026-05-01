@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.13
+- Basis ist die funktionierende Version 1.0.14
 
 
 ## Änderungen in 1.0.10
@@ -109,3 +109,15 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Datumsleiste dadurch kompakter gemacht
 - Unterer breiter „Neuer Eintrag“-Button durch kleinen schwebenden Plus-Button rechts unten ersetzt
 - Die bestehende Button-ID bleibt erhalten, damit die vorhandene JavaScript-Logik nicht bricht
+
+
+## Änderungen in 1.0.14
+
+- Neuer-Eintrag-Button endgültig als kleiner schwebender Plus-Button erzwungen
+- Alte `.bottom-add-button` CSS-Regeln werden jetzt am Ende der CSS überschrieben
+- Sichtbarer Text wurde zuverlässig durch `+` ersetzt, Button-ID bleibt erhalten
+
+
+## Korrektur in 1.0.14
+
+- Tatsächlicher Button `#openEntry` wird jetzt ebenfalls als Plus-FAB überschrieben
