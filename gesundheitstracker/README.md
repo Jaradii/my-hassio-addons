@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.34
+- Basis ist die funktionierende Version 1.0.35
 
 
 ## Änderungen in 1.0.10
@@ -276,3 +276,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Theme ist im Drei-Punkte-Menü jetzt nur noch ein Menüpunkt
 - Die eigentliche Theme-Auswahl öffnet sich in einem eigenen Popup
 - Direkte Theme-Auswahl im Drei-Punkte-Menü entfernt
+
+
+## Änderungen in 1.0.35
+
+- Hauptschrift der Tageskacheln vergrößert
+- Kachellabel und Hauptwert sind besser lesbar
+- Kleine Statuszeile unten bleibt klein
+- Nur CSS geändert

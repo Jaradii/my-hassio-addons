@@ -9406,3 +9406,47 @@ body.dark .analysis-result-row.temp-red p { color: #ff8f8f; }
 .top-menu-theme {
   display: none !important;
 }
+
+
+/* v1.0.35: Hauptschrift der Tageskacheln größer, Status unten bleibt klein */
+.compact-day-tile .tile-label {
+  font-size: 0.66rem !important;
+  line-height: 1.08 !important;
+  font-weight: 950 !important;
+}
+
+.compact-day-tile strong {
+  font-size: 0.82rem !important;
+  line-height: 1.08 !important;
+  font-weight: 950 !important;
+}
+
+/* Statuszeile unten bewusst klein lassen */
+.compact-day-tile small {
+  font-size: 0.55rem !important;
+  line-height: 1.05 !important;
+}
+
+@media (min-width: 900px) {
+  .compact-day-tile .tile-label {
+    font-size: 0.7rem !important;
+  }
+
+  .compact-day-tile strong {
+    font-size: 0.88rem !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .compact-day-tile .tile-label {
+    font-size: 0.64rem !important;
+  }
+
+  .compact-day-tile strong {
+    font-size: 0.8rem !important;
+  }
+
+  .compact-day-tile small {
+    font-size: 0.53rem !important;
+  }
+}
