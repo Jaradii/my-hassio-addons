@@ -10394,3 +10394,15 @@ body.dark[data-theme="aubergine"] .bottom-add-button {
   line-height: 1.35;
   white-space: pre;
 }
+
+
+/* v1.0.51: Separate Bericht-Seite für Safari/PDF */
+.export-action-grid {
+  grid-template-columns: 1fr !important;
+}
+
+@media (min-width: 620px) {
+  .export-action-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}

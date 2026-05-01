@@ -2649,6 +2649,289 @@ function buildPrintableExportHtml() {
   `;
 }
 
+
+function standaloneReportPageCss() {
+  return `
+    :root {
+      color-scheme: light;
+      --text: #17202a;
+      --muted: #5c6672;
+      --line: #dfe4eb;
+      --soft: #f7f9fb;
+      --head: #e8eef5;
+      --accent: #53677f;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #eef2f6;
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      line-height: 1.35;
+    }
+
+    .report-shell {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    .report-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      gap: 8px;
+      justify-content: space-between;
+      align-items: center;
+      margin: -18px -18px 16px -18px;
+      padding: 10px 14px;
+      background: rgba(238, 242, 246, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #d7dde6;
+    }
+
+    .report-toolbar strong {
+      font-size: 0.95rem;
+    }
+
+    .report-toolbar button {
+      appearance: none;
+      border: 0;
+      border-radius: 10px;
+      background: #53677f;
+      color: white;
+      font-weight: 850;
+      padding: 9px 12px;
+      min-height: 38px;
+    }
+
+    .report-paper {
+      background: white;
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 18px 46px rgba(23, 32, 42, 0.14);
+      border: 1px solid rgba(23, 32, 42, 0.08);
+    }
+
+    .report-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: flex-start;
+      border-bottom: 2px solid #d7dde6;
+      padding-bottom: 16px;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      margin: 0 0 5px 0;
+      color: var(--text);
+      font-size: 1.65rem;
+      line-height: 1.12;
+    }
+
+    .report-header p,
+    .report-meta {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .filter-grid,
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 2fr 2fr 1fr;
+      gap: 9px;
+      margin-bottom: 14px;
+    }
+
+    .stats-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .filter-grid > div,
+    .stats-grid > div {
+      border: 1px solid var(--line);
+      background: var(--soft);
+      border-radius: 11px;
+      padding: 10px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .filter-grid strong,
+    .stats-grid span {
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .filter-grid span,
+    .stats-grid strong {
+      color: var(--text);
+      font-size: 0.9rem;
+      font-weight: 850;
+    }
+
+    .category-section {
+      margin-top: 20px;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .category-section h2 {
+      margin: 0 0 10px 0;
+      padding: 8px 10px;
+      border-radius: 9px;
+      background: var(--head);
+      color: var(--text);
+      font-size: 1.04rem;
+      line-height: 1.2;
+    }
+
+    .category-day {
+      margin: 0 0 13px 0;
+    }
+
+    .category-day h3 {
+      margin: 0 0 6px 0;
+      color: #4d5967;
+      font-size: 0.9rem;
+      font-weight: 900;
+    }
+
+    .category-items {
+      display: grid;
+      gap: 5px;
+    }
+
+    .category-item {
+      display: grid;
+      grid-template-columns: 62px minmax(0, 1fr);
+      gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px solid #e3e7ed;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .category-item time {
+      color: var(--muted);
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      font-size: 0.84rem;
+    }
+
+    .category-item p {
+      margin: 0;
+      color: var(--text);
+      font-size: 0.88rem;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .empty {
+      padding: 20px;
+      text-align: center;
+      border: 1px dashed #c9d1dc;
+      border-radius: 12px;
+      color: var(--muted);
+      font-weight: 850;
+    }
+
+    .hint {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 640px) {
+      .report-shell { padding: 10px; }
+      .report-toolbar { margin: -10px -10px 10px -10px; }
+      .report-paper { padding: 18px; border-radius: 12px; }
+      .report-header { display: grid; }
+      .filter-grid, .stats-grid { grid-template-columns: 1fr; }
+      .category-item { grid-template-columns: 54px minmax(0, 1fr); }
+      h1 { font-size: 1.35rem; }
+    }
+
+    @media print {
+      body { background: white; }
+      .report-shell { max-width: none; padding: 0; }
+      .report-toolbar { display: none !important; }
+      .report-paper {
+        box-shadow: none;
+        border: 0;
+        border-radius: 0;
+        padding: 0;
+      }
+      .hint { display: none; }
+      @page { margin: 14mm; }
+    }
+  `;
+}
+
+function buildStandaloneReportPageHtml() {
+  return `<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gesundheitstracker Bericht</title>
+  <style>${standaloneReportPageCss()}</style>
+</head>
+<body>
+  <main class="report-shell">
+    <div class="report-toolbar">
+      <strong>Gesundheitstracker Bericht</strong>
+      <button type="button" onclick="window.print()">Drucken / PDF</button>
+    </div>
+    <article class="report-paper">
+      ${buildPrintableExportHtml()
+        .replaceAll("print-report-header", "report-header")
+        .replaceAll("print-report-meta", "report-meta")
+        .replaceAll("print-report-filter", "filter-grid")
+        .replaceAll("print-report-stats", "stats-grid")
+        .replaceAll("print-category-section", "category-section")
+        .replaceAll("print-category-day", "category-day")
+        .replaceAll("print-category-items", "category-items")
+        .replaceAll("print-category-item", "category-item")
+        .replaceAll("print-report-empty", "empty")}
+      <p class="hint">Tipp auf dem iPhone: Diese Seite in Safari öffnen und dann Teilen → Drucken → als PDF sichern.</p>
+    </article>
+  </main>
+</body>
+</html>`;
+}
+
+function openStandaloneReportPage() {
+  const reportHtml = buildStandaloneReportPageHtml();
+  const blob = new Blob([reportHtml], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const win = window.open(url, "_blank");
+
+  if (!win) {
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `gesundheitstracker-bericht-${$("exportFrom")?.value || "offen"}-bis-${$("exportTo")?.value || "offen"}.html`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    showToast("Bericht als HTML geöffnet");
+  } else {
+    showToast("Bericht-Seite geöffnet");
+  }
+
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+
 function openPrintableExport() {
   const content = $("printExportContent");
   if (!content) return;
@@ -2995,6 +3278,7 @@ async function init() {
   if ($("analysisExportButton")) $("analysisExportButton").addEventListener("click", exportAnalysisSymptoms);
   $("exportCreateButton").addEventListener("click", exportAnalysisSymptoms);
   $("exportPrintButton").addEventListener("click", openPrintableExport);
+  $("openReportPageButton").addEventListener("click", openStandaloneReportPage);
   $("selectReportButton").addEventListener("click", showSelectableReportText);
   $("closePrintExportButton").addEventListener("click", closeViews);
 

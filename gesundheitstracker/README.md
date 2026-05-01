@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.50
+- Basis ist die funktionierende Version 1.0.51
 
 
 ## Änderungen in 1.0.10
@@ -390,3 +390,12 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Automatische Clipboard-API entfernt, da sie in der Home-Assistant-App/WebView blockiert werden kann
 - Button „Text zum Kopieren markieren“ zeigt ein auswählbares Textfeld und markiert den Bericht
 - Bericht bleibt weiterhin nach Kategorien gruppiert
+
+
+## Änderungen in 1.0.51
+
+- Separate Bericht-Seite für Safari/PDF ergänzt
+- Export-Popup hat jetzt „Bericht-Seite öffnen“
+- Bericht wird als eigenständige HTML-Seite erzeugt
+- Die Seite enthält einen eigenen Drucken/PDF-Button und ist für iPhone/Safari optimiert
+- Falls Popups blockiert werden, wird die HTML-Datei als Download geöffnet
