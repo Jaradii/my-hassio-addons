@@ -403,6 +403,23 @@ function buildDaySummary(entries) {
   };
 }
 
+function tileCountText(count, singular, plural = null, emptyText = "Keine") {
+  const value = Number(count) || 0;
+  if (!value) return emptyText;
+  return `${value} ${value === 1 ? singular : (plural || `${singular}e`)}`;
+}
+
+function tileFluidText(totalMl) {
+  const value = Number(totalMl) || 0;
+  if (!value) return "Keine";
+  return `${value} ml`;
+}
+
+function tileTempText(entry) {
+  if (!entry) return "Keine";
+  return `${Number(entry.temperature).toFixed(1)} °C`;
+}
+
 function renderDaySummaryCard(entries) {
   const summary = buildDaySummary(entries);
   const latestTempText = summary.latestTempEntry
@@ -437,49 +454,49 @@ function renderDaySummaryCard(entries) {
         <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="fluids" aria-label="Flüssigkeit eintragen">
           <span class="tile-icon">💧</span>
           <span class="tile-label">Flüssigkeit</span>
-          <strong>${summary.fluidsTotal ? `${summary.fluidsTotal} ml` : "Keine"}</strong>
+          <strong>${tileFluidText(summary.fluidsTotal)}</strong>
           <small>${summary.fluidEntries.length ? `${summary.fluidEntries.length} Einträge` : "Nicht eingetragen"}</small>
         </button>
         <button type="button" class="day-tile quick-tile compact-day-tile temperature-tile ${summary.latestTempEntry ? feverClass(summary.latestTempEntry.temperature) : ""}" data-quick="temperature" aria-label="Temperatur eintragen">
           <span class="tile-icon">🌡️</span>
           <span class="tile-label">Temperatur</span>
-          <strong>${escapeHtml(latestTempText)}</strong>
+          <strong>${escapeHtml(tileTempText(summary.latestTempEntry))}</strong>
           <small>${escapeHtml(tempMeta)}</small>
         </button>
         <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="mood" aria-label="Stimmung eintragen">
           <span class="tile-icon">🙂</span>
           <span class="tile-label">Stimmung</span>
-          <strong>${summary.moods.length || "Keine"}</strong>
+          <strong>${tileCountText(summary.moods.length, "Stimmung", "Stimmungen")}</strong>
           <small>${summary.moods.length ? "Angaben" : "Keine Angabe"}</small>
         </button>
         <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="symptoms" aria-label="Symptome eintragen">
           <span class="tile-icon">🤧</span>
           <span class="tile-label">Symptome</span>
-          <strong>${summary.symptoms.length || "Keine"}</strong>
+          <strong>${tileCountText(summary.symptoms.length, "Symptom", "Symptome")}</strong>
           <small>${symptomText}</small>
         </button>
         <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="medication" aria-label="Medikament eintragen">
           <span class="tile-icon">💊</span>
           <span class="tile-label">Medis</span>
-          <strong>${summary.medications.length || "Keine"}</strong>
+          <strong>${tileCountText(summary.medications.length, "Medikament", "Medikamente")}</strong>
           <small>${summary.medications.length ? "Einträge" : "Nicht eingetragen"}</small>
         </button>
         <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="food" aria-label="Essen eintragen">
           <span class="tile-icon">🍽️</span>
           <span class="tile-label">Essen</span>
-          <strong>${summary.foods.length || "Keine"}</strong>
+          <strong>${tileCountText(summary.foods.length, "Essen", "Essen")}</strong>
           <small>${summary.foods.length ? "Einträge" : "Nicht eingetragen"}</small>
         </button>
         <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="sleep" aria-label="Schlaf eintragen">
           <span class="tile-icon">😴</span>
           <span class="tile-label">Schlaf</span>
-          <strong>${summary.sleeps.length || "Keine"}</strong>
+          <strong>${tileCountText(summary.sleeps.length, "Schlaf", "Schlaf")}</strong>
           <small>${summary.sleeps.length ? "Einträge" : "Nicht eingetragen"}</small>
         </button>
         <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="notes" aria-label="Notiz oder Auffälligkeit eintragen">
           <span class="tile-icon">📝</span>
           <span class="tile-label">Notizen</span>
-          <strong>${summary.notes.length || "Keine"}</strong>
+          <strong>${tileCountText(summary.notes.length, "Notiz", "Notizen")}</strong>
           <small>${summary.notes.length ? "Auffälligkeiten" : "Keine Notiz"}</small>
         </button>
       </div>
