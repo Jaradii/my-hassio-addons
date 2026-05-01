@@ -728,67 +728,84 @@ function renderEntryDetail(entry) {
     entry.notes ? ["Notizen", entry.notes, ""] : null
   ].filter(Boolean);
 
+  const importantRows = rows.filter(([label]) => ["Temperatur", "Flüssigkeit", "Stimmung"].includes(label));
+  const noteRows = rows.filter(([label]) => !["Temperatur", "Flüssigkeit", "Stimmung"].includes(label));
+
   return `
-    <div class="entry-detail alt-detail">
-      <div class="alt-detail-hero">
-        <div class="alt-detail-badges">
-          <span class="alt-detail-badge">Eintrag</span>
-          <span class="alt-detail-time">🕒 ${escapeHtml(entry.time || "--:--")} Uhr</span>
-        </div>
-        <strong class="alt-detail-date">${escapeHtml(entry.date || "")}</strong>
-        <p class="alt-detail-subtitle">Alle Angaben dieses Eintrags in einer ruhigen Listenansicht.</p>
+    <article class="entry-detail journal-detail">
+      <div class="journal-rail" aria-hidden="true">
+        <span></span>
       </div>
 
-      ${symptoms.length ? `
-        <section class="alt-detail-section">
-          <div class="alt-detail-section-title">
-            <span>Symptome</span>
+      <div class="journal-card">
+        <header class="journal-head">
+          <div class="journal-head-main">
+            <span class="journal-kicker">Eintrag</span>
+            <strong>${escapeHtml(entry.time || "--:--")} Uhr</strong>
+            <small>${escapeHtml(entry.date || "")}</small>
           </div>
-          <div class="alt-detail-symptoms">
-            ${renderSymptomList(symptoms)}
+          <div class="journal-actions">
+            <button type="button" class="journal-action-button edit-entry" data-id="${entry.id}" aria-label="Eintrag bearbeiten">✎</button>
+            <button type="button" class="journal-action-button danger delete-entry" data-id="${entry.id}" aria-label="Eintrag löschen">×</button>
           </div>
-        </section>
-      ` : ""}
+        </header>
 
-      ${rows.length ? `
-        <section class="alt-detail-section">
-          <div class="alt-detail-section-title">
-            <span>Details</span>
-          </div>
-          <div class="alt-detail-list">
-            ${rows.map(([label, value, extraClass]) => `
-              <div class="alt-detail-row ${extraClass || ""}">
-                <div class="alt-detail-row-icon">${detailIcon(label)}</div>
-                <div class="alt-detail-row-body">
-                  <span class="alt-detail-row-label">${escapeHtml(label)}</span>
-                  <strong class="alt-detail-row-value">${escapeHtml(value)}</strong>
+        ${importantRows.length ? `
+          <div class="journal-metrics">
+            ${importantRows.map(([label, value, extraClass]) => `
+              <div class="journal-metric ${extraClass || ""}">
+                <span>${detailIcon(label)}</span>
+                <div>
+                  <small>${escapeHtml(label)}</small>
+                  <strong>${escapeHtml(value)}</strong>
                 </div>
               </div>
             `).join("")}
           </div>
-        </section>
-      ` : `${!symptoms.length ? `
-        <section class="alt-detail-section alt-empty-state">
-          <div class="alt-detail-empty-icon">📝</div>
-          <strong>Noch keine Details vorhanden</strong>
-          <p>Dieser Eintrag enthält aktuell keine weiteren Angaben.</p>
-        </section>
-      ` : ""}`}
+        ` : ""}
 
-      <div class="alt-detail-actions">
-        <button type="button" class="btn secondary edit-entry" data-id="${entry.id}">Bearbeiten</button>
-        <button type="button" class="btn danger delete-entry" data-id="${entry.id}">Löschen</button>
-      </div>
+        ${symptoms.length ? `
+          <section class="journal-section">
+            <div class="journal-section-title">
+              <span>🤧</span>
+              <strong>Symptome</strong>
+            </div>
+            ${renderSymptomList(symptoms)}
+          </section>
+        ` : ""}
 
-      <section class="alt-detail-section alt-history-section">
-        <div class="alt-detail-section-title">
-          <span>Historie</span>
-        </div>
-        <div class="alt-detail-history">
+        ${noteRows.length ? `
+          <section class="journal-section">
+            <div class="journal-section-title">
+              <span>📝</span>
+              <strong>Weitere Angaben</strong>
+            </div>
+            <div class="journal-field-list">
+              ${noteRows.map(([label, value]) => `
+                <div class="journal-field">
+                  <div class="journal-field-label">
+                    <span>${detailIcon(label)}</span>
+                    <strong>${escapeHtml(label)}</strong>
+                  </div>
+                  <p>${escapeHtml(value)}</p>
+                </div>
+              `).join("")}
+            </div>
+          </section>
+        ` : ""}
+
+        ${!rows.length && !symptoms.length ? `
+          <section class="journal-empty">
+            <span>📝</span>
+            <strong>Keine Details eingetragen</strong>
+          </section>
+        ` : ""}
+
+        <footer class="journal-history">
           ${renderEntryHistory(entry)}
-        </div>
-      </section>
-    </div>
+        </footer>
+      </div>
+    </article>
   `;
 }
 
