@@ -7053,3 +7053,33 @@ body.dark .journal-metric.temp-red strong { color: #ff8f8f; }
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+
+/* v2.3.7: Historie-Icon oben + kurzes Datumsformat */
+.journal-history-toggle {
+  color: var(--text);
+  background: color-mix(in srgb, var(--primary) 8%, var(--card) 92%);
+  border-color: color-mix(in srgb, var(--primary) 22%, var(--kg-border) 78%);
+}
+
+.journal-history-toggle:hover {
+  background: color-mix(in srgb, var(--primary) 14%, var(--card) 86%);
+  border-color: var(--primary);
+}
+
+.journal-actions {
+  align-items: center;
+}
+
+/* Da das Historie-Icon nun oben sitzt, wirkt die untere Historie zurückhaltender */
+.journal-history .history-box summary {
+  font-size: 0.72rem !important;
+  opacity: 0.9;
+}
+
+@media (max-width: 430px) {
+  .journal-action-button {
+    width: 32px;
+    height: 32px;
+  }
+}

@@ -321,6 +321,18 @@ function renderDay() {
     });
   }
 
+  container.querySelectorAll(".journal-history-toggle").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const wrap = document.getElementById(`journalHistory-${btn.dataset.id}`);
+      const details = wrap ? wrap.querySelector(".history-box") : null;
+      if (!details) return;
+      details.open = !details.open;
+      if (details.open) {
+        wrap.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    });
+  });
+
   container.querySelectorAll(".edit-entry").forEach(btn => {
     btn.addEventListener("click", () => editEntry(btn.dataset.id));
   });
@@ -695,6 +707,23 @@ function renderEntryHistory(entry) {
   `;
 }
 
+function formatDateShortGerman(value) {
+  if (!value) return "";
+  const parts = String(value).split("-");
+  if (parts.length === 3) {
+    const [year, month, day] = parts;
+    return `${day}.${month}.${String(year).slice(-2)}`;
+  }
+
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return String(value);
+  return d.toLocaleDateString("de-DE", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit"
+  });
+}
+
 function detailIcon(label) {
   const icons = {
     "Temperatur": "🌡️",
@@ -742,9 +771,10 @@ function renderEntryDetail(entry) {
           <div class="journal-head-main">
             <span class="journal-kicker">Eintrag</span>
             <strong>${escapeHtml(entry.time || "--:--")} Uhr</strong>
-            <small>${escapeHtml(entry.date || "")}</small>
+            <small>${escapeHtml(formatDateShortGerman(entry.date))}</small>
           </div>
           <div class="journal-actions">
+            <button type="button" class="journal-action-button journal-history-toggle" data-id="${entry.id}" aria-label="Historie anzeigen">↻</button>
             <button type="button" class="journal-action-button edit-entry" data-id="${entry.id}" aria-label="Eintrag bearbeiten">✎</button>
             <button type="button" class="journal-action-button danger delete-entry" data-id="${entry.id}" aria-label="Eintrag löschen">×</button>
           </div>
@@ -801,7 +831,7 @@ function renderEntryDetail(entry) {
           </section>
         ` : ""}
 
-        <footer class="journal-history">
+        <footer class="journal-history" id="journalHistory-${entry.id}">
           ${renderEntryHistory(entry)}
         </footer>
       </div>
