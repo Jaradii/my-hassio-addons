@@ -594,43 +594,53 @@ function summaryDisplayValue(entry, key) {
 }
 
 function renderSummaryTextBlocks(summary) {
-  const blocks = [];
+  const groups = [
+    { items: summary.symptomEntries, key: "symptoms", icon: "🤧", title: "Symptome" },
+    { items: summary.fluidEntries, key: "fluids_ml", icon: "💧", title: "Flüssigkeit" },
+    { items: summary.temperatureEntries, key: "temperature", icon: "🌡️", title: "Temperatur / Fieber" },
+    { items: summary.moods, key: "mood", icon: "🙂", title: "Stimmung" },
+    { items: summary.medications, key: "medication", icon: "💊", title: "Medikamente" },
+    { items: summary.foods, key: "food", icon: "🍽️", title: "Essen" },
+    { items: summary.sleeps, key: "sleep", icon: "😴", title: "Schlaf" },
+    { items: summary.diaper, key: "diaper_or_toilet", icon: "🚽", title: "Windel / Toilette" },
+    { items: summary.notes, key: "notes", icon: "📝", title: "Notizen" }
+  ].filter(group => group.items.length);
 
-  const renderItems = (items, key, icon, title) => {
-    if (!items.length) return "";
+  if (!groups.length) {
     return `
-      <section class="summary-info-card">
-        <div class="summary-info-head">
-          <span class="summary-info-icon">${icon}</span>
-          <strong>${title}</strong>
-        </div>
-        <div class="summary-info-list">
-          ${items.map(e => `
-            <div class="summary-info-item ${key === "temperature" ? feverClass(e.temperature) : ""} ${e.is_overnight_carry ? "overnight-carry-item" : ""}">
-              <span class="summary-info-time">${escapeHtml(e.time || "--:--")}</span>
-              <p>${escapeHtml(summaryDisplayValue(e, key))}</p>
-              <div class="summary-row-actions">
-                <button type="button" class="summary-edit-button summary-history-button" data-id="${e.original_id || e.id}" aria-label="Historie anzeigen">↻</button>
-                <button type="button" class="summary-edit-button edit-summary-field" data-id="${e.original_id || e.id}" data-field="${key}" aria-label="${title} bearbeiten">✎</button>
-              </div>
-            </div>
-          `).join("")}
-        </div>
+      <section class="summary-grouped-empty">
+        <span>＋</span>
+        <strong>Noch keine Details eingetragen</strong>
+        <p>Tippe auf eine Kachel oder den Plus-Button, um etwas einzutragen.</p>
       </section>
     `;
-  };
+  }
 
-  blocks.push(renderItems(summary.symptomEntries, "symptoms", "🤧", "Symptome"));
-  blocks.push(renderItems(summary.fluidEntries, "fluids_ml", "💧", "Flüssigkeit"));
-  blocks.push(renderItems(summary.temperatureEntries, "temperature", "🌡️", "Temperatur / Fieber"));
-  blocks.push(renderItems(summary.moods, "mood", "🙂", "Stimmung"));
-  blocks.push(renderItems(summary.medications, "medication", "💊", "Medikamente"));
-  blocks.push(renderItems(summary.foods, "food", "🍽️", "Essen"));
-  blocks.push(renderItems(summary.sleeps, "sleep", "😴", "Schlaf"));
-  blocks.push(renderItems(summary.diaper, "diaper_or_toilet", "🚽", "Windel / Toilette"));
-  blocks.push(renderItems(summary.notes, "notes", "📝", "Notizen"));
-
-  return blocks.filter(Boolean).join("");
+  return `
+    <section class="summary-grouped-list">
+      ${groups.map(group => `
+        <details class="summary-group-card" open>
+          <summary>
+            <span class="summary-group-icon">${group.icon}</span>
+            <strong>${group.title}</strong>
+            <em>${group.items.length} ${group.items.length === 1 ? "Eintrag" : "Einträge"}</em>
+          </summary>
+          <div class="summary-info-list grouped-summary-info-list">
+            ${group.items.map(e => `
+              <div class="summary-info-item ${group.key === "temperature" ? feverClass(e.temperature) : ""} ${e.is_overnight_carry ? "overnight-carry-item" : ""}">
+                <span class="summary-info-time">${escapeHtml(e.time || "--:--")}</span>
+                <p>${escapeHtml(summaryDisplayValue(e, group.key))}</p>
+                <div class="summary-row-actions">
+                  <button type="button" class="summary-edit-button summary-history-button" data-id="${e.original_id || e.id}" aria-label="Historie anzeigen">↻</button>
+                  <button type="button" class="summary-edit-button edit-summary-field" data-id="${e.original_id || e.id}" data-field="${group.key}" aria-label="${group.title} bearbeiten">✎</button>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        </details>
+      `).join("")}
+    </section>
+  `;
 }
 
 function entryPreviewText(entry) {

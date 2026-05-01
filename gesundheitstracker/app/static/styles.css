@@ -9459,3 +9459,130 @@ body.dark .analysis-result-row.temp-red p { color: #ff8f8f; }
 
 
 
+
+
+/* v1.0.40: Untere Detailansicht nach Kategorien gruppieren */
+.summary-grouped-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.summary-group-card {
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 64%, transparent);
+  background: color-mix(in srgb, var(--card) 92%, var(--kg-soft) 8%);
+  overflow: hidden;
+}
+
+.summary-group-card > summary {
+  list-style: none;
+  cursor: pointer;
+  min-height: 42px;
+  padding: 8px 10px;
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.summary-group-card > summary::-webkit-details-marker {
+  display: none;
+}
+
+.summary-group-card > summary::after {
+  content: "▾";
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 950;
+  margin-left: 4px;
+  transition: transform 160ms ease;
+}
+
+.summary-group-card:not([open]) > summary::after {
+  transform: rotate(-90deg);
+}
+
+.summary-group-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--primary) 10%, var(--card) 90%);
+}
+
+.summary-group-card > summary strong {
+  color: var(--text);
+  font-size: 0.88rem;
+  font-weight: 950;
+  min-width: 0;
+}
+
+.summary-group-card > summary em {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-style: normal;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.grouped-summary-info-list {
+  padding: 0 8px 8px 8px;
+  display: grid;
+  gap: 6px;
+}
+
+.grouped-summary-info-list .summary-info-item {
+  border-radius: 10px;
+  border-color: color-mix(in srgb, var(--kg-border) 54%, transparent);
+  background: color-mix(in srgb, var(--card) 96%, var(--kg-soft) 4%);
+}
+
+.summary-grouped-empty {
+  margin-top: 10px;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 62%, transparent);
+  background: color-mix(in srgb, var(--card) 90%, var(--kg-soft) 10%);
+  text-align: center;
+  display: grid;
+  gap: 4px;
+}
+
+.summary-grouped-empty span {
+  font-size: 1.35rem;
+  color: var(--primary);
+}
+
+.summary-grouped-empty strong {
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 950;
+}
+
+.summary-grouped-empty p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+@media (max-width: 430px) {
+  .summary-group-card > summary {
+    min-height: 38px;
+    padding: 7px 9px;
+  }
+
+  .summary-group-card > summary strong {
+    font-size: 0.84rem;
+  }
+
+  .summary-group-card > summary em {
+    font-size: 0.64rem;
+  }
+
+  .grouped-summary-info-list {
+    padding: 0 7px 7px 7px;
+  }
+}
