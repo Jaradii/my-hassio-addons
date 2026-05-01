@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.29
+- Basis ist die funktionierende Version 1.0.30
 
 
 ## Änderungen in 1.0.10
@@ -237,3 +237,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Symptome können für den Export gezielt ausgewählt werden
 - Export wird als Textdatei heruntergeladen
 - Export enthält passende Symptome plus relevante Zusatzinfos wie Temperatur, Medikamente, Flüssigkeit, Stimmung, Essen, Schlaf und Notizen
+
+
+## Änderungen in 1.0.30
+
+- Exportfunktion aus der Auswertung entfernt
+- Export ist jetzt ein eigener Menüpunkt oben mit eigenem Symbol 📤
+- Eigenes Export-Popup mit Von/Bis und Symptomauswahl
+- Auswertung bleibt nur noch für Analyse/Suche zuständig

@@ -27,6 +27,7 @@
       <div class="top-actions">
         <button id="profileButton" class="icon-btn" aria-label="Profil öffnen">☰</button>
         <button id="searchButton" class="icon-btn" aria-label="Auswertung öffnen" title="Auswertung">🔍</button>
+        <button id="exportMenuButton" class="icon-btn" aria-label="Export öffnen" title="Export">📤</button>
         <button id="topDarkModeButton" class="icon-btn" aria-label="Dark Mode umschalten" title="Dark Mode">🌙</button>
         <button id="backupButton" class="icon-btn" aria-label="Backup öffnen">💾</button>
       </div>
@@ -352,20 +353,39 @@
             </select>
           </label>
         </div>
-
-        <div class="analysis-export-box">
-          <div class="analysis-export-head">
-            <div>
-              <strong>Export</strong>
-              <span>Zeitraum und Symptome für einen Bericht auswählen</span>
-            </div>
-            <button id="analysisExportButton" type="button" class="btn secondary">Export erstellen</button>
-          </div>
-          <div id="analysisSymptomExportChips" class="analysis-symptom-export-chips"></div>
-        </div>
-
         <div id="analysisSummary" class="analysis-summary"></div>
         <div id="analysisResults" class="analysis-results"></div>
+      </div>
+    </section>
+
+
+    <section id="exportView" class="modal-view hidden">
+      <div class="view-card export-card">
+        <div class="sheet-head">
+          <h2>Export</h2>
+          <button class="round-btn close-view">×</button>
+        </div>
+
+        <div class="export-controls">
+          <label class="field">
+            <span>Von</span>
+            <input id="exportFrom" type="date" />
+          </label>
+          <label class="field">
+            <span>Bis</span>
+            <input id="exportTo" type="date" />
+          </label>
+        </div>
+
+        <div class="export-section">
+          <div class="export-section-head">
+            <strong>Symptome auswählen</strong>
+            <span>Leer lassen bzw. „Alle Symptome“ wählen, um alles zu exportieren.</span>
+          </div>
+          <div id="exportSymptomChips" class="analysis-symptom-export-chips"></div>
+        </div>
+
+        <button id="exportCreateButton" type="button" class="btn primary export-create-button">Export erstellen</button>
       </div>
     </section>
 

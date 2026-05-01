@@ -2220,8 +2220,8 @@ function allKnownSymptomsForExport() {
   return [...symptoms].sort((a, b) => a.localeCompare(b));
 }
 
-function renderAnalysisSymptomExportChips() {
-  const container = $("analysisSymptomExportChips");
+function renderExportSymptomChips() {
+  const container = $("exportSymptomChips") || $("analysisSymptomExportChips");
   if (!container) return;
 
   const symptoms = allKnownSymptomsForExport();
@@ -2259,7 +2259,7 @@ function renderAnalysisSymptomExportChips() {
 }
 
 function selectedExportSymptoms() {
-  const container = $("analysisSymptomExportChips");
+  const container = $("exportSymptomChips") || $("analysisSymptomExportChips");
   if (!container) return [];
   const allChecked = container.querySelector('input[value="__all__"]')?.checked;
   if (allChecked) return [];
@@ -2280,8 +2280,8 @@ function entryHasExportSymptom(entry, selected) {
 }
 
 function buildSymptomExportText() {
-  const from = $("analysisFrom")?.value || "";
-  const to = $("analysisTo")?.value || "";
+  const from = $("exportFrom")?.value || $("analysisFrom")?.value || "";
+  const to = $("exportTo")?.value || $("analysisTo")?.value || "";
   const selected = selectedExportSymptoms();
 
   const entries = (state.data.entries || [])
@@ -2424,6 +2424,23 @@ function renderAnalysis() {
   }).join("");
 }
 
+
+function openExportView() {
+  const todayValue = today();
+  const from = $("exportFrom");
+  const to = $("exportTo");
+
+  if (from && !from.value) {
+    const d = new Date(`${todayValue}T12:00:00`);
+    d.setDate(d.getDate() - 14);
+    from.value = d.toISOString().slice(0, 10);
+  }
+  if (to && !to.value) to.value = todayValue;
+
+  renderExportSymptomChips();
+  openView("exportView");
+}
+
 function openAnalysisView() {
   const todayValue = today();
   const from = $("analysisFrom");
@@ -2436,7 +2453,6 @@ function openAnalysisView() {
   }
   if (to && !to.value) to.value = todayValue;
 
-  renderAnalysisSymptomExportChips();
   renderAnalysis();
   openView("analysisView");
 }
@@ -2618,7 +2634,8 @@ async function init() {
   $("analysisFrom").addEventListener("change", renderAnalysis);
   $("analysisTo").addEventListener("change", renderAnalysis);
   $("analysisCategory").addEventListener("change", renderAnalysis);
-  $("analysisExportButton").addEventListener("click", exportAnalysisSymptoms);
+  if ($("analysisExportButton")) $("analysisExportButton").addEventListener("click", exportAnalysisSymptoms);
+  $("exportCreateButton").addEventListener("click", exportAnalysisSymptoms);
 
   $("importFile").addEventListener("change", async event => {
     const file = event.target.files?.[0];
@@ -2633,6 +2650,7 @@ async function init() {
   });
 
   $("searchButton").addEventListener("click", openAnalysisView);
+  $("exportMenuButton").addEventListener("click", openExportView);
   $("profileButton").addEventListener("click", () => openView("profileView"));
   $("topDarkModeButton").addEventListener("click", () => {
     applyDarkMode(!state.darkMode);
