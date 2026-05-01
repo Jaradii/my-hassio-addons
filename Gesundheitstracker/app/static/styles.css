@@ -7083,3 +7083,26 @@ body.dark .journal-metric.temp-red strong { color: #ff8f8f; }
     height: 32px;
   }
 }
+
+
+/* v2.3.8: altes Historie-Icon unten entfernen, Historie nur über oberes Icon */
+.journal-history-inline .history-box > summary {
+  display: none !important;
+}
+
+.journal-history-inline .history-box:not([open]) {
+  display: none !important;
+}
+
+.journal-history-inline .history-box[open] {
+  display: block !important;
+  margin-top: 0 !important;
+}
+
+.journal-history-inline {
+  padding-top: 0 !important;
+}
+
+.journal-history-inline .history-list {
+  padding-top: 0 !important;
+}

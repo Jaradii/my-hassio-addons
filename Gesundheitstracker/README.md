@@ -1,6 +1,6 @@
 # Gesundheitstracker Home Assistant Add-on
 
-Version 2.3.7
+Version 2.3.8
 
 Mobile, tageszentrierte Gesundheits-Tagebuch-App für Home Assistant Ingress.
 
@@ -457,7 +457,7 @@ Die Daten liegen im Add-on unter:
 
 ## Änderungen in 2.1.1
 
-- Rollback auf Version 2.3.7 vor der Apple-Watch/Quick-API-Erweiterung
+- Rollback auf Version 2.3.8 vor der Apple-Watch/Quick-API-Erweiterung
 - Quick-API-Endpunkte und Apple-Watch-Skriptbeispiele entfernt
 - Eigener Kalender mit Punkten für Tage mit Einträgen bleibt erhalten
 
@@ -589,3 +589,10 @@ Die Daten liegen im Add-on unter:
 - Historie-Icon oben neben Bearbeiten und Löschen ergänzt
 - Klick auf das Historie-Icon öffnet/schließt die Historie des Eintrags
 - Datum in der Journal-Detailansicht wird jetzt als `DD.MM.YY` angezeigt
+
+
+## Änderungen in 2.3.8
+
+- Altes Historie-Icon beziehungsweise die alte Historie-Zeile unten entfernt
+- Historie wird jetzt nur noch über das obere Historie-Icon geöffnet
+- Datum in der Journal-Detailansicht wird jetzt als `MM.DD.YYYY` angezeigt

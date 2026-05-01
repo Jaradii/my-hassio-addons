@@ -712,16 +712,15 @@ function formatDateShortGerman(value) {
   const parts = String(value).split("-");
   if (parts.length === 3) {
     const [year, month, day] = parts;
-    return `${day}.${month}.${String(year).slice(-2)}`;
+    return `${month}.${day}.${year}`;
   }
 
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return String(value);
-  return d.toLocaleDateString("de-DE", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "2-digit"
-  });
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  const year = String(d.getFullYear());
+  return `${month}.${day}.${year}`;
 }
 
 function detailIcon(label) {
@@ -831,7 +830,7 @@ function renderEntryDetail(entry) {
           </section>
         ` : ""}
 
-        <footer class="journal-history" id="journalHistory-${entry.id}">
+        <footer class="journal-history journal-history-inline" id="journalHistory-${entry.id}">
           ${renderEntryHistory(entry)}
         </footer>
       </div>
