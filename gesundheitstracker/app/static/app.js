@@ -364,7 +364,9 @@ function buildDaySummary(entries) {
     .map(Number)
     .filter(v => !Number.isNaN(v));
 
-  const latestTempEntry = entries.find(e => e.temperature !== null && e.temperature !== undefined && e.temperature !== "");
+  const latestTempEntry = [...entries]
+    .filter(e => e.temperature !== null && e.temperature !== undefined && e.temperature !== "")
+    .sort((a, b) => (b.time || "").localeCompare(a.time || ""))[0] || null;
   const maxTemp = temperatures.length ? Math.max(...temperatures) : null;
   const minTemp = temperatures.length ? Math.min(...temperatures) : null;
 

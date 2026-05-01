@@ -49,3 +49,9 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Symptom-Einträge erscheinen als eigene Liste mit Historie- und Bearbeiten-Button
 - Im kleinen Bearbeiten-Popup kann jetzt die Uhrzeit des jeweiligen Eintrags geändert werden
 - Gilt für Flüssigkeit, Temperatur, Stimmung, Symptome, Medikamente, Essen, Schlaf, Windel/Toilette und Notizen
+
+
+## Änderungen in 1.0.5
+
+- Temperatur/Fieber-Kachel zeigt jetzt immer die zeitlich letzte Messung des Tages
+- Sortierung erfolgt anhand der gespeicherten Uhrzeit
