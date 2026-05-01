@@ -6289,3 +6289,56 @@ body.time-open > .bottom-action-bar {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* v2.2.9: Einträge direkt in der Tagesübersicht bearbeiten */
+.summary-info-item {
+  grid-template-columns: auto minmax(0, 1fr) auto !important;
+  align-items: start !important;
+}
+
+.summary-edit-button {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 70%, transparent);
+  background: color-mix(in srgb, var(--kg-soft) 78%, var(--card) 22%);
+  color: var(--text);
+  display: inline-grid;
+  place-items: center;
+  font-size: 0.86rem;
+  font-weight: 950;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: none !important;
+}
+
+.summary-edit-button:hover {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, var(--card) 88%);
+}
+
+.summary-edit-button:active {
+  transform: scale(0.96);
+}
+
+.summary-edit-button:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--primary) 32%, transparent);
+  outline-offset: 2px;
+}
+
+@media (max-width: 430px) {
+  .summary-info-item {
+    grid-template-columns: auto minmax(0, 1fr) auto !important;
+  }
+
+  .summary-edit-button {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    font-size: 0.8rem;
+  }
+}

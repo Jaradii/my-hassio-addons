@@ -481,6 +481,7 @@ function renderSummaryTextBlocks(summary) {
             <div class="summary-info-item">
               <span class="summary-info-time">${escapeHtml(e.time || "--:--")}</span>
               <p>${escapeHtml(e[key] || "")}</p>
+              <button type="button" class="summary-edit-button edit-entry" data-id="${e.id}" aria-label="Eintrag bearbeiten">✎</button>
             </div>
           `).join("")}
         </div>
