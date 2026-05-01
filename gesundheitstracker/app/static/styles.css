@@ -9612,3 +9612,60 @@ body.dark .analysis-result-row.temp-red p { color: #ff8f8f; }
     font-size: 0.74rem !important;
   }
 }
+
+
+/* v1.0.43: Fix für Kategorie-Ansicht, Zeiten und Weitere-anzeigen */
+.category-extra-hidden {
+  display: none !important;
+}
+
+.category-compact-items .category-compact-item.category-extra-hidden {
+  display: none !important;
+}
+
+.category-compact-item {
+  grid-template-columns: 50px minmax(0, 1fr) auto !important;
+  align-items: center !important;
+}
+
+.category-compact-item .summary-info-time {
+  display: block !important;
+  width: 44px !important;
+  min-width: 44px !important;
+  color: var(--muted) !important;
+  font-size: 0.72rem !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  font-variant-numeric: tabular-nums !important;
+  text-align: left !important;
+  white-space: nowrap !important;
+}
+
+.category-compact-item p {
+  min-width: 0 !important;
+  margin: 0 !important;
+  color: var(--text) !important;
+  overflow-wrap: anywhere !important;
+}
+
+.category-compact-item .summary-row-actions {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+}
+
+.category-compact-more {
+  display: block !important;
+}
+
+@media (max-width: 430px) {
+  .category-compact-item {
+    grid-template-columns: 44px minmax(0, 1fr) auto !important;
+  }
+
+  .category-compact-item .summary-info-time {
+    width: 38px !important;
+    min-width: 38px !important;
+    font-size: 0.68rem !important;
+  }
+}

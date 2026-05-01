@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.42
+- Basis ist die funktionierende Version 1.0.43
 
 
 ## Änderungen in 1.0.10
@@ -325,3 +325,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Je Kategorie gibt es bei Bedarf einen „Weitere anzeigen“-Button
 - Historie- und Bearbeiten-Buttons bleiben pro Eintrag erhalten
 - Basis ist wieder 1.0.39, nicht 1.0.40 oder 1.0.41
+
+
+## Änderungen in 1.0.43
+
+- Kategorie-Testansicht repariert
+- Weitere-Einträge werden jetzt wirklich ausgeblendet
+- „Weitere anzeigen“ funktioniert jetzt pro Kategorie
+- Zeitspalte in der Übersicht wieder sauber ausgerichtet

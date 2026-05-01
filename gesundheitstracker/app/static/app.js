@@ -361,7 +361,7 @@ function renderDay() {
       btn.dataset.expanded = expanded ? "false" : "true";
       card.dataset.expanded = expanded ? "false" : "true";
       card.querySelectorAll(".category-extra-item").forEach(item => {
-        item.classList.toggle("hidden", expanded);
+        item.classList.toggle("category-extra-hidden", expanded);
       });
       const hiddenTotal = card.querySelectorAll(".category-extra-item").length;
       btn.textContent = expanded ? `Weitere ${hiddenTotal} anzeigen` : "Weniger anzeigen";
@@ -638,7 +638,7 @@ function renderSummaryTextBlocks(summary) {
   const limit = 3;
 
   const renderItem = (group, entry, hidden = false) => `
-    <div class="summary-info-item category-compact-item ${group.key === "temperature" ? feverClass(entry.temperature) : ""} ${entry.is_overnight_carry ? "overnight-carry-item" : ""} ${hidden ? "category-extra-item hidden" : ""}">
+    <div class="summary-info-item category-compact-item ${group.key === "temperature" ? feverClass(entry.temperature) : ""} ${entry.is_overnight_carry ? "overnight-carry-item" : ""} ${hidden ? "category-extra-item category-extra-hidden" : ""}">
       <span class="summary-info-time">${escapeHtml(entry.time || "--:--")}</span>
       <p>${escapeHtml(summaryDisplayValue(entry, group.key))}</p>
       <div class="summary-row-actions">
