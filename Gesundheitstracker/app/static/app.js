@@ -375,7 +375,7 @@ function buildDaySummary(entries) {
     .map(([name, count]) => [name, count, symptomIntensities[name] || []])
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
 
-  const moods = entries.map(e => e.mood).filter(Boolean);
+  const moods = entries.filter(e => e.mood);
   const medications = entries.filter(e => e.medication);
   const foods = entries.filter(e => e.food);
   const sleeps = entries.filter(e => e.sleep);
@@ -414,7 +414,7 @@ function renderDaySummaryCard(entries) {
     : "Keine";
 
   const moodText = summary.moods.length
-    ? escapeHtml(summary.moods[0])
+    ? escapeHtml(summary.moods[0].mood)
     : "Keine";
 
   const expanded = state.dayExpanded;
@@ -503,6 +503,7 @@ function renderSummaryTextBlocks(summary) {
     `;
   };
 
+  blocks.push(renderItems(summary.moods, "mood", "🙂", "Stimmung"));
   blocks.push(renderItems(summary.medications, "medication", "💊", "Medikamente"));
   blocks.push(renderItems(summary.foods, "food", "🍽️", "Essen"));
   blocks.push(renderItems(summary.sleeps, "sleep", "😴", "Schlaf"));
@@ -1386,6 +1387,13 @@ function closeEntryHistoryPopup() {
 
 function fieldEditConfig(field) {
   const configs = {
+    mood: {
+      title: "Stimmung",
+      subtitle: "Nur Stimmung dieses Eintrags bearbeiten.",
+      input: "textarea",
+      rows: 2,
+      placeholder: "z. B. Müde, Gut drauf, Quengelig"
+    },
     medication: {
       title: "Medikamente",
       subtitle: "Nur Medikamente dieses Eintrags bearbeiten.",

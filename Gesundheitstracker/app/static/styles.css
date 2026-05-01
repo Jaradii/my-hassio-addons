@@ -7519,3 +7519,9 @@ body.entry-history-open > .bottom-action-bar {
 .card-actions:has(#toggleDetails) {
   display: none !important;
 }
+
+
+/* v2.4.4: Stimmung wieder als Mehrfachliste in der Tagesübersicht */
+.summary-info-card .summary-info-head .summary-info-icon {
+  flex: 0 0 auto;
+}
