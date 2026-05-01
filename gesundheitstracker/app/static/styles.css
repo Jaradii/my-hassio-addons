@@ -8847,3 +8847,59 @@ body.dark .analysis-result-row.temp-red p { color: #ff8f8f; }
     align-items: baseline;
   }
 }
+
+
+/* v1.0.24: Such-/Auswertungsergebnisse nach Tagen bündeln */
+.analysis-day-group {
+  display: grid;
+  gap: 7px;
+}
+
+.analysis-day-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--primary) 10%, var(--card) 90%);
+  border: 1px solid color-mix(in srgb, var(--primary) 24%, var(--kg-border) 76%);
+}
+
+.analysis-day-head strong {
+  color: var(--text);
+  font-size: 0.88rem;
+  font-weight: 950;
+}
+
+.analysis-day-head span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.analysis-day-items {
+  display: grid;
+  gap: 6px;
+}
+
+.analysis-day-items .analysis-result-row {
+  grid-template-columns: 74px minmax(0, 1fr);
+}
+
+.analysis-day-items .analysis-result-time strong {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .analysis-day-items .analysis-result-row {
+    grid-template-columns: 64px minmax(0, 1fr);
+  }
+
+  .analysis-day-items .analysis-result-time {
+    display: block;
+  }
+}

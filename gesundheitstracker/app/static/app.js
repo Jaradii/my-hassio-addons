@@ -1974,17 +1974,36 @@ function renderAnalysis() {
     return;
   }
 
-  results.innerHTML = entries.map(entry => {
-    const value = analysisValue(entry, category);
-    const tempClass = category === "temperature" ? feverClass(entry.temperature) : "";
+  const grouped = entries.reduce((acc, entry) => {
+    const key = entry.date || "Ohne Datum";
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(entry);
+    return acc;
+  }, {});
+
+  results.innerHTML = Object.entries(grouped).map(([date, dayEntries]) => {
+    const sortedDayEntries = [...dayEntries].sort((a, b) => (a.time || "").localeCompare(b.time || ""));
     return `
-      <div class="analysis-result-row ${tempClass}">
-        <div class="analysis-result-time">
-          <strong>${escapeHtml(formatDateShortGerman(entry.date))}</strong>
-          <span>${escapeHtml(entry.time || "--:--")} Uhr</span>
+      <section class="analysis-day-group">
+        <div class="analysis-day-head">
+          <strong>${escapeHtml(formatDateShortGerman(date))}</strong>
+          <span>${sortedDayEntries.length} Treffer</span>
         </div>
-        <p>${escapeHtml(value)}</p>
-      </div>
+        <div class="analysis-day-items">
+          ${sortedDayEntries.map(entry => {
+            const value = analysisValue(entry, category);
+            const tempClass = category === "temperature" ? feverClass(entry.temperature) : "";
+            return `
+              <div class="analysis-result-row ${tempClass}">
+                <div class="analysis-result-time">
+                  <span>${escapeHtml(entry.time || "--:--")} Uhr</span>
+                </div>
+                <p>${escapeHtml(value)}</p>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      </section>
     `;
   }).join("");
 }

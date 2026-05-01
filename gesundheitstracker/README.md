@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.23
+- Basis ist die funktionierende Version 1.0.24
 
 
 ## Änderungen in 1.0.10
@@ -189,3 +189,10 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Zeitraumfilter Von/Bis
 - Kategorie-Filter für Temperatur, Flüssigkeit, Symptome, Stimmung, Medikamente, Essen, Schlaf, Windel/Toilette, Notizen und Alle Einträge
 - Temperaturauswertung mit Anzahl, Minimum, Maximum, Durchschnitt, Werte ab 38,5 °C und Werte ab 39,0 °C
+
+
+## Änderungen in 1.0.24
+
+- Such-/Auswertungsergebnisse werden jetzt nach Tagen gebündelt
+- Jeder Tag bekommt eine eigene Überschrift mit Trefferanzahl
+- Innerhalb eines Tages werden die Einträge nach Uhrzeit sortiert
