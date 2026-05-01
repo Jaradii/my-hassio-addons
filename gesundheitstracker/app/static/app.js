@@ -2416,34 +2416,42 @@ function buildFullExportText() {
     return lines.join("\n");
   }
 
-  const grouped = entries.reduce((acc, entry) => {
-    const key = entry.date || "Ohne Datum";
-    if (!acc[key]) acc[key] = [];
-    acc[key].push(entry);
-    return acc;
-  }, {});
+  categories.forEach(category => {
+    const categoryEntries = entries
+      .filter(entry => {
+        if (!exportCategoryHasValue(entry, category)) return false;
+        if (category === "symptoms" && selectedSymptoms.length) return entryHasExportSymptom(entry, selectedSymptoms);
+        return true;
+      })
+      .sort((a, b) => analysisEntryTimestamp(a).localeCompare(analysisEntryTimestamp(b)));
 
-  Object.entries(grouped).forEach(([date, dayEntries]) => {
-    const title = formatDateShortGerman(date);
-    lines.push(title);
-    lines.push("-".repeat(title.length));
+    if (!categoryEntries.length) return;
 
-    dayEntries
-      .sort((a, b) => (a.time || "").localeCompare(b.time || ""))
-      .forEach(entry => {
-        const entryLines = categories
-          .map(category => {
-            if (category === "symptoms" && selectedSymptoms.length && !entryHasExportSymptom(entry, selectedSymptoms)) return "";
-            return exportCategoryLine(entry, category);
-          })
-          .filter(Boolean);
+    const categoryTitle = analysisCategoryLabel(category);
+    lines.push(categoryTitle);
+    lines.push("=".repeat(categoryTitle.length));
 
-        if (!entryLines.length) return;
+    const grouped = categoryEntries.reduce((acc, entry) => {
+      const key = entry.date || "Ohne Datum";
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(entry);
+      return acc;
+    }, {});
 
-        lines.push(`${entry.time || "--:--"} Uhr`);
-        entryLines.forEach(line => lines.push(`  ${line}`));
-        lines.push("");
-      });
+    Object.entries(grouped).forEach(([date, dayEntries]) => {
+      lines.push("");
+      lines.push(formatDateShortGerman(date));
+      lines.push("-".repeat(formatDateShortGerman(date).length));
+
+      dayEntries
+        .sort((a, b) => (a.time || "").localeCompare(b.time || ""))
+        .forEach(entry => {
+          const line = exportCategoryLine(entry, category);
+          if (line) lines.push(`${entry.time || "--:--"} Uhr · ${line}`);
+        });
+    });
+
+    lines.push("");
   });
 
   return lines.join("\n");
@@ -2547,13 +2555,6 @@ function buildPrintableExportHtml() {
     ? (selectedSymptoms.length ? selectedSymptoms.join(", ") : "Alle Symptome")
     : "Nicht exportiert";
 
-  const grouped = entries.reduce((acc, entry) => {
-    const key = entry.date || "Ohne Datum";
-    if (!acc[key]) acc[key] = [];
-    acc[key].push(entry);
-    return acc;
-  }, {});
-
   const statRows = [];
   if (categories.includes("temperature")) {
     const values = entries.map(entry => Number(entry.temperature)).filter(value => !Number.isNaN(value));
@@ -2574,6 +2575,48 @@ function buildPrintableExportHtml() {
     });
     if (symptomDays.size) statRows.push(["Tage mit Symptomen", String(symptomDays.size)]);
   }
+
+  const categorySections = categories.map(category => {
+    const categoryEntries = entries
+      .filter(entry => {
+        if (!exportCategoryHasValue(entry, category)) return false;
+        if (category === "symptoms" && selectedSymptoms.length) return entryHasExportSymptom(entry, selectedSymptoms);
+        return true;
+      })
+      .sort((a, b) => analysisEntryTimestamp(a).localeCompare(analysisEntryTimestamp(b)));
+
+    if (!categoryEntries.length) return "";
+
+    const groupedByDate = categoryEntries.reduce((acc, entry) => {
+      const key = entry.date || "Ohne Datum";
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(entry);
+      return acc;
+    }, {});
+
+    return `
+      <section class="print-category-section">
+        <h2>${escapeHtml(categoryExportLabel(category))}</h2>
+        ${Object.entries(groupedByDate).map(([date, dayEntries]) => `
+          <div class="print-category-day">
+            <h3>${escapeHtml(formatDateShortGerman(date))}</h3>
+            <div class="print-category-items">
+              ${[...dayEntries].sort((a, b) => (a.time || "").localeCompare(b.time || "")).map(entry => {
+                const line = exportCategoryLine(entry, category);
+                if (!line) return "";
+                return `
+                  <div class="print-category-item">
+                    <span>${escapeHtml(entry.time || "--:--")}</span>
+                    <p>${escapeHtml(line)}</p>
+                  </div>
+                `;
+              }).join("")}
+            </div>
+          </div>
+        `).join("")}
+      </section>
+    `;
+  }).filter(Boolean).join("");
 
   return `
     <header class="print-report-header">
@@ -2598,32 +2641,7 @@ function buildPrintableExportHtml() {
       </section>
     ` : ""}
 
-    ${entries.length ? Object.entries(grouped).map(([date, dayEntries]) => `
-      <section class="print-report-day">
-        <h2>${escapeHtml(formatDateShortGerman(date))}</h2>
-        <div class="print-report-entries">
-          ${[...dayEntries].sort((a, b) => (a.time || "").localeCompare(b.time || "")).map(entry => {
-            const lines = categories
-              .map(category => {
-                if (category === "symptoms" && selectedSymptoms.length && !entryHasExportSymptom(entry, selectedSymptoms)) return "";
-                return exportCategoryLine(entry, category);
-              })
-              .filter(Boolean);
-
-            if (!lines.length) return "";
-
-            return `
-              <div class="print-report-entry">
-                <div class="print-report-time">${escapeHtml(entry.time || "--:--")}</div>
-                <div class="print-report-values">
-                  ${lines.map(line => `<p>${escapeHtml(line)}</p>`).join("")}
-                </div>
-              </div>
-            `;
-          }).join("")}
-        </div>
-      </section>
-    `).join("") : `
+    ${categorySections || `
       <section class="print-report-empty">
         <strong>Keine passenden Einträge gefunden.</strong>
       </section>
@@ -2638,8 +2656,16 @@ function openPrintableExport() {
   openView("printExportView");
 }
 
-function printCurrentExport() {
-  window.print();
+async function copyCurrentReport() {
+  const content = $("printExportContent");
+  if (!content) return;
+  const text = content.innerText || "";
+  try {
+    await navigator.clipboard.writeText(text);
+    showToast("Bericht kopiert");
+  } catch (err) {
+    showToast("Kopieren nicht möglich");
+  }
 }
 
 function exportAnalysisSymptoms() {
@@ -2956,7 +2982,7 @@ async function init() {
   if ($("analysisExportButton")) $("analysisExportButton").addEventListener("click", exportAnalysisSymptoms);
   $("exportCreateButton").addEventListener("click", exportAnalysisSymptoms);
   $("exportPrintButton").addEventListener("click", openPrintableExport);
-  $("printExportButton").addEventListener("click", printCurrentExport);
+  $("copyReportButton").addEventListener("click", copyCurrentReport);
   $("closePrintExportButton").addEventListener("click", closeViews);
 
   $("importFile").addEventListener("change", async event => {
