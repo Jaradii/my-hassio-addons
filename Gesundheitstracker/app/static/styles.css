@@ -7106,3 +7106,9 @@ body.dark .journal-metric.temp-red strong { color: #ff8f8f; }
 .journal-history-inline .history-list {
   padding-top: 0 !important;
 }
+
+
+/* v2.3.9: Überschrift "Weitere Angaben" in Details entfernt */
+.journal-section .journal-field-list:first-child {
+  margin-top: 0 !important;
+}

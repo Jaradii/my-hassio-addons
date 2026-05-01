@@ -805,10 +805,6 @@ function renderEntryDetail(entry) {
 
         ${noteRows.length ? `
           <section class="journal-section">
-            <div class="journal-section-title">
-              <span>📝</span>
-              <strong>Weitere Angaben</strong>
-            </div>
             <div class="journal-field-list">
               ${noteRows.map(([label, value]) => `
                 <div class="journal-field">
