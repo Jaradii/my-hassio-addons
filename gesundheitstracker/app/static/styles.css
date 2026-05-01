@@ -7773,3 +7773,45 @@ body.dark .summary-info-item.temp-red p { color: #ff8f8f; }
   font-weight: 850;
   font-size: 0.8rem;
 }
+
+
+/* v1.0.4: Symptome und Uhrzeit in Einzelbearbeitung */
+.field-edit-time {
+  margin-bottom: 10px !important;
+}
+
+.field-edit-time input {
+  width: 100% !important;
+  min-height: 48px !important;
+  border-radius: 10px !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.field-edit-symptom-grid {
+  margin-bottom: 10px !important;
+}
+
+.field-edit-symptom-intensity {
+  display: block !important;
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+  margin-top: 4px !important;
+  min-height: 30px !important;
+  height: 30px !important;
+  padding: 3px 7px !important;
+  font-size: 0.68rem !important;
+  font-weight: 850 !important;
+  border-radius: 10px !important;
+  background: color-mix(in srgb, var(--card) 86%, var(--primary) 14%) !important;
+  border: 1px solid color-mix(in srgb, var(--primary) 35%, var(--kg-border) 65%) !important;
+  color: var(--text) !important;
+}
+
+.field-edit-symptom-grid label {
+  min-height: 84px !important;
+  height: auto !important;
+  overflow: visible !important;
+  align-content: start !important;
+  grid-template-rows: auto auto !important;
+  padding-bottom: 7px !important;
+}

@@ -41,3 +41,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Listener war in 1.0.2 versehentlich in den Theme-Listener gerutscht
 - In-App-Dark-Mode greift jetzt sofort und bleibt lokal im Browser gespeichert
 - Add-on-Einstellung `dark_mode` funktioniert weiterhin als Standardwert
+
+
+## Änderungen in 1.0.4
+
+- Symptome können wieder direkt aus der Tagesübersicht bearbeitet werden
+- Symptom-Einträge erscheinen als eigene Liste mit Historie- und Bearbeiten-Button
+- Im kleinen Bearbeiten-Popup kann jetzt die Uhrzeit des jeweiligen Eintrags geändert werden
+- Gilt für Flüssigkeit, Temperatur, Stimmung, Symptome, Medikamente, Essen, Schlaf, Windel/Toilette und Notizen

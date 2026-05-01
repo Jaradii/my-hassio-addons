@@ -392,6 +392,10 @@ function buildDaySummary(entries) {
     .map(([name, count]) => [name, count, symptomIntensities[name] || []])
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
 
+  const symptomEntries = entries.filter(e =>
+    (e.symptoms && e.symptoms.length) || String(e.custom_symptoms || "").trim()
+  );
+
   const fluidEntries = entries.filter(e => e.fluids_ml);
   const temperatureEntries = entries.filter(e => e.temperature !== null && e.temperature !== undefined && e.temperature !== "");
   const moods = entries.filter(e => e.mood);
@@ -409,6 +413,7 @@ function buildDaySummary(entries) {
     maxTemp,
     minTemp,
     symptoms,
+    symptomEntries,
     fluidEntries,
     temperatureEntries,
     moods,
@@ -530,6 +535,17 @@ function renderDaySummaryCard(entries) {
 function summaryDisplayValue(entry, key) {
   if (key === "fluids_ml") return `${entry.fluids_ml} ml`;
   if (key === "temperature") return `${Number(entry.temperature).toFixed(1)} °C`;
+  if (key === "symptoms") {
+    const intensityMap = entry.symptom_intensity || {};
+    const symptomParts = (entry.symptoms || []).map(symptom => {
+      const level = intensityMap[symptom];
+      return level ? `${symptom} (${level})` : symptom;
+    });
+    if (entry.custom_symptoms) {
+      symptomParts.push(...entry.custom_symptoms.split(",").map(s => s.trim()).filter(Boolean));
+    }
+    return symptomParts.join(", ");
+  }
   return entry[key] || "";
 }
 
@@ -560,6 +576,7 @@ function renderSummaryTextBlocks(summary) {
     `;
   };
 
+  blocks.push(renderItems(summary.symptomEntries, "symptoms", "🤧", "Symptome"));
   blocks.push(renderItems(summary.fluidEntries, "fluids_ml", "💧", "Flüssigkeit"));
   blocks.push(renderItems(summary.temperatureEntries, "temperature", "🌡️", "Temperatur / Fieber"));
   blocks.push(renderItems(summary.moods, "mood", "🙂", "Stimmung"));
@@ -1489,6 +1506,13 @@ function fieldEditConfig(field) {
       input: "number",
       placeholder: "z. B. 38.5"
     },
+    symptoms: {
+      title: "Symptome",
+      subtitle: "Nur Symptome dieses Eintrags bearbeiten.",
+      input: "symptoms",
+      rows: 2,
+      placeholder: "Weitere Symptome"
+    },
     mood: {
       title: "Stimmung",
       subtitle: "Nur Stimmung dieses Eintrags bearbeiten.",
@@ -1546,11 +1570,45 @@ function openFieldEdit(entryId, field) {
   $("fieldEditSubtitle").textContent = config.subtitle;
 
   const value = entry[field] || "";
-  if (config.input === "number") {
+  const timeFieldHtml = `
+    <label class="field field-edit-time">
+      <span>Uhrzeit</span>
+      <input id="fieldEditTime" type="text" inputmode="numeric" autocomplete="off" placeholder="HH:MM" maxlength="5" value="${escapeHtml(entry.time || nowTime())}" />
+    </label>
+  `;
+
+  if (field === "symptoms") {
+    const selected = entry.symptoms || [];
+    const intensityMap = entry.symptom_intensity || {};
+    const symptomOptions = ["Fieber", "Husten", "Schnupfen", "Halsschmerzen", "Ohrenschmerzen", "Bauchschmerzen", "Durchfall", "Erbrechen", "Ausschlag", "Appetitlosigkeit"];
+
+    $("fieldEditContent").innerHTML = `
+      ${timeFieldHtml}
+      <div id="fieldEditSymptomChips" class="quick-symptom-grid field-edit-symptom-grid">
+        ${symptomOptions.map(symptom => `
+          <label>
+            <input type="checkbox" value="${escapeHtml(symptom)}" ${selected.includes(symptom) ? "checked" : ""}>
+            <span class="symptom-icon">${symptomIcon(symptom)}</span>
+            <span>${escapeHtml(symptom)}</span>
+            <select class="field-edit-symptom-intensity" data-symptom="${escapeHtml(symptom)}" aria-label="Intensität ${escapeHtml(symptom)}">
+              <option value="leicht" ${intensityMap[symptom] === "leicht" ? "selected" : ""}>leicht</option>
+              <option value="mittel" ${!intensityMap[symptom] || intensityMap[symptom] === "mittel" ? "selected" : ""}>mittel</option>
+              <option value="stark" ${intensityMap[symptom] === "stark" ? "selected" : ""}>stark</option>
+            </select>
+          </label>
+        `).join("")}
+      </div>
+      <label class="field field-edit-value">
+        <span>Weitere Symptome</span>
+        <textarea id="fieldEditValue" rows="2" placeholder="Weitere Symptome, durch Komma getrennt">${escapeHtml(entry.custom_symptoms || "")}</textarea>
+      </label>
+    `;
+  } else if (config.input === "number") {
     const inputValue = field === "temperature" && value !== "" && value !== null && value !== undefined
       ? Number(value).toFixed(1)
       : value;
     $("fieldEditContent").innerHTML = `
+      ${timeFieldHtml}
       <label class="field field-edit-value">
         <span>${escapeHtml(config.title)}</span>
         <input id="fieldEditValue" type="number" inputmode="decimal" step="${field === "temperature" ? "0.1" : "10"}" min="0" placeholder="${escapeHtml(config.placeholder)}" value="${escapeHtml(inputValue)}" />
@@ -1558,11 +1616,24 @@ function openFieldEdit(entryId, field) {
     `;
   } else {
     $("fieldEditContent").innerHTML = `
+      ${timeFieldHtml}
       <label class="field field-edit-value">
         <span>${escapeHtml(config.title)}</span>
         <textarea id="fieldEditValue" rows="${config.rows}" placeholder="${escapeHtml(config.placeholder)}">${escapeHtml(value)}</textarea>
       </label>
     `;
+  }
+
+  const fieldTime = $("fieldEditTime");
+  if (fieldTime) {
+    fieldTime.addEventListener("input", event => {
+      const cursorAtEnd = event.target.selectionStart === event.target.value.length;
+      event.target.value = formatTimeInputLive(event.target.value);
+      if (cursorAtEnd) event.target.selectionStart = event.target.selectionEnd = event.target.value.length;
+    });
+    fieldTime.addEventListener("blur", event => {
+      event.target.value = normalizeTimeInput(event.target.value);
+    });
   }
 
   const sheet = $("fieldEditSheet");
@@ -1609,7 +1680,7 @@ async function saveFieldEdit(event) {
 
   const payload = {
     date: entry.date,
-    time: entry.time || nowTime(),
+    time: $("fieldEditTime") ? normalizeTimeInput($("fieldEditTime").value) : (entry.time || nowTime()),
     temperature: entry.temperature ?? null,
     mood: entry.mood || "",
     symptoms: entry.symptoms || [],
@@ -1624,7 +1695,18 @@ async function saveFieldEdit(event) {
   };
 
   const rawValue = $("fieldEditValue").value.trim();
-  if (field === "fluids_ml") {
+
+  if (field === "symptoms") {
+    const selectedSymptoms = [...document.querySelectorAll("#fieldEditSymptomChips input:checked")].map(input => input.value);
+    const intensity = {};
+    selectedSymptoms.forEach(symptom => {
+      const select = document.querySelector(`.field-edit-symptom-intensity[data-symptom="${CSS.escape(symptom)}"]`);
+      if (select && select.value) intensity[symptom] = select.value;
+    });
+    payload.symptoms = selectedSymptoms;
+    payload.symptom_intensity = intensity;
+    payload.custom_symptoms = rawValue;
+  } else if (field === "fluids_ml") {
     payload[field] = rawValue === "" ? null : Number(rawValue);
   } else if (field === "temperature") {
     payload[field] = rawValue === "" ? null : Number(String(rawValue).replace(",", "."));
