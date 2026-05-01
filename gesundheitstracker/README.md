@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.21
+- Basis ist die funktionierende Version 1.0.22
 
 
 ## Änderungen in 1.0.10
@@ -171,4 +171,12 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Tageskacheln etwas kompakter gemacht
 - Geringere Höhe, weniger Padding und kleinere Abstände
 - Icons/Text leicht verkleinert, aber lesbar gehalten
+- Nur CSS geändert
+
+
+## Änderungen in 1.0.22
+
+- Historie-Button und Bearbeiten-Button optisch angeglichen
+- Gleiche Umrandung, gleicher Hintergrund und gleicher Hover-Stil
+- Button-Größe bleibt gleich
 - Nur CSS geändert

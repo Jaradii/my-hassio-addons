@@ -8630,3 +8630,89 @@ button.edit-entry {
     -webkit-line-clamp: 2;
   }
 }
+
+
+/* v1.0.22: Historie- und Bearbeiten-Buttons optisch angleichen */
+.summary-row-actions .summary-history-button,
+.summary-row-actions .edit-summary-field,
+.summary-info-item .summary-history-button,
+.summary-info-item .edit-summary-field,
+button.summary-history-button,
+button.edit-summary-field {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  padding: 0 !important;
+  border-radius: 10px !important;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 68%, transparent) !important;
+  background: color-mix(in srgb, var(--card) 82%, var(--kg-soft) 18%) !important;
+  background-image: none !important;
+  color: var(--text) !important;
+  box-shadow: none !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  line-height: 1 !important;
+  opacity: 1 !important;
+}
+
+.summary-row-actions .summary-history-button:hover,
+.summary-row-actions .edit-summary-field:hover,
+.summary-info-item .summary-history-button:hover,
+.summary-info-item .edit-summary-field:hover,
+button.summary-history-button:hover,
+button.edit-summary-field:hover {
+  border-color: var(--primary) !important;
+  background: color-mix(in srgb, var(--primary) 12%, var(--card) 88%) !important;
+  color: var(--text) !important;
+}
+
+.summary-row-actions .summary-history-button:active,
+.summary-row-actions .edit-summary-field:active,
+.summary-info-item .summary-history-button:active,
+.summary-info-item .edit-summary-field:active,
+button.summary-history-button:active,
+button.edit-summary-field:active {
+  transform: scale(0.96) !important;
+}
+
+/* Symbolgrößen innerhalb gleicher Buttonfläche */
+.summary-row-actions .summary-history-button,
+.summary-info-item .summary-history-button,
+button.summary-history-button {
+  font-size: 1.04rem !important;
+  font-weight: 950 !important;
+}
+
+.summary-row-actions .edit-summary-field,
+.summary-info-item .edit-summary-field,
+button.edit-summary-field {
+  font-size: 1.28rem !important;
+  font-weight: 950 !important;
+}
+
+@media (max-width: 430px) {
+  .summary-row-actions .summary-history-button,
+  .summary-row-actions .edit-summary-field,
+  .summary-info-item .summary-history-button,
+  .summary-info-item .edit-summary-field,
+  button.summary-history-button,
+  button.edit-summary-field {
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
+    min-height: 28px !important;
+  }
+
+  .summary-row-actions .summary-history-button,
+  .summary-info-item .summary-history-button,
+  button.summary-history-button {
+    font-size: 1.08rem !important;
+  }
+
+  .summary-row-actions .edit-summary-field,
+  .summary-info-item .edit-summary-field,
+  button.edit-summary-field {
+    font-size: 1.36rem !important;
+  }
+}
