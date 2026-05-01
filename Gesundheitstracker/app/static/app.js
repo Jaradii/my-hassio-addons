@@ -309,13 +309,6 @@ function renderDay() {
   }
 
   container.innerHTML = renderDaySummaryCard(entries);
-  const expandButton = container.querySelector("#toggleDetails");
-  if (expandButton) {
-    expandButton.addEventListener("click", () => {
-      openDayDetailSheet(entries);
-    });
-  }
-
   container.querySelectorAll(".journal-history-toggle").forEach(btn => {
     btn.addEventListener("click", () => {
       const wrap = document.getElementById(`journalHistory-${btn.dataset.id}`);
@@ -478,11 +471,7 @@ function renderDaySummaryCard(entries) {
 
       ${renderSummaryTextBlocks(summary)}
 
-      <div class="card-actions">
-        <button id="toggleDetails" class="btn secondary" aria-haspopup="dialog">Details</button>
-      </div>
 
-      <div id="expandedDetails" class="hidden" aria-hidden="true"></div>
     </article>
   `;
 }

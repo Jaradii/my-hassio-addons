@@ -7512,3 +7512,10 @@ body.entry-history-open > .bottom-action-bar {
     padding: 12px !important;
   }
 }
+
+
+/* v2.4.3: Unteren Details-Button entfernen */
+#toggleDetails,
+.card-actions:has(#toggleDetails) {
+  display: none !important;
+}
