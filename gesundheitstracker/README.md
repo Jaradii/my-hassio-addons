@@ -55,3 +55,10 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Temperatur/Fieber-Kachel zeigt jetzt immer die zeitlich letzte Messung des Tages
 - Sortierung erfolgt anhand der gespeicherten Uhrzeit
+
+
+## Änderungen in 1.0.6
+
+- Temperatur/Fieber-Kachel zeigt die letzte Messung jetzt über einen robusten Datum-Uhrzeit-Vergleich
+- Uhrzeiten wie `9:00`, `09:00`, `9.00` oder `0900` werden korrekt einsortiert
+- Bei gleicher Uhrzeit gewinnt der zuletzt gespeicherte Eintrag

@@ -356,6 +356,34 @@ function renderDay() {
   });
 }
 
+function entryDateTimeValue(entry) {
+  const date = String(entry?.date || state.selectedDate || today()).trim();
+  const rawTime = String(entry?.time || "00:00").trim();
+
+  const match = rawTime.match(/(\d{1,2})[:.](\d{1,2})/);
+  let hours = 0;
+  let minutes = 0;
+
+  if (match) {
+    hours = Math.min(23, Math.max(0, Number(match[1]) || 0));
+    minutes = Math.min(59, Math.max(0, Number(match[2]) || 0));
+  } else {
+    const digits = rawTime.replace(/\D/g, "").slice(0, 4);
+    if (digits.length <= 2) {
+      hours = Math.min(23, Math.max(0, Number(digits || "0")));
+    } else {
+      hours = Math.min(23, Math.max(0, Number(digits.slice(0, 2)) || 0));
+      minutes = Math.min(59, Math.max(0, Number(digits.slice(2, 4)) || 0));
+    }
+  }
+
+  const timestamp = new Date(`${date}T${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00`).getTime();
+  if (!Number.isNaN(timestamp)) return timestamp;
+
+  const updated = new Date(entry?.updated_at || entry?.created_at || 0).getTime();
+  return Number.isNaN(updated) ? 0 : updated;
+}
+
 function buildDaySummary(entries) {
   const fluidsTotal = entries.reduce((sum, e) => sum + (Number(e.fluids_ml) || 0), 0);
   const temperatures = entries
@@ -364,9 +392,12 @@ function buildDaySummary(entries) {
     .map(Number)
     .filter(v => !Number.isNaN(v));
 
-  const latestTempEntry = [...entries]
+  const temperatureEntriesForLatest = entries
     .filter(e => e.temperature !== null && e.temperature !== undefined && e.temperature !== "")
-    .sort((a, b) => (b.time || "").localeCompare(a.time || ""))[0] || null;
+    .map((entry, index) => ({ entry, index, timestamp: entryDateTimeValue(entry) }))
+    .sort((a, b) => (b.timestamp - a.timestamp) || (b.index - a.index));
+
+  const latestTempEntry = temperatureEntriesForLatest[0]?.entry || null;
   const maxTemp = temperatures.length ? Math.max(...temperatures) : null;
   const minTemp = temperatures.length ? Math.min(...temperatures) : null;
 
