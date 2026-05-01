@@ -8314,3 +8314,61 @@ body.dark[data-theme] > .bottom-action-bar > #openEntry .fab-plus-symbol {
     font-size: 2rem !important;
   }
 }
+
+
+/* v1.0.15: iPhone-Position Plus-Button + Speichern-Button Hintergrund bereinigen */
+
+/* Plus-Button auf iPhone etwas weiter nach links und weiter nach unten */
+@media (max-width: 430px) {
+  body > .bottom-action-bar {
+    right: max(26px, calc(env(safe-area-inset-right) + 22px)) !important;
+    bottom: max(6px, calc(env(safe-area-inset-bottom) + 4px)) !important;
+  }
+}
+
+/* Für sehr schmale iPhones noch etwas mehr Abstand zum rechten Rand */
+@media (max-width: 390px) {
+  body > .bottom-action-bar {
+    right: max(28px, calc(env(safe-area-inset-right) + 24px)) !important;
+    bottom: max(5px, calc(env(safe-area-inset-bottom) + 3px)) !important;
+  }
+}
+
+/* Speichern-Button im Neuer-Eintrag-Popup: keine schwarzen Pseudo-/Overlay-Flächen */
+#entrySheet .sheet-actions .btn.primary,
+#entrySheet .sheet-actions button[type="submit"],
+#entrySheet button[type="submit"].primary,
+#entrySheet .btn.primary {
+  background: var(--primary) !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  border: 1px solid color-mix(in srgb, var(--primary2) 60%, var(--primary) 40%) !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+}
+
+#entrySheet .sheet-actions .btn.primary::before,
+#entrySheet .sheet-actions .btn.primary::after,
+#entrySheet .sheet-actions button[type="submit"]::before,
+#entrySheet .sheet-actions button[type="submit"]::after,
+#entrySheet button[type="submit"].primary::before,
+#entrySheet button[type="submit"].primary::after,
+#entrySheet .btn.primary::before,
+#entrySheet .btn.primary::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  opacity: 0 !important;
+}
+
+/* Falls ein älteres Glass-/Gloss-Overlay auf allen Primary Buttons greift */
+.sheet-panel .btn.primary,
+.sheet-panel button.primary {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  filter: none !important;
+}

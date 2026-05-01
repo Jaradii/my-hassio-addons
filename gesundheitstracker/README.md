@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.14
+- Basis ist die funktionierende Version 1.0.15
 
 
 ## Änderungen in 1.0.10
@@ -121,3 +121,10 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 ## Korrektur in 1.0.14
 
 - Tatsächlicher Button `#openEntry` wird jetzt ebenfalls als Plus-FAB überschrieben
+
+
+## Änderungen in 1.0.15
+
+- Plus-Button auf iPhone etwas weiter nach links und unten verschoben
+- Schwarzer/komischer Hintergrund am Speichern-Button im Neuer-Eintrag-Popup entfernt
+- Nur CSS geändert, JavaScript bleibt unverändert
