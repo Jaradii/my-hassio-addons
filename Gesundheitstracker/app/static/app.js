@@ -453,7 +453,7 @@ function renderDaySummaryCard(entries) {
           <span class="tile-icon">🙂</span>
           <span class="tile-label">Stimmung</span>
           <strong>${moodText}</strong>
-          <small>${summary.moods.length > 1 ? `${summary.moods.length} Angaben` : "Letzte Angabe"}</small>
+          <small>${summary.moods.length > 1 ? `${summary.moods.length} Angaben` : "Angabe"}</small>
         </button>
         <button type="button" class="day-tile quick-tile" data-quick="symptoms" aria-label="Symptome eintragen">
           <span class="tile-icon">🤧</span>
@@ -899,7 +899,7 @@ function quickDefinition(kind) {
   const defs = {
     fluids: { title: "Flüssigkeit", subtitle: "Getrunkene Menge in ml eintragen.", content: `<label class="field quick-field"><span>Flüssigkeit in ml</span><input id="quickFluidsMl" type="number" min="0" step="10" inputmode="numeric" placeholder="z. B. 250"></label>` },
     temperature: { title: "Temperatur", subtitle: "Temperatur für diesen Tag speichern.", content: `<label class="field quick-field"><span>Temperatur in °C</span><input id="quickTemperature" type="number" step="0.1" min="30" max="45" placeholder="z. B. 38,5"><input id="quickTemperatureSlider" class="temperature-slider" type="range" min="34" max="42" step="0.1" value="37.0"><div class="slider-scale"><span>34°</span><span>37°</span><span>39°</span><span>42°</span></div></label>` },
-    mood: { title: "Stimmung", subtitle: "Aktuelle Stimmung auswählen.", content: `<input id="quickMood" type="hidden"><div id="quickMoodOptions" class="mood-options quick-mood-options"><button type="button" class="mood-option" data-mood="Gut drauf"><span>😊</span><small>Gut</small></button><button type="button" class="mood-option" data-mood="Müde"><span>😴</span><small>Müde</small></button><button type="button" class="mood-option" data-mood="Quengelig"><span>😣</span><small>Quengelig</small></button><button type="button" class="mood-option" data-mood="Schlapp"><span>🥱</span><small>Schlapp</small></button><button type="button" class="mood-option" data-mood="Schmerzen"><span>🤕</span><small>Schmerz</small></button><button type="button" class="mood-option" data-mood="Unruhig"><span>😟</span><small>Unruhig</small></button></div>` },
+    mood: { title: "Stimmung", subtitle: "Eine oder mehrere Stimmungen auswählen.", content: `<input id="quickMood" type="hidden"><div id="quickMoodOptions" class="mood-options quick-mood-options"><button type="button" class="mood-option" data-mood="Gut drauf"><span>😊</span><small>Gut</small></button><button type="button" class="mood-option" data-mood="Müde"><span>😴</span><small>Müde</small></button><button type="button" class="mood-option" data-mood="Quengelig"><span>😣</span><small>Quengelig</small></button><button type="button" class="mood-option" data-mood="Schlapp"><span>🥱</span><small>Schlapp</small></button><button type="button" class="mood-option" data-mood="Schmerzen"><span>🤕</span><small>Schmerz</small></button><button type="button" class="mood-option" data-mood="Unruhig"><span>😟</span><small>Unruhig</small></button></div>` },
     symptoms: { title: "Symptome", subtitle: "Ein oder mehrere Symptome auswählen.", content: symptomsHtml },
     medication: { title: "Medikamente", subtitle: "Medikament, Dosis oder Uhrzeit notieren.", content: `<label class="field quick-field icon-textarea-field"><span><span class="field-icon">💊</span>Medikamente</span><textarea id="quickMedication" rows="3" placeholder="Name, Dosis, Uhrzeit"></textarea></label>` },
     food: { title: "Essen / Schlaf", subtitle: "Essen oder Schlaf kurz eintragen.", content: `<label class="field quick-field icon-textarea-field"><span><span class="field-icon">🍽️</span>Essen</span><textarea id="quickFood" rows="2" placeholder="Was wurde gegessen?"></textarea></label><label class="field quick-field icon-textarea-field"><span><span class="field-icon">😴</span>Schlaf</span><textarea id="quickSleep" rows="2" placeholder="Dauer, Qualität, Auffälligkeiten"></textarea></label>` }
@@ -955,11 +955,11 @@ function bindQuickControls(kind) {
     slider.addEventListener("input", e => sync(e.target.value, "slider"));
   }
   if (kind === "mood") {
-    $("quickContent").querySelectorAll(".mood-option").forEach(btn => {
+    $("quickContent").querySelectorAll("#quickMoodOptions .mood-option").forEach(btn => {
       btn.addEventListener("click", () => {
-        const next = $("quickMood").value === btn.dataset.mood ? "" : btn.dataset.mood;
-        $("quickMood").value = next;
-        $("quickContent").querySelectorAll(".mood-option").forEach(item => item.classList.toggle("active", item.dataset.mood === next));
+        btn.classList.toggle("active");
+        btn.setAttribute("aria-checked", btn.classList.contains("active") ? "true" : "false");
+        $("quickMood").value = moodStringFromList(selectedQuickMoods());
       });
     });
   }
@@ -1058,6 +1058,30 @@ function resetEntryForm() {
   });
 }
 
+function parseMoodList(value) {
+  if (!value) return [];
+  return String(value)
+    .split(",")
+    .map(item => item.trim())
+    .filter(Boolean);
+}
+
+function moodStringFromList(list) {
+  return [...new Set((list || []).map(item => String(item || "").trim()).filter(Boolean))].join(", ");
+}
+
+function selectedMoods() {
+  return [...document.querySelectorAll("#moodOptions .mood-option.active")]
+    .map(btn => btn.dataset.mood)
+    .filter(Boolean);
+}
+
+function selectedQuickMoods() {
+  return [...document.querySelectorAll("#quickMoodOptions .mood-option.active")]
+    .map(btn => btn.dataset.mood)
+    .filter(Boolean);
+}
+
 function selectedSymptoms() {
   return [...document.querySelectorAll("#symptomChips input:checked")].map(i => i.value);
 }
@@ -1093,9 +1117,10 @@ function setSymptomIntensityMap(map = {}) {
 }
 
 function setMood(value) {
-  $("mood").value = value || "";
-  document.querySelectorAll(".mood-option").forEach(btn => {
-    const active = btn.dataset.mood === value;
+  const values = parseMoodList(value);
+  $("mood").value = moodStringFromList(values);
+  document.querySelectorAll("#moodOptions .mood-option").forEach(btn => {
+    const active = values.includes(btn.dataset.mood);
     btn.classList.toggle("active", active);
     btn.setAttribute("aria-checked", active ? "true" : "false");
   });
@@ -1224,7 +1249,7 @@ function formEntry() {
     date: $("entryDate").value || state.selectedDate,
     time: normalizeTimeInput($("entryTime").value),
     temperature: temp === "" ? null : Number(temp),
-    mood: $("mood").value,
+    mood: moodStringFromList(selectedMoods()),
     symptoms: selectedSymptoms(),
     symptom_intensity: selectedSymptomIntensity(),
     custom_symptoms: $("customSymptoms").value.trim(),
@@ -1542,10 +1567,11 @@ async function init() {
     setTemperatureValue(event.target.value, "slider");
   });
 
-  document.querySelectorAll(".mood-option").forEach(btn => {
+  document.querySelectorAll("#moodOptions .mood-option").forEach(btn => {
     btn.addEventListener("click", () => {
-      const nextMood = $("mood").value === btn.dataset.mood ? "" : btn.dataset.mood;
-      setMood(nextMood);
+      btn.classList.toggle("active");
+      btn.setAttribute("aria-checked", btn.classList.contains("active") ? "true" : "false");
+      $("mood").value = moodStringFromList(selectedMoods());
     });
   });
 

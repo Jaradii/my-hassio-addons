@@ -7112,3 +7112,22 @@ body.dark .journal-metric.temp-red strong { color: #ff8f8f; }
 .journal-section .journal-field-list:first-child {
   margin-top: 0 !important;
 }
+
+
+/* v2.4.0: Stimmung als Mehrfachauswahl */
+#moodOptions .mood-option.active,
+#quickMoodOptions .mood-option.active {
+  border-color: var(--primary) !important;
+  background: color-mix(in srgb, var(--primary) 24%, var(--card) 76%) !important;
+  font-weight: 950 !important;
+}
+
+#moodOptions .mood-option.active::after,
+#quickMoodOptions .mood-option.active::after {
+  content: "✓";
+}
+
+#moodOptions .mood-option,
+#quickMoodOptions .mood-option {
+  min-height: 58px;
+}
