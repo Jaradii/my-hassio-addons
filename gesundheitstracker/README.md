@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.17
+- Basis ist die funktionierende Version 1.0.18
 
 
 ## Änderungen in 1.0.10
@@ -143,3 +143,10 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Die Kachel sitzt vor der Medis-Kachel
 - Klick auf die Kachel öffnet eine eigene Schnelleingabe für Windel / Toilette
 - Desktop-Grid auf 9 Kacheln angepasst
+
+
+## Änderungen in 1.0.18
+
+- Kompakte Symptom-Anzeige direkt unter den Kacheln entfernt
+- Die detaillierte Symptom-Liste weiter unten bleibt erhalten
+- Historie- und Bearbeiten-Buttons für Symptome bleiben erhalten

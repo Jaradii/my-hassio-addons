@@ -8473,3 +8473,11 @@ body.dark[data-theme] > .bottom-action-bar > #openEntry .fab-plus-symbol {
     font-size: 0.6rem !important;
   }
 }
+
+
+/* v1.0.18: Kompakte Symptom-Tags direkt unter den Kacheln ausgeblendet.
+   Die bearbeitbare Symptom-Liste weiter unten bleibt erhalten. */
+.day-summary-card > .symptom-tags,
+.day-summary-card > .tags.symptom-tags {
+  display: none !important;
+}

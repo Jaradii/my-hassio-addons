@@ -571,7 +571,7 @@ function renderDaySummaryCard(entries) {
         </button>
       </div>
 
-      ${summary.symptoms.length ? `<div class="tags symptom-tags">${summary.symptoms.map(([s, count, intensities]) => renderSymptomTag(s, count, intensities)).join("")}</div>` : ""}
+
 
       ${renderSummaryTextBlocks(summary)}
 
