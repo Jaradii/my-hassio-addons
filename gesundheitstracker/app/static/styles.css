@@ -9842,3 +9842,200 @@ body[data-theme="mochadark"] .temp-red,
 body[data-theme="aubergine"] .temp-red {
   --temp-color: #c97272;
 }
+
+
+/* v1.0.46: Neue dunkle Themes repariert.
+   Wichtig: ältere body.dark und ältere data-theme Regeln nutzen !important.
+   Deshalb brauchen die neuen Themes ebenfalls body.dark[data-theme] + !important. */
+
+body[data-theme="midnight"],
+body.dark[data-theme="midnight"] {
+  --bg: #0f141d !important;
+  --card: #171e2a !important;
+  --card2: #202938 !important;
+  --text: #e7ebf2 !important;
+  --muted: #9aa6b6 !important;
+  --line: #2b3445 !important;
+  --primary: #7186a3 !important;
+  --primary2: #53677f !important;
+  --green: #7fa28d !important;
+  --blue: #7893ad !important;
+  --danger: #bd7378 !important;
+  --accent: #8799b4 !important;
+  --kg-soft: #202839 !important;
+  --kg-border: #2d3748 !important;
+  --shadow: 0 16px 38px rgba(0, 0, 0, 0.42) !important;
+}
+
+body[data-theme="graphite"],
+body.dark[data-theme="graphite"] {
+  --bg: #111314 !important;
+  --card: #1b1d1f !important;
+  --card2: #25282a !important;
+  --text: #e8e8e4 !important;
+  --muted: #a0a09a !important;
+  --line: #34383a !important;
+  --primary: #7f8782 !important;
+  --primary2: #5f6662 !important;
+  --green: #7f9b87 !important;
+  --blue: #7e8f99 !important;
+  --danger: #b87979 !important;
+  --accent: #9aa19c !important;
+  --kg-soft: #242729 !important;
+  --kg-border: #363a3c !important;
+  --shadow: 0 16px 38px rgba(0, 0, 0, 0.44) !important;
+}
+
+body[data-theme="nordnight"],
+body.dark[data-theme="nordnight"] {
+  --bg: #101820 !important;
+  --card: #18232e !important;
+  --card2: #22313e !important;
+  --text: #e5ebef !important;
+  --muted: #9cafbd !important;
+  --line: #314250 !important;
+  --primary: #7695a8 !important;
+  --primary2: #5b7588 !important;
+  --green: #80a694 !important;
+  --blue: #7fa0b5 !important;
+  --danger: #c0777c !important;
+  --accent: #8aa6b8 !important;
+  --kg-soft: #22303c !important;
+  --kg-border: #31414f !important;
+  --shadow: 0 16px 38px rgba(0, 0, 0, 0.43) !important;
+}
+
+body[data-theme="mossdark"],
+body.dark[data-theme="mossdark"] {
+  --bg: #111811 !important;
+  --card: #1a231a !important;
+  --card2: #243124 !important;
+  --text: #e6ebe2 !important;
+  --muted: #9ba895 !important;
+  --line: #344436 !important;
+  --primary: #748c6d !important;
+  --primary2: #586e53 !important;
+  --green: #7fa276 !important;
+  --blue: #789792 !important;
+  --danger: #b87972 !important;
+  --accent: #8fa384 !important;
+  --kg-soft: #233024 !important;
+  --kg-border: #344335 !important;
+  --shadow: 0 16px 38px rgba(0, 0, 0, 0.43) !important;
+}
+
+body[data-theme="mochadark"],
+body.dark[data-theme="mochadark"] {
+  --bg: #191411 !important;
+  --card: #241d18 !important;
+  --card2: #312720 !important;
+  --text: #eee6dd !important;
+  --muted: #ad9f92 !important;
+  --line: #44372e !important;
+  --primary: #9a7d64 !important;
+  --primary2: #76604e !important;
+  --green: #8f9a75 !important;
+  --blue: #8a929a !important;
+  --danger: #bd776f !important;
+  --accent: #b0957b !important;
+  --kg-soft: #302720 !important;
+  --kg-border: #45382e !important;
+  --shadow: 0 16px 38px rgba(0, 0, 0, 0.43) !important;
+}
+
+body[data-theme="aubergine"],
+body.dark[data-theme="aubergine"] {
+  --bg: #17111a !important;
+  --card: #211a25 !important;
+  --card2: #2d2432 !important;
+  --text: #ece5ef !important;
+  --muted: #aa9bb2 !important;
+  --line: #403348 !important;
+  --primary: #8a7391 !important;
+  --primary2: #6b5872 !important;
+  --green: #849b80 !important;
+  --blue: #858da6 !important;
+  --danger: #bd7484 !important;
+  --accent: #a18aaa !important;
+  --kg-soft: #2d2432 !important;
+  --kg-border: #403348 !important;
+  --shadow: 0 16px 38px rgba(0, 0, 0, 0.44) !important;
+}
+
+body[data-theme="midnight"],
+body.dark[data-theme="midnight"],
+body[data-theme="graphite"],
+body.dark[data-theme="graphite"],
+body[data-theme="nordnight"],
+body.dark[data-theme="nordnight"],
+body[data-theme="mossdark"],
+body.dark[data-theme="mossdark"],
+body[data-theme="mochadark"],
+body.dark[data-theme="mochadark"],
+body[data-theme="aubergine"],
+body.dark[data-theme="aubergine"] {
+  color-scheme: dark !important;
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--primary) 14%, transparent), transparent 18rem),
+    linear-gradient(180deg, color-mix(in srgb, var(--bg) 94%, var(--card2) 6%), var(--bg)) !important;
+}
+
+body[data-theme="midnight"] .entry-card,
+body.dark[data-theme="midnight"] .entry-card,
+body[data-theme="graphite"] .entry-card,
+body.dark[data-theme="graphite"] .entry-card,
+body[data-theme="nordnight"] .entry-card,
+body.dark[data-theme="nordnight"] .entry-card,
+body[data-theme="mossdark"] .entry-card,
+body.dark[data-theme="mossdark"] .entry-card,
+body[data-theme="mochadark"] .entry-card,
+body.dark[data-theme="mochadark"] .entry-card,
+body[data-theme="aubergine"] .entry-card,
+body.dark[data-theme="aubergine"] .entry-card {
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--primary) 8%, transparent), transparent 14rem),
+    var(--card) !important;
+}
+
+/* Gedämpfte, theme-spezifisch sichtbare Akzente */
+body[data-theme="midnight"] .primary,
+body.dark[data-theme="midnight"] .primary,
+body[data-theme="midnight"] .bottom-add-button,
+body.dark[data-theme="midnight"] .bottom-add-button {
+  background: linear-gradient(135deg, #7186a3, #53677f) !important;
+}
+
+body[data-theme="graphite"] .primary,
+body.dark[data-theme="graphite"] .primary,
+body[data-theme="graphite"] .bottom-add-button,
+body.dark[data-theme="graphite"] .bottom-add-button {
+  background: linear-gradient(135deg, #7f8782, #5f6662) !important;
+}
+
+body[data-theme="nordnight"] .primary,
+body.dark[data-theme="nordnight"] .primary,
+body[data-theme="nordnight"] .bottom-add-button,
+body.dark[data-theme="nordnight"] .bottom-add-button {
+  background: linear-gradient(135deg, #7695a8, #5b7588) !important;
+}
+
+body[data-theme="mossdark"] .primary,
+body.dark[data-theme="mossdark"] .primary,
+body[data-theme="mossdark"] .bottom-add-button,
+body.dark[data-theme="mossdark"] .bottom-add-button {
+  background: linear-gradient(135deg, #748c6d, #586e53) !important;
+}
+
+body[data-theme="mochadark"] .primary,
+body.dark[data-theme="mochadark"] .primary,
+body[data-theme="mochadark"] .bottom-add-button,
+body.dark[data-theme="mochadark"] .bottom-add-button {
+  background: linear-gradient(135deg, #9a7d64, #76604e) !important;
+}
+
+body[data-theme="aubergine"] .primary,
+body.dark[data-theme="aubergine"] .primary,
+body[data-theme="aubergine"] .bottom-add-button,
+body.dark[data-theme="aubergine"] .bottom-add-button {
+  background: linear-gradient(135deg, #8a7391, #6b5872) !important;
+}

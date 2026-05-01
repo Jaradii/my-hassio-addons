@@ -1,5 +1,5 @@
 name: "Gesundheitstracker"
-version: "1.0.45"
+version: "1.0.46"
 slug: gesundheitstracker
 description: "Gesundheitstracker für Home Assistant"
 url: "https://github.com/Jaradii/my-hassio-addons"

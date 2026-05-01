@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.45
+- Basis ist die funktionierende Version 1.0.46
 
 
 ## Änderungen in 1.0.10
@@ -349,3 +349,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Midnight, Graphite, Nord Night, Moss Dark, Mocha Dark und Aubergine hinzugefügt
 - Farben bewusst gedämpft und weniger grell gehalten
 - Theme-Auswahl im Theme-Popup erweitert
+
+
+## Änderungen in 1.0.46
+
+- Neue dunkle Themes repariert
+- `body.dark` hat die neuen Themes vorher teilweise überschrieben
+- Neue Themes haben jetzt eigene `body.dark[data-theme=...]` Regeln mit `!important`
+- Themes unterscheiden sich jetzt sichtbar stärker, bleiben aber gedämpft
