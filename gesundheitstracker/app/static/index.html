@@ -389,10 +389,28 @@
           <div id="exportSymptomChips" class="analysis-symptom-export-chips"></div>
         </div>
 
-        <button id="exportCreateButton" type="button" class="btn primary export-create-button">Export erstellen</button>
+        <div class="export-action-grid">
+          <button id="exportCreateButton" type="button" class="btn secondary export-create-button">TXT exportieren</button>
+          <button id="exportPrintButton" type="button" class="btn primary export-create-button">Druckansicht / PDF</button>
+        </div>
       </div>
     </section>
 
+
+
+    <section id="printExportView" class="modal-view hidden print-export-view">
+      <div class="view-card print-export-card">
+        <div class="sheet-head print-hide">
+          <h2>Druckansicht</h2>
+          <button class="round-btn close-view">×</button>
+        </div>
+        <div class="print-export-actions print-hide">
+          <button id="printExportButton" type="button" class="btn primary">Drucken / als PDF speichern</button>
+          <button id="closePrintExportButton" type="button" class="btn secondary">Schließen</button>
+        </div>
+        <article id="printExportContent" class="print-export-content"></article>
+      </div>
+    </section>
 
     <section id="themeView" class="modal-view hidden">
       <div class="view-card theme-card">

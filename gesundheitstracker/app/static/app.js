@@ -2521,6 +2521,127 @@ function downloadTextFile(filename, text) {
   URL.revokeObjectURL(url);
 }
 
+
+function categoryExportLabel(category) {
+  return analysisCategoryLabel(category);
+}
+
+function buildPrintableExportHtml() {
+  const from = $("exportFrom")?.value || "";
+  const to = $("exportTo")?.value || "";
+  const categories = selectedExportCategories();
+  const selectedSymptoms = selectedExportSymptoms();
+
+  const entries = (state.data.entries || [])
+    .filter(entry => dateInRange(entry.date, from, to))
+    .filter(entry => categories.some(category => exportCategoryHasValue(entry, category)))
+    .filter(entry => {
+      if (!categories.includes("symptoms") || !selectedSymptoms.length) return true;
+      const hasOnlyNonSymptomCategory = categories.some(category => category !== "symptoms" && exportCategoryHasValue(entry, category));
+      return hasOnlyNonSymptomCategory || entryHasExportSymptom(entry, selectedSymptoms);
+    })
+    .sort((a, b) => analysisEntryTimestamp(a).localeCompare(analysisEntryTimestamp(b)));
+
+  const categoryText = categories.map(categoryExportLabel).join(", ");
+  const symptomText = categories.includes("symptoms")
+    ? (selectedSymptoms.length ? selectedSymptoms.join(", ") : "Alle Symptome")
+    : "Nicht exportiert";
+
+  const grouped = entries.reduce((acc, entry) => {
+    const key = entry.date || "Ohne Datum";
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(entry);
+    return acc;
+  }, {});
+
+  const statRows = [];
+  if (categories.includes("temperature")) {
+    const values = entries.map(entry => Number(entry.temperature)).filter(value => !Number.isNaN(value));
+    if (values.length) {
+      statRows.push(["Temperaturmessungen", String(values.length)]);
+      statRows.push(["Höchste Temperatur", `${Math.max(...values).toFixed(1)} °C`]);
+      statRows.push(["Durchschnitt Temperatur", `${(values.reduce((sum, value) => sum + value, 0) / values.length).toFixed(1)} °C`]);
+    }
+  }
+  if (categories.includes("fluids")) {
+    const fluidSum = entries.reduce((sum, entry) => sum + (Number(entry.fluids_ml) || 0), 0);
+    if (fluidSum) statRows.push(["Flüssigkeit gesamt", `${fluidSum} ml`]);
+  }
+  if (categories.includes("symptoms")) {
+    const symptomDays = new Set();
+    entries.forEach(entry => {
+      if (analysisValue(entry, "symptoms")) symptomDays.add(entry.date);
+    });
+    if (symptomDays.size) statRows.push(["Tage mit Symptomen", String(symptomDays.size)]);
+  }
+
+  return `
+    <header class="print-report-header">
+      <div>
+        <h1>Gesundheitstracker Bericht</h1>
+        <p>${escapeHtml(formatDateShortGerman(from) || "offen")} bis ${escapeHtml(formatDateShortGerman(to) || "offen")}</p>
+      </div>
+      <div class="print-report-meta">
+        <span>Erstellt am ${escapeHtml(new Date().toLocaleDateString("de-DE"))}</span>
+      </div>
+    </header>
+
+    <section class="print-report-filter">
+      <div><strong>Kategorien</strong><span>${escapeHtml(categoryText)}</span></div>
+      <div><strong>Symptomfilter</strong><span>${escapeHtml(symptomText)}</span></div>
+      <div><strong>Einträge</strong><span>${entries.length}</span></div>
+    </section>
+
+    ${statRows.length ? `
+      <section class="print-report-stats">
+        ${statRows.map(([label, value]) => `<div><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`).join("")}
+      </section>
+    ` : ""}
+
+    ${entries.length ? Object.entries(grouped).map(([date, dayEntries]) => `
+      <section class="print-report-day">
+        <h2>${escapeHtml(formatDateShortGerman(date))}</h2>
+        <div class="print-report-entries">
+          ${[...dayEntries].sort((a, b) => (a.time || "").localeCompare(b.time || "")).map(entry => {
+            const lines = categories
+              .map(category => {
+                if (category === "symptoms" && selectedSymptoms.length && !entryHasExportSymptom(entry, selectedSymptoms)) return "";
+                return exportCategoryLine(entry, category);
+              })
+              .filter(Boolean);
+
+            if (!lines.length) return "";
+
+            return `
+              <div class="print-report-entry">
+                <div class="print-report-time">${escapeHtml(entry.time || "--:--")}</div>
+                <div class="print-report-values">
+                  ${lines.map(line => `<p>${escapeHtml(line)}</p>`).join("")}
+                </div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      </section>
+    `).join("") : `
+      <section class="print-report-empty">
+        <strong>Keine passenden Einträge gefunden.</strong>
+      </section>
+    `}
+  `;
+}
+
+function openPrintableExport() {
+  const content = $("printExportContent");
+  if (!content) return;
+  content.innerHTML = buildPrintableExportHtml();
+  openView("printExportView");
+}
+
+function printCurrentExport() {
+  window.print();
+}
+
 function exportAnalysisSymptoms() {
   const from = $("exportFrom")?.value || "offen";
   const to = $("exportTo")?.value || "offen";
@@ -2834,6 +2955,9 @@ async function init() {
   $("analysisCategory").addEventListener("change", renderAnalysis);
   if ($("analysisExportButton")) $("analysisExportButton").addEventListener("click", exportAnalysisSymptoms);
   $("exportCreateButton").addEventListener("click", exportAnalysisSymptoms);
+  $("exportPrintButton").addEventListener("click", openPrintableExport);
+  $("printExportButton").addEventListener("click", printCurrentExport);
+  $("closePrintExportButton").addEventListener("click", closeViews);
 
   $("importFile").addEventListener("change", async event => {
     const file = event.target.files?.[0];

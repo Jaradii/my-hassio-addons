@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.47
+- Basis ist die funktionierende Version 1.0.48
 
 
 ## Änderungen in 1.0.10
@@ -365,3 +365,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Neue Theme-Namen in der JavaScript-Whitelist ergänzt
 - Theme-Popup wird nach Auswahl korrekt synchronisiert
 - Ursache: `applyTheme()` hat unbekannte Themes bisher automatisch auf `babyblue` zurückgesetzt
+
+
+## Änderungen in 1.0.48
+
+- HTML-Druckansicht für Export ergänzt
+- Export-Popup hat jetzt TXT exportieren und Druckansicht / PDF
+- Druckansicht erzeugt einen formatierten Bericht ohne zusätzliche Python-Pakete
+- Über Drucken / als PDF speichern kann daraus eine PDF erstellt werden
