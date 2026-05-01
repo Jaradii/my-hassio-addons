@@ -76,4 +76,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.7
+- Basis ist die funktionierende Version 1.0.10
+
+
+## Änderungen in 1.0.10
+
+- Heute-Button sicher aus der Topbar in die Datumsnavigation verschoben
+- JavaScript wurde bewusst nicht geändert
+- Die ID `todayButton` bleibt erhalten, damit die bestehende funktionierende Logik nicht bricht
