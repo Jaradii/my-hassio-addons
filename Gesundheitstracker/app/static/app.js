@@ -433,41 +433,41 @@ function renderDaySummaryCard(entries) {
         ${""}
       </div>
 
-      <div class="day-tile-grid">
-        <button type="button" class="day-tile quick-tile" data-quick="fluids" aria-label="Flüssigkeit eintragen">
+      <div class="day-tile-grid compact-day-tile-grid">
+        <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="fluids" aria-label="Flüssigkeit eintragen">
           <span class="tile-icon">💧</span>
           <span class="tile-label">Flüssigkeit</span>
           <strong>${summary.fluidsTotal ? `${summary.fluidsTotal} ml` : "Keine"}</strong>
         </button>
-        <button type="button" class="day-tile quick-tile temperature-tile ${summary.latestTempEntry ? feverClass(summary.latestTempEntry.temperature) : ""}" data-quick="temperature" aria-label="Temperatur eintragen">
+        <button type="button" class="day-tile quick-tile compact-day-tile temperature-tile ${summary.latestTempEntry ? feverClass(summary.latestTempEntry.temperature) : ""}" data-quick="temperature" aria-label="Temperatur eintragen">
           <span class="tile-icon">🌡️</span>
           <span class="tile-label">Temperatur</span>
           <strong>${escapeHtml(latestTempText)}</strong>
-          <small>${escapeHtml(tempMeta)}</small>
         </button>
-        <button type="button" class="day-tile quick-tile" data-quick="mood" aria-label="Stimmung eintragen">
+        <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="mood" aria-label="Stimmung eintragen">
           <span class="tile-icon">🙂</span>
           <span class="tile-label">Stimmung</span>
-          <strong>${moodText}</strong>
-          <small>${summary.moods.length > 1 ? `${summary.moods.length} Angaben` : "Letzte Angabe"}</small>
+          <strong>${summary.moods.length || "Keine"}</strong>
         </button>
-        <button type="button" class="day-tile quick-tile" data-quick="symptoms" aria-label="Symptome eintragen">
+        <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="symptoms" aria-label="Symptome eintragen">
           <span class="tile-icon">🤧</span>
           <span class="tile-label">Symptome</span>
           <strong>${summary.symptoms.length || "Keine"}</strong>
-          <small>${symptomText}</small>
         </button>
-        <button type="button" class="day-tile quick-tile" data-quick="medication" aria-label="Medikament eintragen">
+        <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="medication" aria-label="Medikament eintragen">
           <span class="tile-icon">💊</span>
-          <span class="tile-label">Medikamente</span>
+          <span class="tile-label">Medis</span>
           <strong>${summary.medications.length || "Keine"}</strong>
-          <small>${summary.medications.length ? "Einträge" : "Nicht eingetragen"}</small>
         </button>
-        <button type="button" class="day-tile quick-tile" data-quick="food" aria-label="Essen oder Schlaf eintragen">
+        <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="food" aria-label="Essen oder Schlaf eintragen">
           <span class="tile-icon tile-duo"><span>🍽️</span><span>😴</span></span>
-          <span class="tile-label">Essen / Schlaf</span>
+          <span class="tile-label">Essen/Schlaf</span>
           <strong>${summary.foods.length + summary.sleeps.length || "Keine"}</strong>
-          <small>${summary.foods.length} Essen · ${summary.sleeps.length} Schlaf</small>
+        </button>
+        <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="notes" aria-label="Notiz oder Auffälligkeit eintragen">
+          <span class="tile-icon">📝</span>
+          <span class="tile-label">Notizen</span>
+          <strong>${summary.notes.length || "Keine"}</strong>
         </button>
       </div>
 
@@ -1014,7 +1014,8 @@ function quickDefinition(kind) {
     mood: { title: "Stimmung", subtitle: "Eine oder mehrere Stimmungen auswählen.", content: `<input id="quickMood" type="hidden"><div id="quickMoodOptions" class="mood-options quick-mood-options"><button type="button" class="mood-option" data-mood="Gut drauf"><span>😊</span><small>Gut</small></button><button type="button" class="mood-option" data-mood="Müde"><span>😴</span><small>Müde</small></button><button type="button" class="mood-option" data-mood="Quengelig"><span>😣</span><small>Quengelig</small></button><button type="button" class="mood-option" data-mood="Schlapp"><span>🥱</span><small>Schlapp</small></button><button type="button" class="mood-option" data-mood="Schmerzen"><span>🤕</span><small>Schmerz</small></button><button type="button" class="mood-option" data-mood="Unruhig"><span>😟</span><small>Unruhig</small></button></div>` },
     symptoms: { title: "Symptome", subtitle: "Ein oder mehrere Symptome auswählen.", content: symptomsHtml },
     medication: { title: "Medikamente", subtitle: "Medikament, Dosis oder Uhrzeit notieren.", content: `<label class="field quick-field icon-textarea-field"><span><span class="field-icon">💊</span>Medikamente</span><textarea id="quickMedication" rows="3" placeholder="Name, Dosis, Uhrzeit"></textarea></label>` },
-    food: { title: "Essen / Schlaf", subtitle: "Essen oder Schlaf kurz eintragen.", content: `<label class="field quick-field icon-textarea-field"><span><span class="field-icon">🍽️</span>Essen</span><textarea id="quickFood" rows="2" placeholder="Was wurde gegessen?"></textarea></label><label class="field quick-field icon-textarea-field"><span><span class="field-icon">😴</span>Schlaf</span><textarea id="quickSleep" rows="2" placeholder="Dauer, Qualität, Auffälligkeiten"></textarea></label>` }
+    food: { title: "Essen / Schlaf", subtitle: "Essen oder Schlaf kurz eintragen.", content: `<label class="field quick-field icon-textarea-field"><span><span class="field-icon">🍽️</span>Essen</span><textarea id="quickFood" rows="2" placeholder="Was wurde gegessen?"></textarea></label><label class="field quick-field icon-textarea-field"><span><span class="field-icon">😴</span>Schlaf</span><textarea id="quickSleep" rows="2" placeholder="Dauer, Qualität, Auffälligkeiten"></textarea></label>` },
+    notes: { title: "Notizen / Auffälligkeiten", subtitle: "Sonstige Beobachtung kurz notieren.", content: `<label class="field quick-field icon-textarea-field"><span><span class="field-icon">📝</span>Notiz / Auffälligkeit</span><textarea id="quickNotes" rows="3" placeholder="Was ist aufgefallen?"></textarea></label>` }
   };
   return defs[kind] || null;
 }
@@ -1128,12 +1129,14 @@ function quickPayload(kind) {
   } else if (kind === "food") {
     payload.food = $("quickFood").value.trim();
     payload.sleep = $("quickSleep").value.trim();
+  } else if (kind === "notes") {
+    payload.notes = $("quickNotes").value.trim();
   }
   return payload;
 }
 
 function quickPayloadHasValue(payload) {
-  return [payload.temperature !== null && !Number.isNaN(payload.temperature), payload.fluids_ml !== null && !Number.isNaN(payload.fluids_ml), payload.mood, payload.symptoms.length, payload.custom_symptoms, payload.medication, payload.food, payload.sleep].some(Boolean);
+  return [payload.temperature !== null && !Number.isNaN(payload.temperature), payload.fluids_ml !== null && !Number.isNaN(payload.fluids_ml), payload.mood, payload.symptoms.length, payload.custom_symptoms, payload.medication, payload.food, payload.sleep, payload.notes].some(Boolean);
 }
 
 function openSheet() {

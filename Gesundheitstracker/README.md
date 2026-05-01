@@ -1,6 +1,6 @@
 # Gesundheitstracker Home Assistant Add-on
 
-Version 2.4.6
+Version 2.4.7
 
 Mobile, tageszentrierte Gesundheits-Tagebuch-App für Home Assistant Ingress.
 
@@ -457,7 +457,7 @@ Die Daten liegen im Add-on unter:
 
 ## Änderungen in 2.1.1
 
-- Rollback auf Version 2.4.6 vor der Apple-Watch/Quick-API-Erweiterung
+- Rollback auf Version 2.4.7 vor der Apple-Watch/Quick-API-Erweiterung
 - Quick-API-Endpunkte und Apple-Watch-Skriptbeispiele entfernt
 - Eigener Kalender mit Punkten für Tage mit Einträgen bleibt erhalten
 
@@ -639,3 +639,12 @@ Die Daten liegen im Add-on unter:
 - Temperatur/Fieber wird jetzt unter den Tageskacheln als Mehrfachliste angezeigt
 - Jeder Flüssigkeits- und Temperatur-Eintrag hat jetzt Historie- und Bearbeiten-Button
 - Ältere Flüssigkeits- und Temperaturwerte können dadurch direkt geändert werden
+
+
+## Änderungen in 2.4.7
+
+- Tageskacheln oben kompakter gemacht
+- Kacheln zeigen nur noch die wichtigsten Überblickswerte
+- Detailtexte bleiben unten in den Einzelauflistungen
+- Neue Kachel „Notizen“ für sonstige Notizen/Auffälligkeiten ergänzt
+- Klick auf die Notizen-Kachel öffnet ein kleines Notiz-Popup

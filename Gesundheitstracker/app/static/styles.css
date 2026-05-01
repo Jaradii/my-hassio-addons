@@ -7576,3 +7576,80 @@ body.dark .summary-info-item.temp-red p { color: #ff8f8f; }
   min-height: 48px !important;
   border-radius: 10px !important;
 }
+
+
+/* v2.4.7: Kompaktere Tageskacheln + Notizen-Kachel */
+.compact-day-tile-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+}
+
+.compact-day-tile {
+  min-height: 86px !important;
+  padding: 9px 7px !important;
+  gap: 4px !important;
+  border-radius: 10px !important;
+}
+
+.compact-day-tile .tile-icon {
+  font-size: 1.22rem !important;
+  line-height: 1 !important;
+}
+
+.compact-day-tile .tile-duo {
+  display: inline-flex !important;
+  gap: 1px !important;
+  justify-content: center !important;
+}
+
+.compact-day-tile .tile-label {
+  font-size: 0.66rem !important;
+  line-height: 1.05 !important;
+  font-weight: 900 !important;
+}
+
+.compact-day-tile strong {
+  font-size: 0.86rem !important;
+  line-height: 1.12 !important;
+  font-weight: 950 !important;
+}
+
+.compact-day-tile small {
+  display: none !important;
+}
+
+.compact-day-tile.quick-tile::after {
+  width: 14px !important;
+  height: 14px !important;
+  right: 4px !important;
+  top: 4px !important;
+  font-size: 0.62rem !important;
+}
+
+@media (min-width: 900px) {
+  .compact-day-tile-grid {
+    grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+  }
+
+  .compact-day-tile {
+    min-height: 92px !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .compact-day-tile-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+  }
+
+  .compact-day-tile {
+    min-height: 82px !important;
+    padding: 8px 6px !important;
+  }
+}
+
+@media (max-width: 345px) {
+  .compact-day-tile-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
