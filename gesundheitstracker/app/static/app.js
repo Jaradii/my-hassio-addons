@@ -2025,6 +2025,15 @@ async function init() {
     closeViews();
   });
 
+  const goToToday = () => {
+    state.selectedDate = today();
+    state.calendarMonth = state.selectedDate.slice(0, 7);
+    renderAll();
+  };
+
+  if ($("todayButton")) $("todayButton").addEventListener("click", goToToday);
+  if ($("todayDateButton")) $("todayDateButton").addEventListener("click", goToToday);
+
   $("profileButton").addEventListener("click", () => openView("profileView"));
   $("topDarkModeButton").addEventListener("click", () => {
     applyDarkMode(!state.darkMode);

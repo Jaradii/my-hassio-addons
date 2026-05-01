@@ -7833,3 +7833,52 @@ body.dark .summary-info-item.temp-red p { color: #ff8f8f; }
     grid-template-columns: repeat(8, minmax(0, 1fr)) !important;
   }
 }
+
+
+/* v1.0.8: Heute-Button aus Topbar in Datumsnavigation verschoben */
+.today-date-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  min-width: 54px;
+  height: 38px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 68%, transparent);
+  background: color-mix(in srgb, var(--card) 84%, var(--kg-soft) 16%);
+  color: var(--text);
+  font-size: 0.76rem;
+  font-weight: 950;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.today-date-btn:hover {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, var(--card) 88%);
+}
+
+.today-date-btn:active {
+  transform: scale(0.96);
+}
+
+.date-card {
+  grid-template-columns: auto minmax(0, 1fr) auto auto !important;
+  gap: 8px !important;
+}
+
+@media (max-width: 430px) {
+  .date-card {
+    grid-template-columns: auto minmax(0, 1fr) auto !important;
+  }
+
+  .today-date-btn {
+    grid-column: 2 / 3;
+    width: fit-content;
+    justify-self: center;
+    height: 30px;
+    min-width: 48px;
+    padding: 0 9px;
+    font-size: 0.7rem;
+    margin-top: -2px;
+  }
+}

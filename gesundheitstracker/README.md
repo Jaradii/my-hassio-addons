@@ -70,3 +70,10 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Dark-Mode-Schalter aus den Einstellungen nach oben in die Topbar verschoben
 - Dark-Mode-Button sitzt links neben dem Backup-Button
 - Symbol wechselt zwischen 🌙 und ☀️
+
+
+## Änderungen in 1.0.8
+
+- Heute-Button aus der oberen Menüleiste entfernt
+- Heute-Button kompakt in die Datumsnavigation verschoben
+- Obere Leiste hat dadurch mehr Platz für Profil, Dark Mode und Backup
