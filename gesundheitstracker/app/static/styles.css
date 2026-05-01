@@ -9715,3 +9715,130 @@ body.dark .analysis-result-row.temp-red p { color: #ff8f8f; }
     font-size: 0.66rem !important;
   }
 }
+
+
+/* v1.0.45: Zusätzliche moderne, gedämpfte dunkle Themes */
+body[data-theme="midnight"] {
+  --bg: #10151f;
+  --card: #171d29;
+  --text: #e7ebf3;
+  --muted: #9aa6b8;
+  --primary: #6f86a6;
+  --primary2: #4f647f;
+  --accent: #8799b4;
+  --shadow: rgba(0, 0, 0, 0.42);
+  --kg-soft: #202839;
+  --kg-border: #2c3547;
+}
+
+body[data-theme="graphite"] {
+  --bg: #121314;
+  --card: #1b1d1f;
+  --text: #e8e8e4;
+  --muted: #a0a09a;
+  --primary: #7f8782;
+  --primary2: #5d6561;
+  --accent: #9aa19c;
+  --shadow: rgba(0, 0, 0, 0.44);
+  --kg-soft: #242729;
+  --kg-border: #34383a;
+}
+
+body[data-theme="nordnight"] {
+  --bg: #111821;
+  --card: #19232e;
+  --text: #e5ebef;
+  --muted: #9cafbd;
+  --primary: #7593a6;
+  --primary2: #5b7588;
+  --accent: #8aa6b8;
+  --shadow: rgba(0, 0, 0, 0.43);
+  --kg-soft: #22303c;
+  --kg-border: #31414f;
+}
+
+body[data-theme="mossdark"] {
+  --bg: #111812;
+  --card: #1a221b;
+  --text: #e6ebe2;
+  --muted: #9ba895;
+  --primary: #748b6d;
+  --primary2: #586d53;
+  --accent: #8fa384;
+  --shadow: rgba(0, 0, 0, 0.43);
+  --kg-soft: #233024;
+  --kg-border: #334235;
+}
+
+body[data-theme="mochadark"] {
+  --bg: #191411;
+  --card: #231d19;
+  --text: #eee6dd;
+  --muted: #ad9f92;
+  --primary: #9a7d64;
+  --primary2: #765f4e;
+  --accent: #b0957b;
+  --shadow: rgba(0, 0, 0, 0.43);
+  --kg-soft: #302720;
+  --kg-border: #44372e;
+}
+
+body[data-theme="aubergine"] {
+  --bg: #17121a;
+  --card: #211a25;
+  --text: #ece5ef;
+  --muted: #aa9bb2;
+  --primary: #8a7391;
+  --primary2: #6b5872;
+  --accent: #a18aaa;
+  --shadow: rgba(0, 0, 0, 0.44);
+  --kg-soft: #2d2432;
+  --kg-border: #403348;
+}
+
+/* Für dunkle Custom-Themes immer dunkle native Controls erzwingen */
+body[data-theme="midnight"],
+body[data-theme="graphite"],
+body[data-theme="nordnight"],
+body[data-theme="mossdark"],
+body[data-theme="mochadark"],
+body[data-theme="aubergine"] {
+  color-scheme: dark;
+}
+
+/* Temperaturfarben in dunklen Themes gedämpfter halten */
+body[data-theme="midnight"] .temp-green,
+body[data-theme="graphite"] .temp-green,
+body[data-theme="nordnight"] .temp-green,
+body[data-theme="mossdark"] .temp-green,
+body[data-theme="mochadark"] .temp-green,
+body[data-theme="aubergine"] .temp-green {
+  --temp-color: #7ca98b;
+}
+
+body[data-theme="midnight"] .temp-yellow,
+body[data-theme="graphite"] .temp-yellow,
+body[data-theme="nordnight"] .temp-yellow,
+body[data-theme="mossdark"] .temp-yellow,
+body[data-theme="mochadark"] .temp-yellow,
+body[data-theme="aubergine"] .temp-yellow {
+  --temp-color: #c4a76a;
+}
+
+body[data-theme="midnight"] .temp-orange,
+body[data-theme="graphite"] .temp-orange,
+body[data-theme="nordnight"] .temp-orange,
+body[data-theme="mossdark"] .temp-orange,
+body[data-theme="mochadark"] .temp-orange,
+body[data-theme="aubergine"] .temp-orange {
+  --temp-color: #c28a63;
+}
+
+body[data-theme="midnight"] .temp-red,
+body[data-theme="graphite"] .temp-red,
+body[data-theme="nordnight"] .temp-red,
+body[data-theme="mossdark"] .temp-red,
+body[data-theme="mochadark"] .temp-red,
+body[data-theme="aubergine"] .temp-red {
+  --temp-color: #c97272;
+}

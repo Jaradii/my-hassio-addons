@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.44
+- Basis ist die funktionierende Version 1.0.45
 
 
 ## Änderungen in 1.0.10
@@ -341,3 +341,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Hintergrund deckt die Uhrzeit jetzt vollständig ab
 - Zeitspalte etwas breiter und sauber zentriert
 - Nur CSS geändert
+
+
+## Änderungen in 1.0.45
+
+- Neue moderne dunkle Themes ergänzt
+- Midnight, Graphite, Nord Night, Moss Dark, Mocha Dark und Aubergine hinzugefügt
+- Farben bewusst gedämpft und weniger grell gehalten
+- Theme-Auswahl im Theme-Popup erweitert
