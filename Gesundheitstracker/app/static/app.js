@@ -131,7 +131,7 @@ function symptomIcon(symptom) {
 function renderSymptomTag(symptom, count = 1, intensities = []) {
   const icon = symptomIcon(symptom);
   const uniqueIntensities = [...new Set((intensities || []).filter(Boolean))];
-  const intensityText = uniqueIntensities.length ? ` · ${uniqueIntensities.join("/")}` : "";
+  const intensityText = uniqueIntensities.length ? ` (${uniqueIntensities.join("/")})` : "";
   return `<span class="tag symptom-tag"><span class="symptom-icon">${icon}</span><span>${escapeHtml(symptom)}${count > 1 ? ` ×${count}` : ""}${escapeHtml(intensityText)}</span></span>`;
 }
 
