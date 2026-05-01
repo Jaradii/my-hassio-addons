@@ -72,8 +72,8 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Symbol wechselt zwischen 🌙 und ☀️
 
 
-## Änderungen in 1.0.8
+## Änderungen in 1.0.9
 
-- Heute-Button aus der oberen Menüleiste entfernt
-- Heute-Button kompakt in die Datumsnavigation verschoben
-- Obere Leiste hat dadurch mehr Platz für Profil, Dark Mode und Backup
+- Rollback auf den letzten stabilen Stand vor 1.0.8
+- Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
+- Basis ist die funktionierende Version 1.0.7
