@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.43
+- Basis ist die funktionierende Version 1.0.44
 
 
 ## Änderungen in 1.0.10
@@ -333,3 +333,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Weitere-Einträge werden jetzt wirklich ausgeblendet
 - „Weitere anzeigen“ funktioniert jetzt pro Kategorie
 - Zeitspalte in der Übersicht wieder sauber ausgerichtet
+
+
+## Änderungen in 1.0.44
+
+- Uhrzeit-Badge in der Kategorieansicht korrigiert
+- Hintergrund deckt die Uhrzeit jetzt vollständig ab
+- Zeitspalte etwas breiter und sauber zentriert
+- Nur CSS geändert
