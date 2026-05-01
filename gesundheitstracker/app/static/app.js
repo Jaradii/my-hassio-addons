@@ -160,6 +160,8 @@ function applyDarkMode(enabled) {
     topButton.setAttribute("title", state.darkMode ? "Light Mode" : "Dark Mode");
     topButton.classList.toggle("active", state.darkMode);
   }
+
+  syncMenuDarkModeButton();
 }
 
 function applyTheme(theme) {
@@ -2279,6 +2281,62 @@ function entryHasExportSymptom(entry, selected) {
   return selected.some(symptom => names.has(symptom));
 }
 
+
+function buildFullExportText() {
+  const from = $("exportFrom")?.value || "";
+  const to = $("exportTo")?.value || "";
+
+  const entries = (state.data.entries || [])
+    .filter(entry => dateInRange(entry.date, from, to))
+    .sort((a, b) => analysisEntryTimestamp(a).localeCompare(analysisEntryTimestamp(b)));
+
+  const lines = [];
+  lines.push("Gesundheitstracker Export");
+  lines.push("========================");
+  lines.push("");
+  lines.push(`Exportart: Alle Daten`);
+  lines.push(`Zeitraum: ${from ? formatDateShortGerman(from) : "offen"} bis ${to ? formatDateShortGerman(to) : "offen"}`);
+  lines.push(`Einträge: ${entries.length}`);
+  lines.push("");
+
+  if (!entries.length) {
+    lines.push("Keine Einträge im gewählten Zeitraum gefunden.");
+    return lines.join("\n");
+  }
+
+  const grouped = entries.reduce((acc, entry) => {
+    const key = entry.date || "Ohne Datum";
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(entry);
+    return acc;
+  }, {});
+
+  Object.entries(grouped).forEach(([date, dayEntries]) => {
+    const title = formatDateShortGerman(date);
+    lines.push(title);
+    lines.push("-".repeat(title.length));
+
+    dayEntries
+      .sort((a, b) => (a.time || "").localeCompare(b.time || ""))
+      .forEach(entry => {
+        lines.push(`${entry.time || "--:--"} Uhr`);
+        if (entry.temperature !== null && entry.temperature !== undefined && entry.temperature !== "") lines.push(`  Temperatur: ${Number(entry.temperature).toFixed(1)} °C`);
+        if (entry.fluids_ml) lines.push(`  Flüssigkeit: ${entry.fluids_ml} ml`);
+        const symptoms = analysisValue(entry, "symptoms");
+        if (symptoms) lines.push(`  Symptome: ${symptoms}`);
+        if (entry.mood) lines.push(`  Stimmung: ${entry.mood}`);
+        if (entry.medication) lines.push(`  Medikamente: ${entry.medication}`);
+        if (entry.food) lines.push(`  Essen: ${entry.food}`);
+        if (entry.sleep) lines.push(`  Schlaf: ${entry.sleep}`);
+        if (entry.diaper_or_toilet) lines.push(`  Windel/Toilette: ${entry.diaper_or_toilet}`);
+        if (entry.notes) lines.push(`  Notizen: ${entry.notes}`);
+        lines.push("");
+      });
+  });
+
+  return lines.join("\n");
+}
+
 function buildSymptomExportText() {
   const from = $("exportFrom")?.value || $("analysisFrom")?.value || "";
   const to = $("exportTo")?.value || $("analysisTo")?.value || "";
@@ -2352,10 +2410,12 @@ function downloadTextFile(filename, text) {
 }
 
 function exportAnalysisSymptoms() {
-  const from = $("analysisFrom")?.value || "offen";
-  const to = $("analysisTo")?.value || "offen";
-  const text = buildSymptomExportText();
-  downloadTextFile(`gesundheitstracker-symptome-${from}-bis-${to}.txt`, text);
+  const from = $("exportFrom")?.value || "offen";
+  const to = $("exportTo")?.value || "offen";
+  const type = $("exportType")?.value || "all";
+  const text = type === "symptoms" ? buildSymptomExportText() : buildFullExportText();
+  const label = type === "symptoms" ? "symptome" : "alle-daten";
+  downloadTextFile(`gesundheitstracker-${label}-${from}-bis-${to}.txt`, text);
   showToast("Export erstellt");
 }
 
@@ -2425,6 +2485,29 @@ function renderAnalysis() {
 }
 
 
+
+function closeTopMenu() {
+  const menu = $("topMenuDropdown");
+  if (!menu) return;
+  menu.classList.add("hidden");
+  menu.setAttribute("aria-hidden", "true");
+}
+
+function toggleTopMenu() {
+  const menu = $("topMenuDropdown");
+  if (!menu) return;
+  const willOpen = menu.classList.contains("hidden");
+  menu.classList.toggle("hidden", !willOpen);
+  menu.setAttribute("aria-hidden", willOpen ? "false" : "true");
+}
+
+function syncMenuDarkModeButton() {
+  const icon = $("menuDarkModeIcon");
+  const text = $("menuDarkModeText");
+  if (icon) icon.textContent = state.darkMode ? "☀️" : "🌙";
+  if (text) text.textContent = state.darkMode ? "Light Mode" : "Dark Mode";
+}
+
 function openExportView() {
   const todayValue = today();
   const from = $("exportFrom");
@@ -2438,6 +2521,8 @@ function openExportView() {
   if (to && !to.value) to.value = todayValue;
 
   renderExportSymptomChips();
+  const exportBox = $("exportSymptomChips")?.closest(".export-section");
+  if (exportBox) exportBox.classList.toggle("muted-export-section", ($("exportType")?.value || "all") !== "symptoms");
   openView("exportView");
 }
 
@@ -2636,6 +2721,10 @@ async function init() {
   $("analysisCategory").addEventListener("change", renderAnalysis);
   if ($("analysisExportButton")) $("analysisExportButton").addEventListener("click", exportAnalysisSymptoms);
   $("exportCreateButton").addEventListener("click", exportAnalysisSymptoms);
+  $("exportType").addEventListener("change", () => {
+    const box = $("exportSymptomChips")?.closest(".export-section");
+    if (box) box.classList.toggle("muted-export-section", $("exportType").value !== "symptoms");
+  });
 
   $("importFile").addEventListener("change", async event => {
     const file = event.target.files?.[0];
@@ -2649,15 +2738,42 @@ async function init() {
     closeViews();
   });
 
-  $("searchButton").addEventListener("click", openAnalysisView);
-  $("exportMenuButton").addEventListener("click", openExportView);
+  if ($("searchButton")) $("searchButton").addEventListener("click", openAnalysisView);
+  if ($("exportMenuButton")) $("exportMenuButton").addEventListener("click", openExportView);
   $("profileButton").addEventListener("click", () => openView("profileView"));
-  $("topDarkModeButton").addEventListener("click", () => {
+  if ($("topDarkModeButton")) {
+    $("topDarkModeButton").addEventListener("click", () => {
+      applyDarkMode(!state.darkMode);
+      showToast(state.darkMode ? "Dark Mode aktiviert" : "Dark Mode deaktiviert");
+    });
+  }
+
+  if ($("backupButton")) $("backupButton").addEventListener("click", () => openView("backupView"));
+  $("moreMenuButton").addEventListener("click", toggleTopMenu);
+  $("menuSearchButton").addEventListener("click", () => {
+    closeTopMenu();
+    openAnalysisView();
+  });
+  $("menuExportButton").addEventListener("click", () => {
+    closeTopMenu();
+    openExportView();
+  });
+  $("menuDarkModeButton").addEventListener("click", () => {
     applyDarkMode(!state.darkMode);
+    closeTopMenu();
     showToast(state.darkMode ? "Dark Mode aktiviert" : "Dark Mode deaktiviert");
   });
+  $("menuBackupButton").addEventListener("click", () => {
+    closeTopMenu();
+    openView("backupView");
+  });
+  document.addEventListener("click", event => {
+    if (!$("topMenuDropdown") || $("topMenuDropdown").classList.contains("hidden")) return;
+    if (event.target.closest(".top-menu-wrap")) return;
+    closeTopMenu();
+  });
 
-  $("backupButton").addEventListener("click", () => openView("backupView"));
+
 
   document.querySelectorAll(".close-view").forEach(btn => btn.addEventListener("click", closeViews));
 

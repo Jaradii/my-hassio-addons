@@ -9209,3 +9209,90 @@ body.dark .analysis-result-row.temp-red p { color: #ff8f8f; }
     grid-template-columns: 1fr;
   }
 }
+
+
+/* v1.0.31: Topbar-Menü statt vieler Symbole */
+.top-menu-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.top-menu-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 1500;
+  min-width: 190px;
+  padding: 7px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 70%, transparent);
+  background: color-mix(in srgb, var(--card) 94%, var(--kg-soft) 6%);
+  box-shadow: 0 18px 46px color-mix(in srgb, var(--shadow) 28%, transparent);
+  display: grid;
+  gap: 5px;
+}
+
+.top-menu-dropdown.hidden {
+  display: none !important;
+}
+
+.top-menu-dropdown button {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  min-height: 38px;
+  padding: 7px 9px;
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  text-align: left;
+  cursor: pointer;
+}
+
+.top-menu-dropdown button:hover {
+  background: color-mix(in srgb, var(--primary) 10%, var(--card) 90%);
+}
+
+.top-menu-dropdown button span {
+  text-align: center;
+}
+
+.top-menu-dropdown button strong {
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+/* Alte direkte Icons verstecken, falls sie durch ältere HTML-Struktur noch vorhanden sind */
+#searchButton,
+#exportMenuButton,
+#topDarkModeButton,
+#backupButton {
+  display: none !important;
+}
+
+.top-menu-wrap #moreMenuButton {
+  display: inline-grid !important;
+}
+
+.export-type-field {
+  grid-column: 1 / -1;
+}
+
+.muted-export-section {
+  opacity: 0.58;
+}
+
+.muted-export-section .analysis-symptom-export-chips {
+  pointer-events: none;
+}
+
+@media (max-width: 430px) {
+  .top-menu-dropdown {
+    right: -2px;
+    min-width: 178px;
+  }
+}

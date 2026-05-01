@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.30
+- Basis ist die funktionierende Version 1.0.31
 
 
 ## Änderungen in 1.0.10
@@ -245,3 +245,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Export ist jetzt ein eigener Menüpunkt oben mit eigenem Symbol 📤
 - Eigenes Export-Popup mit Von/Bis und Symptomauswahl
 - Auswertung bleibt nur noch für Analyse/Suche zuständig
+
+
+## Änderungen in 1.0.31
+
+- Obere Symbole in ein kompaktes Drei-Punkte-Menü zusammengefasst
+- Menü enthält Auswertung, Export, Dark Mode und Backup
+- Export kann jetzt Alle Daten oder Nur ausgewählte Symptome exportieren
+- Exportfunktion bleibt eigener Menüpunkt, aber die Topbar ist wieder aufgeräumt
