@@ -9464,3 +9464,21 @@ body.dark .analysis-result-row.temp-red p { color: #ff8f8f; }
 .date-card {
   touch-action: pan-y;
 }
+
+
+/* v1.0.38: Swipe in Home-Assistant-App robuster */
+#dayEntries,
+.app {
+  touch-action: pan-y !important;
+  overscroll-behavior-x: contain;
+}
+
+/* Während offene Popups aktiv sind, keine Swipe-Fläche erzwingen */
+body.modal-open #dayEntries,
+body.sheet-open #dayEntries,
+body.quick-open #dayEntries,
+body.calendar-open #dayEntries,
+body.time-open #dayEntries,
+body.field-edit-open #dayEntries {
+  touch-action: auto !important;
+}

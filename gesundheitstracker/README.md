@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.37
+- Basis ist die funktionierende Version 1.0.38
 
 
 ## Änderungen in 1.0.10
@@ -299,3 +299,12 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Nach links wischen: nächster Tag
 - Nach rechts wischen: vorheriger Tag
 - In Eingabefeldern, Popups, Menüs und Buttons wird Swipe ignoriert, damit nichts versehentlich springt
+
+
+## Änderungen in 1.0.38
+
+- Swipe-Geste für die Home-Assistant-App robuster gemacht
+- Erkennung läuft jetzt primär auf der Tagesansicht statt nur global auf document
+- Pointer-Events und Touch-Events werden parallel unterstützt
+- Zusätzlicher Fallback für iOS/WebView ergänzt
+- Swipe bleibt in Popups, Menüs und Eingabefeldern deaktiviert

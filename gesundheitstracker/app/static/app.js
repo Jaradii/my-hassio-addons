@@ -2612,88 +2612,109 @@ function shouldIgnoreDaySwipe(target) {
   return false;
 }
 
+function isSwipeAllowedNow() {
+  return !document.body.classList.contains("modal-open")
+    && !document.body.classList.contains("sheet-open")
+    && !document.body.classList.contains("quick-open")
+    && !document.body.classList.contains("calendar-open")
+    && !document.body.classList.contains("time-open")
+    && !document.body.classList.contains("field-edit-open")
+    && !document.body.classList.contains("day-detail-open")
+    && !document.body.classList.contains("entry-detail-popup-open")
+    && !document.body.classList.contains("entry-history-open");
+}
+
+function handleDaySwipeGesture(dx, dy, elapsed) {
+  if (!isSwipeAllowedNow()) return false;
+  if (elapsed > 1200) return false;
+  if (Math.abs(dx) < 55) return false;
+  if (Math.abs(dx) < Math.abs(dy) * 1.15) return false;
+
+  if (dx < 0) {
+    shiftDay(1);
+    showToast("Nächster Tag");
+  } else {
+    shiftDay(-1);
+    showToast("Vorheriger Tag");
+  }
+  return true;
+}
+
 function bindGlobalDaySwipe() {
   if (document.body.dataset.daySwipeBound === "1") return;
   document.body.dataset.daySwipeBound = "1";
+
+  const swipeSurface = $("dayEntries") || document.querySelector(".app") || document.body;
 
   let startX = 0;
   let startY = 0;
   let startTime = 0;
   let tracking = false;
+  let startTarget = null;
 
-  document.addEventListener("touchstart", event => {
-    if (!event.touches || event.touches.length !== 1) return;
-    if (shouldIgnoreDaySwipe(event.target)) {
+  const begin = (x, y, target) => {
+    if (!isSwipeAllowedNow() || shouldIgnoreDaySwipe(target)) {
       tracking = false;
       return;
     }
-
-    const touch = event.touches[0];
-    startX = touch.clientX;
-    startY = touch.clientY;
+    startX = x;
+    startY = y;
     startTime = Date.now();
+    startTarget = target;
     tracking = true;
+  };
+
+  const finish = (x, y) => {
+    if (!tracking) return;
+    tracking = false;
+    if (shouldIgnoreDaySwipe(startTarget)) return;
+    handleDaySwipeGesture(x - startX, y - startY, Date.now() - startTime);
+  };
+
+  // Primär für Home-Assistant-App/WebView: Pointer Events auf der Hauptansicht.
+  swipeSurface.addEventListener("pointerdown", event => {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    begin(event.clientX, event.clientY, event.target);
+  }, { passive: true });
+
+  swipeSurface.addEventListener("pointerup", event => {
+    finish(event.clientX, event.clientY);
+  }, { passive: true });
+
+  swipeSurface.addEventListener("pointercancel", () => {
+    tracking = false;
+  }, { passive: true });
+
+  // Fallback für iOS WebView, falls Pointer Events nicht sauber feuern.
+  swipeSurface.addEventListener("touchstart", event => {
+    if (!event.touches || event.touches.length !== 1) return;
+    const touch = event.touches[0];
+    begin(touch.clientX, touch.clientY, event.target);
+  }, { passive: true });
+
+  swipeSurface.addEventListener("touchend", event => {
+    if (!event.changedTouches || event.changedTouches.length !== 1) return;
+    const touch = event.changedTouches[0];
+    finish(touch.clientX, touch.clientY);
+  }, { passive: true });
+
+  swipeSurface.addEventListener("touchcancel", () => {
+    tracking = false;
+  }, { passive: true });
+
+  // Zweiter Fallback auf document, falls HA die Events nicht bis #dayEntries durchreicht.
+  document.addEventListener("touchstart", event => {
+    if (tracking) return;
+    if (!event.touches || event.touches.length !== 1) return;
+    const touch = event.touches[0];
+    begin(touch.clientX, touch.clientY, event.target);
   }, { passive: true });
 
   document.addEventListener("touchend", event => {
-    if (!tracking || !event.changedTouches || event.changedTouches.length !== 1) return;
-    tracking = false;
-
+    if (!event.changedTouches || event.changedTouches.length !== 1) return;
     const touch = event.changedTouches[0];
-    const dx = touch.clientX - startX;
-    const dy = touch.clientY - startY;
-    const elapsed = Date.now() - startTime;
-
-    if (elapsed > 900) return;
-    if (Math.abs(dx) < 70) return;
-    if (Math.abs(dx) < Math.abs(dy) * 1.25) return;
-
-    if (dx < 0) {
-      shiftDay(1);
-      showToast("Nächster Tag");
-    } else {
-      shiftDay(-1);
-      showToast("Vorheriger Tag");
-    }
+    finish(touch.clientX, touch.clientY);
   }, { passive: true });
-
-  // Optional auch für Trackpad/Maus auf Desktop, ohne normales Scrollen zu blockieren.
-  let pointerStartX = 0;
-  let pointerStartY = 0;
-  let pointerStartTime = 0;
-  let pointerTracking = false;
-
-  document.addEventListener("pointerdown", event => {
-    if (event.pointerType === "touch") return;
-    if (event.button !== 0) return;
-    if (shouldIgnoreDaySwipe(event.target)) return;
-
-    pointerStartX = event.clientX;
-    pointerStartY = event.clientY;
-    pointerStartTime = Date.now();
-    pointerTracking = true;
-  });
-
-  document.addEventListener("pointerup", event => {
-    if (!pointerTracking) return;
-    pointerTracking = false;
-
-    const dx = event.clientX - pointerStartX;
-    const dy = event.clientY - pointerStartY;
-    const elapsed = Date.now() - pointerStartTime;
-
-    if (elapsed > 900) return;
-    if (Math.abs(dx) < 120) return;
-    if (Math.abs(dx) < Math.abs(dy) * 1.35) return;
-
-    if (dx < 0) {
-      shiftDay(1);
-      showToast("Nächster Tag");
-    } else {
-      shiftDay(-1);
-      showToast("Vorheriger Tag");
-    }
-  });
 }
 
 async function init() {
