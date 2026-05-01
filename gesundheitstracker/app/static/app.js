@@ -313,6 +313,7 @@ function renderCalendar() {
 function renderDateHeader(entries) {
   $("selectedDate").value = state.selectedDate;
   bindSleepTimeInputs(document);
+  bindGlobalDaySwipe();
 
   const d = new Date(`${state.selectedDate}T12:00:00`);
   const isToday = state.selectedDate === today();
@@ -2601,6 +2602,98 @@ function openAnalysisView() {
 
   renderAnalysis();
   openView("analysisView");
+}
+
+
+function shouldIgnoreDaySwipe(target) {
+  if (!target) return false;
+  if (target.closest("input, textarea, select, button, a, label")) return true;
+  if (target.closest(".modal-view:not(.hidden), .sheet:not(.hidden), .quick-sheet:not(.hidden), .calendar-sheet:not(.hidden), .time-sheet:not(.hidden), .field-edit-sheet:not(.hidden), .day-detail-sheet:not(.hidden), .entry-detail-popup:not(.hidden), .entry-history-popup:not(.hidden), .top-menu-dropdown:not(.hidden)")) return true;
+  return false;
+}
+
+function bindGlobalDaySwipe() {
+  if (document.body.dataset.daySwipeBound === "1") return;
+  document.body.dataset.daySwipeBound = "1";
+
+  let startX = 0;
+  let startY = 0;
+  let startTime = 0;
+  let tracking = false;
+
+  document.addEventListener("touchstart", event => {
+    if (!event.touches || event.touches.length !== 1) return;
+    if (shouldIgnoreDaySwipe(event.target)) {
+      tracking = false;
+      return;
+    }
+
+    const touch = event.touches[0];
+    startX = touch.clientX;
+    startY = touch.clientY;
+    startTime = Date.now();
+    tracking = true;
+  }, { passive: true });
+
+  document.addEventListener("touchend", event => {
+    if (!tracking || !event.changedTouches || event.changedTouches.length !== 1) return;
+    tracking = false;
+
+    const touch = event.changedTouches[0];
+    const dx = touch.clientX - startX;
+    const dy = touch.clientY - startY;
+    const elapsed = Date.now() - startTime;
+
+    if (elapsed > 900) return;
+    if (Math.abs(dx) < 70) return;
+    if (Math.abs(dx) < Math.abs(dy) * 1.25) return;
+
+    if (dx < 0) {
+      shiftDay(1);
+      showToast("Nächster Tag");
+    } else {
+      shiftDay(-1);
+      showToast("Vorheriger Tag");
+    }
+  }, { passive: true });
+
+  // Optional auch für Trackpad/Maus auf Desktop, ohne normales Scrollen zu blockieren.
+  let pointerStartX = 0;
+  let pointerStartY = 0;
+  let pointerStartTime = 0;
+  let pointerTracking = false;
+
+  document.addEventListener("pointerdown", event => {
+    if (event.pointerType === "touch") return;
+    if (event.button !== 0) return;
+    if (shouldIgnoreDaySwipe(event.target)) return;
+
+    pointerStartX = event.clientX;
+    pointerStartY = event.clientY;
+    pointerStartTime = Date.now();
+    pointerTracking = true;
+  });
+
+  document.addEventListener("pointerup", event => {
+    if (!pointerTracking) return;
+    pointerTracking = false;
+
+    const dx = event.clientX - pointerStartX;
+    const dy = event.clientY - pointerStartY;
+    const elapsed = Date.now() - pointerStartTime;
+
+    if (elapsed > 900) return;
+    if (Math.abs(dx) < 120) return;
+    if (Math.abs(dx) < Math.abs(dy) * 1.35) return;
+
+    if (dx < 0) {
+      shiftDay(1);
+      showToast("Nächster Tag");
+    } else {
+      shiftDay(-1);
+      showToast("Vorheriger Tag");
+    }
+  });
 }
 
 async function init() {

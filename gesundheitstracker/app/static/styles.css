@@ -9456,3 +9456,11 @@ body.dark .analysis-result-row.temp-red p { color: #ff8f8f; }
 .empty-day {
   display: none !important;
 }
+
+
+/* v1.0.37: Swipe-Geste zum Tageswechsel */
+.app,
+#dayEntries,
+.date-card {
+  touch-action: pan-y;
+}
