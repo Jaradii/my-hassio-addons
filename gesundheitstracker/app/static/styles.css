@@ -7815,3 +7815,21 @@ body.dark .summary-info-item.temp-red p { color: #ff8f8f; }
   grid-template-rows: auto auto !important;
   padding-bottom: 7px !important;
 }
+
+
+/* v1.0.7: Dark-Mode Button oben und neue Kachelreihenfolge */
+#topDarkModeButton {
+  font-size: 1rem !important;
+}
+
+#topDarkModeButton.active {
+  background: color-mix(in srgb, var(--primary) 18%, var(--card) 82%) !important;
+  border-color: color-mix(in srgb, var(--primary) 48%, var(--kg-border) 52%) !important;
+}
+
+/* Acht Kacheln sauber auf Desktop, kompakt auf Smartphone */
+@media (min-width: 900px) {
+  .compact-day-tile-grid {
+    grid-template-columns: repeat(8, minmax(0, 1fr)) !important;
+  }
+}

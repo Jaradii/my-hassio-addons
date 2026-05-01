@@ -149,8 +149,17 @@ function applyDarkMode(enabled) {
   state.darkMode = Boolean(enabled);
   document.body.classList.toggle("dark", state.darkMode);
   localStorage.setItem("kindgesund_dark_mode", state.darkMode ? "true" : "false");
+
   const toggle = $("darkModeToggle");
   if (toggle) toggle.checked = state.darkMode;
+
+  const topButton = $("topDarkModeButton");
+  if (topButton) {
+    topButton.textContent = state.darkMode ? "☀️" : "🌙";
+    topButton.setAttribute("aria-label", state.darkMode ? "Light Mode aktivieren" : "Dark Mode aktivieren");
+    topButton.setAttribute("title", state.darkMode ? "Light Mode" : "Dark Mode");
+    topButton.classList.toggle("active", state.darkMode);
+  }
 }
 
 function applyTheme(theme) {
@@ -512,17 +521,23 @@ function renderDaySummaryCard(entries) {
           <strong>${tileFluidText(summary.fluidsTotal)}</strong>
           <small>${summary.fluidEntries.length ? `${summary.fluidEntries.length} Einträge` : "Nicht eingetragen"}</small>
         </button>
-        <button type="button" class="day-tile quick-tile compact-day-tile temperature-tile ${summary.latestTempEntry ? feverClass(summary.latestTempEntry.temperature) : ""}" data-quick="temperature" aria-label="Temperatur eintragen">
+        <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="food" aria-label="Essen eintragen">
+          <span class="tile-icon">🍽️</span>
+          <span class="tile-label">Essen</span>
+          <strong>${tileCountText(summary.foods.length, "Essen", "Essen")}</strong>
+          <small>${summary.foods.length ? "Einträge" : "Nicht eingetragen"}</small>
+        </button>
+        <button type="button" class="day-tile quick-tile compact-day-tile temperature-tile ${summary.latestTempEntry ? feverClass(summary.latestTempEntry.temperature) : ""}" data-quick="temperature" aria-label="Fieber / Temperatur eintragen">
           <span class="tile-icon">🌡️</span>
-          <span class="tile-label">Temperatur</span>
+          <span class="tile-label">Fieber</span>
           <strong>${escapeHtml(tileTempText(summary.latestTempEntry))}</strong>
           <small>${escapeHtml(tempMeta)}</small>
         </button>
-        <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="mood" aria-label="Stimmung eintragen">
-          <span class="tile-icon">🙂</span>
-          <span class="tile-label">Stimmung</span>
-          <strong>${tileCountText(summary.moods.length, "Stimmung", "Stimmungen")}</strong>
-          <small>${summary.moods.length ? "Angaben" : "Keine Angabe"}</small>
+        <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="sleep" aria-label="Schlaf eintragen">
+          <span class="tile-icon">😴</span>
+          <span class="tile-label">Schlaf</span>
+          <strong>${tileCountText(summary.sleeps.length, "Schlaf", "Schlaf")}</strong>
+          <small>${summary.sleeps.length ? "Einträge" : "Nicht eingetragen"}</small>
         </button>
         <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="symptoms" aria-label="Symptome eintragen">
           <span class="tile-icon">🤧</span>
@@ -530,23 +545,17 @@ function renderDaySummaryCard(entries) {
           <strong>${tileCountText(summary.symptoms.length, "Symptom", "Symptome")}</strong>
           <small>${symptomText}</small>
         </button>
+        <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="mood" aria-label="Stimmung eintragen">
+          <span class="tile-icon">🙂</span>
+          <span class="tile-label">Stimmung</span>
+          <strong>${tileCountText(summary.moods.length, "Stimmung", "Stimmungen")}</strong>
+          <small>${summary.moods.length ? "Angaben" : "Keine Angabe"}</small>
+        </button>
         <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="medication" aria-label="Medikament eintragen">
           <span class="tile-icon">💊</span>
           <span class="tile-label">Medis</span>
           <strong>${tileCountText(summary.medications.length, "Medikament", "Medikamente")}</strong>
           <small>${summary.medications.length ? "Einträge" : "Nicht eingetragen"}</small>
-        </button>
-        <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="food" aria-label="Essen eintragen">
-          <span class="tile-icon">🍽️</span>
-          <span class="tile-label">Essen</span>
-          <strong>${tileCountText(summary.foods.length, "Essen", "Essen")}</strong>
-          <small>${summary.foods.length ? "Einträge" : "Nicht eingetragen"}</small>
-        </button>
-        <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="sleep" aria-label="Schlaf eintragen">
-          <span class="tile-icon">😴</span>
-          <span class="tile-label">Schlaf</span>
-          <strong>${tileCountText(summary.sleeps.length, "Schlaf", "Schlaf")}</strong>
-          <small>${summary.sleeps.length ? "Einträge" : "Nicht eingetragen"}</small>
         </button>
         <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="notes" aria-label="Notiz oder Auffälligkeit eintragen">
           <span class="tile-icon">📝</span>
@@ -1997,10 +2006,12 @@ async function init() {
     showToast("Theme geändert");
   });
 
-  $("darkModeToggle").addEventListener("change", (event) => {
-    applyDarkMode(event.target.checked);
-    showToast(event.target.checked ? "Dark Mode aktiviert" : "Dark Mode deaktiviert");
-  });
+  if ($("darkModeToggle")) {
+    $("darkModeToggle").addEventListener("change", (event) => {
+      applyDarkMode(event.target.checked);
+      showToast(event.target.checked ? "Dark Mode aktiviert" : "Dark Mode deaktiviert");
+    });
+  }
 
   $("importFile").addEventListener("change", async event => {
     const file = event.target.files?.[0];
@@ -2015,6 +2026,11 @@ async function init() {
   });
 
   $("profileButton").addEventListener("click", () => openView("profileView"));
+  $("topDarkModeButton").addEventListener("click", () => {
+    applyDarkMode(!state.darkMode);
+    showToast(state.darkMode ? "Dark Mode aktiviert" : "Dark Mode deaktiviert");
+  });
+
   $("backupButton").addEventListener("click", () => openView("backupView"));
 
   document.querySelectorAll(".close-view").forEach(btn => btn.addEventListener("click", closeViews));
