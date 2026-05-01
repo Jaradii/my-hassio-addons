@@ -8481,3 +8481,34 @@ body.dark[data-theme] > .bottom-action-bar > #openEntry .fab-plus-symbol {
 .day-summary-card > .tags.symptom-tags {
   display: none !important;
 }
+
+
+/* v1.0.19: Stift-Symbol in Bearbeiten-Buttons größer */
+.edit-summary-field,
+.summary-edit-button.edit-summary-field,
+button.edit-summary-field {
+  font-size: 1.05rem !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+}
+
+.entry-actions .edit-entry,
+.entry-detail-actions .edit-entry,
+.journal-actions .edit-entry,
+button.edit-entry {
+  font-size: 1.05rem !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+}
+
+@media (max-width: 430px) {
+  .edit-summary-field,
+  .summary-edit-button.edit-summary-field,
+  button.edit-summary-field,
+  .entry-actions .edit-entry,
+  .entry-detail-actions .edit-entry,
+  .journal-actions .edit-entry,
+  button.edit-entry {
+    font-size: 1.12rem !important;
+  }
+}
