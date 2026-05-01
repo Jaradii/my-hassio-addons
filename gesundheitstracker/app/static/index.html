@@ -32,25 +32,7 @@
             <button id="menuSearchButton" type="button"><span>🔍</span><strong>Auswertung</strong></button>
             <button id="menuExportButton" type="button"><span>📤</span><strong>Export</strong></button>
             <button id="menuDarkModeButton" type="button"><span id="menuDarkModeIcon">🌙</span><strong id="menuDarkModeText">Dark Mode</strong></button>
-            
-            <div class="top-menu-theme">
-              <label for="menuThemeSelect"><span>🎨</span><strong>Theme</strong></label>
-              <select id="menuThemeSelect" aria-label="Theme auswählen">
-            <option value="babyblue">Dunkles Babyblau</option>
-            <option value="mint">Sanftes Mint</option>
-            <option value="lavender">Lavendel</option>
-            <option value="peach">Pfirsich</option>
-            <option value="rose">Rosa</option>
-            <option value="slate">Schieferblau</option>
-            <option value="darkslate">Dunkles Slate</option>
-            <option value="ocean">Ocean</option>
-            <option value="forest">Forest</option>
-            <option value="sand">Sand</option>
-            <option value="berry">Berry</option>
-            <option value="mono">Monochrom</option>
-          
-              </select>
-            </div>
+            <button id="menuThemeButton" type="button"><span>🎨</span><strong>Theme</strong></button>
             <button id="menuBackupButton" type="button"><span>💾</span><strong>Backup</strong></button>
           </div>
         </div>
@@ -408,6 +390,35 @@
         </div>
 
         <button id="exportCreateButton" type="button" class="btn primary export-create-button">Export erstellen</button>
+      </div>
+    </section>
+
+
+    <section id="themeView" class="modal-view hidden">
+      <div class="view-card theme-card">
+        <div class="sheet-head">
+          <h2>Theme</h2>
+          <button class="round-btn close-view">×</button>
+        </div>
+        <label class="field full">
+          <span>Farbtheme</span>
+          <select id="themePopupSelect">
+            <option value="babyblue">Dunkles Babyblau</option>
+            <option value="mint">Sanftes Mint</option>
+            <option value="lavender">Lavendel</option>
+            <option value="peach">Pfirsich</option>
+            <option value="rose">Rosa</option>
+            <option value="slate">Schieferblau</option>
+            <option value="darkslate">Dunkles Slate</option>
+            <option value="ocean">Ocean</option>
+            <option value="forest">Forest</option>
+            <option value="sand">Sand</option>
+            <option value="berry">Berry</option>
+            <option value="mono">Monochrom</option>
+          
+              
+          </select>
+        </label>
       </div>
     </section>
 

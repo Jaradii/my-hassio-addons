@@ -9383,3 +9383,26 @@ body.dark .analysis-result-row.temp-red p { color: #ff8f8f; }
   font-weight: 850;
   padding: 6px 8px;
 }
+
+
+/* v1.0.34: Theme als eigenes Popup statt direkter Auswahl im Drei-Punkte-Menü */
+.theme-card {
+  max-width: 420px !important;
+}
+
+#themePopupSelect {
+  width: 100%;
+  min-height: 42px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 68%, transparent);
+  background: var(--card);
+  color: var(--text);
+  font-size: 0.86rem;
+  font-weight: 850;
+  padding: 8px 10px;
+}
+
+/* Alte direkte Theme-Auswahl im Menü sicher ausblenden, falls Browser gecachte Struktur mischt */
+.top-menu-theme {
+  display: none !important;
+}

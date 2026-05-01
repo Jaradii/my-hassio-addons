@@ -2785,12 +2785,6 @@ async function init() {
     });
   }
 
-  $("menuThemeSelect").addEventListener("change", (event) => {
-    applyTheme(event.target.value);
-    closeTopMenu();
-    showToast("Theme geändert");
-  });
-
   if ($("darkModeToggle")) {
     $("darkModeToggle").addEventListener("change", (event) => {
       applyDarkMode(event.target.checked);
@@ -2841,6 +2835,16 @@ async function init() {
     closeTopMenu();
     showToast(state.darkMode ? "Dark Mode aktiviert" : "Dark Mode deaktiviert");
   });
+  $("menuThemeButton").addEventListener("click", () => {
+    closeTopMenu();
+    if ($("themePopupSelect")) $("themePopupSelect").value = state.theme;
+    openView("themeView");
+  });
+  $("themePopupSelect").addEventListener("change", (event) => {
+    applyTheme(event.target.value);
+    showToast("Theme geändert");
+  });
+
   $("menuBackupButton").addEventListener("click", () => {
     closeTopMenu();
     openView("backupView");

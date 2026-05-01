@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.33
+- Basis ist die funktionierende Version 1.0.34
 
 
 ## Änderungen in 1.0.10
@@ -269,3 +269,10 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Theme-Auswahl aus dem Profil entfernt und in das Drei-Punkte-Menü verschoben
 - Profil-Button oben nutzt jetzt ein Profil/Kopf-Symbol
 - Theme-Auswahl im Menü synchronisiert weiterhin mit der bestehenden Theme-Logik
+
+
+## Änderungen in 1.0.34
+
+- Theme ist im Drei-Punkte-Menü jetzt nur noch ein Menüpunkt
+- Die eigentliche Theme-Auswahl öffnet sich in einem eigenen Popup
+- Direkte Theme-Auswahl im Drei-Punkte-Menü entfernt
