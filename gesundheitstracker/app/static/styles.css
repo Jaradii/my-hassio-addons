@@ -10406,3 +10406,58 @@ body.dark[data-theme="aubergine"] .bottom-add-button {
     grid-template-columns: repeat(3, 1fr) !important;
   }
 }
+
+
+/* v1.0.52: Kachel-Beschriftungen immer anzeigen, auch wenn keine Daten vorhanden sind */
+.compact-day-tile .tile-label,
+.day-tile .tile-label,
+button.day-tile .tile-label,
+button.compact-day-tile .tile-label {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  height: auto !important;
+  max-height: none !important;
+  min-height: 1em !important;
+  overflow: visible !important;
+  color: var(--text) !important;
+  font-size: 0.64rem !important;
+  line-height: 1.08 !important;
+  font-weight: 950 !important;
+  text-align: center !important;
+  white-space: normal !important;
+}
+
+.compact-day-tile strong,
+.day-tile strong,
+button.day-tile strong,
+button.compact-day-tile strong {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Status unten bleibt klein, aber darf die Beschriftung nicht verdrängen */
+.compact-day-tile small,
+.day-tile small {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  font-size: 0.53rem !important;
+  line-height: 1.05 !important;
+  color: var(--muted) !important;
+}
+
+@media (max-width: 430px) {
+  .compact-day-tile,
+  .day-tile {
+    grid-template-rows: auto auto auto auto !important;
+  }
+
+  .compact-day-tile .tile-label,
+  .day-tile .tile-label {
+    display: block !important;
+    font-size: 0.62rem !important;
+    line-height: 1.08 !important;
+  }
+}

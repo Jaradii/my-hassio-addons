@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.51
+- Basis ist die funktionierende Version 1.0.52
 
 
 ## Änderungen in 1.0.10
@@ -399,3 +399,12 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Bericht wird als eigenständige HTML-Seite erzeugt
 - Die Seite enthält einen eigenen Drucken/PDF-Button und ist für iPhone/Safari optimiert
 - Falls Popups blockiert werden, wird die HTML-Datei als Download geöffnet
+
+
+## Änderungen in 1.0.52
+
+- Kachel-Beschriftungen werden jetzt auch bei leeren Tagen zuverlässig angezeigt
+- In den Kacheln steht weiterhin der Name wie Flüssigkeit, Essen, Fieber usw.
+- Hauptwert kann weiterhin „Keine“ anzeigen
+- Kleine Statuszeile unten bleibt klein
+- Nur CSS geändert
