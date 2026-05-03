@@ -10721,3 +10721,69 @@ button.compact-day-tile strong {
     max-height: calc(88vh - 76px);
   }
 }
+
+
+/* v1.0.58-test: Aktionen bei Symptom-Einträgen mit Bildern rechts fixieren */
+.category-compact-item {
+  align-items: start !important;
+}
+
+.category-compact-item > p {
+  min-width: 0 !important;
+  display: block !important;
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+}
+
+.category-compact-item > .summary-row-actions {
+  grid-column: 3 !important;
+  grid-row: 1 !important;
+  align-self: start !important;
+  justify-self: end !important;
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  gap: 5px !important;
+  margin-left: 6px !important;
+  width: auto !important;
+  min-width: max-content !important;
+}
+
+.category-compact-item > .summary-info-time {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+  align-self: start !important;
+}
+
+.category-compact-item p .symptom-image-strip {
+  margin-top: 7px !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+  max-width: 100% !important;
+}
+
+.category-compact-item p .symptom-image-strip .symptom-image-open {
+  flex: 0 0 auto !important;
+}
+
+/* Auch in der älteren Listenansicht absichern, falls diese an anderer Stelle gerendert wird */
+.summary-info-item:has(.symptom-image-strip) {
+  align-items: start !important;
+}
+
+.summary-info-item:has(.symptom-image-strip) .summary-row-actions {
+  align-self: start !important;
+  justify-self: end !important;
+  margin-top: 0 !important;
+}
+
+@media (max-width: 430px) {
+  .category-compact-item {
+    grid-template-columns: 44px minmax(0, 1fr) max-content !important;
+  }
+
+  .category-compact-item > .summary-row-actions {
+    gap: 4px !important;
+    margin-left: 4px !important;
+  }
+}
