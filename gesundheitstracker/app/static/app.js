@@ -909,6 +909,7 @@ function entryFlagInputHtml(selectedFlags = []) {
 }
 
 function selectedEntryFlagsFrom(container) {
+  if (!container) return [];
   return [...container.querySelectorAll('input[type="checkbox"]:checked')].map(input => input.value);
 }
 
@@ -2420,7 +2421,7 @@ async function saveFieldEdit(event) {
     entry_flags: normalizeEntryFlags(entry.entry_flags || [])
   };
 
-  const rawValue = $("fieldEditValue").value.trim();
+  const rawValue = $("fieldEditValue") ? $("fieldEditValue").value.trim() : "";
 
   if (field === "symptoms") {
     const selectedSymptoms = [...document.querySelectorAll("#fieldEditSymptomChips input:checked")].map(input => input.value);

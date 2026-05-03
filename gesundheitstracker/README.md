@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.1.11
+- Basis ist die funktionierende Version 1.1.12
 
 
 ## Änderungen in 1.0.10
@@ -858,3 +858,10 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Direkter `🏷️`-Button an jedem Eintrag in der Tagesübersicht ergänzt
 - Darüber können Markierungen erstmalig gesetzt und später geändert werden
 - Markierte Einträge zeigen ihre Markierungen zusätzlich direkt in der Zeile an
+
+
+## Änderungen in 1.1.12-test
+
+- Speichern von Markierungen repariert
+- Fehler behoben: Markierungs-Popup hat kein freies Textfeld, der Speichern-Code wollte aber trotzdem `fieldEditValue` auslesen
+- Markierungen sollten jetzt gespeichert, angezeigt und in der Historie geführt werden
