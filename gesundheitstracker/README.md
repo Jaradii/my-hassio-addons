@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.1.25
+- Basis ist die funktionierende Version 1.1.26
 
 
 ## Änderungen in 1.0.10
@@ -968,3 +968,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Beantwortete Nachfragen können über `Rückgängig` wieder geöffnet werden
 - Bei versehentlichem `Nein` kann man danach doch noch `Ja` wählen
 - Bei `Ja` wird die Nachfrage als erledigt markiert und bleibt ebenfalls im beantworteten Bereich sichtbar
+
+
+## Änderungen in 1.1.26-test
+
+- Nachkontrolle wird nach dem Beantworten kompakter dargestellt
+- Offene Nachkontrollen bleiben als große Karte sichtbar
+- Wenn nur noch beantwortete Nachfragen vorhanden sind, erscheint oben rechts in der Tagesübersicht ein Button `Nachkontrolle`
+- Über den Button können beantwortete Nachfragen wieder geöffnet, rückgängig gemacht oder doch noch mit `Ja` bestätigt werden

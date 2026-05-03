@@ -13097,3 +13097,70 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
 .followup-answered summary::before {
   content: "↳ ";
 }
+
+
+/* v1.1.26-test: Nachkontrolle als Kopfbutton nach dem Abhaken */
+.day-summary-head {
+  align-items: start;
+  gap: 10px;
+}
+
+.day-head-followup-button {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 70%, transparent);
+  background: color-mix(in srgb, var(--kg-soft) 78%, var(--card) 22%);
+  color: var(--text);
+  border-radius: 10px;
+  min-height: 30px;
+  padding: 5px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.day-head-followup-button span {
+  line-height: 1;
+}
+
+.day-head-followup-button strong {
+  font-size: 0.72rem;
+  font-weight: 950;
+}
+
+.day-head-followup-button em {
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  display: inline-grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--primary) 16%, var(--card) 84%);
+  border: 1px solid color-mix(in srgb, var(--primary) 30%, var(--kg-border) 70%);
+  color: var(--text);
+  font-style: normal;
+  font-size: 0.66rem;
+  font-weight: 1000;
+}
+
+.day-head-followup-button:hover {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, var(--card) 88%);
+}
+
+.followup-card-answered-panel {
+  margin-top: 10px;
+}
+
+@media (max-width: 560px) {
+  .day-summary-head {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .day-head-followup-button strong {
+    display: none;
+  }
+}

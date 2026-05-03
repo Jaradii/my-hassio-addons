@@ -665,6 +665,10 @@ function renderDay() {
     btn.addEventListener("click", () => undoSymptomFollowUp(btn.dataset.id));
   });
 
+  if ($("dayHeadFollowupButton")) {
+    $("dayHeadFollowupButton").addEventListener("click", toggleAnsweredFollowUpPanel);
+  }
+
   container.querySelectorAll(".edit-summary-field").forEach(btn => {
     btn.addEventListener("click", () => openFieldEdit(btn.dataset.id, btn.dataset.field));
   });
@@ -893,10 +897,22 @@ function renderFollowUpEntry(entry, answered = false, date = state.selectedDate)
   `;
 }
 
+function renderFollowUpToolbarButton(date) {
+  const answered = answeredSymptomFollowUpsForDate(date);
+  if (!answered.length) return "";
+  return `
+    <button type="button" class="day-head-followup-button" id="dayHeadFollowupButton" aria-label="Beantwortete Nachkontrolle anzeigen">
+      <span>↪</span>
+      <strong>Nachkontrolle</strong>
+      <em>${answered.length}</em>
+    </button>
+  `;
+}
+
 function renderMarkedSymptomFollowUps(date) {
   const followUps = markedSymptomFollowUpsForDate(date);
   const answered = answeredSymptomFollowUpsForDate(date);
-  if (!followUps.length && !answered.length) return "";
+  if (!followUps.length) return "";
 
   return `
     <section class="followup-card">
@@ -907,11 +923,9 @@ function renderMarkedSymptomFollowUps(date) {
           <p>Diese Symptome waren gestern dokumentiert. Sind sie heute noch da?</p>
         </div>
       </div>
-      ${followUps.length ? `
-        <div class="followup-list">
-          ${followUps.map(entry => renderFollowUpEntry(entry, false, date)).join("")}
-        </div>
-      ` : ""}
+      <div class="followup-list">
+        ${followUps.map(entry => renderFollowUpEntry(entry, false, date)).join("")}
+      </div>
       ${answered.length ? `
         <details class="followup-answered">
           <summary>${answered.length} beantwortete Nachfrage${answered.length === 1 ? "" : "n"} anzeigen</summary>
@@ -922,6 +936,36 @@ function renderMarkedSymptomFollowUps(date) {
       ` : ""}
     </section>
   `;
+}
+
+
+function renderAnsweredFollowUpPanel(date) {
+  const answered = answeredSymptomFollowUpsForDate(date);
+  if (!answered.length) return "";
+
+  return `
+    <section class="followup-card followup-card-answered-panel hidden" id="answeredFollowupPanel">
+      <div class="followup-head">
+        <span>↪</span>
+        <div>
+          <strong>Beantwortete Nachkontrolle</strong>
+          <p>Hier kannst du versehentliche Antworten rückgängig machen oder doch noch „Ja“ wählen.</p>
+        </div>
+      </div>
+      <div class="followup-list">
+        ${answered.map(entry => renderFollowUpEntry(entry, true, date)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function toggleAnsweredFollowUpPanel() {
+  const panel = $("answeredFollowupPanel");
+  if (!panel) return;
+  panel.classList.toggle("hidden");
+  if (!panel.classList.contains("hidden")) {
+    panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
 }
 
 async function confirmSymptomFollowUp(entryId) {
@@ -988,15 +1032,16 @@ function renderDaySummaryCard(entries) {
 
   return `
     <article class="entry-card day-summary-card">
-      <div class="entry-card-head">
+      <div class="entry-card-head day-summary-head">
         <div>
           <span class="entry-time">${summary.count} Eintrag${summary.count === 1 ? "" : "e"} zusammengefasst</span>
           <div class="entry-title">Tagesübersicht</div>
         </div>
-        ${""}
+        ${renderFollowUpToolbarButton(state.selectedDate)}
       </div>
 
       ${renderMarkedSymptomFollowUps(state.selectedDate)}
+      ${renderAnsweredFollowUpPanel(state.selectedDate)}
 
       <div class="day-tile-grid compact-day-tile-grid">
         <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="fluids" aria-label="Flüssigkeit eintragen">
