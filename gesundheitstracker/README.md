@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.69
+- Basis ist die funktionierende Version 1.0.70
 
 
 ## Änderungen in 1.0.10
@@ -526,10 +526,9 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Der gelöschte Eintrag bleibt weiterhin als Historien-Snapshot erhalten, aber ohne die Bilddateien auf der Platte zu behalten
 
 
-## Änderungen in 1.0.69-test
+## Änderungen in 1.0.70-test
 
-- Bild-Popup ist jetzt eine Galerie
-- Bei mehreren Bildern kann man vor/zurück wechseln
-- Miniaturleiste im Bild-Popup ergänzt
-- Der Foto-Chip öffnet jetzt alle Bilder des Eintrags, nicht nur das erste
-- Teilen-Button ergänzt, nutzt auf iPhone möglichst die native Teilen-Funktion
+- Defekte 1.0.69 repariert, neu auf Basis der funktionierenden 1.0.68 aufgebaut
+- `renderCompactSymptomImages` bleibt korrekt definiert
+- Bild-Popup als Galerie mit Vor/Zurück und Miniaturleiste ergänzt
+- Teilen-Button ergänzt

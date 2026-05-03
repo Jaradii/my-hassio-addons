@@ -11141,7 +11141,7 @@ button.compact-day-tile small {
 }
 
 
-/* v1.0.69-test: Bildgalerie und Teilen */
+/* v1.0.70-test: Bildgalerie repariert */
 .image-preview-head > div:first-child {
   display: grid;
   gap: 1px;
@@ -11232,7 +11232,6 @@ button.compact-day-tile small {
   display: block;
 }
 
-/* Detailansicht darf mehrere Thumbnails zeigen */
 .journal-section .symptom-image-strip {
   display: flex !important;
 }

@@ -108,12 +108,12 @@ function setImagePreviewIndex(index) {
   const max = state.imagePreviewItems.length - 1;
   state.imagePreviewIndex = Math.max(0, Math.min(max, Number(index) || 0));
 
+  const url = state.imagePreviewItems[state.imagePreviewIndex];
   const img = $("imagePreviewLarge");
   const counter = $("imagePreviewCounter");
   const prev = $("imagePreviewPrev");
   const next = $("imagePreviewNext");
   const thumbs = $("imagePreviewThumbs");
-  const url = state.imagePreviewItems[state.imagePreviewIndex];
 
   if (img) img.src = url;
   if (counter) counter.textContent = `${state.imagePreviewIndex + 1} / ${state.imagePreviewItems.length}`;
@@ -176,6 +176,7 @@ function bindSymptomImageOpeners(root = document) {
       } catch {
         images = [];
       }
+
       openImagePreviewPopup(button.dataset.url, images, Number(button.dataset.index || 0));
     });
   });
@@ -216,16 +217,36 @@ async function shareCurrentImagePreview() {
   }
 }
 
+function renderCompactSymptomImages(images) {
+  const normalized = normalizeSymptomImages(images);
+  if (!normalized.length) return "";
+  const urls = normalized.map(uploadUrlFromImage).filter(Boolean);
+  if (!urls.length) return "";
+  const count = urls.length;
+
+  return `
+    <div class="symptom-image-attachment-row">
+      <button type="button" class="symptom-image-open symptom-image-attachment-chip" data-url="${escapeHtml(urls[0])}" data-images="${escapeHtml(JSON.stringify(urls))}" data-index="0" aria-label="Symptom-Fotos öffnen">
+        <span>📷</span>
+        <strong>${count} Foto${count === 1 ? "" : "s"} ansehen</strong>
+      </button>
+    </div>
+  `;
+}
+
 function renderSymptomImages(images) {
   const normalized = normalizeSymptomImages(images);
   if (!normalized.length) return "";
   const urls = normalized.map(uploadUrlFromImage).filter(Boolean);
+  if (!urls.length) return "";
 
   return `
     <div class="symptom-image-strip">
-      ${urls.map((url, index) => {
-        return `<button type="button" class="symptom-image-open" data-url="${escapeHtml(url)}" data-images="${escapeHtml(JSON.stringify(urls))}" data-index="${index}" aria-label="Symptom-Foto öffnen"><img src="${escapeHtml(url)}" alt="Symptom-Foto" loading="lazy" /></button>`;
-      }).join("")}
+      ${urls.map((url, index) => `
+        <button type="button" class="symptom-image-open" data-url="${escapeHtml(url)}" data-images="${escapeHtml(JSON.stringify(urls))}" data-index="${index}" aria-label="Symptom-Foto öffnen">
+          <img src="${escapeHtml(url)}" alt="Symptom-Foto" loading="lazy" />
+        </button>
+      `).join("")}
     </div>
   `;
 }
