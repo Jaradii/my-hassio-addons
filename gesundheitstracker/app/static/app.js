@@ -774,8 +774,6 @@ function summaryDisplayValue(entry, key) {
     if (entry.custom_symptoms) {
       symptomParts.push(...entry.custom_symptoms.split(",").map(s => s.trim()).filter(Boolean));
     }
-    const imageCount = normalizeSymptomImages(entry.symptom_images || []).length;
-    if (imageCount) symptomParts.push(`${imageCount} Foto${imageCount === 1 ? "" : "s"}`);
     return symptomParts.join(", ");
   }
   return entry[key] || "";
