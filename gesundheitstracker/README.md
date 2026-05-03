@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.59
+- Basis ist die funktionierende Version 1.0.60
 
 
 ## Änderungen in 1.0.10
@@ -450,3 +450,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Miniaturbild plus „1 Foto“ bzw. „x Fotos“
 - Historie- und Bearbeiten-Buttons bleiben rechts
 - Detailansicht zeigt weiterhin die größeren Bildvorschauen
+
+
+## Änderungen in 1.0.60-test
+
+- Fotoanzeige in der Tagesübersicht weiter beruhigt
+- Statt Miniaturbild gibt es jetzt einen dezenten Anhang-Chip „📷 1 Foto ansehen“ bzw. „x Fotos ansehen“
+- Historie- und Bearbeiten-Buttons bleiben rechts
+- Große Bildvorschau bleibt in Detailansicht und Popup erhalten

@@ -145,13 +145,10 @@ function renderCompactSymptomImages(images) {
   const count = normalized.length;
 
   return `
-    <div class="symptom-image-compact-row">
-      <button type="button" class="symptom-image-open symptom-image-compact-thumb" data-url="${escapeHtml(url)}" aria-label="Symptom-Foto öffnen">
-        <img src="${escapeHtml(url)}" alt="Symptom-Foto" loading="lazy" />
-      </button>
-      <button type="button" class="symptom-image-open symptom-image-compact-text" data-url="${escapeHtml(url)}" aria-label="Symptom-Foto öffnen">
+    <div class="symptom-image-attachment-row">
+      <button type="button" class="symptom-image-open symptom-image-attachment-chip" data-url="${escapeHtml(url)}" aria-label="Symptom-Foto öffnen">
         <span>📷</span>
-        <strong>${count} Foto${count === 1 ? "" : "s"}</strong>
+        <strong>${count} Foto${count === 1 ? "" : "s"} ansehen</strong>
       </button>
     </div>
   `;
