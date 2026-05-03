@@ -136,6 +136,27 @@ function bindSymptomImageOpeners(root = document) {
   });
 }
 
+
+function renderCompactSymptomImages(images) {
+  const normalized = normalizeSymptomImages(images);
+  if (!normalized.length) return "";
+  const first = normalized[0];
+  const url = uploadUrlFromImage(first);
+  const count = normalized.length;
+
+  return `
+    <div class="symptom-image-compact-row">
+      <button type="button" class="symptom-image-open symptom-image-compact-thumb" data-url="${escapeHtml(url)}" aria-label="Symptom-Foto öffnen">
+        <img src="${escapeHtml(url)}" alt="Symptom-Foto" loading="lazy" />
+      </button>
+      <button type="button" class="symptom-image-open symptom-image-compact-text" data-url="${escapeHtml(url)}" aria-label="Symptom-Foto öffnen">
+        <span>📷</span>
+        <strong>${count} Foto${count === 1 ? "" : "s"}</strong>
+      </button>
+    </div>
+  `;
+}
+
 function renderSymptomImages(images) {
   const normalized = normalizeSymptomImages(images);
   if (!normalized.length) return "";
@@ -790,7 +811,7 @@ function renderSummaryTextBlocks(summary) {
   const renderItem = (group, entry, hidden = false) => `
     <div class="summary-info-item category-compact-item ${group.key === "temperature" ? feverClass(entry.temperature) : ""} ${entry.is_overnight_carry ? "overnight-carry-item" : ""} ${hidden ? "category-extra-item category-extra-hidden" : ""}">
       <span class="summary-info-time">${escapeHtml(entry.time || "--:--")}</span>
-      <p>${escapeHtml(summaryDisplayValue(entry, group.key))}${group.key === "symptoms" ? renderSymptomImages(entry.symptom_images || []) : ""}</p>
+      <p>${escapeHtml(summaryDisplayValue(entry, group.key))}${group.key === "symptoms" ? renderCompactSymptomImages(entry.symptom_images || []) : ""}</p>
       <div class="summary-row-actions">
         <button type="button" class="summary-edit-button summary-history-button" data-id="${entry.original_id || entry.id}" aria-label="Historie anzeigen">↻</button>
         <button type="button" class="summary-edit-button edit-summary-field" data-id="${entry.original_id || entry.id}" data-field="${group.key}" aria-label="${group.title} bearbeiten">✎</button>

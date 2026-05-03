@@ -10787,3 +10787,102 @@ button.compact-day-tile strong {
     margin-left: 4px !important;
   }
 }
+
+
+/* v1.0.59-test: Bildlayout kompakter und ruhiger in der Tagesübersicht */
+.category-compact-item:has(.symptom-image-compact-row) {
+  grid-template-columns: 44px minmax(0, 1fr) max-content !important;
+  align-items: start !important;
+  padding-top: 7px !important;
+  padding-bottom: 7px !important;
+}
+
+.category-compact-item:has(.symptom-image-compact-row) > p {
+  display: grid !important;
+  gap: 6px !important;
+  align-self: start !important;
+}
+
+.symptom-image-compact-row {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  width: fit-content !important;
+  max-width: 100% !important;
+  padding: 5px 7px 5px 5px !important;
+  border-radius: 12px !important;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 58%, transparent) !important;
+  background: color-mix(in srgb, var(--kg-soft) 42%, var(--card) 58%) !important;
+}
+
+.symptom-image-compact-thumb {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  width: 42px !important;
+  height: 42px !important;
+  flex: 0 0 42px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  background: transparent !important;
+  cursor: pointer !important;
+}
+
+.symptom-image-compact-thumb img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+
+.symptom-image-compact-text {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--muted) !important;
+  font-size: 0.72rem !important;
+  font-weight: 900 !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+}
+
+.symptom-image-compact-text strong {
+  color: var(--muted) !important;
+  font-size: 0.72rem !important;
+  font-weight: 900 !important;
+}
+
+.category-compact-item:has(.symptom-image-compact-row) > .summary-row-actions {
+  align-self: start !important;
+  margin-top: 1px !important;
+}
+
+/* Alte große Bildstreifen in der Tagesübersicht ausblenden, falls sie durch Cache/Altmarkup auftauchen */
+.category-compact-item p > .symptom-image-strip {
+  display: none !important;
+}
+
+@media (max-width: 430px) {
+  .symptom-image-compact-row {
+    gap: 6px !important;
+    padding: 4px 6px 4px 4px !important;
+    border-radius: 11px !important;
+  }
+
+  .symptom-image-compact-thumb {
+    width: 38px !important;
+    height: 38px !important;
+    flex-basis: 38px !important;
+  }
+
+  .symptom-image-compact-text,
+  .symptom-image-compact-text strong {
+    font-size: 0.68rem !important;
+  }
+}
