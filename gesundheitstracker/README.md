@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.98
+- Basis ist die funktionierende Version 1.0.99
 
 
 ## Änderungen in 1.0.10
@@ -750,3 +750,10 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Datum in der Volltextsuche besser lesbar gemacht
 - Suchtreffer-Gruppen zeigen jetzt ausgeschriebene Datumsüberschriften, z. B. `Montag, 03. Mai 2026`
 - Darstellung stärker an die Auswertungsansicht angepasst
+
+
+## Änderungen in 1.0.99-test
+
+- Datumsformat in der Suche wieder auf `DD.MM.YYYY` zurückgestellt
+- Datumsüberschrift in der Suche als eigener Balken gestaltet
+- Optik stärker an die Auswertung angepasst

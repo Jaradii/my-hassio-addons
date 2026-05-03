@@ -12501,3 +12501,23 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
   font-size: 0.86rem !important;
   color: var(--text) !important;
 }
+
+
+/* v1.0.99-test: Suchdatum als Balken wie in der Auswertung */
+.global-search-day h3 {
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  font-size: 0.82rem !important;
+  color: var(--text) !important;
+  font-weight: 950 !important;
+  margin: 0 !important;
+  padding: 8px 10px !important;
+  border-radius: 12px !important;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 62%, transparent) !important;
+  background: color-mix(in srgb, var(--kg-soft) 45%, var(--card) 55%) !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04) !important;
+}
+
+.global-search-day {
+  gap: 8px !important;
+}

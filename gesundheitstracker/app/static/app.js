@@ -2514,14 +2514,7 @@ function entrySearchSummary(entry) {
 
 function formatSearchDateHeading(date) {
   if (!date || date === "Ohne Datum") return "Ohne Datum";
-  const parsed = new Date(`${date}T12:00:00`);
-  if (Number.isNaN(parsed.getTime())) return date;
-  return parsed.toLocaleDateString("de-DE", {
-    weekday: "long",
-    day: "2-digit",
-    month: "long",
-    year: "numeric"
-  });
+  return formatDateShortGerman(date);
 }
 
 function renderGlobalSearchResults() {
