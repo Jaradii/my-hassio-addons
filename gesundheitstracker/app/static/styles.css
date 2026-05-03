@@ -12778,49 +12778,6 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
 
 
 /* v1.1.11-test: Direkter Markierungsbutton */
-.summary-flag-button {
-  font-size: 0.78rem;
-}
-
-.summary-row-flags {
-  display: inline-flex;
-  margin-left: 7px;
-  padding: 2px 7px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--primary) 13%, var(--card) 87%);
-  border: 1px solid color-mix(in srgb, var(--primary) 28%, var(--kg-border) 72%);
-  color: var(--text);
-  font-size: 0.68rem;
-  font-weight: 900;
-  vertical-align: middle;
-}
-
-
-/* v1.1.13-test: Markierungen besser platziert */
-.summary-info-item {
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: start;
-}
-
-.summary-info-item > p {
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
-.summary-row-actions {
-  align-self: start;
-  flex-shrink: 0;
-}
-
-.summary-flag-button {
-  opacity: 0.72;
-}
-
-.summary-flag-button.active {
-  opacity: 1;
-  background: color-mix(in srgb, var(--primary) 16%, var(--card) 84%) !important;
-  border-color: color-mix(in srgb, var(--primary) 42%, var(--kg-border) 58%) !important;
-}
 
 .summary-row-flags {
   display: none !important;
@@ -12862,17 +12819,25 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
 
 
 
-/* v1.1.15-test: Markierungsbutton wieder wie Historie/Bearbeiten */
+
+
+/* v1.1.16-test: Markierungsbutton exakt wie Historie/Bearbeiten */
 .summary-edit-button.summary-flag-button {
+  background: inherit !important;
+  border-color: inherit !important;
+  box-shadow: inherit !important;
+  color: inherit !important;
+  opacity: 1 !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  text-align: center !important;
   line-height: 1 !important;
-  font-size: 0.78rem !important;
   padding: 0 !important;
 }
 
-.summary-edit-button.summary-flag-button::before {
-  content: none !important;
+.summary-edit-button.summary-flag-button.active {
+  background: inherit !important;
+  border-color: inherit !important;
+  box-shadow: inherit !important;
+  color: inherit !important;
 }

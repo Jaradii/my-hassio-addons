@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.1.15
+- Basis ist die funktionierende Version 1.1.16
 
 
 ## Änderungen in 1.0.10
@@ -888,3 +888,10 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Das echte `🏷️`-Icon ist wieder im Button enthalten
 - Markierungsbutton nutzt wieder denselben Grundstil wie Historie- und Bearbeiten-Button
 - Nur die Ausrichtung im Button wurde angepasst
+
+
+## Änderungen in 1.1.16-test
+
+- Sonderstyling des Markierungsbuttons entfernt
+- Markierungsbutton übernimmt jetzt denselben Hintergrund, dieselbe Umrandung und denselben Grundstil wie Historie/Bearbeiten
+- Aktiver Zustand verändert den Button nicht mehr optisch anders
