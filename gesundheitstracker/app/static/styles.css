@@ -13011,3 +13011,9 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+
+/* v1.1.23-test: Nachkontrolle gilt für alle Symptome */
+.followup-card {
+  scroll-margin-top: 12px;
+}

@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.1.22
+- Basis ist die funktionierende Version 1.1.23
 
 
 ## Änderungen in 1.0.10
@@ -943,3 +943,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - `Ja` erstellt einen neuen Eintrag für heute mit denselben Symptomen und Markierungen
 - `Nein` blendet die Nachfrage für diesen Eintrag aus
 - Die Nachfrage ist eine In-App-Erinnerung beim Öffnen/Ansehen des Tages, keine Push-Benachrichtigung
+
+
+## Änderungen in 1.1.23-test
+
+- Nachkontrolle gilt jetzt für alle Symptom-Einträge vom Vortag
+- Eine Markierung ist nicht mehr nötig, damit die Nachfrage am Folgetag erscheint
+- Markierungen werden in der Nachkontrolle weiterhin angezeigt, falls vorhanden
+- Bei `Ja` werden vorhandene Markierungen weiterhin in den neuen Nachkontroll-Eintrag übernommen

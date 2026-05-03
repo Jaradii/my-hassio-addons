@@ -799,7 +799,6 @@ function markedSymptomFollowUpsForDate(date) {
   return (state.data.entries || [])
     .filter(entry => entry.date === previous)
     .filter(entry => analysisValue(entry, "symptoms"))
-    .filter(entry => normalizeEntryFlags(entry.entry_flags || []).length)
     .filter(entry => !followUpIsDismissed(entry.id, date))
     .sort((a, b) => (a.time || "").localeCompare(b.time || ""));
 }
@@ -814,14 +813,14 @@ function renderMarkedSymptomFollowUps(date) {
         <span>↪</span>
         <div>
           <strong>Nachkontrolle</strong>
-          <p>Diese markierten Symptome waren gestern dokumentiert. Sind sie heute noch da?</p>
+          <p>Diese Symptome waren gestern dokumentiert. Sind sie heute noch da?</p>
         </div>
       </div>
       <div class="followup-list">
         ${followUps.map(entry => `
           <article class="followup-item">
             <div>
-              <span>${escapeHtml(entry.time || "--:--")} Uhr · ${escapeHtml(entryFlagsText(entry.entry_flags))}</span>
+              <span>${escapeHtml(entry.time || "--:--")} Uhr${entryFlagsText(entry.entry_flags) ? ` · ${escapeHtml(entryFlagsText(entry.entry_flags))}` : ""}</span>
               <strong>${escapeHtml(analysisValue(entry, "symptoms"))}</strong>
             </div>
             <div class="followup-actions">
