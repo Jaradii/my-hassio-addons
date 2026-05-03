@@ -271,8 +271,8 @@
             <label><input type="checkbox" value="Appetitlosigkeit" /><span class="symptom-icon">🍽️</span><span>Appetit</span><select class="symptom-intensity" data-symptom="Appetitlosigkeit" aria-label="Intensität Appetitlosigkeit"><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
           </div>
           <input id="customSymptoms" type="text" placeholder="Weitere Symptome" />
-          <div class="symptom-photo-box">
-            <label class="btn secondary symptom-photo-button" for="symptomImageInput">📷 Foto hinzufügen</label>
+          <div class="symptom-photo-box visible-symptom-photo-box">
+            <button id="symptomImageButton" type="button" class="symptom-photo-button">📷 Foto hinzufügen</button>
             <input id="symptomImageInput" type="file" accept="image/*" multiple />
             <div id="symptomImagePreview" class="symptom-image-preview"></div>
           </div>

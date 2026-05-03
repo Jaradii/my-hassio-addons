@@ -1167,6 +1167,11 @@ function quickDefinition(kind) {
       <label><input type="checkbox" value="Appetitlosigkeit"><span class="symptom-icon">🍽️</span><span>Appetitlosigkeit</span><select class="quick-symptom-intensity" data-symptom="Appetitlosigkeit" aria-label="Intensität Appetitlosigkeit"><option value="leicht">leicht</option><option value="mittel" selected>mittel</option><option value="stark">stark</option></select></label>
     </div>
     <label class="field quick-field"><span>Weitere Symptome</span><input id="quickCustomSymptoms" type="text" placeholder="optional"></label>
+    <div class="symptom-photo-box visible-symptom-photo-box">
+      <button id="quickSymptomImageButton" type="button" class="symptom-photo-button">📷 Foto hinzufügen</button>
+      <input id="quickSymptomImageInput" type="file" accept="image/*" multiple />
+      <div id="quickSymptomImagePreview" class="symptom-image-preview"></div>
+    </div>
   `;
   const defs = {
     fluids: { title: "Flüssigkeit", subtitle: "Getrunkene Menge in ml eintragen.", content: `<label class="field quick-field"><span>Flüssigkeit in ml</span><input id="quickFluidsMl" type="number" min="0" step="10" inputmode="numeric" placeholder="z. B. 250"></label>` },
@@ -1194,6 +1199,15 @@ function openQuickEntry(kind) {
   sheet.classList.remove("closing", "hidden");
   sheet.setAttribute("aria-hidden", "false");
   bindQuickControls(kind);
+  state.pendingQuickSymptomImages = [];
+  renderPendingSymptomImages("quickSymptomImagePreview", state.pendingQuickSymptomImages);
+  if ($("quickSymptomImageButton")) $("quickSymptomImageButton").addEventListener("click", () => $("quickSymptomImageInput").click());
+  if ($("quickSymptomImageInput")) {
+    $("quickSymptomImageInput").addEventListener("change", async event => {
+      await handleSymptomImageFiles(event.target.files, "quick");
+      event.target.value = "";
+    });
+  }
   bindSleepTimeInputs($("quickContent"));
   updateQuickSleepDurationPreview();
   window.setTimeout(() => {
@@ -3203,6 +3217,7 @@ async function init() {
   document.querySelectorAll("#symptomChips input").forEach(input => {
     input.addEventListener("change", updateSymptomIntensityControls);
   });
+  $("symptomImageButton").addEventListener("click", () => $("symptomImageInput").click());
   $("symptomImageInput").addEventListener("change", async event => {
     await handleSymptomImageFiles(event.target.files, "main");
     event.target.value = "";
