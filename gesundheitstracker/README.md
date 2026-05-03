@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.1.20
+- Basis ist die funktionierende Version 1.1.21
 
 
 ## Änderungen in 1.0.10
@@ -926,3 +926,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Markierungen werden jetzt als eigene Vollbreiten-Zeile unter dem gesamten Eintrag angezeigt
 - Markierungen liegen nicht mehr neben Text oder `Fotos anzeigen`
 - Text, Uhrzeit und Aktionsbuttons werden wieder normal ausgerichtet
+
+
+## Änderungen in 1.1.21-test
+
+- Symptom-Tage-Zusammenfassung oben in der Auswertung entfernt
+- Auswertung zeigt bei `Symptome` jetzt nur noch eine einfache Treffer-Zusammenfassung
+- Konkrete Symptom-Einträge bleiben darunter weiterhin nach Datum gruppiert sichtbar
+- Infekt-Verläufe sollen künftig über Infekt-Funktion und Arztbericht bewertet werden

@@ -3879,44 +3879,10 @@ function renderTemperatureAnalysis(entries) {
 
 
 function renderSymptomTrendAnalysis(entries) {
-  const symptomMap = {};
-  entries.forEach(entry => {
-    const names = new Set();
-    (entry.symptoms || []).forEach(symptom => {
-      const s = String(symptom || "").trim();
-      if (s) names.add(s);
-    });
-    if (entry.custom_symptoms) {
-      entry.custom_symptoms.split(",").map(s => s.trim()).filter(Boolean).forEach(s => names.add(s));
-    }
-    names.forEach(name => {
-      if (!symptomMap[name]) symptomMap[name] = new Set();
-      if (entry.date) symptomMap[name].add(entry.date);
-    });
-  });
-
-  const rows = Object.entries(symptomMap)
-    .map(([name, dates]) => ({ name, dates: [...dates].sort() }))
-    .sort((a, b) => b.dates.length - a.dates.length || a.name.localeCompare(b.name));
-
-  if (!rows.length) {
-    return `<div class="analysis-empty">Keine Symptome im gewählten Zeitraum.</div>`;
-  }
-
   return `
-    <div class="symptom-trend-list">
-      ${rows.map(row => `
-        <div class="symptom-trend-row">
-          <div class="symptom-trend-title">
-            <span>${symptomIcon(row.name)}</span>
-            <strong>${escapeHtml(row.name)}</strong>
-            <em>${row.dates.length} Tag${row.dates.length === 1 ? "" : "e"}</em>
-          </div>
-          <div class="symptom-trend-dates">
-            ${row.dates.map(date => `<span>${escapeHtml(formatDateShortGerman(date))}</span>`).join("")}
-          </div>
-        </div>
-      `).join("")}
+    <div class="analysis-simple-summary">
+      <span>Symptome</span>
+      <strong>${entries.length} Treffer</strong>
     </div>
   `;
 }
