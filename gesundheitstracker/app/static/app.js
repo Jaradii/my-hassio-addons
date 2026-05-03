@@ -99,6 +99,43 @@ function normalizeSymptomImages(images) {
     .filter(Boolean);
 }
 
+
+function openImagePreviewPopup(url) {
+  if (!url) return;
+  const popup = $("imagePreviewPopup");
+  const img = $("imagePreviewLarge");
+  if (!popup || !img) return;
+
+  img.src = url;
+  popup.classList.remove("closing", "hidden");
+  popup.setAttribute("aria-hidden", "false");
+  document.body.classList.add("image-preview-open");
+}
+
+function closeImagePreviewPopup() {
+  const popup = $("imagePreviewPopup");
+  const img = $("imagePreviewLarge");
+  if (!popup || popup.classList.contains("hidden")) return;
+
+  popup.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("image-preview-open");
+  animateHide(popup, "closing", () => {
+    if (img) img.src = "";
+  });
+}
+
+function bindSymptomImageOpeners(root = document) {
+  root.querySelectorAll(".symptom-image-open").forEach(button => {
+    if (button.dataset.bound === "1") return;
+    button.dataset.bound = "1";
+    button.addEventListener("click", event => {
+      event.preventDefault();
+      event.stopPropagation();
+      openImagePreviewPopup(button.dataset.url);
+    });
+  });
+}
+
 function renderSymptomImages(images) {
   const normalized = normalizeSymptomImages(images);
   if (!normalized.length) return "";
@@ -106,7 +143,7 @@ function renderSymptomImages(images) {
     <div class="symptom-image-strip">
       ${normalized.map(image => {
         const url = uploadUrlFromImage(image);
-        return `<a href="${escapeHtml(url)}" target="_blank" rel="noopener"><img src="${escapeHtml(url)}" alt="Symptom-Foto" loading="lazy" /></a>`;
+        return `<button type="button" class="symptom-image-open" data-url="${escapeHtml(url)}" aria-label="Symptom-Foto öffnen"><img src="${escapeHtml(url)}" alt="Symptom-Foto" loading="lazy" /></button>`;
       }).join("")}
     </div>
   `;
@@ -483,6 +520,7 @@ function renderDay() {
   container.querySelectorAll(".quick-tile").forEach(tile => {
     tile.addEventListener("click", () => openQuickEntry(tile.dataset.quick));
   });
+  bindSymptomImageOpeners(container);
 }
 
 function entryDateTimeValue(entry) {
@@ -877,6 +915,8 @@ function openEntryDetailPopup(entryId) {
       closeDayDetailSheet();
     });
   });
+
+  bindSymptomImageOpeners($("entryDetailPopupContent"));
 }
 
 function closeEntryDetailPopup() {
@@ -3267,6 +3307,8 @@ async function init() {
   $("dayDetailBackdrop").addEventListener("click", closeDayDetailSheet);
   $("closeEntryDetailPopup").addEventListener("click", closeEntryDetailPopup);
   $("entryDetailPopupBackdrop").addEventListener("click", closeEntryDetailPopup);
+  $("closeImagePreview").addEventListener("click", closeImagePreviewPopup);
+  $("imagePreviewBackdrop").addEventListener("click", closeImagePreviewPopup);
   $("closeFieldEdit").addEventListener("click", closeFieldEdit);
   $("fieldEditBackdrop").addEventListener("click", closeFieldEdit);
   $("fieldEditForm").addEventListener("submit", saveFieldEdit);

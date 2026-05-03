@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.56
+- Basis ist die funktionierende Version 1.0.57
 
 
 ## Änderungen in 1.0.10
@@ -426,3 +426,10 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Foto-Button im normalen Symptome-Bereich und in der Symptome-Schnelleingabe
 - Heutige Einträge sollten wieder normal geladen werden, da die Version auf der stabilen 1.0.53 basiert
 - Bilder werden unter `/data/uploads` gespeichert und in `symptom_images` referenziert
+
+
+## Änderungen in 1.0.57-test
+
+- Symptom-Fotos öffnen jetzt in einem App-internen Popup
+- Klick auf Bild öffnet nicht mehr Safari/externen Tab
+- Großansicht mit dunklem Hintergrund und Schließen-Button ergänzt
