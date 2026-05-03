@@ -3471,6 +3471,13 @@ async function buildDoctorReportHtml(selectedIllness = null) {
     object-fit: cover;
     display: block;
   }
+  .report-photo-grid figure img {
+    width: 100%;
+    height: 240px;
+    min-height: 180px;
+    object-fit: contain;
+    background: #fff;
+  }
   figcaption {
     padding: 8px 10px;
     font-size: 12px;
@@ -3511,29 +3518,35 @@ async function buildDoctorReportHtml(selectedIllness = null) {
       page-break-inside: avoid;
     }
 
-    figure {
-      display: block;
-      margin-bottom: 10px;
-    }
-
-    figure img {
-      height: auto;
-      max-height: 95mm;
-      object-fit: contain;
-      background: #fff;
-    }
-
     .report-entry-photos img {
-      width: 42mm;
-      height: auto;
-      max-height: 42mm;
+      width: 38mm;
+      height: 38mm;
       object-fit: contain;
       background: #fff;
     }
 
     .report-photo-grid {
+      display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8mm;
       align-items: start;
+    }
+
+    .report-photo-grid figure {
+      break-inside: avoid;
+      page-break-inside: avoid;
+      display: block;
+      margin: 0 0 8mm 0;
+    }
+
+    .report-photo-grid figure img {
+      width: 100%;
+      height: 82mm;
+      max-height: 82mm;
+      min-height: 55mm;
+      object-fit: contain;
+      background: #fff;
+      display: block;
     }
 
     h2, h3 {

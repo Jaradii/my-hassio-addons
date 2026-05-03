@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.1.05
+- Basis ist die funktionierende Version 1.1.06
 
 
 ## Änderungen in 1.0.10
@@ -806,3 +806,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Fotoblöcke werden beim Drucken/PDF-Speichern möglichst nicht mehr zwischen zwei Seiten getrennt
 - Bilder werden im Druckmodus mit `object-fit: contain` dargestellt, damit sie nicht abgeschnitten werden
 - Fotoübersicht druckt mit zwei Spalten und begrenzter Bildhöhe
+
+
+## Änderungen in 1.1.06-test
+
+- Große Bilder im Abschnitt `Fotos` des HTML-Arztberichts repariert
+- Kleine Bilder im Tagesverlauf bleiben klein
+- Fotoübersicht bekommt eigene Bildgrößen für Bildschirm und PDF/Druck
+- Seitenumbruch-Schutz bleibt erhalten, ohne die große Fotoübersicht auszublenden
