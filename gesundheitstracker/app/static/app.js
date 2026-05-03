@@ -2943,8 +2943,7 @@ async function openIllnessView() {
 
 async function startIllness() {
   const start = $("illnessStartDate")?.value || state.selectedDate || today();
-  const suggestedTitle = `Infekt ab ${formatDateShortGerman(start)}`;
-  const enteredTitle = window.prompt("Wie soll der Infekt heißen?", suggestedTitle);
+  const enteredTitle = window.prompt("Wie soll der Infekt heißen?", "");
 
   if (enteredTitle === null) {
     return;

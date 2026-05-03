@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.90
+- Basis ist die funktionierende Version 1.0.91
 
 
 ## Änderungen in 1.0.10
@@ -689,3 +689,10 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Name wird weiterhin beim Starten per Abfrage eingegeben
 - Beim Stoppen eines Infekts wird ein eventuell noch vorhandenes Bezeichnungsfeld geleert
 - Bearbeiten-Popup behält weiterhin das Bezeichnungsfeld zum nachträglichen Umbenennen
+
+
+## Änderungen in 1.0.91-test
+
+- Namensabfrage beim Starten eines Infekts zeigt jetzt immer ein leeres Eingabefeld
+- Der Name des letzten Infekts wird nicht mehr als Vorschlag übernommen
+- Ohne Eingabe wird weiterhin kein Infekt gestartet
