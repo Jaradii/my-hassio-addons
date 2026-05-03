@@ -2942,7 +2942,7 @@ async function openIllnessView() {
 }
 
 async function startIllness() {
-  const start = $("illnessStartDate")?.value || state.selectedDate || today();
+  const start = today();
   const enteredTitle = window.prompt("Wie soll der Infekt heißen?", "");
 
   if (enteredTitle === null) {
@@ -2955,8 +2955,6 @@ async function startIllness() {
     return;
   }
 
-  if ($("illnessTitleInput")) $("illnessTitleInput").value = title;
-
   await saveActiveIllness({
     id: `illness_${Date.now()}`,
     title,
@@ -2964,7 +2962,6 @@ async function startIllness() {
     end: "",
     created_at: new Date().toISOString()
   });
-  if ($("illnessEndDate")) $("illnessEndDate").value = today();
   await loadState();
   renderIllnessStatus();
   showToast("Infekt gestartet");
@@ -2976,14 +2973,11 @@ async function stopIllness() {
     return;
   }
 
-  const end = $("illnessEndDate")?.value || today();
+  const end = today();
   const stopped = await stopActiveIllness(end);
 
   // Der abgeschlossene Zeitraum bleibt in den Feldern stehen, damit der Arztbericht direkt erstellt werden kann.
   await loadState();
-  if ($("illnessStartDate")) $("illnessStartDate").value = stopped?.start || state.selectedDate || today();
-  if ($("illnessEndDate")) $("illnessEndDate").value = stopped?.end || end || today();
-  if ($("illnessTitleInput")) $("illnessTitleInput").value = "";
   renderIllnessStatus();
   showToast("Infekt gestoppt");
 }

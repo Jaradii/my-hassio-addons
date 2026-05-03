@@ -12446,3 +12446,11 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
 #illnessTitleInput {
   display: none !important;
 }
+
+
+/* v1.0.92-test: Start-/Enddatum aus Infekt-Startansicht entfernt */
+#illnessStartDate,
+#illnessEndDate,
+#illnessTitleInput {
+  display: none !important;
+}

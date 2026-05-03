@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.91
+- Basis ist die funktionierende Version 1.0.92
 
 
 ## Änderungen in 1.0.10
@@ -696,3 +696,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Namensabfrage beim Starten eines Infekts zeigt jetzt immer ein leeres Eingabefeld
 - Der Name des letzten Infekts wird nicht mehr als Vorschlag übernommen
 - Ohne Eingabe wird weiterhin kein Infekt gestartet
+
+
+## Änderungen in 1.0.92-test
+
+- Startdatum und Enddatum aus der normalen Infekt-Startansicht entfernt
+- Beim Starten wird das Startdatum automatisch auf heute gesetzt
+- Beim Stoppen wird das Enddatum automatisch auf heute gesetzt
+- Im Bearbeiten-Popup bleiben Startdatum und Enddatum erhalten, damit man später korrigieren kann
