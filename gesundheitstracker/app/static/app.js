@@ -3467,7 +3467,7 @@ async function buildDoctorReportHtml(selectedIllness = null) {
   }
   figure img {
     width: 100%;
-    height: 180px;
+    height: 160px;
     object-fit: cover;
     display: block;
   }
@@ -3484,9 +3484,62 @@ async function buildDoctorReportHtml(selectedIllness = null) {
     line-height: 1.45;
   }
   @media print {
-    body { background: #fff; padding: 0; }
-    .report { box-shadow: none; border-radius: 0; }
-    figure, .report-entry { break-inside: avoid; }
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    body {
+      background: #fff;
+      padding: 0;
+    }
+
+    .report {
+      box-shadow: none;
+      border-radius: 0;
+      padding: 0;
+      max-width: none;
+    }
+
+    .report-section,
+    .report-day,
+    .report-entry,
+    .report-entry-photos,
+    .report-photo-grid,
+    figure {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    figure {
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    figure img {
+      height: auto;
+      max-height: 95mm;
+      object-fit: contain;
+      background: #fff;
+    }
+
+    .report-entry-photos img {
+      width: 42mm;
+      height: auto;
+      max-height: 42mm;
+      object-fit: contain;
+      background: #fff;
+    }
+
+    .report-photo-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
+    }
+
+    h2, h3 {
+      break-after: avoid;
+      page-break-after: avoid;
+    }
   }
 </style>
 </head>
