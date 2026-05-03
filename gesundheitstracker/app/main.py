@@ -284,6 +284,62 @@ async def api_set_illness(request: Request):
     return {"active_illness": store.get("active_illness")}
 
 
+@app.put("/api/illness/{illness_id}")
+async def api_update_illness(illness_id: str, request: Request):
+    check_pin(request)
+    try:
+        payload = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Ungültige Infekt-Daten.")
+
+    if not isinstance(payload, dict):
+        raise HTTPException(status_code=400, detail="Ungültiges Infekt-Format.")
+
+    store = read_store()
+    updated = None
+
+    active = store.get("active_illness")
+    if isinstance(active, dict) and str(active.get("id") or "") == illness_id:
+        active.update(
+            {
+                "title": str(payload.get("title") or active.get("title") or "").strip(),
+                "start": str(payload.get("start") or active.get("start") or "").strip(),
+                "end": str(payload.get("end") or active.get("end") or "").strip(),
+                "updated_at": utc_now(),
+            }
+        )
+        store["active_illness"] = active
+        updated = active
+    else:
+        history = store.get("illness_history", [])
+        if not isinstance(history, list):
+            history = []
+        for idx, illness in enumerate(history):
+            if isinstance(illness, dict) and str(illness.get("id") or "") == illness_id:
+                illness.update(
+                    {
+                        "title": str(payload.get("title") or illness.get("title") or "").strip(),
+                        "start": str(payload.get("start") or illness.get("start") or "").strip(),
+                        "end": str(payload.get("end") or illness.get("end") or "").strip(),
+                        "updated_at": utc_now(),
+                    }
+                )
+                history[idx] = illness
+                updated = illness
+                break
+        store["illness_history"] = history
+
+    if not updated:
+        raise HTTPException(status_code=404, detail="Infekt nicht gefunden.")
+
+    write_store(store)
+    return {
+        "active_illness": store.get("active_illness"),
+        "illness_history": store.get("illness_history", []),
+        "illness": updated,
+    }
+
+
 @app.post("/api/illness/stop")
 async def api_stop_illness(request: Request):
     check_pin(request)

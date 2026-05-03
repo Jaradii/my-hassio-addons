@@ -12155,3 +12155,127 @@ button.compact-day-tile strong {
     gap: 2px;
   }
 }
+
+
+/* v1.0.84-test: Infekt-Liste und Bearbeiten */
+.illness-list-section {
+  margin-top: 14px;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 62%, transparent);
+  background: color-mix(in srgb, var(--card) 94%, var(--kg-soft) 6%);
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.illness-list-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.illness-list-head strong {
+  color: var(--text);
+  font-size: 0.94rem;
+  font-weight: 1000;
+}
+
+.illness-list-head span {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 850;
+}
+
+.illness-list {
+  display: grid;
+  gap: 8px;
+}
+
+.illness-list-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  border-radius: 13px;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 58%, transparent);
+  background: color-mix(in srgb, var(--kg-soft) 32%, var(--card) 68%);
+  padding: 8px;
+}
+
+.illness-list-item.active {
+  border-color: color-mix(in srgb, var(--primary) 44%, var(--kg-border) 56%);
+  background: color-mix(in srgb, var(--primary) 8%, var(--card) 92%);
+}
+
+.illness-list-main {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: 0;
+}
+
+.illness-list-main span {
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.illness-list-main strong {
+  color: var(--text);
+  font-size: 0.86rem;
+  font-weight: 1000;
+}
+
+.illness-list-main small {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 820;
+  line-height: 1.25;
+}
+
+.illness-list-actions {
+  display: inline-flex;
+  gap: 5px;
+}
+
+.illness-list-actions button {
+  border: 1px solid color-mix(in srgb, var(--kg-border) 62%, transparent);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--text);
+  min-height: 28px;
+  padding: 4px 8px;
+  font-size: 0.68rem;
+  font-weight: 950;
+}
+
+.illness-edit-card {
+  max-width: 560px !important;
+}
+
+.illness-edit-actions {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+@media (max-width: 560px) {
+  .illness-list-item {
+    grid-template-columns: 1fr;
+  }
+
+  .illness-list-actions,
+  .illness-edit-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}

@@ -518,6 +518,45 @@
         </div>
 
         <div id="illnessOverviewContent" class="illness-overview-content"></div>
+
+        <section class="illness-list-section">
+          <div class="illness-list-head">
+            <strong>Infekt-Liste</strong>
+            <span>Aktive und abgeschlossene Infekte</span>
+          </div>
+          <div id="illnessListContent" class="illness-list-content"></div>
+        </section>
+      </div>
+    </section>
+
+
+    <section id="illnessEditView" class="modal-view hidden">
+      <div class="view-card illness-edit-card">
+        <div class="sheet-head">
+          <h2>Infekt bearbeiten</h2>
+          <button class="round-btn close-view">×</button>
+        </div>
+
+        <input id="illnessEditId" type="hidden" />
+        <div class="illness-form-grid">
+          <label class="field illness-title-field">
+            <span>Bezeichnung</span>
+            <input id="illnessEditTitle" type="text" />
+          </label>
+          <label class="field">
+            <span>Startdatum</span>
+            <input id="illnessEditStart" type="date" />
+          </label>
+          <label class="field">
+            <span>Enddatum</span>
+            <input id="illnessEditEnd" type="date" />
+          </label>
+        </div>
+
+        <div class="illness-edit-actions">
+          <button id="saveIllnessEditButton" type="button" class="btn primary">Speichern</button>
+          <button id="reportIllnessEditButton" type="button" class="btn secondary">Bericht</button>
+        </div>
       </div>
     </section>
 

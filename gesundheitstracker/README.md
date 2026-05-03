@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.83
+- Basis ist die funktionierende Version 1.0.84
 
 
 ## Änderungen in 1.0.10
@@ -630,3 +630,13 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Backend ordnet Einträge zusätzlich serverseitig dem aktiven Infekt zu
 - Infekt-Übersicht mit Tagesverlauf, Maximaltemperatur, Medikamenten und Bildern ergänzt
 - Arztbericht mit verständlicher Kurz-Zusammenfassung verbessert
+
+
+## Änderungen in 1.0.84-test
+
+- Infekt-Liste in der Infekt-Ansicht ergänzt
+- Aktive und abgeschlossene Infekte werden angezeigt
+- Infekte können ausgewählt werden, um die Übersicht umzuschalten
+- Infekte können bearbeitet werden: Titel, Startdatum, Enddatum
+- Bericht kann direkt aus der Liste oder aus dem Bearbeiten-Popup erzeugt werden
+- Backend-Endpunkt `PUT /api/illness/{illness_id}` ergänzt

@@ -16,6 +16,7 @@ const state = {
   storageUploads: [],
   activeIllness: null,
   illnessHistory: [],
+  selectedIllnessForReport: null,
   lastDoctorReport: ""
 };
 
@@ -2562,11 +2563,11 @@ function renderActiveIllnessBanner() {
   $("bannerStopIllnessButton").addEventListener("click", stopIllness);
 }
 
-function renderIllnessOverview() {
+function renderIllnessOverview(selectedIllness = null) {
   const container = $("illnessOverviewContent");
   if (!container) return;
 
-  const illness = state.activeIllness || {
+  const illness = selectedIllness || state.selectedIllnessForReport || state.activeIllness || {
     id: "",
     title: $("illnessTitleInput")?.value.trim() || "Infekt-Zeitraum",
     start: $("illnessStartDate")?.value || state.selectedDate || today(),
@@ -2604,6 +2605,116 @@ function renderIllnessOverview() {
       </div>
     </section>
   `;
+}
+
+
+function allIllnesses() {
+  const items = [];
+  if (state.activeIllness) items.push({ ...state.activeIllness, status: "active" });
+  const history = Array.isArray(state.illnessHistory) ? state.illnessHistory : [];
+  history.forEach(item => {
+    if (item && typeof item === "object") items.push({ ...item, status: "ended" });
+  });
+  return items.sort((a, b) => String(b.start || "").localeCompare(String(a.start || "")));
+}
+
+function renderIllnessList() {
+  const container = $("illnessListContent");
+  if (!container) return;
+
+  const items = allIllnesses();
+  if (!items.length) {
+    container.innerHTML = `<div class="illness-empty">Noch keine Infekte gespeichert.</div>`;
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="illness-list">
+      ${items.map(item => {
+        const entries = illnessEntriesFor(item);
+        const stats = buildIllnessStats(item.start || "", item.end || today());
+        return `
+          <article class="illness-list-item ${item.status === "active" ? "active" : ""}">
+            <button type="button" class="illness-list-main" data-id="${escapeHtml(item.id || "")}">
+              <span>${item.status === "active" ? "läuft" : "beendet"}</span>
+              <strong>${escapeHtml(item.title || "Infekt")}</strong>
+              <small>${escapeHtml(formatDateShortGerman(item.start || today()))} bis ${escapeHtml(item.end ? formatDateShortGerman(item.end) : "heute")} · ${entries.length} Einträge · ${stats.maxTemp !== null ? `max. ${stats.maxTemp.toFixed(1)} °C` : "keine Temperatur"}</small>
+            </button>
+            <div class="illness-list-actions">
+              <button type="button" class="illness-list-report" data-id="${escapeHtml(item.id || "")}">Bericht</button>
+              <button type="button" class="illness-list-edit" data-id="${escapeHtml(item.id || "")}">Bearbeiten</button>
+            </div>
+          </article>
+        `;
+      }).join("")}
+    </div>
+  `;
+
+  container.querySelectorAll(".illness-list-main").forEach(button => {
+    button.addEventListener("click", () => selectIllnessForOverview(button.dataset.id));
+  });
+  container.querySelectorAll(".illness-list-report").forEach(button => {
+    button.addEventListener("click", () => openDoctorReportForIllness(button.dataset.id));
+  });
+  container.querySelectorAll(".illness-list-edit").forEach(button => {
+    button.addEventListener("click", () => openIllnessEdit(button.dataset.id));
+  });
+}
+
+function findIllnessById(id) {
+  return allIllnesses().find(item => String(item.id || "") === String(id || "")) || null;
+}
+
+function selectIllnessForOverview(id) {
+  const illness = findIllnessById(id);
+  if (!illness) return;
+  state.selectedIllnessForReport = illness;
+  if ($("illnessStartDate")) $("illnessStartDate").value = illness.start || state.selectedDate || today();
+  if ($("illnessEndDate")) $("illnessEndDate").value = illness.end || today();
+  if ($("illnessTitleInput")) $("illnessTitleInput").value = illness.title || "";
+  renderIllnessOverview(illness);
+}
+
+function openIllnessEdit(id) {
+  const illness = findIllnessById(id);
+  if (!illness) return;
+  $("illnessEditId").value = illness.id || "";
+  $("illnessEditTitle").value = illness.title || "";
+  $("illnessEditStart").value = illness.start || today();
+  $("illnessEditEnd").value = illness.end || "";
+  openView("illnessEditView");
+}
+
+async function saveIllnessEdit() {
+  const id = $("illnessEditId").value;
+  if (!id) return;
+  const payload = {
+    title: $("illnessEditTitle").value.trim() || "Infekt",
+    start: $("illnessEditStart").value || today(),
+    end: $("illnessEditEnd").value || ""
+  };
+  const data = await api(`./api/illness/${encodeURIComponent(id)}`, {
+    method: "PUT",
+    body: JSON.stringify(payload)
+  });
+  state.activeIllness = data.active_illness || null;
+  state.illnessHistory = data.illness_history || [];
+  state.data.active_illness = state.activeIllness;
+  state.data.illness_history = state.illnessHistory;
+  closeViews();
+  openIllnessView();
+  renderActiveIllnessBanner();
+  showToast("Infekt gespeichert");
+}
+
+function openDoctorReportForIllness(id) {
+  const illness = findIllnessById(id);
+  if (!illness) return;
+  state.selectedIllnessForReport = illness;
+  const text = buildDoctorReportText(illness);
+  state.lastDoctorReport = text;
+  $("doctorReportText").value = text;
+  openView("doctorReportView");
 }
 
 function renderIllnessStatus() {
@@ -2644,6 +2755,7 @@ function renderIllnessStatus() {
   }
 
   renderIllnessOverview();
+  renderIllnessList();
   renderActiveIllnessBanner();
 }
 
@@ -2700,11 +2812,11 @@ function feverAssessment(value) {
   return "erhöht/normal";
 }
 
-function buildDoctorReportText() {
-  const range = illnessDateRange();
+function buildDoctorReportText(selectedIllness = null) {
+  const range = selectedIllness ? { start: selectedIllness.start || state.selectedDate || today(), end: selectedIllness.end || today() } : illnessDateRange();
   const stats = buildIllnessStats(range.start, range.end);
   const lines = [];
-  const title = $("illnessTitleInput")?.value.trim() || state.activeIllness?.title || "Infektbericht";
+  const title = selectedIllness?.title || $("illnessTitleInput")?.value.trim() || state.activeIllness?.title || "Infektbericht";
 
   lines.push("Gesundheitstracker Arztbericht");
   lines.push("==============================");
@@ -4311,6 +4423,8 @@ async function init() {
   $("illnessDoctorReportButton").addEventListener("click", openDoctorReport);
   $("copyDoctorReportButton").addEventListener("click", selectDoctorReportText);
   $("downloadDoctorReportButton").addEventListener("click", downloadDoctorReport);
+  $("saveIllnessEditButton").addEventListener("click", saveIllnessEdit);
+  $("reportIllnessEditButton").addEventListener("click", () => openDoctorReportForIllness($("illnessEditId").value));
   $("refreshStorageButton").addEventListener("click", loadStorageView);
   $("storageImageDeleteSelected").addEventListener("click", deleteSelectedStorageImages);
   document.querySelectorAll(".close-view").forEach(btn => btn.addEventListener("click", closeViews));
