@@ -11109,3 +11109,33 @@ button.compact-day-tile small {
     gap: 3px !important;
   }
 }
+
+
+/* v1.0.65-test: Mehr Abstand zwischen Uhrzeit und Text für alle Kategorie-Einträge */
+.category-compact-item {
+  grid-template-columns: 50px minmax(0, 1fr) max-content !important;
+  column-gap: 9px !important;
+}
+
+.category-compact-item > .summary-info-time {
+  width: 48px !important;
+  min-width: 48px !important;
+  max-width: 48px !important;
+}
+
+.category-compact-item > p {
+  padding-left: 1px !important;
+}
+
+@media (max-width: 430px) {
+  .category-compact-item {
+    grid-template-columns: 48px minmax(0, 1fr) max-content !important;
+    column-gap: 8px !important;
+  }
+
+  .category-compact-item > .summary-info-time {
+    width: 46px !important;
+    min-width: 46px !important;
+    max-width: 46px !important;
+  }
+}

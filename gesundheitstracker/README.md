@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.64
+- Basis ist die funktionierende Version 1.0.65
 
 
 ## Änderungen in 1.0.10
@@ -490,4 +490,13 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Untere Statuszeile in den Tageskacheln entfernt
 - Hinweise wie „Keine Angabe“, „Nicht eingetragen“ usw. werden dort nicht mehr angezeigt
 - Kacheln zeigen nur noch Icon, Überschrift und Hauptwert
+- Nur CSS geändert
+
+
+## Änderungen in 1.0.65-test
+
+- Abstand zwischen Uhrzeit und Text jetzt für alle Kategorie-Einträge vergrößert
+- Vorher war der bessere Abstand nur bei Einträgen mit Foto aktiv
+- Uhrzeit-Spalte allgemein leicht verbreitert
+- Foto-Chip bleibt unverändert einzeilig
 - Nur CSS geändert
