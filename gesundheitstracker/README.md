@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.1.13
+- Basis ist die funktionierende Version 1.1.14
 
 
 ## Änderungen in 1.0.10
@@ -873,3 +873,10 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Markierungen erscheinen jetzt als eigene kleine Chip-Zeile unter dem Eintrag
 - Der `🏷️`-Button wird bei vorhandenen Markierungen nur optisch hervorgehoben
 - Layout stabilisiert, damit Markierungen und Buttons keine Inhalte mehr überdecken
+
+
+## Änderungen in 1.1.14-test
+
+- Markierungs-Icon im `🏷️`-Button optisch zentriert
+- Feste Button-Größe ergänzt
+- Emoji wird über `::before` sauber mittig gerendert
