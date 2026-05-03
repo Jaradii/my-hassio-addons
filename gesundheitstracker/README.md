@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.82
+- Basis ist die funktionierende Version 1.0.83
 
 
 ## Änderungen in 1.0.10
@@ -620,3 +620,13 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Infekt-Status ist im Backup enthalten
 - Gestoppte Infekte werden in `illness_history` gespeichert
 - Browser-`localStorage` ist für den laufenden Infekt nicht mehr maßgeblich
+
+
+## Änderungen in 1.0.83-test
+
+- Infekt-Modus konzeptionell verbessert
+- Sichtbarer Infekt-Banner auf der Hauptseite ergänzt
+- Neue Einträge bekommen automatisch eine `illness_id`, wenn ein aktiver Infekt läuft
+- Backend ordnet Einträge zusätzlich serverseitig dem aktiven Infekt zu
+- Infekt-Übersicht mit Tagesverlauf, Maximaltemperatur, Medikamenten und Bildern ergänzt
+- Arztbericht mit verständlicher Kurz-Zusammenfassung verbessert

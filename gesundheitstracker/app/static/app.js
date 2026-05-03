@@ -455,6 +455,7 @@ async function loadState() {
 function renderAll() {
   renderProfile();
   renderDay();
+  renderActiveIllnessBanner();
 }
 
 function renderProfile() {
@@ -634,6 +635,7 @@ function renderDay() {
     tile.addEventListener("click", () => openQuickEntry(tile.dataset.quick));
   });
   bindSymptomImageOpeners(container);
+  renderActiveIllnessBanner();
 }
 
 function entryDateTimeValue(entry) {
@@ -1540,7 +1542,7 @@ function selectedQuickSymptomIntensity() {
 }
 
 function quickPayload(kind) {
-  const payload = { date: state.selectedDate, time: nowTime(), temperature: null, mood: "", symptoms: [], custom_symptoms: "", symptom_intensity: {}, medication: "", fluids_ml: null, food: "", sleep: "", diaper_or_toilet: "", notes: "" };
+  const payload = { date: state.selectedDate, time: nowTime(), temperature: null, mood: "", symptoms: [], custom_symptoms: "", symptom_intensity: {}, medication: "", fluids_ml: null, food: "", sleep: "", diaper_or_toilet: "", notes: "", illness_id: currentActiveIllnessIdForDate(state.selectedDate) };
   if (kind === "temperature") {
     const v = $("quickTemperature").value;
     payload.temperature = v === "" ? null : Number(String(v).replace(",", "."));
@@ -1994,7 +1996,8 @@ function formEntry() {
     sleep: buildSleepText($("sleep").value, $("sleepStart")?.value || "", $("sleepEnd")?.value || ""),
     diaper_or_toilet: $("diaperOrToilet").value.trim(),
     notes: $("notes").value.trim(),
-    symptom_images: [...state.pendingSymptomImages]
+    symptom_images: [...state.pendingSymptomImages],
+    illness_id: currentActiveIllnessIdForDate($("entryDate").value || state.selectedDate)
   };
 }
 
@@ -2278,7 +2281,8 @@ async function saveFieldEdit(event) {
     sleep: entry.sleep || "",
     diaper_or_toilet: entry.diaper_or_toilet || "",
     notes: entry.notes || "",
-    symptom_images: normalizeSymptomImages(entry.symptom_images || [])
+    symptom_images: normalizeSymptomImages(entry.symptom_images || []),
+    illness_id: entry.illness_id || ""
   };
 
   const rawValue = $("fieldEditValue").value.trim();
@@ -2478,6 +2482,130 @@ function buildIllnessStats(start, end) {
   };
 }
 
+
+function currentActiveIllnessIdForDate(date) {
+  const illness = state.activeIllness;
+  if (!illness || !illness.id || !date) return "";
+  if (date < illness.start) return "";
+  if (illness.end && date > illness.end) return "";
+  return illness.id;
+}
+
+function illnessEntriesFor(illness) {
+  if (!illness) return [];
+  const start = illness.start || "";
+  const end = illness.end || today();
+  const id = illness.id || "";
+  return (state.data.entries || [])
+    .filter(entry => {
+      if (id && entry.illness_id === id) return true;
+      return dateInRange(entry.date, start, end);
+    })
+    .sort((a, b) => analysisEntryTimestamp(a).localeCompare(analysisEntryTimestamp(b)));
+}
+
+function buildIllnessDailyRows(entries) {
+  const grouped = entries.reduce((acc, entry) => {
+    if (!acc[entry.date]) acc[entry.date] = [];
+    acc[entry.date].push(entry);
+    return acc;
+  }, {});
+
+  return Object.entries(grouped).map(([date, rows]) => {
+    const temps = rows.map(entry => Number(entry.temperature)).filter(value => !Number.isNaN(value));
+    const meds = rows.filter(entry => entry.medication).length;
+    const symptoms = uniqueList(rows.flatMap(symptomNames));
+    const images = rows.reduce((sum, entry) => sum + (Array.isArray(entry.symptom_images) ? entry.symptom_images.length : 0), 0);
+    const maxTemp = temps.length ? Math.max(...temps) : null;
+    const shortParts = [];
+    if (maxTemp !== null) shortParts.push(`max. ${maxTemp.toFixed(1)} °C`);
+    if (symptoms.length) shortParts.push(symptoms.slice(0, 3).join(", "));
+    if (meds) shortParts.push(`${meds} Medis`);
+    if (images) shortParts.push(`${images} Foto${images === 1 ? "" : "s"}`);
+
+    return {
+      date,
+      rows,
+      label: shortParts.length ? shortParts.join(" · ") : `${rows.length} Eintrag${rows.length === 1 ? "" : "e"}`
+    };
+  });
+}
+
+function renderActiveIllnessBanner() {
+  const banner = $("activeIllnessBanner");
+  if (!banner) return;
+  const illness = state.activeIllness;
+
+  if (!illness) {
+    banner.classList.add("hidden");
+    banner.innerHTML = "";
+    return;
+  }
+
+  const stats = buildIllnessStats(illness.start, illness.end || today());
+  banner.classList.remove("hidden");
+  banner.innerHTML = `
+    <div class="active-illness-main">
+      <span>🩺</span>
+      <div>
+        <strong>${escapeHtml(illness.title || "Infekt läuft")}</strong>
+        <small>seit ${escapeHtml(formatDateShortGerman(illness.start))} · ${stats.entries.length} Einträge · ${stats.maxTemp !== null ? `max. ${stats.maxTemp.toFixed(1)} °C` : "keine Temperatur"}</small>
+      </div>
+    </div>
+    <div class="active-illness-actions">
+      <button type="button" id="bannerDoctorReportButton">Bericht</button>
+      <button type="button" id="bannerStopIllnessButton">Stoppen</button>
+    </div>
+  `;
+
+  $("bannerDoctorReportButton").addEventListener("click", openDoctorReport);
+  $("bannerStopIllnessButton").addEventListener("click", stopIllness);
+}
+
+function renderIllnessOverview() {
+  const container = $("illnessOverviewContent");
+  if (!container) return;
+
+  const illness = state.activeIllness || {
+    id: "",
+    title: $("illnessTitleInput")?.value.trim() || "Infekt-Zeitraum",
+    start: $("illnessStartDate")?.value || state.selectedDate || today(),
+    end: $("illnessEndDate")?.value || today()
+  };
+
+  const entries = illnessEntriesFor(illness);
+  const stats = buildIllnessStats(illness.start, illness.end || today());
+  const days = buildIllnessDailyRows(entries);
+
+  container.innerHTML = `
+    <section class="illness-overview-card">
+      <div class="illness-overview-head">
+        <div>
+          <span>Verlauf</span>
+          <strong>${escapeHtml(illness.title || "Infekt-Zeitraum")}</strong>
+        </div>
+        <em>${escapeHtml(formatDateShortGerman(illness.start || today()))} bis ${escapeHtml(formatDateShortGerman(illness.end || today()))}</em>
+      </div>
+
+      <div class="illness-overview-grid">
+        <div><span>Einträge</span><strong>${entries.length}</strong></div>
+        <div><span>Max. Fieber</span><strong>${stats.maxTemp !== null ? `${stats.maxTemp.toFixed(1)} °C` : "Keine"}</strong></div>
+        <div><span>Medis</span><strong>${stats.medications.length}</strong></div>
+        <div><span>Bilder</span><strong>${stats.imageCount}</strong></div>
+      </div>
+
+      <div class="illness-day-timeline">
+        ${days.length ? days.map(day => `
+          <div class="illness-day-row">
+            <strong>${escapeHtml(formatDateShortGerman(day.date))}</strong>
+            <span>${escapeHtml(day.label)}</span>
+          </div>
+        `).join("") : `<div class="illness-empty">Noch keine Einträge im Zeitraum.</div>`}
+      </div>
+    </section>
+  `;
+}
+
 function renderIllnessStatus() {
   const container = $("illnessStatusCard");
   if (!container) return;
@@ -2514,6 +2642,9 @@ function renderIllnessStatus() {
     toggle.classList.toggle("danger", Boolean(illness));
     toggle.classList.toggle("primary", !illness);
   }
+
+  renderIllnessOverview();
+  renderActiveIllnessBanner();
 }
 
 async function openIllnessView() {
@@ -2533,6 +2664,7 @@ async function startIllness() {
     created_at: new Date().toISOString()
   });
   if ($("illnessEndDate")) $("illnessEndDate").value = today();
+  await loadState();
   renderIllnessStatus();
   showToast("Infekt gestartet");
 }
@@ -2547,6 +2679,7 @@ async function stopIllness() {
   const stopped = await stopActiveIllness(end);
 
   // Der abgeschlossene Zeitraum bleibt in den Feldern stehen, damit der Arztbericht direkt erstellt werden kann.
+  await loadState();
   if ($("illnessStartDate")) $("illnessStartDate").value = stopped?.start || state.selectedDate || today();
   if ($("illnessEndDate")) $("illnessEndDate").value = stopped?.end || end || today();
   if ($("illnessTitleInput")) $("illnessTitleInput").value = stopped?.title || "";
@@ -2583,6 +2716,18 @@ function buildDoctorReportText() {
 
   lines.push("Kurzüberblick");
   lines.push("-------------");
+  if (stats.entries.length) {
+    const narrative = [];
+    narrative.push(`Im Zeitraum wurden ${stats.entries.length} Einträge dokumentiert.`);
+    if (stats.symptoms.length) narrative.push(`Dokumentierte Symptome: ${stats.symptoms.join(", ")}.`);
+    if (stats.maxTemp !== null) narrative.push(`Die höchste Temperatur lag bei ${stats.maxTemp.toFixed(1)} °C (${feverAssessment(stats.maxTemp)}).`);
+    if (stats.medications.length) narrative.push(`Es gibt ${stats.medications.length} Medikamenten-Einträge.`);
+    if (stats.imageCount) narrative.push(`${stats.imageCount} Bild${stats.imageCount === 1 ? "" : "er"} wurden dokumentiert.`);
+    lines.push(narrative.join(" "));
+  } else {
+    lines.push("Im gewählten Zeitraum sind keine Einträge dokumentiert.");
+  }
+  lines.push("");
   lines.push(`Einträge: ${stats.entries.length}`);
   lines.push(`Symptome: ${stats.symptoms.length ? stats.symptoms.join(", ") : "Keine dokumentiert"}`);
   lines.push(`Temperaturmessungen: ${stats.tempCount}`);

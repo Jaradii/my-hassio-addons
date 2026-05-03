@@ -89,6 +89,7 @@ def read_store() -> Dict[str, Any]:
         if not isinstance(entry, dict):
             continue
         entry.setdefault("symptom_images", [])
+        entry.setdefault("illness_id", "")
         history = entry.get("history")
         if not isinstance(history, list) or not history:
             created_at = entry.get("created_at", data.get("created_at", utc_now()))
@@ -213,6 +214,7 @@ class HealthEntryIn(BaseModel):
     diaper_or_toilet: str = Field(default="", max_length=1000)
     notes: str = Field(default="", max_length=4000)
     symptom_images: List[Dict[str, Any]] = Field(default_factory=list)
+    illness_id: str = Field(default="", max_length=120)
 
 
 class HealthEntry(HealthEntryIn):
@@ -326,14 +328,40 @@ async def api_stop_illness(request: Request):
 
 
 
+def illness_matches_entry_date(illness: Any, entry_date: str) -> bool:
+    if not isinstance(illness, dict):
+        return False
+    start = str(illness.get("start") or "")
+    end = str(illness.get("end") or "")
+    if not start or not entry_date:
+        return False
+    if entry_date < start:
+        return False
+    if end and entry_date > end:
+        return False
+    return True
+
+
+def assign_active_illness_if_needed(store: Dict[str, Any], entry_data: Dict[str, Any]) -> Dict[str, Any]:
+    if entry_data.get("illness_id"):
+        return entry_data
+    active = store.get("active_illness")
+    if illness_matches_entry_date(active, str(entry_data.get("date") or "")):
+        entry_data["illness_id"] = str(active.get("id") or "")
+    else:
+        entry_data.setdefault("illness_id", "")
+    return entry_data
+
+
 @app.post("/api/entries")
 def api_create_entry(entry: HealthEntryIn, request: Request):
     check_pin(request)
     store = read_store()
     user = get_ha_user(request)
     now = utc_now()
+    entry_data = assign_active_illness_if_needed(store, entry.model_dump())
     item = HealthEntry(
-        **entry.model_dump(),
+        **entry_data,
         id=str(uuid.uuid4()),
         created_at=now,
         updated_at=now,
@@ -375,6 +403,9 @@ def api_update_entry(entry_id: str, entry: HealthEntryIn, request: Request):
         if existing.get("id") == entry_id:
             now = utc_now()
             entry_data = entry.model_dump()
+            if not entry_data.get("illness_id"):
+                entry_data["illness_id"] = existing.get("illness_id", "")
+            entry_data = assign_active_illness_if_needed(store, entry_data)
             changes = detailed_changes(existing, entry_data)
             fields = [change["field"] for change in changes]
             existing_history = existing.get("history", [])
