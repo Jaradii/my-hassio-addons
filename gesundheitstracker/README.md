@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.70
+- Basis ist die funktionierende Version 1.0.71
 
 
 ## Änderungen in 1.0.10
@@ -532,3 +532,12 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - `renderCompactSymptomImages` bleibt korrekt definiert
 - Bild-Popup als Galerie mit Vor/Zurück und Miniaturleiste ergänzt
 - Teilen-Button ergänzt
+
+
+## Änderungen in 1.0.71-test
+
+- Teilen-Funktion robuster gemacht
+- Erst wird natives Datei-Teilen versucht
+- Danach wird natives Link-Teilen versucht
+- Wenn die Home-Assistant-WebView Teilen blockiert, wird ein Link-Fallback angezeigt und markiert
+- Zusätzlicher Button zum externen Öffnen des Bildes ergänzt

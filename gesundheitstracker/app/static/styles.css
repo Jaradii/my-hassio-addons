@@ -11257,3 +11257,36 @@ button.compact-day-tile small {
     flex-basis: 44px;
   }
 }
+
+
+/* v1.0.71-test: Teilen-Fallback für HA/iPhone-WebView */
+.image-share-fallback {
+  border-top: 1px solid color-mix(in srgb, var(--kg-border) 52%, transparent);
+  padding: 9px 10px 10px 10px;
+  display: grid;
+  gap: 6px;
+}
+
+.image-share-fallback.hidden {
+  display: none !important;
+}
+
+.image-share-fallback p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.74rem;
+  line-height: 1.35;
+  font-weight: 800;
+}
+
+.image-share-fallback input {
+  width: 100%;
+  min-height: 34px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 70%, transparent);
+  background: var(--card);
+  color: var(--text);
+  padding: 7px 9px;
+  font-size: 0.76rem;
+  font-weight: 750;
+}

@@ -120,6 +120,8 @@ function setImagePreviewIndex(index) {
   if (prev) prev.classList.toggle("hidden", state.imagePreviewItems.length <= 1);
   if (next) next.classList.toggle("hidden", state.imagePreviewItems.length <= 1);
 
+  hideImageShareFallback();
+
   if (thumbs) {
     thumbs.innerHTML = state.imagePreviewItems.length > 1 ? state.imagePreviewItems.map((itemUrl, idx) => `
       <button type="button" class="${idx === state.imagePreviewIndex ? "active" : ""}" data-index="${idx}" aria-label="Bild ${idx + 1} öffnen">
@@ -157,6 +159,7 @@ function closeImagePreviewPopup() {
   animateHide(popup, "closing", () => {
     if (img) img.src = "";
     if ($("imagePreviewThumbs")) $("imagePreviewThumbs").innerHTML = "";
+    hideImageShareFallback();
     state.imagePreviewItems = [];
     state.imagePreviewIndex = 0;
   });
@@ -182,12 +185,47 @@ function bindSymptomImageOpeners(root = document) {
   });
 }
 
-async function shareCurrentImagePreview() {
+function currentImageAbsoluteUrl() {
   const url = state.imagePreviewItems[state.imagePreviewIndex];
+  if (!url) return "";
+  return new URL(url, window.location.href).toString();
+}
+
+function showImageShareFallback() {
+  const box = $("imageShareFallback");
+  const input = $("imageShareLink");
+  const url = currentImageAbsoluteUrl();
+  if (!box || !input || !url) return;
+
+  input.value = url;
+  box.classList.remove("hidden");
+  requestAnimationFrame(() => {
+    input.focus();
+    input.select();
+    input.setSelectionRange(0, input.value.length);
+  });
+}
+
+function hideImageShareFallback() {
+  if ($("imageShareFallback")) $("imageShareFallback").classList.add("hidden");
+  if ($("imageShareLink")) $("imageShareLink").value = "";
+}
+
+function openCurrentImageExternal() {
+  const url = currentImageAbsoluteUrl();
   if (!url) return;
+  const win = window.open(url, "_blank");
+  if (!win) {
+    showImageShareFallback();
+    showToast("Link markiert");
+  }
+}
+
+async function shareCurrentImagePreview() {
+  const absoluteUrl = currentImageAbsoluteUrl();
+  if (!absoluteUrl) return;
 
   try {
-    const absoluteUrl = new URL(url, window.location.href).toString();
     const response = await fetch(absoluteUrl);
     const blob = await response.blob();
     const filename = absoluteUrl.split("/").pop()?.split("?")[0] || "symptom-foto.jpg";
@@ -201,7 +239,11 @@ async function shareCurrentImagePreview() {
       });
       return;
     }
+  } catch {
+    // Falls Datei-Teilen nicht erlaubt ist, versuchen wir danach Link-Teilen.
+  }
 
+  try {
     if (navigator.share) {
       await navigator.share({
         title: "Symptom-Foto",
@@ -210,11 +252,12 @@ async function shareCurrentImagePreview() {
       });
       return;
     }
-
-    showToast("Teilen wird hier nicht unterstützt");
-  } catch (err) {
-    showToast("Teilen nicht möglich");
+  } catch {
+    // WebView kann natives Teilen komplett blockieren.
   }
+
+  showImageShareFallback();
+  showToast("Teilen nicht verfügbar, Link markiert");
 }
 
 function renderCompactSymptomImages(images) {
@@ -3432,6 +3475,7 @@ async function init() {
   $("imagePreviewPrev").addEventListener("click", () => setImagePreviewIndex(state.imagePreviewIndex - 1));
   $("imagePreviewNext").addEventListener("click", () => setImagePreviewIndex(state.imagePreviewIndex + 1));
   $("shareImagePreview").addEventListener("click", shareCurrentImagePreview);
+  $("openImageExternal").addEventListener("click", openCurrentImageExternal);
   $("closeFieldEdit").addEventListener("click", closeFieldEdit);
   $("fieldEditBackdrop").addEventListener("click", closeFieldEdit);
   $("fieldEditForm").addEventListener("submit", saveFieldEdit);

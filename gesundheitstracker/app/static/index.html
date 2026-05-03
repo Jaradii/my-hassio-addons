@@ -208,6 +208,7 @@
           </div>
           <div class="image-preview-actions">
             <button id="shareImagePreview" type="button" class="round-btn" aria-label="Bild teilen">↗</button>
+            <button id="openImageExternal" type="button" class="round-btn" aria-label="Bild extern öffnen">⤴</button>
             <button id="closeImagePreview" type="button" class="round-btn">×</button>
           </div>
         </div>
@@ -217,6 +218,10 @@
           <button id="imagePreviewNext" type="button" class="image-preview-nav image-preview-next hidden" aria-label="Nächstes Bild">›</button>
         </div>
         <div id="imagePreviewThumbs" class="image-preview-thumbs"></div>
+        <div id="imageShareFallback" class="image-share-fallback hidden">
+          <p>Natives Teilen ist hier nicht verfügbar. Du kannst das Bild extern öffnen oder den Link kopieren.</p>
+          <input id="imageShareLink" type="text" readonly />
+        </div>
       </div>
     </section>
 
