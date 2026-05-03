@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.1.19
+- Basis ist die funktionierende Version 1.1.20
 
 
 ## Änderungen in 1.0.10
@@ -918,3 +918,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Text, Uhrzeit und Aktionsbuttons werden wieder oben bündig ausgerichtet
 - Markierungen liegen als eigene Zeile unter dem Text, ohne den Text nach oben zu verschieben
 - Bild-Hinweis in Symptomzeilen wurde vertikal stabilisiert
+
+
+## Änderungen in 1.1.20-test
+
+- Fehlerhafte Layout-Korrektur aus 1.1.19 zurückgenommen
+- Markierungen werden jetzt als eigene Vollbreiten-Zeile unter dem gesamten Eintrag angezeigt
+- Markierungen liegen nicht mehr neben Text oder `Fotos anzeigen`
+- Text, Uhrzeit und Aktionsbuttons werden wieder normal ausgerichtet
