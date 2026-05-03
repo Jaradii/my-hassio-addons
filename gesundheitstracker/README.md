@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.61
+- Basis ist die funktionierende Version 1.0.62
 
 
 ## Änderungen in 1.0.10
@@ -466,4 +466,12 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - „1 Foto ansehen“ bleibt jetzt einzeilig
 - Umbruch im Foto-Chip verhindert
 - Spaltenabstand der Symptom-Zeile mit Foto angepasst
+- Nur CSS geändert
+
+
+## Änderungen in 1.0.62-test
+
+- Mehr Abstand zwischen Uhrzeit und Symptomtext bei Einträgen mit Foto
+- Uhrzeit-Spalte leicht verbreitert
+- Foto-Chip bleibt einzeilig
 - Nur CSS geändert

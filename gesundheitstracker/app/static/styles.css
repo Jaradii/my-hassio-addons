@@ -11046,3 +11046,33 @@ button.compact-day-tile strong {
     font-size: 0.66rem !important;
   }
 }
+
+
+/* v1.0.62-test: Mehr Abstand zwischen Uhrzeit und Symptomtext bei Foto-Einträgen */
+.category-compact-item:has(.symptom-image-attachment-row) {
+  grid-template-columns: 50px minmax(0, 1fr) max-content !important;
+  column-gap: 9px !important;
+}
+
+.category-compact-item:has(.symptom-image-attachment-row) > .summary-info-time {
+  width: 48px !important;
+  min-width: 48px !important;
+  max-width: 48px !important;
+}
+
+.category-compact-item:has(.symptom-image-attachment-row) > p {
+  padding-left: 1px !important;
+}
+
+@media (max-width: 430px) {
+  .category-compact-item:has(.symptom-image-attachment-row) {
+    grid-template-columns: 48px minmax(0, 1fr) max-content !important;
+    column-gap: 8px !important;
+  }
+
+  .category-compact-item:has(.symptom-image-attachment-row) > .summary-info-time {
+    width: 46px !important;
+    min-width: 46px !important;
+    max-width: 46px !important;
+  }
+}
