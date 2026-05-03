@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.1.09
+- Basis ist die funktionierende Version 1.1.10
 
 
 ## Änderungen in 1.0.10
@@ -841,3 +841,13 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Buttons `TXT speichern` und `Text markieren` aus dem Arztbericht-Dialog entfernt
 - Diagramme aus der Auswertung wieder entfernt, da die bisherige Darstellung keinen ausreichenden Mehrwert hatte
 - Verwaiste-Bilder-Funktion bleibt erhalten
+
+
+## Änderungen in 1.1.10-test
+
+- Ereignis-Markierungen ergänzt: Wichtig, Arzt-relevant, Kontrollieren
+- Markierungen erscheinen als eigener Punkt in der Tagesübersicht
+- Markierungen sind direkt bearbeitbar und werden in der Historie als eigenes Feld geführt
+- Markierungen werden in Suche und Arztbericht berücksichtigt
+- Arztbericht-Popup zeigt jetzt eine strukturierte Vorschau statt nur Rohtext
+- Export des HTML-Berichts bleibt über `Bericht exportieren` erhalten

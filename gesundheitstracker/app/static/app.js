@@ -722,6 +722,7 @@ function buildDaySummary(entries) {
   const sleeps = entries.filter(e => e.sleep);
   const diaper = entries.filter(e => e.diaper_or_toilet);
   const notes = entries.filter(e => e.notes);
+  const flagEntries = entries.filter(e => normalizeEntryFlags(e.entry_flags).length);
 
   return {
     count: entries.length,
@@ -866,6 +867,47 @@ function fluidLevelLabel(value) {
   return map[String(value || "").trim().toLowerCase()] || "";
 }
 
+
+function entryFlagOptions() {
+  return [
+    { value: "important", label: "Wichtig", icon: "⭐" },
+    { value: "doctor", label: "Arzt-relevant", icon: "🩺" },
+    { value: "check", label: "Kontrollieren", icon: "👀" }
+  ];
+}
+
+function normalizeEntryFlags(flags) {
+  const allowed = new Set(entryFlagOptions().map(item => item.value));
+  return [...new Set((Array.isArray(flags) ? flags : []).map(value => String(value || "").trim()).filter(value => allowed.has(value)))];
+}
+
+function entryFlagLabel(value) {
+  const item = entryFlagOptions().find(option => option.value === value);
+  return item ? `${item.icon} ${item.label}` : "";
+}
+
+function entryFlagsText(flags) {
+  return normalizeEntryFlags(flags).map(entryFlagLabel).filter(Boolean).join(", ");
+}
+
+function entryFlagInputHtml(selectedFlags = []) {
+  const selected = new Set(normalizeEntryFlags(selectedFlags));
+  return `
+    <div class="flag-chip-grid">
+      ${entryFlagOptions().map(option => `
+        <label class="flag-chip">
+          <input type="checkbox" value="${escapeHtml(option.value)}" ${selected.has(option.value) ? "checked" : ""}>
+          <span>${escapeHtml(option.icon)} ${escapeHtml(option.label)}</span>
+        </label>
+      `).join("")}
+    </div>
+  `;
+}
+
+function selectedEntryFlagsFrom(container) {
+  return [...container.querySelectorAll('input[type="checkbox"]:checked')].map(input => input.value);
+}
+
 function fluidDisplayValue(entry) {
   if (entry.fluids_ml !== null && entry.fluids_ml !== undefined && entry.fluids_ml !== "") return `${entry.fluids_ml} ml`;
   return "";
@@ -875,6 +917,7 @@ function summaryDisplayValue(entry, key) {
   if (key === "fluids_ml") return fluidDisplayValue(entry);
   if (key === "fluid_level") return fluidLevelLabel(entry.fluid_level);
   if (key === "temperature") return `${Number(entry.temperature).toFixed(1)} °C`;
+  if (key === "entry_flags") return entryFlagsText(entry.entry_flags);
   if (key === "symptoms") {
     const intensityMap = entry.symptom_intensity || {};
     const symptomParts = (entry.symptoms || []).map(symptom => {
@@ -900,7 +943,8 @@ function renderSummaryTextBlocks(summary) {
     { items: summary.foods, key: "food", icon: "🍽️", title: "Essen" },
     { items: summary.sleeps, key: "sleep", icon: "😴", title: "Schlaf" },
     { items: summary.diaper, key: "diaper_or_toilet", icon: "🚽", title: "Windel / Toilette" },
-    { items: summary.notes, key: "notes", icon: "📝", title: "Notizen" }
+    { items: summary.notes, key: "notes", icon: "📝", title: "Notizen" },
+    { items: summary.flagEntries || [], key: "entry_flags", icon: "🏷️", title: "Markierungen" }
   ]
     .map(group => ({
       ...group,
@@ -1128,6 +1172,7 @@ function fieldLabel(field) {
     medication: "Medikamente",
     fluids_ml: "Flüssigkeit",
     fluid_level: "Trinkmenge",
+    entry_flags: "Markierungen",
     food: "Essen",
     sleep: "Schlaf",
     diaper_or_toilet: "Windel / Toilette",
@@ -1163,6 +1208,9 @@ function formatHistoryValue(field, value) {
   }
   if (field === "fluid_level") {
     return fluidLevelLabel(value) || String(value);
+  }
+  if (field === "entry_flags") {
+    return entryFlagsText(value) || "Keine";
   }
 
   return String(value);
@@ -1566,7 +1614,7 @@ function selectedQuickSymptomIntensity() {
 }
 
 function quickPayload(kind) {
-  const payload = { date: state.selectedDate, time: nowTime(), temperature: null, mood: "", symptoms: [], custom_symptoms: "", symptom_intensity: {}, medication: "", fluids_ml: null, fluid_level: "", food: "", sleep: "", diaper_or_toilet: "", notes: "", illness_id: currentActiveIllnessIdForDate(state.selectedDate) };
+  const payload = { date: state.selectedDate, time: nowTime(), temperature: null, mood: "", symptoms: [], custom_symptoms: "", symptom_intensity: {}, medication: "", fluids_ml: null, fluid_level: "", food: "", sleep: "", diaper_or_toilet: "", notes: "", illness_id: currentActiveIllnessIdForDate(state.selectedDate), entry_flags: [] };
   if (kind === "temperature") {
     const v = $("quickTemperature").value;
     payload.temperature = v === "" ? null : Number(String(v).replace(",", "."));
@@ -2024,7 +2072,8 @@ function formEntry() {
     diaper_or_toilet: $("diaperOrToilet").value.trim(),
     notes: $("notes").value.trim(),
     symptom_images: [...state.pendingSymptomImages],
-    illness_id: currentActiveIllnessIdForDate($("entryDate").value || state.selectedDate)
+    illness_id: currentActiveIllnessIdForDate($("entryDate").value || state.selectedDate),
+    entry_flags: []
   };
 }
 
@@ -2138,6 +2187,13 @@ function fieldEditConfig(field) {
       rows: 3,
       placeholder: "Urin, Stuhlgang, Auffälligkeiten"
     },
+    entry_flags: {
+      title: "Markierungen",
+      subtitle: "Eintrag für später markieren.",
+      input: "flags",
+      rows: 1,
+      placeholder: ""
+    },
     notes: {
       title: "Notizen",
       subtitle: "Nur Notizen dieses Eintrags bearbeiten.",
@@ -2221,6 +2277,14 @@ function openFieldEdit(entryId, field) {
           <option value="viel" ${entry.fluid_level === "viel" ? "selected" : ""}>Viel</option>
         </select>
       </label>
+    `;
+  } else if (field === "entry_flags") {
+    $("fieldEditContent").innerHTML = `
+      ${timeFieldHtml}
+      <div class="field field-edit-value">
+        <span>Markierungen</span>
+        ${entryFlagInputHtml(entry.entry_flags || [])}
+      </div>
     `;
   } else if (field === "fluid_level") {
     const selectedLevel = String(entry.fluid_level || "").trim().toLowerCase();
@@ -2347,7 +2411,8 @@ async function saveFieldEdit(event) {
     diaper_or_toilet: entry.diaper_or_toilet || "",
     notes: entry.notes || "",
     symptom_images: normalizeSymptomImages(entry.symptom_images || []),
-    illness_id: entry.illness_id || ""
+    illness_id: entry.illness_id || "",
+    entry_flags: normalizeEntryFlags(entry.entry_flags || [])
   };
 
   const rawValue = $("fieldEditValue").value.trim();
@@ -2366,6 +2431,8 @@ async function saveFieldEdit(event) {
   } else if (field === "fluids_ml") {
     payload[field] = rawValue === "" ? null : Number(rawValue);
     payload.fluid_level = $("fieldEditFluidLevel")?.value || "";
+  } else if (field === "entry_flags") {
+    payload.entry_flags = selectedEntryFlagsFrom($("fieldEditContent"));
   } else if (field === "fluid_level") {
     payload.fluid_level = rawValue;
   } else if (field === "temperature") {
@@ -2477,6 +2544,7 @@ function entrySearchText(entry) {
   if (entry.sleep) parts.push(`schlaf ${entry.sleep}`);
   if (entry.diaper_or_toilet) parts.push(`windel toilette ${entry.diaper_or_toilet}`);
   if (entry.notes) parts.push(`notiz notizen ${entry.notes}`);
+  if (normalizeEntryFlags(entry.entry_flags).length) parts.push(`markierung markierungen ${entryFlagsText(entry.entry_flags)} wichtig arzt relevant kontrollieren`);
 
   const intensityMap = entry.symptom_intensity || {};
   (entry.symptoms || []).forEach(symptom => {
@@ -2507,6 +2575,7 @@ function entrySearchSummary(entry) {
   if (entry.fluid_level) parts.push(`Trinkmenge: ${fluidLevelLabel(entry.fluid_level)}`);
   if (entry.diaper_or_toilet) parts.push(`Windel/Toilette: ${entry.diaper_or_toilet}`);
   if (entry.mood) parts.push(`Stimmung: ${entry.mood}`);
+  if (normalizeEntryFlags(entry.entry_flags).length) parts.push(`Markierungen: ${entryFlagsText(entry.entry_flags)}`);
   const imageCount = normalizeSymptomImages(entry.symptom_images || []).length;
   if (imageCount) parts.push(`${imageCount} Foto${imageCount === 1 ? "" : "s"}`);
   return parts.length ? parts.join(" · ") : "Eintrag";
@@ -2957,6 +3026,7 @@ function openDoctorReportForIllness(id) {
   const text = buildDoctorReportText(illness);
   state.lastDoctorReport = text;
   $("doctorReportText").value = text;
+  if ($("doctorReportPreview")) $("doctorReportPreview").innerHTML = buildDoctorReportPreviewHtml(text);
   openView("doctorReportView");
 }
 
@@ -3182,6 +3252,7 @@ function buildDoctorReportText(selectedIllness = null) {
           if (entry.sleep) parts.push(`Schlaf: ${entry.sleep}`);
           if (entry.diaper_or_toilet) parts.push(`Windel/Toilette: ${entry.diaper_or_toilet}`);
           if (entry.notes) parts.push(`Notiz: ${entry.notes}`);
+          if (normalizeEntryFlags(entry.entry_flags).length) parts.push(`Markierung: ${entryFlagsText(entry.entry_flags)}`);
           const photos = Array.isArray(entry.symptom_images) ? entry.symptom_images.length : 0;
           if (photos) parts.push(`${photos} Foto${photos === 1 ? "" : "s"}`);
           lines.push(`${entryTimeLabel(entry)}  ${parts.length ? parts.join(" · ") : "Eintrag"}`);
@@ -3346,6 +3417,7 @@ async function buildDoctorReportHtml(selectedIllness = null) {
         if (entry.sleep) parts.push(`Schlaf: ${escapeHtml(entry.sleep)}`);
         if (entry.diaper_or_toilet) parts.push(`Windel/Toilette: ${escapeHtml(entry.diaper_or_toilet)}`);
         if (entry.notes) parts.push(`Notiz: ${escapeHtml(entry.notes)}`);
+        if (normalizeEntryFlags(entry.entry_flags).length) parts.push(`<strong>Markierung:</strong> ${escapeHtml(entryFlagsText(entry.entry_flags))}`);
         const images = embeddedImagesByEntryId[entry.id || `${entry.date}-${entry.time}`] || [];
         return `
           <article class="report-entry">
@@ -3635,6 +3707,25 @@ async function buildDoctorReportHtml(selectedIllness = null) {
   return html;
 }
 
+
+function buildDoctorReportPreviewHtml(text) {
+  const raw = String(text || "");
+  const blocks = raw.split(/\n{2,}/).map(block => block.trim()).filter(Boolean);
+  return `
+    <div class="doctor-preview-card">
+      ${blocks.map(block => {
+        const lines = block.split("\n").filter(Boolean);
+        const first = lines[0] || "";
+        const underline = lines[1] || "";
+        if (/^[=\-]{3,}$/.test(underline)) {
+          return `<section><h3>${escapeHtml(first)}</h3>${lines.slice(2).map(line => `<p>${escapeHtml(line)}</p>`).join("")}</section>`;
+        }
+        return `<section>${lines.map((line, index) => index === 0 && line === "ARZTBERICHT" ? `<h2>${escapeHtml(line)}</h2>` : `<p>${escapeHtml(line)}</p>`).join("")}</section>`;
+      }).join("")}
+    </div>
+  `;
+}
+
 async function downloadDoctorReportHtml() {
   const illness = state.selectedIllnessForReport || null;
   showToast("Bericht wird vorbereitet...");
@@ -3656,6 +3747,7 @@ function openDoctorReport() {
   const text = buildDoctorReportText();
   state.lastDoctorReport = text;
   $("doctorReportText").value = text;
+  if ($("doctorReportPreview")) $("doctorReportPreview").innerHTML = buildDoctorReportPreviewHtml(text);
   openView("doctorReportView");
   requestAnimationFrame(() => {
     $("doctorReportText").scrollTop = 0;

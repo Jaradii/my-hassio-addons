@@ -12678,3 +12678,100 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
 .mini-chart-card {
   display: none !important;
 }
+
+
+/* v1.1.10-test: Markierungen und Bericht-Vorschau */
+.entry-flags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 6px;
+}
+
+.entry-flags-row span,
+.flag-chip span {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 12%, var(--card) 88%);
+  border: 1px solid color-mix(in srgb, var(--primary) 24%, var(--kg-border) 76%);
+  color: var(--text);
+  padding: 5px 8px;
+  font-size: 0.7rem;
+  font-weight: 900;
+}
+
+.flag-chip-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 7px;
+}
+
+.flag-chip {
+  display: block;
+}
+
+.flag-chip input {
+  display: none;
+}
+
+.flag-chip span {
+  display: block;
+  text-align: center;
+  background: color-mix(in srgb, var(--kg-soft) 42%, var(--card) 58%);
+}
+
+.flag-chip input:checked + span {
+  background: color-mix(in srgb, var(--primary) 18%, var(--card) 82%);
+  border-color: color-mix(in srgb, var(--primary) 46%, var(--kg-border) 54%);
+}
+
+.doctor-report-preview {
+  max-height: min(62vh, 620px);
+  overflow: auto;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 68%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--card) 94%, var(--kg-soft) 6%);
+  padding: 12px;
+}
+
+.doctor-preview-card {
+  display: grid;
+  gap: 12px;
+}
+
+.doctor-preview-card section {
+  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid color-mix(in srgb, var(--kg-border) 54%, transparent);
+  padding: 11px;
+}
+
+.doctor-preview-card h2,
+.doctor-preview-card h3,
+.doctor-preview-card p {
+  margin: 0;
+}
+
+.doctor-preview-card h2 {
+  font-size: 1.05rem;
+  font-weight: 1000;
+}
+
+.doctor-preview-card h3 {
+  font-size: 0.92rem;
+  font-weight: 1000;
+  margin-bottom: 6px;
+}
+
+.doctor-preview-card p {
+  color: var(--text);
+  font-size: 0.78rem;
+  line-height: 1.42;
+  margin-top: 4px;
+}
+
+@media (max-width: 560px) {
+  .flag-chip-grid {
+    grid-template-columns: 1fr;
+  }
+}

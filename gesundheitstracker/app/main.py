@@ -91,6 +91,7 @@ def read_store() -> Dict[str, Any]:
         entry.setdefault("symptom_images", [])
         entry.setdefault("illness_id", "")
         entry.setdefault("fluid_level", "")
+        entry.setdefault("entry_flags", [])
         history = entry.get("history")
         if not isinstance(history, list) or not history:
             created_at = entry.get("created_at", data.get("created_at", utc_now()))
@@ -218,6 +219,7 @@ class HealthEntryIn(BaseModel):
     notes: str = Field(default="", max_length=4000)
     symptom_images: List[Dict[str, Any]] = Field(default_factory=list)
     illness_id: str = Field(default="", max_length=120)
+    entry_flags: List[str] = Field(default_factory=list)
 
 
 class HealthEntry(HealthEntryIn):
