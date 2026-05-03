@@ -12860,28 +12860,19 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
 }
 
 
-/* v1.1.14-test: Markierungs-Icon sauber zentrieren */
+
+
+/* v1.1.15-test: Markierungsbutton wieder wie Historie/Bearbeiten */
 .summary-edit-button.summary-flag-button {
-  width: 30px !important;
-  height: 30px !important;
-  min-width: 30px !important;
-  min-height: 30px !important;
-  padding: 0 !important;
-  display: inline-grid !important;
-  place-items: center !important;
-  line-height: 1 !important;
-  font-size: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   text-align: center !important;
+  line-height: 1 !important;
+  font-size: 0.78rem !important;
+  padding: 0 !important;
 }
 
 .summary-edit-button.summary-flag-button::before {
-  content: "🏷️";
-  display: block;
-  font-size: 0.86rem;
-  line-height: 1;
-  transform: translateY(0.5px);
-}
-
-.summary-edit-button.summary-flag-button {
-  color: transparent !important;
+  content: none !important;
 }
