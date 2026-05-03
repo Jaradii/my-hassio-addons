@@ -12454,3 +12454,11 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
 #illnessTitleInput {
   display: none !important;
 }
+
+
+/* v1.0.93-test: Einschätzung der Trinkmenge */
+#fluidLevel,
+#quickFluidLevel,
+#fieldEditFluidLevel {
+  width: 100%;
+}

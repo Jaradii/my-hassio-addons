@@ -854,8 +854,25 @@ function renderDaySummaryCard(entries) {
   `;
 }
 
+function fluidLevelLabel(value) {
+  const map = {
+    wenig: "wenig getrunken",
+    mittel: "mittel getrunken",
+    viel: "viel getrunken"
+  };
+  return map[String(value || "").trim().toLowerCase()] || "";
+}
+
+function fluidDisplayValue(entry) {
+  const parts = [];
+  if (entry.fluids_ml !== null && entry.fluids_ml !== undefined && entry.fluids_ml !== "") parts.push(`${entry.fluids_ml} ml`);
+  const level = fluidLevelLabel(entry.fluid_level);
+  if (level) parts.push(level);
+  return parts.join(" · ");
+}
+
 function summaryDisplayValue(entry, key) {
-  if (key === "fluids_ml") return `${entry.fluids_ml} ml`;
+  if (key === "fluids_ml") return fluidDisplayValue(entry);
   if (key === "temperature") return `${Number(entry.temperature).toFixed(1)} °C`;
   if (key === "symptoms") {
     const intensityMap = entry.symptom_intensity || {};
@@ -1108,6 +1125,7 @@ function fieldLabel(field) {
     custom_symptoms: "Weitere Symptome",
     medication: "Medikamente",
     fluids_ml: "Flüssigkeit",
+    fluid_level: "Trinkmenge",
     food: "Essen",
     sleep: "Schlaf",
     diaper_or_toilet: "Windel / Toilette",
@@ -1140,6 +1158,9 @@ function formatHistoryValue(field, value) {
   if (field === "fluids_ml") {
     const n = Number(value);
     return Number.isNaN(n) ? String(value) : `${n} ml`;
+  }
+  if (field === "fluid_level") {
+    return fluidLevelLabel(value) || String(value);
   }
 
   return String(value);
@@ -1428,7 +1449,7 @@ function quickDefinition(kind) {
     </div>
   `;
   const defs = {
-    fluids: { title: "Flüssigkeit", subtitle: "Getrunkene Menge in ml eintragen.", content: `<label class="field quick-field"><span>Flüssigkeit in ml</span><input id="quickFluidsMl" type="number" min="0" step="10" inputmode="numeric" placeholder="z. B. 250"></label>` },
+    fluids: { title: "Flüssigkeit", subtitle: "Getrunkene Menge und Einschätzung eintragen.", content: `<label class="field quick-field"><span>Flüssigkeit in ml</span><input id="quickFluidsMl" type="number" min="0" step="10" inputmode="numeric" placeholder="z. B. 250"></label><label class="field quick-field"><span>Trinkmenge</span><select id="quickFluidLevel"><option value="">Keine Einschätzung</option><option value="wenig">Wenig</option><option value="mittel">Mittel</option><option value="viel">Viel</option></select></label>` },
     temperature: { title: "Temperatur", subtitle: "Temperatur für diesen Tag speichern.", content: `<label class="field quick-field"><span>Temperatur in °C</span><input id="quickTemperature" type="number" step="0.1" min="30" max="45" placeholder="z. B. 38,5"><input id="quickTemperatureSlider" class="temperature-slider" type="range" min="34" max="42" step="0.1" value="37.0"><div class="slider-scale"><span>34°</span><span>37°</span><span>39°</span><span>42°</span></div></label>` },
     mood: { title: "Stimmung", subtitle: "Eine oder mehrere Stimmungen auswählen.", content: `<input id="quickMood" type="hidden"><div id="quickMoodOptions" class="mood-options quick-mood-options"><button type="button" class="mood-option" data-mood="Gut drauf"><span>😊</span><small>Gut</small></button><button type="button" class="mood-option" data-mood="Müde"><span>😴</span><small>Müde</small></button><button type="button" class="mood-option" data-mood="Quengelig"><span>😣</span><small>Quengelig</small></button><button type="button" class="mood-option" data-mood="Schlapp"><span>🥱</span><small>Schlapp</small></button><button type="button" class="mood-option" data-mood="Schmerzen"><span>🤕</span><small>Schmerz</small></button><button type="button" class="mood-option" data-mood="Unruhig"><span>😟</span><small>Unruhig</small></button></div>` },
     symptoms: { title: "Symptome", subtitle: "Ein oder mehrere Symptome auswählen.", content: symptomsHtml },
@@ -1543,13 +1564,14 @@ function selectedQuickSymptomIntensity() {
 }
 
 function quickPayload(kind) {
-  const payload = { date: state.selectedDate, time: nowTime(), temperature: null, mood: "", symptoms: [], custom_symptoms: "", symptom_intensity: {}, medication: "", fluids_ml: null, food: "", sleep: "", diaper_or_toilet: "", notes: "", illness_id: currentActiveIllnessIdForDate(state.selectedDate) };
+  const payload = { date: state.selectedDate, time: nowTime(), temperature: null, mood: "", symptoms: [], custom_symptoms: "", symptom_intensity: {}, medication: "", fluids_ml: null, fluid_level: "", food: "", sleep: "", diaper_or_toilet: "", notes: "", illness_id: currentActiveIllnessIdForDate(state.selectedDate) };
   if (kind === "temperature") {
     const v = $("quickTemperature").value;
     payload.temperature = v === "" ? null : Number(String(v).replace(",", "."));
   } else if (kind === "fluids") {
     const v = $("quickFluidsMl").value;
     payload.fluids_ml = v === "" ? null : Number(v);
+    payload.fluid_level = $("quickFluidLevel")?.value || "";
   } else if (kind === "mood") {
     payload.mood = $("quickMood").value;
   } else if (kind === "symptoms") {
@@ -1572,7 +1594,7 @@ function quickPayload(kind) {
 }
 
 function quickPayloadHasValue(payload) {
-  return [payload.temperature !== null && !Number.isNaN(payload.temperature), payload.fluids_ml !== null && !Number.isNaN(payload.fluids_ml), payload.mood, payload.symptoms.length, payload.custom_symptoms, payload.medication, payload.food, payload.sleep, payload.diaper_or_toilet, payload.notes, (payload.symptom_images || []).length].some(Boolean);
+  return [payload.temperature !== null && !Number.isNaN(payload.temperature), payload.fluids_ml !== null && !Number.isNaN(payload.fluids_ml), payload.fluid_level, payload.mood, payload.symptoms.length, payload.custom_symptoms, payload.medication, payload.food, payload.sleep, payload.diaper_or_toilet, payload.notes, (payload.symptom_images || []).length].some(Boolean);
 }
 
 function openSheet() {
@@ -1601,6 +1623,7 @@ function resetEntryForm() {
   $("temperatureSlider").value = "37.0";
   setMood("");
   $("fluidsMl").value = "";
+  if ($("fluidLevel")) $("fluidLevel").value = "";
   $("customSymptoms").value = "";
   $("medication").value = "";
   $("food").value = "";
@@ -1993,6 +2016,7 @@ function formEntry() {
     custom_symptoms: $("customSymptoms").value.trim(),
     medication: $("medication").value.trim(),
     fluids_ml: fluids === "" ? null : Number(fluids),
+    fluid_level: $("fluidLevel")?.value || "",
     food: $("food").value.trim(),
     sleep: buildSleepText($("sleep").value, $("sleepStart")?.value || "", $("sleepEnd")?.value || ""),
     diaper_or_toilet: $("diaperOrToilet").value.trim(),
@@ -2173,6 +2197,23 @@ function openFieldEdit(entryId, field) {
       await handleSymptomImageFiles(event.target.files, "field");
       event.target.value = "";
     });
+  } else if (field === "fluids_ml") {
+    $("fieldEditContent").innerHTML = `
+      ${timeFieldHtml}
+      <label class="field field-edit-value">
+        <span>Flüssigkeit in ml</span>
+        <input id="fieldEditValue" type="number" inputmode="numeric" step="10" min="0" placeholder="${escapeHtml(config.placeholder)}" value="${escapeHtml(value)}" />
+      </label>
+      <label class="field field-edit-value">
+        <span>Trinkmenge</span>
+        <select id="fieldEditFluidLevel">
+          <option value="" ${!entry.fluid_level ? "selected" : ""}>Keine Einschätzung</option>
+          <option value="wenig" ${entry.fluid_level === "wenig" ? "selected" : ""}>Wenig</option>
+          <option value="mittel" ${entry.fluid_level === "mittel" ? "selected" : ""}>Mittel</option>
+          <option value="viel" ${entry.fluid_level === "viel" ? "selected" : ""}>Viel</option>
+        </select>
+      </label>
+    `;
   } else if (field === "sleep") {
     const range = extractSleepRange(value);
     const cleanSleepText = stripGeneratedSleepDuration(value);
@@ -2278,6 +2319,7 @@ async function saveFieldEdit(event) {
     custom_symptoms: entry.custom_symptoms || "",
     medication: entry.medication || "",
     fluids_ml: entry.fluids_ml ?? null,
+    fluid_level: entry.fluid_level || "",
     food: entry.food || "",
     sleep: entry.sleep || "",
     diaper_or_toilet: entry.diaper_or_toilet || "",
@@ -2301,6 +2343,7 @@ async function saveFieldEdit(event) {
     payload.symptom_images = [...state.pendingFieldEditSymptomImages];
   } else if (field === "fluids_ml") {
     payload[field] = rawValue === "" ? null : Number(rawValue);
+    payload.fluid_level = $("fieldEditFluidLevel")?.value || "";
   } else if (field === "temperature") {
     payload[field] = rawValue === "" ? null : Number(String(rawValue).replace(",", "."));
   } else if (field === "sleep") {
@@ -2334,6 +2377,7 @@ function editEntry(id) {
   }
   setMood(entry.mood || "");
   $("fluidsMl").value = entry.fluids_ml ?? "";
+  if ($("fluidLevel")) $("fluidLevel").value = entry.fluid_level || "";
   $("customSymptoms").value = entry.custom_symptoms || "";
   $("medication").value = entry.medication || "";
   $("food").value = entry.food || "";
@@ -2402,6 +2446,7 @@ function entrySearchText(entry) {
   }
 
   if (entry.fluids_ml) parts.push(`${entry.fluids_ml} ml fluessigkeit trinken getrunken`);
+  if (entry.fluid_level) parts.push(`fluessigkeit trinken getrunken trinkmenge ${entry.fluid_level} ${fluidLevelLabel(entry.fluid_level)}`);
   if (entry.mood) parts.push(`stimmung ${entry.mood}`);
   if (entry.medication) parts.push(`medikament medis ${entry.medication}`);
   if (entry.food) parts.push(`essen mahlzeit ${entry.food}`);
@@ -2434,7 +2479,7 @@ function entrySearchSummary(entry) {
   if (entry.notes) parts.push(`Notiz: ${entry.notes}`);
   if (entry.food) parts.push(`Essen: ${entry.food}`);
   if (entry.sleep) parts.push(`Schlaf: ${entry.sleep}`);
-  if (entry.fluids_ml) parts.push(`Flüssigkeit: ${entry.fluids_ml} ml`);
+  if (entry.fluids_ml || entry.fluid_level) parts.push(`Flüssigkeit: ${fluidDisplayValue(entry)}`);
   if (entry.diaper_or_toilet) parts.push(`Windel/Toilette: ${entry.diaper_or_toilet}`);
   if (entry.mood) parts.push(`Stimmung: ${entry.mood}`);
   const imageCount = normalizeSymptomImages(entry.symptom_images || []).length;
@@ -3135,7 +3180,7 @@ function analysisValue(entry, category) {
     return `${Number(entry.temperature).toFixed(1)} °C`;
   }
   if (category === "fluids") {
-    return entry.fluids_ml ? `${entry.fluids_ml} ml` : "";
+    return fluidDisplayValue(entry);
   }
   if (category === "symptoms") {
     const intensityMap = entry.symptom_intensity || {};
@@ -3157,7 +3202,7 @@ function analysisValue(entry, category) {
   if (category === "all") {
     const parts = [];
     if (entry.temperature !== null && entry.temperature !== undefined && entry.temperature !== "") parts.push(`🌡️ ${Number(entry.temperature).toFixed(1)} °C`);
-    if (entry.fluids_ml) parts.push(`💧 ${entry.fluids_ml} ml`);
+    if (entry.fluids_ml || entry.fluid_level) parts.push(`💧 ${fluidDisplayValue(entry)}`);
     if (entry.mood) parts.push(`🙂 ${entry.mood}`);
     const symptoms = analysisValue(entry, "symptoms");
     if (symptoms) parts.push(`🤧 ${symptoms}`);

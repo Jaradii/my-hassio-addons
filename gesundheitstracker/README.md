@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.92
+- Basis ist die funktionierende Version 1.0.93
 
 
 ## Änderungen in 1.0.10
@@ -704,3 +704,12 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Beim Starten wird das Startdatum automatisch auf heute gesetzt
 - Beim Stoppen wird das Enddatum automatisch auf heute gesetzt
 - Im Bearbeiten-Popup bleiben Startdatum und Enddatum erhalten, damit man später korrigieren kann
+
+
+## Änderungen in 1.0.93-test
+
+- Bei Flüssigkeit kann jetzt zusätzlich `wenig`, `mittel` oder `viel` getrunken ausgewählt werden
+- Ergänzt im normalen Eintragsformular
+- Ergänzt im Schnell-Eintrag Flüssigkeit
+- Ergänzt beim Bearbeiten eines Flüssigkeits-Eintrags
+- Anzeige, Historie, Auswertung, Export und Volltextsuche berücksichtigen die Einschätzung
