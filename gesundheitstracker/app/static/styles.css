@@ -12474,3 +12474,11 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
 #fieldEditValue {
   width: 100%;
 }
+
+
+/* v1.0.96-test: Trinkmenge-Bearbeiten immer als Dropdown */
+.field-edit-select,
+#fieldEditValue.field-edit-select {
+  width: 100%;
+  min-height: 42px;
+}

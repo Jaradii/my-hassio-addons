@@ -2221,6 +2221,20 @@ function openFieldEdit(entryId, field) {
         </select>
       </label>
     `;
+  } else if (field === "fluid_level") {
+    const selectedLevel = String(entry.fluid_level || "").trim().toLowerCase();
+    $("fieldEditContent").innerHTML = `
+      ${timeFieldHtml}
+      <label class="field field-edit-value">
+        <span>Trinkmenge</span>
+        <select id="fieldEditValue" class="field-edit-select">
+          <option value="" ${!selectedLevel ? "selected" : ""}>Keine Einschätzung</option>
+          <option value="wenig" ${selectedLevel === "wenig" ? "selected" : ""}>Wenig</option>
+          <option value="mittel" ${selectedLevel === "mittel" ? "selected" : ""}>Mittel</option>
+          <option value="viel" ${selectedLevel === "viel" ? "selected" : ""}>Viel</option>
+        </select>
+      </label>
+    `;
   } else if (field === "sleep") {
     const range = extractSleepRange(value);
     const cleanSleepText = stripGeneratedSleepDuration(value);

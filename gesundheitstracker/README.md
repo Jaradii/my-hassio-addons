@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.95
+- Basis ist die funktionierende Version 1.0.96
 
 
 ## Änderungen in 1.0.10
@@ -730,3 +730,10 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Bearbeiten-Sheet für `Trinkmenge` ergänzt
 - Auswahl: Keine Einschätzung, Wenig, Mittel, Viel
 - Historie zeigt Änderungen an `Trinkmenge` weiterhin als eigenes Feld
+
+
+## Änderungen in 1.0.96-test
+
+- Bearbeiten-Popup für `Trinkmenge` zeigt jetzt erzwungen ein Dropdown
+- Auswahl: Keine Einschätzung, Wenig, Mittel, Viel
+- Freies Textfeld für `Trinkmenge` wird nicht mehr gerendert
