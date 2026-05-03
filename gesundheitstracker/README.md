@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.81
+- Basis ist die funktionierende Version 1.0.82
 
 
 ## Änderungen in 1.0.10
@@ -610,3 +610,13 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Wenn ein Infekt läuft: roter Button `Infekt stoppen`
 - Stop-Logik repariert: aktiver Infekt wird sauber beendet und der Zeitraum bleibt für den Arztbericht in den Feldern stehen
 - Alte Buttons `Infekt beenden` und `Zurücksetzen` entfernt
+
+
+## Änderungen in 1.0.82-test
+
+- Infekt-Status wird jetzt serverseitig in `diary.json` gespeichert
+- Aktiver Infekt ist nach Home-Assistant-Neustart weiterhin vorhanden
+- Aktiver Infekt ist auf allen Geräten sichtbar
+- Infekt-Status ist im Backup enthalten
+- Gestoppte Infekte werden in `illness_history` gespeichert
+- Browser-`localStorage` ist für den laufenden Infekt nicht mehr maßgeblich

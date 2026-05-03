@@ -53,6 +53,8 @@ def default_store() -> Dict[str, Any]:
             "notes": "",
         },
         "entries": [],
+        "active_illness": None,
+        "illness_history": [],
         "created_at": utc_now(),
         "updated_at": utc_now(),
     }
@@ -76,6 +78,8 @@ def read_store() -> Dict[str, Any]:
     data.setdefault("profile", default_store()["profile"])
     data.setdefault("entries", [])
     data.setdefault("deleted_entries", [])
+    data.setdefault("active_illness", None)
+    data.setdefault("illness_history", [])
     data.setdefault("created_at", utc_now())
     data.setdefault("updated_at", utc_now())
 
@@ -250,6 +254,76 @@ def api_save_profile(profile: Profile, request: Request):
     store["profile"] = profile.model_dump()
     write_store(store)
     return store["profile"]
+
+@app.get("/api/illness")
+def api_get_illness(request: Request):
+    check_pin(request)
+    store = read_store()
+    return {
+        "active_illness": store.get("active_illness"),
+        "illness_history": store.get("illness_history", []),
+    }
+
+
+@app.put("/api/illness")
+async def api_set_illness(request: Request):
+    check_pin(request)
+    try:
+        payload = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Ungültige Infekt-Daten.")
+
+    if payload is not None and not isinstance(payload, dict):
+        raise HTTPException(status_code=400, detail="Ungültiges Infekt-Format.")
+
+    store = read_store()
+    store["active_illness"] = payload
+    write_store(store)
+    return {"active_illness": store.get("active_illness")}
+
+
+@app.post("/api/illness/stop")
+async def api_stop_illness(request: Request):
+    check_pin(request)
+    store = read_store()
+    active = store.get("active_illness")
+
+    if not active:
+        return {
+            "active_illness": None,
+            "last_illness": None,
+            "illness_history": store.get("illness_history", []),
+        }
+
+    try:
+        payload = await request.json()
+    except Exception:
+        payload = {}
+
+    if not isinstance(payload, dict):
+        payload = {}
+
+    stopped = {
+        **active,
+        "end": payload.get("end") or active.get("end") or datetime.now(timezone.utc).date().isoformat(),
+        "ended_at": utc_now(),
+    }
+
+    history = store.get("illness_history", [])
+    if not isinstance(history, list):
+        history = []
+    history.append(stopped)
+
+    store["active_illness"] = None
+    store["illness_history"] = history[-50:]
+    write_store(store)
+
+    return {
+        "active_illness": None,
+        "last_illness": stopped,
+        "illness_history": store.get("illness_history", []),
+    }
+
 
 
 @app.post("/api/entries")

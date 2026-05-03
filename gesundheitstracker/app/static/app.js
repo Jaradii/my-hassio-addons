@@ -15,6 +15,7 @@ const state = {
   imagePreviewIndex: 0,
   storageUploads: [],
   activeIllness: null,
+  illnessHistory: [],
   lastDoctorReport: ""
 };
 
@@ -446,6 +447,8 @@ async function loadConfig() {
 
 async function loadState() {
   state.data = await api("./api/state");
+  state.activeIllness = state.data.active_illness || null;
+  state.illnessHistory = state.data.illness_history || [];
   renderAll();
 }
 
@@ -2392,24 +2395,37 @@ function closeViews() {
 
 
 
-function illnessStorageKey() {
-  return "kindgesund_active_illness";
-}
-
-function loadActiveIllness() {
+async function loadActiveIllness() {
   try {
-    const raw = localStorage.getItem(illnessStorageKey());
-    state.activeIllness = raw ? JSON.parse(raw) : null;
+    const data = await api("./api/illness");
+    state.activeIllness = data.active_illness || null;
+    state.illnessHistory = data.illness_history || [];
   } catch {
-    state.activeIllness = null;
+    state.activeIllness = state.data.active_illness || null;
+    state.illnessHistory = state.data.illness_history || [];
   }
   return state.activeIllness;
 }
 
-function saveActiveIllness(illness) {
-  state.activeIllness = illness;
-  if (illness) localStorage.setItem(illnessStorageKey(), JSON.stringify(illness));
-  else localStorage.removeItem(illnessStorageKey());
+async function saveActiveIllness(illness) {
+  const data = await api("./api/illness", {
+    method: "PUT",
+    body: JSON.stringify(illness || null)
+  });
+  state.activeIllness = data.active_illness || null;
+  state.data.active_illness = state.activeIllness;
+  return state.activeIllness;
+}
+
+async function stopActiveIllness(end) {
+  const data = await api("./api/illness/stop", {
+    method: "POST",
+    body: JSON.stringify({ end })
+  });
+  state.activeIllness = data.active_illness || null;
+  state.data.active_illness = state.activeIllness;
+  state.illnessHistory = data.illness_history || [];
+  return data.last_illness || null;
 }
 
 function illnessDateRange() {
@@ -2467,9 +2483,9 @@ function renderIllnessStatus() {
   if (!container) return;
 
   const illness = state.activeIllness;
-  if ($("illnessStartDate")) $("illnessStartDate").value = illness?.start || state.selectedDate || today();
-  if ($("illnessEndDate")) $("illnessEndDate").value = illness?.end || today();
-  if ($("illnessTitleInput")) $("illnessTitleInput").value = illness?.title || "";
+  if ($("illnessStartDate")) $("illnessStartDate").value = illness?.start || $("illnessStartDate").value || state.selectedDate || today();
+  if ($("illnessEndDate")) $("illnessEndDate").value = illness?.end || $("illnessEndDate").value || today();
+  if ($("illnessTitleInput")) $("illnessTitleInput").value = illness?.title || $("illnessTitleInput").value || "";
 
   const range = illnessDateRange();
   const stats = buildIllnessStats(range.start, range.end);
@@ -2500,16 +2516,16 @@ function renderIllnessStatus() {
   }
 }
 
-function openIllnessView() {
-  loadActiveIllness();
+async function openIllnessView() {
+  await loadActiveIllness();
   renderIllnessStatus();
   openView("illnessView");
 }
 
-function startIllness() {
+async function startIllness() {
   const start = $("illnessStartDate")?.value || state.selectedDate || today();
   const title = $("illnessTitleInput")?.value.trim() || `Infekt ab ${formatDateShortGerman(start)}`;
-  saveActiveIllness({
+  await saveActiveIllness({
     id: `illness_${Date.now()}`,
     title,
     start,
@@ -2521,32 +2537,26 @@ function startIllness() {
   showToast("Infekt gestartet");
 }
 
-function stopIllness() {
+async function stopIllness() {
   if (!state.activeIllness) {
     renderIllnessStatus();
     return;
   }
 
   const end = $("illnessEndDate")?.value || today();
-  const stopped = {
-    ...state.activeIllness,
-    end,
-    ended_at: new Date().toISOString()
-  };
+  const stopped = await stopActiveIllness(end);
 
-  // Stoppen bedeutet: laufenden Status entfernen. Die Daten bleiben erhalten,
-  // der Zeitraum bleibt aber in den Datumsfeldern stehen, damit der Arztbericht direkt erstellt werden kann.
-  saveActiveIllness(null);
-  if ($("illnessStartDate")) $("illnessStartDate").value = stopped.start || state.selectedDate || today();
-  if ($("illnessEndDate")) $("illnessEndDate").value = stopped.end || today();
-  if ($("illnessTitleInput")) $("illnessTitleInput").value = stopped.title || "";
+  // Der abgeschlossene Zeitraum bleibt in den Feldern stehen, damit der Arztbericht direkt erstellt werden kann.
+  if ($("illnessStartDate")) $("illnessStartDate").value = stopped?.start || state.selectedDate || today();
+  if ($("illnessEndDate")) $("illnessEndDate").value = stopped?.end || end || today();
+  if ($("illnessTitleInput")) $("illnessTitleInput").value = stopped?.title || "";
   renderIllnessStatus();
   showToast("Infekt gestoppt");
 }
 
-function toggleIllness() {
-  if (state.activeIllness) stopIllness();
-  else startIllness();
+async function toggleIllness() {
+  if (state.activeIllness) await stopIllness();
+  else await startIllness();
 }
 
 function feverAssessment(value) {
@@ -4164,7 +4174,7 @@ async function init() {
     await loadConfig();
     if (!state.config.pin_required || state.pin) {
       await loadState();
-      loadActiveIllness();
+      await loadActiveIllness();
     }
   } catch (err) {
     if (String(err.message).includes("PIN")) showPin(err.message);
