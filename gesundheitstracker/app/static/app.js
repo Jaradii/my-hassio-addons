@@ -2828,7 +2828,7 @@ function selectIllnessForOverview(id) {
   if ($("illnessStartDate")) $("illnessStartDate").value = illness.start || state.selectedDate || today();
   if ($("illnessEndDate")) $("illnessEndDate").value = illness.end || today();
   if ($("illnessTitleInput")) $("illnessTitleInput").value = illness.title || "";
-  renderIllnessOverview(illness);
+  renderIllnessList();
 }
 
 function openIllnessEdit(id) {
@@ -2931,7 +2931,6 @@ function renderIllnessStatus() {
     toggle.classList.toggle("primary", !illness);
   }
 
-  renderIllnessOverview();
   renderIllnessList();
   renderActiveIllnessBanner();
 }
@@ -4578,10 +4577,6 @@ async function init() {
 
   $("quickSearchButton").addEventListener("click", openGlobalSearchView);
   $("quickIllnessButton").addEventListener("click", openIllnessView);
-  $("menuIllnessButton").addEventListener("click", () => {
-    closeTopMenu();
-    openIllnessView();
-  });
   $("menuStorageButton").addEventListener("click", () => {
     closeTopMenu();
     openStorageView();

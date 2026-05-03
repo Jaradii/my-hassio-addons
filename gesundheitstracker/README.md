@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.87
+- Basis ist die funktionierende Version 1.0.88
 
 
 ## Änderungen in 1.0.10
@@ -666,3 +666,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Suche als eigener Button `🔎` oben in der Kopfzeile ergänzt
 - Auswertung bleibt im Drei-Punkt-Menü, bekommt aber das Statistik-Icon `📈`
 - Volltextsuche selbst bleibt unverändert
+
+
+## Änderungen in 1.0.88-test
+
+- `Infekt` aus dem Drei-Punkt-Menü entfernt
+- Infekt bleibt über den direkten Kopfzeilen-Button `🩺` erreichbar
+- Redundantes Verlauf-/Übersichts-Feld unter den Infekt-Einstellungen entfernt
+- Infekt-Liste bleibt als eigentliche Verlauf/Historie erhalten

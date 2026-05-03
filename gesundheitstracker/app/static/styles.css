@@ -12434,3 +12434,9 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
 .search-quick-btn {
   position: relative;
 }
+
+
+/* v1.0.88-test: redundanten Infekt-Verlauf unter den Einstellungen entfernen */
+#illnessOverviewContent {
+  display: none !important;
+}
