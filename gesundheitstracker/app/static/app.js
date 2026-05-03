@@ -2818,6 +2818,34 @@ function storagePercent(part, total) {
   return Math.max(0, Math.min(100, Math.round((p / t) * 100)));
 }
 
+
+function renderStorageImagesGallery(uploads) {
+  const images = Array.isArray(uploads) ? uploads : [];
+  if (!images.length) {
+    return `<div class="storage-images-empty">Keine Bilder gespeichert.</div>`;
+  }
+
+  return `
+    <div class="storage-images-gallery">
+      ${images.map((image, index) => {
+        const url = image.url || "";
+        return `
+          <button type="button" class="storage-image-thumb symptom-image-open" data-url="${escapeHtml(url)}" data-images="${escapeHtml(JSON.stringify(images.map(item => item.url || "").filter(Boolean)))}" data-index="${index}" aria-label="Bild öffnen">
+            <img src="${escapeHtml(url)}" alt="Gespeichertes Bild" loading="lazy" />
+            <span>${escapeHtml(formatBytes(image.size_bytes || 0))}</span>
+          </button>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function toggleStorageImages() {
+  const panel = $("storageImagesPanel");
+  if (!panel) return;
+  panel.classList.toggle("hidden");
+}
+
 async function loadStorageView() {
   const container = $("storageContent");
   if (!container) return;
@@ -2844,19 +2872,30 @@ async function loadStorageView() {
       </div>
 
       <div class="storage-bars">
-        ${rows.map(([label, value, meta, desc]) => `
-          <div class="storage-row">
-            <div class="storage-row-head">
-              <strong>${escapeHtml(label)}</strong>
-              <span>${formatBytes(value)}</span>
-            </div>
-            <div class="storage-bar"><i style="width:${storagePercent(value, total)}%"></i></div>
-            <div class="storage-row-foot">
-              <span>${escapeHtml(meta)}</span>
-              <small>${escapeHtml(desc)}</small>
-            </div>
-          </div>
-        `).join("")}
+        ${rows.map(([label, value, meta, desc]) => {
+          const isImages = label === "Bilder";
+          return `
+            <button type="button" class="storage-row ${isImages ? "storage-row-clickable" : ""}" ${isImages ? 'id="storageImagesToggle"' : "disabled"}>
+              <div class="storage-row-head">
+                <strong>${escapeHtml(label)}</strong>
+                <span>${formatBytes(value)}${isImages ? " ›" : ""}</span>
+              </div>
+              <div class="storage-bar"><i style="width:${storagePercent(value, total)}%"></i></div>
+              <div class="storage-row-foot">
+                <span>${escapeHtml(meta)}</span>
+                <small>${escapeHtml(desc)}</small>
+              </div>
+            </button>
+          `;
+        }).join("")}
+      </div>
+
+      <div id="storageImagesPanel" class="storage-images-panel hidden">
+        <div class="storage-images-head">
+          <strong>Gespeicherte Bilder</strong>
+          <span>${data.uploads_count || 0} Datei${Number(data.uploads_count) === 1 ? "" : "en"}</span>
+        </div>
+        ${renderStorageImagesGallery(data.uploads || [])}
       </div>
 
       <div class="storage-paths">
@@ -2866,6 +2905,9 @@ async function loadStorageView() {
 
       <p class="storage-hint">Hinweis: Am meisten Speicher belegen normalerweise die hochgeladenen Bilder. Ein ZIP-Backup enthält sowohl die Datenbank als auch den Bilderordner.</p>
     `;
+
+    if ($("storageImagesToggle")) $("storageImagesToggle").addEventListener("click", toggleStorageImages);
+    bindSymptomImageOpeners(container);
   } catch (err) {
     container.innerHTML = `<p class="storage-error">${escapeHtml(err.message || "Speicher konnte nicht geladen werden.")}</p>`;
   }
@@ -3742,9 +3784,6 @@ async function init() {
 
 
   $("refreshStorageButton").addEventListener("click", loadStorageView);
-  $("storageBackupButton").addEventListener("click", () => {
-    window.location.href = "./api/backup";
-  });
   document.querySelectorAll(".close-view").forEach(btn => btn.addEventListener("click", closeViews));
 
   try {

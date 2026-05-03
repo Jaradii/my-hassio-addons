@@ -472,6 +472,27 @@ def api_storage(request: Request):
             if isinstance(entry, dict) and isinstance(entry.get("symptom_images"), list):
                 image_refs += len(entry.get("symptom_images") or [])
 
+    uploads = []
+    if UPLOAD_DIR.exists():
+        for path in sorted(UPLOAD_DIR.rglob("*"), key=lambda item: item.name.lower()):
+            try:
+                if not path.is_file():
+                    continue
+                suffix = path.suffix.lower()
+                if suffix not in {".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif"}:
+                    continue
+                stat = path.stat()
+                uploads.append(
+                    {
+                        "filename": path.name,
+                        "url": f"./api/uploads/{path.name}",
+                        "size_bytes": stat.st_size,
+                        "modified_at": datetime.fromtimestamp(stat.st_mtime, timezone.utc).isoformat(),
+                    }
+                )
+            except Exception:
+                pass
+
     return {
         "total_bytes": data_dir_size,
         "diary_bytes": diary_size,
@@ -482,6 +503,7 @@ def api_storage(request: Request):
         "image_refs_count": image_refs,
         "data_path": str(DATA_PATH),
         "uploads_path": str(UPLOAD_DIR),
+        "uploads": uploads,
     }
 
 

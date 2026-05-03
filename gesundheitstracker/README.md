@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.74
+- Basis ist die funktionierende Version 1.0.75
 
 
 ## Änderungen in 1.0.10
@@ -550,3 +550,12 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Anzeige von Gesamtgröße, Datenbankgröße, Bildergröße und sonstigen Dateien
 - Anzeige von Anzahl Einträge, Bild-Verweisen und Upload-Dateien
 - Button zum Aktualisieren und Backup erstellen ergänzt
+
+
+## Änderungen in 1.0.75-test
+
+- Menüpunkt von `Speicherbelegung` auf `Speicher` gekürzt
+- Icon im Menü auf Kreisdiagramm-Symbol geändert
+- Backup-erstellen Button aus der Speicheransicht entfernt
+- Klick auf `Bilder` in der Speicheransicht öffnet eine Galerie aller gespeicherten Upload-Bilder
+- Bilder aus der Speicher-Galerie öffnen in der bestehenden Bild-Galerie
