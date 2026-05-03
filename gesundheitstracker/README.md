@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.1.16
+- Basis ist die funktionierende Version 1.1.17
 
 
 ## Änderungen in 1.0.10
@@ -895,3 +895,10 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Sonderstyling des Markierungsbuttons entfernt
 - Markierungsbutton übernimmt jetzt denselben Hintergrund, dieselbe Umrandung und denselben Grundstil wie Historie/Bearbeiten
 - Aktiver Zustand verändert den Button nicht mehr optisch anders
+
+
+## Änderungen in 1.1.17-test
+
+- Umrandung des Markierungsbuttons explizit an Historie/Bearbeiten angeglichen
+- Alte Flag-spezifische Border-/Hintergrundregeln entfernt
+- Button nutzt jetzt dieselbe runde Form, Border-Farbe, Hintergrundfarbe und Größe wie die anderen Aktionsbuttons

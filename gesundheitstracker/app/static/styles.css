@@ -12821,23 +12821,35 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
 
 
 
-/* v1.1.16-test: Markierungsbutton exakt wie Historie/Bearbeiten */
-.summary-edit-button.summary-flag-button {
-  background: inherit !important;
-  border-color: inherit !important;
-  box-shadow: inherit !important;
-  color: inherit !important;
+
+
+/* v1.1.17-test: Markierungsbutton exakt an History/Edit angleichen */
+.summary-row-actions .summary-edit-button.summary-flag-button,
+.summary-row-actions .summary-edit-button.summary-flag-button.active {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  box-sizing: border-box !important;
+  width: var(--summary-action-size, 30px) !important;
+  height: var(--summary-action-size, 30px) !important;
+  min-width: var(--summary-action-size, 30px) !important;
+  min-height: var(--summary-action-size, 30px) !important;
+  border-radius: 999px !important;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 62%, transparent) !important;
+  background: var(--card) !important;
+  color: var(--text) !important;
+  box-shadow: none !important;
   opacity: 1 !important;
+  padding: 0 !important;
+  margin: 0 !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
   line-height: 1 !important;
-  padding: 0 !important;
+  font-size: 0.78rem !important;
+  font-weight: 900 !important;
 }
 
-.summary-edit-button.summary-flag-button.active {
-  background: inherit !important;
-  border-color: inherit !important;
-  box-shadow: inherit !important;
-  color: inherit !important;
+.summary-row-actions .summary-edit-button.summary-flag-button::before,
+.summary-row-actions .summary-edit-button.summary-flag-button::after {
+  content: none !important;
 }
