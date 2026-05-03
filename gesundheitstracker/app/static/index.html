@@ -202,12 +202,21 @@
       <div id="imagePreviewBackdrop" class="image-preview-backdrop"></div>
       <div class="image-preview-panel">
         <div class="image-preview-head">
-          <strong>Symptom-Foto</strong>
-          <button id="closeImagePreview" type="button" class="round-btn">×</button>
+          <div>
+            <strong>Symptom-Foto</strong>
+            <small id="imagePreviewCounter">1 / 1</small>
+          </div>
+          <div class="image-preview-actions">
+            <button id="shareImagePreview" type="button" class="round-btn" aria-label="Bild teilen">↗</button>
+            <button id="closeImagePreview" type="button" class="round-btn">×</button>
+          </div>
         </div>
         <div class="image-preview-body">
+          <button id="imagePreviewPrev" type="button" class="image-preview-nav image-preview-prev" aria-label="Vorheriges Bild">‹</button>
           <img id="imagePreviewLarge" src="" alt="Symptom-Foto" />
+          <button id="imagePreviewNext" type="button" class="image-preview-nav image-preview-next" aria-label="Nächstes Bild">›</button>
         </div>
+        <div id="imagePreviewThumbs" class="image-preview-thumbs"></div>
       </div>
     </section>
 

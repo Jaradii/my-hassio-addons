@@ -10,7 +10,9 @@ const state = {
   editingExistingEntry: false,
   pendingSymptomImages: [],
   pendingQuickSymptomImages: [],
-  pendingFieldEditSymptomImages: []
+  pendingFieldEditSymptomImages: [],
+  imagePreviewItems: [],
+  imagePreviewIndex: 0
 };
 
 const $ = (id) => document.getElementById(id);
@@ -101,16 +103,48 @@ function normalizeSymptomImages(images) {
 }
 
 
-function openImagePreviewPopup(url) {
-  if (!url) return;
-  const popup = $("imagePreviewPopup");
-  const img = $("imagePreviewLarge");
-  if (!popup || !img) return;
+function setImagePreviewIndex(index) {
+  if (!state.imagePreviewItems.length) return;
+  const max = state.imagePreviewItems.length - 1;
+  state.imagePreviewIndex = Math.max(0, Math.min(max, Number(index) || 0));
 
-  img.src = url;
+  const img = $("imagePreviewLarge");
+  const counter = $("imagePreviewCounter");
+  const prev = $("imagePreviewPrev");
+  const next = $("imagePreviewNext");
+  const thumbs = $("imagePreviewThumbs");
+  const url = state.imagePreviewItems[state.imagePreviewIndex];
+
+  if (img) img.src = url;
+  if (counter) counter.textContent = `${state.imagePreviewIndex + 1} / ${state.imagePreviewItems.length}`;
+  if (prev) prev.classList.toggle("hidden", state.imagePreviewItems.length <= 1);
+  if (next) next.classList.toggle("hidden", state.imagePreviewItems.length <= 1);
+
+  if (thumbs) {
+    thumbs.innerHTML = state.imagePreviewItems.length > 1 ? state.imagePreviewItems.map((itemUrl, idx) => `
+      <button type="button" class="${idx === state.imagePreviewIndex ? "active" : ""}" data-index="${idx}" aria-label="Bild ${idx + 1} öffnen">
+        <img src="${escapeHtml(itemUrl)}" alt="Foto ${idx + 1}" />
+      </button>
+    `).join("") : "";
+    thumbs.querySelectorAll("button[data-index]").forEach(button => {
+      button.addEventListener("click", () => setImagePreviewIndex(Number(button.dataset.index)));
+    });
+  }
+}
+
+function openImagePreviewPopup(url, images = [], index = 0) {
+  const popup = $("imagePreviewPopup");
+  if (!popup) return;
+
+  const list = Array.isArray(images) && images.length ? images : [url].filter(Boolean);
+  state.imagePreviewItems = list.filter(Boolean);
+  state.imagePreviewIndex = 0;
+  if (!state.imagePreviewItems.length) return;
+
   popup.classList.remove("closing", "hidden");
   popup.setAttribute("aria-hidden", "false");
   document.body.classList.add("image-preview-open");
+  setImagePreviewIndex(index);
 }
 
 function closeImagePreviewPopup() {
@@ -122,6 +156,9 @@ function closeImagePreviewPopup() {
   document.body.classList.remove("image-preview-open");
   animateHide(popup, "closing", () => {
     if (img) img.src = "";
+    if ($("imagePreviewThumbs")) $("imagePreviewThumbs").innerHTML = "";
+    state.imagePreviewItems = [];
+    state.imagePreviewIndex = 0;
   });
 }
 
@@ -132,37 +169,62 @@ function bindSymptomImageOpeners(root = document) {
     button.addEventListener("click", event => {
       event.preventDefault();
       event.stopPropagation();
-      openImagePreviewPopup(button.dataset.url);
+
+      let images = [];
+      try {
+        images = JSON.parse(button.dataset.images || "[]");
+      } catch {
+        images = [];
+      }
+      openImagePreviewPopup(button.dataset.url, images, Number(button.dataset.index || 0));
     });
   });
 }
 
+async function shareCurrentImagePreview() {
+  const url = state.imagePreviewItems[state.imagePreviewIndex];
+  if (!url) return;
 
-function renderCompactSymptomImages(images) {
-  const normalized = normalizeSymptomImages(images);
-  if (!normalized.length) return "";
-  const first = normalized[0];
-  const url = uploadUrlFromImage(first);
-  const count = normalized.length;
+  try {
+    const absoluteUrl = new URL(url, window.location.href).toString();
+    const response = await fetch(absoluteUrl);
+    const blob = await response.blob();
+    const filename = absoluteUrl.split("/").pop()?.split("?")[0] || "symptom-foto.jpg";
+    const file = new File([blob], filename, { type: blob.type || "image/jpeg" });
 
-  return `
-    <div class="symptom-image-attachment-row">
-      <button type="button" class="symptom-image-open symptom-image-attachment-chip" data-url="${escapeHtml(url)}" aria-label="Symptom-Foto öffnen">
-        <span>📷</span>
-        <strong>${count} Foto${count === 1 ? "" : "s"} ansehen</strong>
-      </button>
-    </div>
-  `;
+    if (navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
+      await navigator.share({
+        files: [file],
+        title: "Symptom-Foto",
+        text: "Symptom-Foto aus dem Gesundheitstracker"
+      });
+      return;
+    }
+
+    if (navigator.share) {
+      await navigator.share({
+        title: "Symptom-Foto",
+        text: "Symptom-Foto aus dem Gesundheitstracker",
+        url: absoluteUrl
+      });
+      return;
+    }
+
+    showToast("Teilen wird hier nicht unterstützt");
+  } catch (err) {
+    showToast("Teilen nicht möglich");
+  }
 }
 
 function renderSymptomImages(images) {
   const normalized = normalizeSymptomImages(images);
   if (!normalized.length) return "";
+  const urls = normalized.map(uploadUrlFromImage).filter(Boolean);
+
   return `
     <div class="symptom-image-strip">
-      ${normalized.map(image => {
-        const url = uploadUrlFromImage(image);
-        return `<button type="button" class="symptom-image-open" data-url="${escapeHtml(url)}" aria-label="Symptom-Foto öffnen"><img src="${escapeHtml(url)}" alt="Symptom-Foto" loading="lazy" /></button>`;
+      ${urls.map((url, index) => {
+        return `<button type="button" class="symptom-image-open" data-url="${escapeHtml(url)}" data-images="${escapeHtml(JSON.stringify(urls))}" data-index="${index}" aria-label="Symptom-Foto öffnen"><img src="${escapeHtml(url)}" alt="Symptom-Foto" loading="lazy" /></button>`;
       }).join("")}
     </div>
   `;
@@ -3346,6 +3408,9 @@ async function init() {
   $("entryDetailPopupBackdrop").addEventListener("click", closeEntryDetailPopup);
   $("closeImagePreview").addEventListener("click", closeImagePreviewPopup);
   $("imagePreviewBackdrop").addEventListener("click", closeImagePreviewPopup);
+  $("imagePreviewPrev").addEventListener("click", () => setImagePreviewIndex(state.imagePreviewIndex - 1));
+  $("imagePreviewNext").addEventListener("click", () => setImagePreviewIndex(state.imagePreviewIndex + 1));
+  $("shareImagePreview").addEventListener("click", shareCurrentImagePreview);
   $("closeFieldEdit").addEventListener("click", closeFieldEdit);
   $("fieldEditBackdrop").addEventListener("click", closeFieldEdit);
   $("fieldEditForm").addEventListener("submit", saveFieldEdit);

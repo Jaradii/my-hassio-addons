@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.68
+- Basis ist die funktionierende Version 1.0.69
 
 
 ## Änderungen in 1.0.10
@@ -524,3 +524,12 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Beim Löschen eines Eintrags werden zugehörige Symptom-Bilddateien aus `/data/uploads` entfernt
 - Beim Bearbeiten werden entfernte Bilder ebenfalls physisch gelöscht
 - Der gelöschte Eintrag bleibt weiterhin als Historien-Snapshot erhalten, aber ohne die Bilddateien auf der Platte zu behalten
+
+
+## Änderungen in 1.0.69-test
+
+- Bild-Popup ist jetzt eine Galerie
+- Bei mehreren Bildern kann man vor/zurück wechseln
+- Miniaturleiste im Bild-Popup ergänzt
+- Der Foto-Chip öffnet jetzt alle Bilder des Eintrags, nicht nur das erste
+- Teilen-Button ergänzt, nutzt auf iPhone möglichst die native Teilen-Funktion
