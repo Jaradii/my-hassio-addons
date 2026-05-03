@@ -874,9 +874,9 @@ function fluidLevelLabel(value) {
 
 function entryFlagOptions() {
   return [
-    { value: "important", label: "Wichtig", icon: "⭐" },
+    { value: "important", label: "Wichtig", icon: "❗️" },
     { value: "doctor", label: "Arzt-relevant", icon: "🩺" },
-    { value: "check", label: "Kontrollieren", icon: "👀" }
+    { value: "check", label: "Kontrollieren", icon: "⚠️" }
   ];
 }
 

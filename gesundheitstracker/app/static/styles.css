@@ -976,7 +976,7 @@ body {
   min-height: auto !important;
   padding: 0 !important;
   border: 0 !important;
-  border-radius: 999px !important;
+  border-radius: 10px !important;
   background: transparent !important;
   box-shadow: none !important;
   backdrop-filter: none !important;
@@ -12852,4 +12852,11 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
 .summary-row-actions .summary-edit-button.summary-flag-button::before,
 .summary-row-actions .summary-edit-button.summary-flag-button::after {
   content: none !important;
+}
+
+
+/* v1.1.18-test: Markierungsbutton zurück auf 10px Designradius */
+.summary-row-actions .summary-edit-button.summary-flag-button,
+.summary-row-actions .summary-edit-button.summary-flag-button.active {
+  border-radius: 10px !important;
 }
