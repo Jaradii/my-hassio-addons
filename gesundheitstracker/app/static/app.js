@@ -612,6 +612,8 @@ function summaryDisplayValue(entry, key) {
     if (entry.custom_symptoms) {
       symptomParts.push(...entry.custom_symptoms.split(",").map(s => s.trim()).filter(Boolean));
     }
+    const imageCount = normalizeSymptomImages(entry.symptom_images || []).length;
+    if (imageCount) symptomParts.push(`${imageCount} Foto${imageCount === 1 ? "" : "s"}`);
     return symptomParts.join(", ");
   }
   return entry[key] || "";
@@ -650,7 +652,7 @@ function renderSummaryTextBlocks(summary) {
   const renderItem = (group, entry, hidden = false) => `
     <div class="summary-info-item category-compact-item ${group.key === "temperature" ? feverClass(entry.temperature) : ""} ${entry.is_overnight_carry ? "overnight-carry-item" : ""} ${hidden ? "category-extra-item category-extra-hidden" : ""}">
       <span class="summary-info-time">${escapeHtml(entry.time || "--:--")}</span>
-      <p>${escapeHtml(summaryDisplayValue(entry, group.key))}</p>
+      <p>${escapeHtml(summaryDisplayValue(entry, group.key))}${group.key === "symptoms" ? renderSymptomImages(entry.symptom_images || []) : ""}</p>
       <div class="summary-row-actions">
         <button type="button" class="summary-edit-button summary-history-button" data-id="${entry.original_id || entry.id}" aria-label="Historie anzeigen">↻</button>
         <button type="button" class="summary-edit-button edit-summary-field" data-id="${entry.original_id || entry.id}" data-field="${group.key}" aria-label="${group.title} bearbeiten">✎</button>
@@ -1065,6 +1067,7 @@ function renderEntryDetail(entry) {
               <strong>Symptome</strong>
             </div>
             ${renderSymptomList(symptoms)}
+            ${renderSymptomImages(entry.symptom_images || [])}
           </section>
         ` : ""}
 
@@ -1285,6 +1288,7 @@ function quickPayload(kind) {
     payload.symptoms = [...document.querySelectorAll("#quickSymptomChips input:checked")].map(i => i.value);
     payload.symptom_intensity = selectedQuickSymptomIntensity();
     payload.custom_symptoms = $("quickCustomSymptoms").value.trim();
+    payload.symptom_images = [...state.pendingQuickSymptomImages];
   } else if (kind === "medication") {
     payload.medication = $("quickMedication").value.trim();
   } else if (kind === "food") {
@@ -1300,7 +1304,7 @@ function quickPayload(kind) {
 }
 
 function quickPayloadHasValue(payload) {
-  return [payload.temperature !== null && !Number.isNaN(payload.temperature), payload.fluids_ml !== null && !Number.isNaN(payload.fluids_ml), payload.mood, payload.symptoms.length, payload.custom_symptoms, payload.medication, payload.food, payload.sleep, payload.diaper_or_toilet, payload.notes].some(Boolean);
+  return [payload.temperature !== null && !Number.isNaN(payload.temperature), payload.fluids_ml !== null && !Number.isNaN(payload.fluids_ml), payload.mood, payload.symptoms.length, payload.custom_symptoms, payload.medication, payload.food, payload.sleep, payload.diaper_or_toilet, payload.notes, (payload.symptom_images || []).length].some(Boolean);
 }
 
 function openSheet() {
@@ -1338,6 +1342,9 @@ function resetEntryForm() {
   updateSleepDurationPreview();
   $("diaperOrToilet").value = "";
   $("notes").value = "";
+  state.pendingSymptomImages = [];
+  renderPendingSymptomImages("symptomImagePreview", state.pendingSymptomImages);
+  if ($("symptomImageInput")) $("symptomImageInput").value = "";
   $("deleteCurrent").classList.add("hidden");
   document.querySelectorAll("#symptomChips input").forEach(i => i.checked = false);
   document.querySelectorAll(".symptom-intensity").forEach(select => {
@@ -2050,6 +2057,9 @@ function editEntry(id) {
   updateSleepDurationPreview();
   $("diaperOrToilet").value = entry.diaper_or_toilet || "";
   $("notes").value = entry.notes || "";
+  state.pendingSymptomImages = normalizeSymptomImages(entry.symptom_images || []);
+  renderPendingSymptomImages("symptomImagePreview", state.pendingSymptomImages);
+  if ($("symptomImageInput")) $("symptomImageInput").value = "";
   $("deleteCurrent").classList.remove("hidden");
   document.querySelectorAll("#symptomChips input").forEach(i => i.checked = (entry.symptoms || []).includes(i.value));
   setSymptomIntensityMap(entry.symptom_intensity || {});
@@ -3157,6 +3167,7 @@ async function init() {
     }
     await api("./api/entries", { method: "POST", body: JSON.stringify(payload) });
     await loadState();
+    state.pendingQuickSymptomImages = [];
     closeQuickSheet();
     showToast("Gespeichert");
   });
@@ -3191,6 +3202,10 @@ async function init() {
 
   document.querySelectorAll("#symptomChips input").forEach(input => {
     input.addEventListener("change", updateSymptomIntensityControls);
+  });
+  $("symptomImageInput").addEventListener("change", async event => {
+    await handleSymptomImageFiles(event.target.files, "main");
+    event.target.value = "";
   });
 
   $("temperature").addEventListener("input", (event) => {

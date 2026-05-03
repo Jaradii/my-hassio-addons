@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.53
+- Basis ist die funktionierende Version 1.0.54
 
 
 ## Änderungen in 1.0.10
@@ -416,3 +416,14 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Hauptwert wie „Keine“ kleiner und dezenter darunter gesetzt
 - Statuszeile unten bleibt klein
 - Nur CSS geändert
+
+
+## Änderungen in 1.0.54-test
+
+- Testversion für Symptom-Fotos
+- Bilder können im normalen Symptome-Bereich und in der Symptome-Schnelleingabe hinzugefügt werden
+- Uploads werden unter `/data/uploads` persistent gespeichert
+- Einträge speichern Bild-Referenzen in `symptom_images`
+- Bilder werden in Tagesübersicht und Detailansicht als Vorschau angezeigt
+- Backend-Endpunkte `/api/uploads` ergänzt
+- Achtung: Backup/Restore mit Bildern ist noch nicht vollständig finalisiert

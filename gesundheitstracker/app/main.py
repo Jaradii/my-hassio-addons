@@ -5,14 +5,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi import FastAPI, HTTPException, Request, UploadFile, File
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 DATA_PATH = Path(os.environ.get("KINDGESUND_DATA", "/data/diary.json"))
 CONFIG_PATH = Path(os.environ.get("KINDGESUND_CONFIG", "/data/options.json"))
 STATIC_DIR = Path(__file__).parent / "static"
+UPLOAD_DIR = DATA_PATH.parent / "uploads"
 
 app = FastAPI(title="Gesundheitstracker", version="1.7.3")
 
@@ -80,6 +81,7 @@ def read_store() -> Dict[str, Any]:
     for entry in data.get("entries", []):
         if not isinstance(entry, dict):
             continue
+        entry.setdefault("symptom_images", [])
         history = entry.get("history")
         if not isinstance(history, list) or not history:
             created_at = entry.get("created_at", data.get("created_at", utc_now()))
@@ -203,6 +205,7 @@ class HealthEntryIn(BaseModel):
     sleep: str = Field(default="", max_length=1000)
     diaper_or_toilet: str = Field(default="", max_length=1000)
     notes: str = Field(default="", max_length=4000)
+    symptom_images: List[str] = Field(default_factory=list)
 
 
 class HealthEntry(HealthEntryIn):
@@ -381,6 +384,72 @@ async def api_import(request: Request):
     data.setdefault("created_at", utc_now())
     data["updated_at"] = utc_now()
     write_store(data)
+    return {"ok": True}
+
+
+@app.post("/api/uploads")
+async def api_upload_image(request: Request, file: UploadFile = File(...)):
+    check_pin(request)
+
+    content_type = (file.content_type or "").lower()
+    allowed = {
+        "image/jpeg": ".jpg",
+        "image/jpg": ".jpg",
+        "image/png": ".png",
+        "image/webp": ".webp",
+        "image/heic": ".heic",
+        "image/heif": ".heif",
+    }
+    suffix = allowed.get(content_type)
+    if not suffix:
+        raise HTTPException(status_code=400, detail="Nur Bilddateien sind erlaubt.")
+
+    data = await file.read()
+    max_bytes = 8 * 1024 * 1024
+    if len(data) > max_bytes:
+        raise HTTPException(status_code=400, detail="Bild ist zu groß. Maximal 8 MB.")
+
+    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+    filename = f"{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:10]}{suffix}"
+    path = UPLOAD_DIR / filename
+    path.write_bytes(data)
+
+    return {
+        "filename": filename,
+        "url": f"./api/uploads/{filename}",
+        "content_type": content_type,
+        "size": len(data),
+    }
+
+
+@app.get("/api/uploads/{filename}")
+def api_get_upload(filename: str, request: Request):
+    check_pin(request)
+    safe_name = Path(filename).name
+    path = UPLOAD_DIR / safe_name
+    if not path.exists() or not path.is_file():
+        raise HTTPException(status_code=404, detail="Bild nicht gefunden.")
+
+    suffix = path.suffix.lower()
+    media_type = {
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".png": "image/png",
+        ".webp": "image/webp",
+        ".heic": "image/heic",
+        ".heif": "image/heif",
+    }.get(suffix, "application/octet-stream")
+
+    return Response(path.read_bytes(), media_type=media_type, headers={"Cache-Control": "private, max-age=3600"})
+
+
+@app.delete("/api/uploads/{filename}")
+def api_delete_upload(filename: str, request: Request):
+    check_pin(request)
+    safe_name = Path(filename).name
+    path = UPLOAD_DIR / safe_name
+    if path.exists() and path.is_file():
+        path.unlink()
     return {"ok": True}
 
 
