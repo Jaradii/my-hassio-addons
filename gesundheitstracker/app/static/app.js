@@ -2901,7 +2901,7 @@ function renderIllnessStatus() {
   const illness = state.activeIllness;
   if ($("illnessStartDate")) $("illnessStartDate").value = illness?.start || $("illnessStartDate").value || state.selectedDate || today();
   if ($("illnessEndDate")) $("illnessEndDate").value = illness?.end || $("illnessEndDate").value || today();
-  if ($("illnessTitleInput")) $("illnessTitleInput").value = illness?.title || $("illnessTitleInput").value || "";
+  if ($("illnessTitleInput")) $("illnessTitleInput").value = illness?.title || "";
 
   const range = illnessDateRange();
   const stats = buildIllnessStats(range.start, range.end);
@@ -2943,7 +2943,7 @@ async function openIllnessView() {
 
 async function startIllness() {
   const start = $("illnessStartDate")?.value || state.selectedDate || today();
-  const suggestedTitle = $("illnessTitleInput")?.value.trim() || `Infekt ab ${formatDateShortGerman(start)}`;
+  const suggestedTitle = `Infekt ab ${formatDateShortGerman(start)}`;
   const enteredTitle = window.prompt("Wie soll der Infekt heißen?", suggestedTitle);
 
   if (enteredTitle === null) {
@@ -2984,7 +2984,7 @@ async function stopIllness() {
   await loadState();
   if ($("illnessStartDate")) $("illnessStartDate").value = stopped?.start || state.selectedDate || today();
   if ($("illnessEndDate")) $("illnessEndDate").value = stopped?.end || end || today();
-  if ($("illnessTitleInput")) $("illnessTitleInput").value = stopped?.title || "";
+  if ($("illnessTitleInput")) $("illnessTitleInput").value = "";
   renderIllnessStatus();
   showToast("Infekt gestoppt");
 }
