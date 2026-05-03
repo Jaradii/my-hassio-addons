@@ -2083,6 +2083,12 @@ function fieldEditConfig(field) {
       input: "number",
       placeholder: "z. B. 250"
     },
+    fluid_level: {
+      title: "Trinkmenge",
+      subtitle: "Nur die Einschätzung der Trinkmenge bearbeiten.",
+      input: "select",
+      placeholder: ""
+    },
     temperature: {
       title: "Temperatur",
       subtitle: "Nur Temperatur dieses Eintrags bearbeiten.",
@@ -2345,6 +2351,8 @@ async function saveFieldEdit(event) {
   } else if (field === "fluids_ml") {
     payload[field] = rawValue === "" ? null : Number(rawValue);
     payload.fluid_level = $("fieldEditFluidLevel")?.value || "";
+  } else if (field === "fluid_level") {
+    payload.fluid_level = rawValue;
   } else if (field === "temperature") {
     payload[field] = rawValue === "" ? null : Number(String(rawValue).replace(",", "."));
   } else if (field === "sleep") {

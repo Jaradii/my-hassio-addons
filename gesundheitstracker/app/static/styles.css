@@ -12468,3 +12468,9 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
 .category-compact-card[data-category="fluid_level"] {
   display: block;
 }
+
+
+/* v1.0.95-test: Trinkmenge im Bearbeiten-Sheet */
+#fieldEditValue {
+  width: 100%;
+}
