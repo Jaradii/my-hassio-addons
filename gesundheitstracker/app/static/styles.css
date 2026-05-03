@@ -13164,3 +13164,9 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
     display: none;
   }
 }
+
+
+/* v1.1.27-test: Nachkontrolle-Zustand korrekt umschalten */
+.followup-item.answered .followup-no {
+  border-color: color-mix(in srgb, var(--warning, #f59e0b) 42%, var(--kg-border) 58%);
+}

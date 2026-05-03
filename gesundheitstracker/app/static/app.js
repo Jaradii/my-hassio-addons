@@ -823,24 +823,40 @@ function followUpDismissKey(entryId, targetDate) {
   return `gesundheitstracker_followup_${targetDate}_${entryId}`;
 }
 
-function followUpState(entryId, targetDate) {
+function followUpRecord(entryId, targetDate) {
   try {
     const raw = localStorage.getItem(followUpDismissKey(entryId, targetDate));
-    if (!raw) return "";
-    if (raw === "1") return "no";
-    return raw;
+    if (!raw) return { state: "", createdEntryId: "" };
+    if (raw === "1") return { state: "no", createdEntryId: "" };
+    if (raw === "yes" || raw === "no") return { state: raw, createdEntryId: "" };
+    const parsed = JSON.parse(raw);
+    return {
+      state: parsed?.state || "",
+      createdEntryId: parsed?.createdEntryId || ""
+    };
   } catch {
-    return "";
+    return { state: "", createdEntryId: "" };
   }
 }
 
-function setFollowUpState(entryId, targetDate, value) {
+function followUpState(entryId, targetDate) {
+  return followUpRecord(entryId, targetDate).state;
+}
+
+function followUpCreatedEntryId(entryId, targetDate) {
+  return followUpRecord(entryId, targetDate).createdEntryId;
+}
+
+function setFollowUpState(entryId, targetDate, value, createdEntryId = "") {
   try {
     if (!value) {
       localStorage.removeItem(followUpDismissKey(entryId, targetDate));
       return;
     }
-    localStorage.setItem(followUpDismissKey(entryId, targetDate), value);
+    localStorage.setItem(followUpDismissKey(entryId, targetDate), JSON.stringify({
+      state: value,
+      createdEntryId: createdEntryId || ""
+    }));
   } catch {
     // ignore localStorage failures
   }
@@ -887,7 +903,10 @@ function renderFollowUpEntry(entry, answered = false, date = state.selectedDate)
       <div class="followup-actions">
         ${answered ? `
           <button type="button" class="followup-undo btn secondary" data-id="${escapeHtml(entry.id)}">Rückgängig</button>
-          <button type="button" class="followup-yes btn primary" data-id="${escapeHtml(entry.id)}">Doch ja</button>
+          ${stateValue === "yes"
+            ? `<button type="button" class="followup-no btn secondary" data-id="${escapeHtml(entry.id)}">Nein</button>`
+            : `<button type="button" class="followup-yes btn primary" data-id="${escapeHtml(entry.id)}">Doch ja</button>`
+          }
         ` : `
           <button type="button" class="followup-yes btn primary" data-id="${escapeHtml(entry.id)}">Ja</button>
           <button type="button" class="followup-no btn secondary" data-id="${escapeHtml(entry.id)}">Nein</button>
@@ -992,21 +1011,36 @@ async function confirmSymptomFollowUp(entryId) {
     entry_flags: normalizeEntryFlags(source.entry_flags || [])
   };
 
-  await api("./api/entries", { method: "POST", body: JSON.stringify(payload) });
-  setFollowUpState(entryId, state.selectedDate, "yes");
+  const created = await api("./api/entries", { method: "POST", body: JSON.stringify(payload) });
+  setFollowUpState(entryId, state.selectedDate, "yes", created?.id || "");
   await loadState();
   showToast("Nachkontrolle eingetragen");
 }
 
-async function declineSymptomFollowUp(entryId) {
-  dismissFollowUp(entryId, state.selectedDate);
-  renderDay();
-  showToast("Nachfrage als Nein markiert");
+async function deleteFollowUpCreatedEntry(entryId) {
+  const createdEntryId = followUpCreatedEntryId(entryId, state.selectedDate);
+  if (!createdEntryId) return false;
+  try {
+    await api(`./api/entries/${createdEntryId}`, { method: "DELETE" });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
-function undoSymptomFollowUp(entryId) {
+async function declineSymptomFollowUp(entryId) {
+  const previousState = followUpState(entryId, state.selectedDate);
+  const deleted = previousState === "yes" ? await deleteFollowUpCreatedEntry(entryId) : false;
+  dismissFollowUp(entryId, state.selectedDate);
+  await loadState();
+  showToast(deleted ? "Nachkontrolle entfernt und als Nein markiert" : "Nachfrage als Nein markiert");
+}
+
+async function undoSymptomFollowUp(entryId) {
+  const previousState = followUpState(entryId, state.selectedDate);
+  if (previousState === "yes") await deleteFollowUpCreatedEntry(entryId);
   restoreFollowUp(entryId, state.selectedDate);
-  renderDay();
+  await loadState();
   showToast("Nachfrage wieder geöffnet");
 }
 
