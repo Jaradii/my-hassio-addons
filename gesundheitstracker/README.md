@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.52
+- Basis ist die funktionierende Version 1.0.53
 
 
 ## Änderungen in 1.0.10
@@ -407,4 +407,12 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - In den Kacheln steht weiterhin der Name wie Flüssigkeit, Essen, Fieber usw.
 - Hauptwert kann weiterhin „Keine“ anzeigen
 - Kleine Statuszeile unten bleibt klein
+- Nur CSS geändert
+
+
+## Änderungen in 1.0.53
+
+- Kachel-Überschrift größer und dominanter gemacht
+- Hauptwert wie „Keine“ kleiner und dezenter darunter gesetzt
+- Statuszeile unten bleibt klein
 - Nur CSS geändert
