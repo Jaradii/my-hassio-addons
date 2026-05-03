@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.1.18
+- Basis ist die funktionierende Version 1.1.19
 
 
 ## Änderungen in 1.0.10
@@ -910,3 +910,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Icon für `Wichtig` geändert auf `❗️`
 - Icon für `Kontrollieren` geändert auf `⚠️`
 - Icon für `Arzt-relevant` bleibt `🩺`
+
+
+## Änderungen in 1.1.19-test
+
+- Layout von Eintragszeilen mit Bildern und Markierungen korrigiert
+- Text, Uhrzeit und Aktionsbuttons werden wieder oben bündig ausgerichtet
+- Markierungen liegen als eigene Zeile unter dem Text, ohne den Text nach oben zu verschieben
+- Bild-Hinweis in Symptomzeilen wurde vertikal stabilisiert

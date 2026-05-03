@@ -12860,3 +12860,57 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
 .summary-row-actions .summary-edit-button.summary-flag-button.active {
   border-radius: 10px !important;
 }
+
+
+/* v1.1.19-test: Eintragszeilen mit Bildern + Markierungen sauber ausrichten */
+.summary-info-item.category-compact-item {
+  align-items: start !important;
+  grid-template-columns: 48px minmax(0, 1fr) auto !important;
+  column-gap: 9px !important;
+  row-gap: 6px !important;
+}
+
+.summary-info-item.category-compact-item .summary-info-time {
+  align-self: start !important;
+  padding-top: 1px !important;
+  line-height: 1.35 !important;
+}
+
+.summary-info-item.category-compact-item > p {
+  align-self: start !important;
+  margin: 0 !important;
+  padding-top: 1px !important;
+  line-height: 1.35 !important;
+  min-height: 20px !important;
+}
+
+.summary-info-item.category-compact-item .summary-row-actions {
+  align-self: start !important;
+  margin-top: 0 !important;
+}
+
+.summary-info-item.category-compact-item .compact-symptom-images,
+.summary-info-item.category-compact-item .compact-symptom-image-row,
+.summary-info-item.category-compact-item .symptom-image-compact-row {
+  display: inline-flex !important;
+  vertical-align: middle !important;
+  margin-left: 7px !important;
+  margin-top: 0 !important;
+  transform: translateY(-1px);
+}
+
+.summary-info-item.category-compact-item .summary-flag-line {
+  grid-column: 2 / 4 !important;
+  margin-top: 2px !important;
+  align-self: start !important;
+}
+
+@media (max-width: 560px) {
+  .summary-info-item.category-compact-item {
+    grid-template-columns: 46px minmax(0, 1fr) auto !important;
+  }
+
+  .summary-info-item.category-compact-item .summary-flag-line {
+    grid-column: 2 / -1 !important;
+  }
+}
