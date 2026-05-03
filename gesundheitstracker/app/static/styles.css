@@ -13017,3 +13017,47 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
 .followup-card {
   scroll-margin-top: 12px;
 }
+
+
+/* v1.1.24-test: Kalender-Indikatoren für Bilder und markierte Symptome */
+.calendar-day {
+  position: relative;
+  overflow: visible;
+}
+
+.calendar-day > span {
+  line-height: 1;
+}
+
+.calendar-day-indicators {
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 10px;
+  font-style: normal;
+  pointer-events: none;
+}
+
+.calendar-day-indicators i {
+  display: inline-grid;
+  place-items: center;
+  width: 11px;
+  height: 11px;
+  font-style: normal;
+  font-size: 0.52rem;
+  line-height: 1;
+}
+
+.calendar-day.has-images.has-marked-symptoms .calendar-day-indicators i {
+  font-size: 0.48rem;
+}
+
+.calendar-day.has-images,
+.calendar-day.has-marked-symptoms {
+  padding-bottom: 11px;
+}

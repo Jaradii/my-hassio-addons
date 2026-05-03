@@ -504,6 +504,28 @@ function entryDatesSet() {
   return new Set((state.data.entries || []).map(entry => entry.date).filter(Boolean));
 }
 
+function calendarDayInfoMap() {
+  const map = {};
+  (state.data.entries || []).forEach(entry => {
+    const date = entry.date;
+    if (!date) return;
+    if (!map[date]) {
+      map[date] = {
+        hasImages: false,
+        hasMarkedSymptoms: false
+      };
+    }
+
+    const images = normalizeSymptomImages(entry.symptom_images || []);
+    if (images.length) map[date].hasImages = true;
+
+    if (analysisValue(entry, "symptoms") && normalizeEntryFlags(entry.entry_flags || []).length) {
+      map[date].hasMarkedSymptoms = true;
+    }
+  });
+  return map;
+}
+
 function openCalendarSheet() {
   const sheet = $("calendarSheet");
   if (!sheet) return;
@@ -533,6 +555,7 @@ function renderCalendar() {
   const daysInMonth = new Date(year, monthIndex, 0).getDate();
   const mondayStartOffset = (first.getDay() + 6) % 7;
   const markedDates = entryDatesSet();
+  const dayInfo = calendarDayInfoMap();
   const todayValue = today();
 
   const cells = [];
@@ -544,17 +567,31 @@ function renderCalendar() {
   for (let day = 1; day <= daysInMonth; day += 1) {
     const value = `${month}-${String(day).padStart(2, "0")}`;
     const hasEntry = markedDates.has(value);
+    const info = dayInfo[value] || {};
+    const hasImages = Boolean(info.hasImages);
+    const hasMarkedSymptoms = Boolean(info.hasMarkedSymptoms);
     const selected = value === state.selectedDate;
     const isToday = value === todayValue;
+    const ariaExtras = [
+      hasEntry ? "mit Eintrag" : "",
+      hasImages ? "mit Bild" : "",
+      hasMarkedSymptoms ? "mit markiertem Symptom" : ""
+    ].filter(Boolean).join(", ");
 
     cells.push(`
       <button
         type="button"
-        class="calendar-day ${hasEntry ? "has-entry" : ""} ${selected ? "selected" : ""} ${isToday ? "today" : ""}"
+        class="calendar-day ${hasEntry ? "has-entry" : ""} ${hasImages ? "has-images" : ""} ${hasMarkedSymptoms ? "has-marked-symptoms" : ""} ${selected ? "selected" : ""} ${isToday ? "today" : ""}"
         data-date="${value}"
-        aria-label="${day}. ${monthLabel(month)}${hasEntry ? ", mit Eintrag" : ""}"
+        aria-label="${day}. ${monthLabel(month)}${ariaExtras ? `, ${ariaExtras}` : ""}"
       >
         <span>${day}</span>
+        ${(hasImages || hasMarkedSymptoms) ? `
+          <em class="calendar-day-indicators" aria-hidden="true">
+            ${hasImages ? `<i title="Bilder">📷</i>` : ""}
+            ${hasMarkedSymptoms ? `<i title="Markierte Symptome">🏷️</i>` : ""}
+          </em>
+        ` : ""}
       </button>
     `);
   }

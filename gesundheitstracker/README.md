@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.1.23
+- Basis ist die funktionierende Version 1.1.24
 
 
 ## Änderungen in 1.0.10
@@ -951,3 +951,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Eine Markierung ist nicht mehr nötig, damit die Nachfrage am Folgetag erscheint
 - Markierungen werden in der Nachkontrolle weiterhin angezeigt, falls vorhanden
 - Bei `Ja` werden vorhandene Markierungen weiterhin in den neuen Nachkontroll-Eintrag übernommen
+
+
+## Änderungen in 1.1.24-test
+
+- Datumsübersicht zeigt jetzt Tages-Indikatoren
+- `📷` markiert Tage, an denen Bilder hinterlegt wurden
+- `🏷️` markiert Tage, an denen Symptome eine Markierung haben
+- Kalender-ARIA-Labels wurden entsprechend ergänzt
