@@ -11086,3 +11086,26 @@ button.compact-day-tile strong {
 .field-edit-photo-box .symptom-image-preview {
   margin-top: 4px;
 }
+
+
+/* v1.0.64-test: Untere Statuszeile in Tageskacheln entfernen */
+.compact-day-tile small,
+.day-tile small,
+button.day-tile small,
+button.compact-day-tile small {
+  display: none !important;
+}
+
+.compact-day-tile,
+.day-tile {
+  grid-template-rows: auto auto auto !important;
+  gap: 3px !important;
+}
+
+@media (max-width: 430px) {
+  .compact-day-tile,
+  .day-tile {
+    grid-template-rows: auto auto auto !important;
+    gap: 3px !important;
+  }
+}

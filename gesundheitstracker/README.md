@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.63
+- Basis ist die funktionierende Version 1.0.64
 
 
 ## Änderungen in 1.0.10
@@ -483,3 +483,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Vorhandene Symptom-Fotos werden im Bearbeiten-Popup angezeigt
 - Fotos können dort entfernt oder ergänzt werden
 - Speichern aktualisiert `symptom_images` am bestehenden Eintrag
+
+
+## Änderungen in 1.0.64-test
+
+- Untere Statuszeile in den Tageskacheln entfernt
+- Hinweise wie „Keine Angabe“, „Nicht eingetragen“ usw. werden dort nicht mehr angezeigt
+- Kacheln zeigen nur noch Icon, Überschrift und Hauptwert
+- Nur CSS geändert
