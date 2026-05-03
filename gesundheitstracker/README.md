@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.1.08
+- Basis ist die funktionierende Version 1.1.09
 
 
 ## Änderungen in 1.0.10
@@ -833,3 +833,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Bei `Alle Einträge` werden Temperatur- und Flüssigkeitsdiagramm zusammen angezeigt, sofern Daten vorhanden sind
 - Arztbericht nutzt jetzt `Bericht öffnen` als Hauptbutton für den HTML-Bericht mit Bildern
 - TXT bleibt als Zusatzoption erhalten
+
+
+## Änderungen in 1.1.09-test
+
+- Arztbericht-Button von `Bericht öffnen` auf `Bericht exportieren` geändert
+- Buttons `TXT speichern` und `Text markieren` aus dem Arztbericht-Dialog entfernt
+- Diagramme aus der Auswertung wieder entfernt, da die bisherige Darstellung keinen ausreichenden Mehrwert hatte
+- Verwaiste-Bilder-Funktion bleibt erhalten

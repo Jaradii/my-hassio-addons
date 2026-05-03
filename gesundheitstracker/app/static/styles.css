@@ -12667,3 +12667,14 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
     grid-template-columns: 74px minmax(0, 1fr) 54px;
   }
 }
+
+
+/* v1.1.09-test: Arztbericht vereinfacht, Diagramme entfernt */
+.doctor-report-actions {
+  grid-template-columns: 1fr !important;
+}
+
+.analysis-charts,
+.mini-chart-card {
+  display: none !important;
+}

@@ -4165,59 +4165,6 @@ function calculateOrphanUploadsClient() {
   return normalizeStorageUploads(state.storageUploads || []).filter(item => item.filename && !referenced.has(item.filename));
 }
 
-function chartMax(values) {
-  const max = Math.max(...values.filter(value => Number.isFinite(value)), 0);
-  return max <= 0 ? 1 : max;
-}
-
-function renderMiniBarChart(rows, options = {}) {
-  const valid = rows.filter(row => Number.isFinite(row.value));
-  if (!valid.length) return "";
-  const max = chartMax(valid.map(row => row.value));
-  return `
-    <div class="mini-chart-card">
-      <div class="mini-chart-head">
-        <strong>${escapeHtml(options.title || "Verlauf")}</strong>
-        <span>${escapeHtml(options.subtitle || "")}</span>
-      </div>
-      <div class="mini-chart-bars">
-        ${valid.map(row => {
-          const pct = Math.max(4, Math.round((row.value / max) * 100));
-          return `
-            <div class="mini-chart-row">
-              <span>${escapeHtml(row.label)}</span>
-              <div class="mini-chart-track"><i style="width:${pct}%"></i></div>
-              <strong>${escapeHtml(row.display)}</strong>
-            </div>
-          `;
-        }).join("")}
-      </div>
-    </div>
-  `;
-}
-
-function renderTemperatureMiniChart(entries) {
-  const rows = entries
-    .filter(entry => entry.temperature !== null && entry.temperature !== undefined && entry.temperature !== "")
-    .map(entry => ({ label: `${formatDateShortGerman(entry.date)} ${entry.time || ""}`.trim(), value: Number(entry.temperature), display: `${Number(entry.temperature).toFixed(1)} °C` }))
-    .filter(row => !Number.isNaN(row.value));
-  return renderMiniBarChart(rows, { title: "Temperaturverlauf", subtitle: "Messwerte im Zeitraum" });
-}
-
-function renderFluidsMiniChart(entries) {
-  const grouped = entries.reduce((acc, entry) => {
-    if (!entry.date || !entry.fluids_ml) return acc;
-    acc[entry.date] = (acc[entry.date] || 0) + (Number(entry.fluids_ml) || 0);
-    return acc;
-  }, {});
-  const rows = Object.entries(grouped).sort(([a], [b]) => a.localeCompare(b)).map(([date, value]) => ({
-    label: formatDateShortGerman(date),
-    value: Number(value),
-    display: `${value} ml`
-  }));
-  return renderMiniBarChart(rows, { title: "Flüssigkeit pro Tag", subtitle: "Summe im Zeitraum" });
-}
-
 function renderStorageImageManager() {
   const container = $("storageImageManagerContent");
   if (!container) return;
@@ -4862,30 +4809,11 @@ function renderAnalysis() {
     .sort((a, b) => analysisEntryTimestamp(a).localeCompare(analysisEntryTimestamp(b)));
 
   const summary = $("analysisSummary");
-  const charts = $("analysisCharts");
   const results = $("analysisResults");
   if (!summary || !results) return;
-  if (charts) charts.innerHTML = "";
 
   if (category === "temperature") {
     summary.innerHTML = renderTemperatureAnalysis(entries);
-    if (charts) charts.innerHTML = renderTemperatureMiniChart(entries);
-  } else if (category === "fluids") {
-    summary.innerHTML = `
-      <div class="analysis-simple-summary">
-        <span>${escapeHtml(analysisCategoryLabel(category))}</span>
-        <strong>${entries.length} Treffer</strong>
-      </div>
-    `;
-    if (charts) charts.innerHTML = renderFluidsMiniChart(entries);
-  } else if (category === "all") {
-    summary.innerHTML = `
-      <div class="analysis-simple-summary">
-        <span>${escapeHtml(analysisCategoryLabel(category))}</span>
-        <strong>${entries.length} Treffer</strong>
-      </div>
-    `;
-    if (charts) charts.innerHTML = [renderTemperatureMiniChart(entries), renderFluidsMiniChart(entries)].filter(Boolean).join("");
   } else if (category === "symptoms") {
     summary.innerHTML = renderSymptomTrendAnalysis(entries);
   } else {
@@ -5285,8 +5213,6 @@ async function init() {
 
   $("toggleIllnessButton").addEventListener("click", toggleIllness);
   $("illnessDoctorReportButton").addEventListener("click", openDoctorReport);
-  $("copyDoctorReportButton").addEventListener("click", selectDoctorReportText);
-  $("downloadDoctorReportButton").addEventListener("click", downloadDoctorReport);
   $("downloadDoctorReportHtmlButton").addEventListener("click", () => downloadDoctorReportHtml().catch(err => showToast(err.message || "HTML-Bericht konnte nicht erstellt werden")));
   $("saveIllnessEditButton").addEventListener("click", saveIllnessEdit);
   $("reportIllnessEditButton").addEventListener("click", () => openDoctorReportForIllness($("illnessEditId").value));
