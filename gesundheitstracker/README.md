@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.75
+- Basis ist die funktionierende Version 1.0.76
 
 
 ## Änderungen in 1.0.10
@@ -559,3 +559,12 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Backup-erstellen Button aus der Speicheransicht entfernt
 - Klick auf `Bilder` in der Speicheransicht öffnet eine Galerie aller gespeicherten Upload-Bilder
 - Bilder aus der Speicher-Galerie öffnen in der bestehenden Bild-Galerie
+
+
+## Änderungen in 1.0.76-test
+
+- Klick auf `Bilder` in der Speicheransicht öffnet jetzt ein eigenes Bilderverwaltungs-Popup
+- Bilder können dort markiert werden
+- Markierte Bilder können gelöscht werden
+- Beim Löschen werden die Dateien aus `/data/uploads` entfernt und Bild-Verweise aus Einträgen bereinigt
+- Großansicht der Bilder läuft weiterhin über die bestehende Galerie

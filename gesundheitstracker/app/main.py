@@ -636,6 +636,58 @@ def api_upload_image_json(payload: ImageUploadIn, request: Request):
     }
 
 
+def remove_upload_reference_from_entry(entry: Dict[str, Any], filename: str) -> bool:
+    images = entry.get("symptom_images")
+    if not isinstance(images, list):
+        return False
+
+    next_images = []
+    changed = False
+    for ref in images:
+        ref_name = upload_filename_from_ref(ref)
+        if ref_name == filename:
+            changed = True
+            continue
+        next_images.append(ref)
+
+    if changed:
+        entry["symptom_images"] = next_images
+    return changed
+
+
+@app.delete("/api/uploads/{filename}")
+def api_delete_upload(filename: str, request: Request):
+    check_pin(request)
+
+    safe_name = Path(filename).name
+    if not safe_name:
+        raise HTTPException(status_code=400, detail="Ungültiger Dateiname.")
+
+    path = UPLOAD_DIR / safe_name
+    if path.exists() and path.is_file():
+        try:
+            path.unlink()
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=f"Bild konnte nicht gelöscht werden: {exc}")
+
+    store = read_store()
+    changed = False
+
+    for entry in store.get("entries", []):
+        if isinstance(entry, dict):
+            changed = remove_upload_reference_from_entry(entry, safe_name) or changed
+
+    for entry in store.get("deleted_entries", []):
+        if isinstance(entry, dict):
+            changed = remove_upload_reference_from_entry(entry, safe_name) or changed
+
+    if changed:
+        store["updated_at"] = utc_now()
+        write_store(store)
+
+    return {"ok": True}
+
+
 @app.get("/api/uploads/{filename}")
 def api_get_upload(filename: str, request: Request):
     check_pin(request)

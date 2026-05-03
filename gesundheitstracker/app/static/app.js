@@ -12,7 +12,8 @@ const state = {
   pendingQuickSymptomImages: [],
   pendingFieldEditSymptomImages: [],
   imagePreviewItems: [],
-  imagePreviewIndex: 0
+  imagePreviewIndex: 0,
+  storageUploads: []
 };
 
 const $ = (id) => document.getElementById(id);
@@ -2819,6 +2820,92 @@ function storagePercent(part, total) {
 }
 
 
+
+function normalizeStorageUploads(uploads) {
+  return Array.isArray(uploads) ? uploads.filter(item => item && item.url && item.filename) : [];
+}
+
+function selectedStorageImageFilenames() {
+  return [...document.querySelectorAll(".storage-manager-check:checked")].map(input => input.value);
+}
+
+function updateStorageImageSelectionState() {
+  const selected = selectedStorageImageFilenames();
+  const button = $("storageImageDeleteSelected");
+  const count = $("storageImageManagerCount");
+  if (button) {
+    button.classList.toggle("hidden", !selected.length);
+    button.textContent = selected.length ? `${selected.length} löschen` : "Auswahl löschen";
+  }
+  if (count && state.storageUploads) {
+    count.textContent = `${state.storageUploads.length} Bild${state.storageUploads.length === 1 ? "" : "er"}${selected.length ? ` · ${selected.length} markiert` : ""}`;
+  }
+}
+
+function renderStorageImageManager() {
+  const container = $("storageImageManagerContent");
+  if (!container) return;
+
+  const uploads = normalizeStorageUploads(state.storageUploads || []);
+  if ($("storageImageManagerCount")) $("storageImageManagerCount").textContent = `${uploads.length} Bild${uploads.length === 1 ? "" : "er"}`;
+
+  if (!uploads.length) {
+    container.innerHTML = `<div class="storage-manager-empty">Keine Bilder gespeichert.</div>`;
+    updateStorageImageSelectionState();
+    return;
+  }
+
+  const urls = uploads.map(item => item.url).filter(Boolean);
+
+  container.innerHTML = `
+    <div class="storage-manager-grid">
+      ${uploads.map((image, index) => `
+        <article class="storage-manager-item">
+          <button type="button" class="storage-manager-image symptom-image-open" data-url="${escapeHtml(image.url)}" data-images="${escapeHtml(JSON.stringify(urls))}" data-index="${index}" aria-label="Bild groß anzeigen">
+            <img src="${escapeHtml(image.url)}" alt="Gespeichertes Bild" loading="lazy" />
+          </button>
+          <label class="storage-manager-select">
+            <input class="storage-manager-check" type="checkbox" value="${escapeHtml(image.filename)}" />
+            <span>Markieren</span>
+          </label>
+          <div class="storage-manager-meta">
+            <strong>${escapeHtml(formatBytes(image.size_bytes || 0))}</strong>
+            <small>${escapeHtml(image.filename)}</small>
+          </div>
+        </article>
+      `).join("")}
+    </div>
+  `;
+
+  bindSymptomImageOpeners(container);
+  container.querySelectorAll(".storage-manager-check").forEach(input => {
+    input.addEventListener("change", updateStorageImageSelectionState);
+  });
+  updateStorageImageSelectionState();
+}
+
+function openStorageImageManager() {
+  state.storageUploads = normalizeStorageUploads(state.storageUploads || []);
+  openView("storageImageManagerView");
+  renderStorageImageManager();
+}
+
+async function deleteSelectedStorageImages() {
+  const selected = selectedStorageImageFilenames();
+  if (!selected.length) return;
+
+  if (!confirm(`${selected.length} Bild${selected.length === 1 ? "" : "er"} endgültig löschen? Die Bild-Verweise werden aus den Einträgen entfernt.`)) return;
+
+  for (const filename of selected) {
+    await api(`./api/uploads/${encodeURIComponent(filename)}`, { method: "DELETE" });
+  }
+
+  state.storageUploads = (state.storageUploads || []).filter(item => !selected.includes(item.filename));
+  renderStorageImageManager();
+  await loadStorageView();
+  showToast(selected.length === 1 ? "Bild gelöscht" : "Bilder gelöscht");
+}
+
 function renderStorageImagesGallery(uploads) {
   const images = Array.isArray(uploads) ? uploads : [];
   if (!images.length) {
@@ -2841,9 +2928,7 @@ function renderStorageImagesGallery(uploads) {
 }
 
 function toggleStorageImages() {
-  const panel = $("storageImagesPanel");
-  if (!panel) return;
-  panel.classList.toggle("hidden");
+  openStorageImageManager();
 }
 
 async function loadStorageView() {
@@ -2853,6 +2938,7 @@ async function loadStorageView() {
 
   try {
     const data = await api("./api/storage");
+    state.storageUploads = normalizeStorageUploads(data.uploads || []);
     const total = Number(data.total_bytes) || 0;
     const diary = Number(data.diary_bytes) || 0;
     const uploads = Number(data.uploads_bytes) || 0;
@@ -2888,14 +2974,6 @@ async function loadStorageView() {
             </button>
           `;
         }).join("")}
-      </div>
-
-      <div id="storageImagesPanel" class="storage-images-panel hidden">
-        <div class="storage-images-head">
-          <strong>Gespeicherte Bilder</strong>
-          <span>${data.uploads_count || 0} Datei${Number(data.uploads_count) === 1 ? "" : "en"}</span>
-        </div>
-        ${renderStorageImagesGallery(data.uploads || [])}
       </div>
 
       <div class="storage-paths">
@@ -3784,6 +3862,7 @@ async function init() {
 
 
   $("refreshStorageButton").addEventListener("click", loadStorageView);
+  $("storageImageDeleteSelected").addEventListener("click", deleteSelectedStorageImages);
   document.querySelectorAll(".close-view").forEach(btn => btn.addEventListener("click", closeViews));
 
   try {

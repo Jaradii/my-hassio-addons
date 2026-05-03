@@ -11571,3 +11571,140 @@ button.compact-day-tile strong {
   border-radius: 10px;
   background: color-mix(in srgb, var(--kg-soft) 42%, var(--card) 58%);
 }
+
+
+/* v1.0.76-test: Eigene Bilderverwaltung mit Markieren/Löschen */
+.storage-image-manager-card {
+  max-width: 900px !important;
+}
+
+.storage-image-manager-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.storage-image-manager-toolbar > div {
+  display: grid;
+  gap: 2px;
+}
+
+.storage-image-manager-toolbar strong {
+  color: var(--text);
+  font-size: 0.96rem;
+  font-weight: 950;
+}
+
+.storage-image-manager-toolbar span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 850;
+}
+
+.storage-delete-selected.hidden {
+  display: none !important;
+}
+
+.storage-image-manager-content {
+  max-height: min(68vh, 680px);
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.storage-manager-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  gap: 10px;
+}
+
+.storage-manager-item {
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 62%, transparent);
+  background: color-mix(in srgb, var(--card) 92%, var(--kg-soft) 8%);
+  overflow: hidden;
+  display: grid;
+}
+
+.storage-manager-image {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 112px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: color-mix(in srgb, var(--kg-soft) 50%, var(--card) 50%);
+  cursor: pointer;
+}
+
+.storage-manager-image img {
+  width: 100%;
+  height: 112px;
+  object-fit: cover;
+  display: block;
+}
+
+.storage-manager-select {
+  padding: 7px 8px 3px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+  font-size: 0.74rem;
+  font-weight: 900;
+}
+
+.storage-manager-select input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+}
+
+.storage-manager-meta {
+  padding: 2px 8px 8px 8px;
+  display: grid;
+  gap: 2px;
+}
+
+.storage-manager-meta strong {
+  color: var(--text);
+  font-size: 0.72rem;
+  font-weight: 950;
+}
+
+.storage-manager-meta small {
+  color: var(--muted);
+  font-size: 0.62rem;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.storage-manager-empty {
+  padding: 14px;
+  border-radius: 12px;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--kg-soft) 42%, var(--card) 58%);
+  font-size: 0.82rem;
+  font-weight: 850;
+}
+
+.storage-row-clickable .storage-row-head span {
+  color: var(--primary);
+}
+
+@media (max-width: 430px) {
+  .storage-image-manager-toolbar {
+    align-items: stretch;
+    display: grid;
+  }
+
+  .storage-manager-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .storage-manager-image,
+  .storage-manager-image img {
+    height: 104px;
+  }
+}
