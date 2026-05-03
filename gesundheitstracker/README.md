@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.79
+- Basis ist die funktionierende Version 1.0.80
 
 
 ## Änderungen in 1.0.10
@@ -591,3 +591,13 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Separate Markieren-Zeile unter dem Bild entfernt
 - Markierte Bilder bekommen eine dezente Umrandung
 - Sonst keine funktionalen Änderungen
+
+
+## Änderungen in 1.0.80-test
+
+- Neuer Menüpunkt `Infekt`
+- Infekt-Zeitraum starten, beenden und zurücksetzen
+- Infekt-Status mit Statistik: Einträge, Maximaltemperatur, Symptome, Bilder
+- Arztbericht aus dem Infekt-Zeitraum erstellen
+- Arztbericht als Text markieren oder als TXT speichern
+- Bestehende Einträge werden nicht verändert; der Infekt-Zeitraum wird lokal in der App gespeichert

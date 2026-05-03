@@ -33,6 +33,7 @@
             <button id="menuExportButton" type="button"><span>📤</span><strong>Export</strong></button>
             <button id="menuDarkModeButton" type="button"><span id="menuDarkModeIcon">🌙</span><strong id="menuDarkModeText">Dark Mode</strong></button>
             <button id="menuThemeButton" type="button"><span>🎨</span><strong>Theme</strong></button>
+            <button id="menuIllnessButton" type="button"><span>🩺</span><strong>Infekt</strong></button>
             <button id="menuStorageButton" type="button"><span>📊</span><strong>Speicher</strong></button>
             <button id="menuBackupButton" type="button"><span>💾</span><strong>Backup</strong></button>
           </div>
@@ -480,6 +481,57 @@
       </div>
     </section>
 
+
+
+    <section id="illnessView" class="modal-view hidden">
+      <div class="view-card illness-view-card">
+        <div class="sheet-head">
+          <h2>Infekt</h2>
+          <button class="round-btn close-view">×</button>
+        </div>
+
+        <div id="illnessStatusCard" class="illness-status-card"></div>
+
+        <div class="illness-form-grid">
+          <label class="field">
+            <span>Startdatum</span>
+            <input id="illnessStartDate" type="date" />
+          </label>
+          <label class="field">
+            <span>Enddatum</span>
+            <input id="illnessEndDate" type="date" />
+          </label>
+          <label class="field illness-title-field">
+            <span>Bezeichnung</span>
+            <input id="illnessTitleInput" type="text" placeholder="z. B. Infekt Mai" />
+          </label>
+        </div>
+
+        <div class="illness-actions">
+          <button id="startIllnessButton" type="button" class="btn primary">Infekt starten</button>
+          <button id="endIllnessButton" type="button" class="btn secondary">Infekt beenden</button>
+          <button id="clearIllnessButton" type="button" class="btn secondary">Zurücksetzen</button>
+        </div>
+
+        <div class="illness-report-actions">
+          <button id="illnessDoctorReportButton" type="button" class="btn primary">Arztbericht erstellen</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="doctorReportView" class="modal-view hidden">
+      <div class="view-card doctor-report-card">
+        <div class="sheet-head">
+          <h2>Arztbericht</h2>
+          <button class="round-btn close-view">×</button>
+        </div>
+        <div class="doctor-report-actions">
+          <button id="copyDoctorReportButton" type="button" class="btn secondary">Text markieren</button>
+          <button id="downloadDoctorReportButton" type="button" class="btn primary">TXT speichern</button>
+        </div>
+        <textarea id="doctorReportText" class="doctor-report-text" readonly></textarea>
+      </div>
+    </section>
 
     <section id="storageView" class="modal-view hidden">
       <div class="view-card storage-view-card">

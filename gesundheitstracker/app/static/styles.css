@@ -11793,3 +11793,147 @@ button.compact-day-tile strong {
     height: 27px;
   }
 }
+
+
+/* v1.0.80-test: Infekt-Modus und Arztbericht */
+.illness-view-card,
+.doctor-report-card {
+  max-width: 820px !important;
+}
+
+.illness-status-card {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.illness-status {
+  border-radius: 15px;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 64%, transparent);
+  background: color-mix(in srgb, var(--card) 90%, var(--kg-soft) 10%);
+  padding: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.illness-status.active {
+  border-color: color-mix(in srgb, var(--primary) 42%, var(--kg-border) 58%);
+  background: color-mix(in srgb, var(--primary) 10%, var(--card) 90%);
+}
+
+.illness-status span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.illness-status strong {
+  display: block;
+  color: var(--text);
+  font-size: 1.05rem;
+  font-weight: 1000;
+  margin-top: 2px;
+}
+
+.illness-status small {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.illness-status-badge {
+  border-radius: 999px;
+  padding: 6px 9px;
+  background: color-mix(in srgb, var(--primary) 14%, var(--card) 86%);
+  color: var(--text);
+  font-size: 0.72rem;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.illness-mini-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.illness-mini-stats div {
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--kg-soft) 42%, var(--card) 58%);
+  border: 1px solid color-mix(in srgb, var(--kg-border) 55%, transparent);
+  padding: 9px;
+  display: grid;
+  gap: 3px;
+}
+
+.illness-mini-stats span {
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-weight: 900;
+}
+
+.illness-mini-stats strong {
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 1000;
+}
+
+.illness-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.illness-title-field {
+  grid-column: 1 / -1;
+}
+
+.illness-actions,
+.illness-report-actions,
+.doctor-report-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.illness-report-actions {
+  grid-template-columns: 1fr;
+}
+
+.doctor-report-actions {
+  grid-template-columns: 1fr 1fr;
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.doctor-report-text {
+  width: 100%;
+  min-height: min(62vh, 620px);
+  resize: vertical;
+  border-radius: 13px;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 68%, transparent);
+  background: var(--card);
+  color: var(--text);
+  padding: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.78rem;
+  line-height: 1.42;
+  white-space: pre;
+}
+
+@media (max-width: 560px) {
+  .illness-mini-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .illness-form-grid,
+  .illness-actions,
+  .doctor-report-actions {
+    grid-template-columns: 1fr;
+  }
+}

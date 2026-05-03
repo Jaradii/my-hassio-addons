@@ -13,7 +13,9 @@ const state = {
   pendingFieldEditSymptomImages: [],
   imagePreviewItems: [],
   imagePreviewIndex: 0,
-  storageUploads: []
+  storageUploads: [],
+  activeIllness: null,
+  lastDoctorReport: ""
 };
 
 const $ = (id) => document.getElementById(id);
@@ -2389,6 +2391,266 @@ function closeViews() {
 }
 
 
+
+function illnessStorageKey() {
+  return "kindgesund_active_illness";
+}
+
+function loadActiveIllness() {
+  try {
+    const raw = localStorage.getItem(illnessStorageKey());
+    state.activeIllness = raw ? JSON.parse(raw) : null;
+  } catch {
+    state.activeIllness = null;
+  }
+  return state.activeIllness;
+}
+
+function saveActiveIllness(illness) {
+  state.activeIllness = illness;
+  if (illness) localStorage.setItem(illnessStorageKey(), JSON.stringify(illness));
+  else localStorage.removeItem(illnessStorageKey());
+}
+
+function illnessDateRange() {
+  const start = $("illnessStartDate")?.value || state.activeIllness?.start || state.selectedDate || today();
+  const end = $("illnessEndDate")?.value || state.activeIllness?.end || today();
+  return { start, end };
+}
+
+function entriesInDateRange(start, end) {
+  return (state.data.entries || [])
+    .filter(entry => dateInRange(entry.date, start, end))
+    .sort((a, b) => analysisEntryTimestamp(a).localeCompare(analysisEntryTimestamp(b)));
+}
+
+function uniqueList(values) {
+  return [...new Set(values.map(value => String(value || "").trim()).filter(Boolean))];
+}
+
+function symptomNames(entry) {
+  const names = [];
+  (entry.symptoms || []).forEach(symptom => {
+    const level = (entry.symptom_intensity || {})[symptom];
+    names.push(level ? `${symptom} (${level})` : symptom);
+  });
+  if (entry.custom_symptoms) {
+    names.push(...entry.custom_symptoms.split(",").map(s => s.trim()).filter(Boolean));
+  }
+  return names;
+}
+
+function buildIllnessStats(start, end) {
+  const entries = entriesInDateRange(start, end);
+  const temperatures = entries
+    .map(entry => Number(entry.temperature))
+    .filter(value => !Number.isNaN(value));
+  const medications = entries.filter(entry => entry.medication);
+  const fluids = entries.reduce((sum, entry) => sum + (Number(entry.fluids_ml) || 0), 0);
+  const symptoms = uniqueList(entries.flatMap(symptomNames));
+  const imageCount = entries.reduce((sum, entry) => sum + (Array.isArray(entry.symptom_images) ? entry.symptom_images.length : 0), 0);
+
+  return {
+    entries,
+    temperatures,
+    medications,
+    fluids,
+    symptoms,
+    imageCount,
+    maxTemp: temperatures.length ? Math.max(...temperatures) : null,
+    tempCount: temperatures.length,
+  };
+}
+
+function renderIllnessStatus() {
+  const container = $("illnessStatusCard");
+  if (!container) return;
+
+  const illness = state.activeIllness;
+  if ($("illnessStartDate")) $("illnessStartDate").value = illness?.start || state.selectedDate || today();
+  if ($("illnessEndDate")) $("illnessEndDate").value = illness?.end || today();
+  if ($("illnessTitleInput")) $("illnessTitleInput").value = illness?.title || "";
+
+  const range = illnessDateRange();
+  const stats = buildIllnessStats(range.start, range.end);
+
+  container.innerHTML = `
+    <div class="illness-status ${illness ? "active" : ""}">
+      <div>
+        <span>${illness ? "Aktiver Infekt" : "Kein aktiver Infekt"}</span>
+        <strong>${escapeHtml(illness?.title || "Infekt-Zeitraum")}</strong>
+        <small>${escapeHtml(formatDateShortGerman(range.start))} bis ${escapeHtml(formatDateShortGerman(range.end))}</small>
+      </div>
+      <div class="illness-status-badge">${illness ? "läuft" : "bereit"}</div>
+    </div>
+
+    <div class="illness-mini-stats">
+      <div><span>Einträge</span><strong>${stats.entries.length}</strong></div>
+      <div><span>Max. Temp.</span><strong>${stats.maxTemp !== null ? `${stats.maxTemp.toFixed(1)} °C` : "Keine"}</strong></div>
+      <div><span>Symptome</span><strong>${stats.symptoms.length}</strong></div>
+      <div><span>Bilder</span><strong>${stats.imageCount}</strong></div>
+    </div>
+  `;
+}
+
+function openIllnessView() {
+  loadActiveIllness();
+  renderIllnessStatus();
+  openView("illnessView");
+}
+
+function startIllness() {
+  const start = $("illnessStartDate")?.value || state.selectedDate || today();
+  const title = $("illnessTitleInput")?.value.trim() || `Infekt ab ${formatDateShortGerman(start)}`;
+  saveActiveIllness({
+    id: `illness_${Date.now()}`,
+    title,
+    start,
+    end: "",
+    created_at: new Date().toISOString()
+  });
+  $("illnessEndDate").value = today();
+  renderIllnessStatus();
+  showToast("Infekt gestartet");
+}
+
+function endIllness() {
+  if (!state.activeIllness) {
+    showToast("Kein aktiver Infekt");
+    return;
+  }
+  const end = $("illnessEndDate")?.value || today();
+  saveActiveIllness({ ...state.activeIllness, end, ended_at: new Date().toISOString() });
+  renderIllnessStatus();
+  showToast("Infekt beendet");
+}
+
+function clearIllness() {
+  if (!confirm("Aktiven Infekt-Zeitraum zurücksetzen? Die Einträge bleiben erhalten.")) return;
+  saveActiveIllness(null);
+  renderIllnessStatus();
+  showToast("Infekt zurückgesetzt");
+}
+
+function feverAssessment(value) {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) return "";
+  const n = Number(value);
+  if (n >= Number(state.config.high_fever_threshold || 39.5)) return "hohes Fieber";
+  if (n >= Number(state.config.fever_threshold || 38.5)) return "Fieber";
+  return "erhöht/normal";
+}
+
+function buildDoctorReportText() {
+  const range = illnessDateRange();
+  const stats = buildIllnessStats(range.start, range.end);
+  const lines = [];
+  const title = $("illnessTitleInput")?.value.trim() || state.activeIllness?.title || "Infektbericht";
+
+  lines.push("Gesundheitstracker Arztbericht");
+  lines.push("==============================");
+  lines.push("");
+  lines.push(`Bezeichnung: ${title}`);
+  lines.push(`Zeitraum: ${formatDateShortGerman(range.start)} bis ${formatDateShortGerman(range.end)}`);
+  lines.push(`Erstellt: ${new Date().toLocaleString("de-DE")}`);
+  lines.push("");
+
+  lines.push("Kurzüberblick");
+  lines.push("-------------");
+  lines.push(`Einträge: ${stats.entries.length}`);
+  lines.push(`Symptome: ${stats.symptoms.length ? stats.symptoms.join(", ") : "Keine dokumentiert"}`);
+  lines.push(`Temperaturmessungen: ${stats.tempCount}`);
+  lines.push(`Höchste Temperatur: ${stats.maxTemp !== null ? `${stats.maxTemp.toFixed(1)} °C (${feverAssessment(stats.maxTemp)})` : "Keine Messung"}`);
+  lines.push(`Medikamenten-Einträge: ${stats.medications.length}`);
+  lines.push(`Flüssigkeit gesamt im Zeitraum: ${stats.fluids ? `${stats.fluids} ml` : "nicht dokumentiert"}`);
+  lines.push(`Dokumentierte Bilder: ${stats.imageCount}`);
+  lines.push("");
+
+  if (stats.temperatures.length) {
+    lines.push("Temperaturverlauf");
+    lines.push("-----------------");
+    stats.entries
+      .filter(entry => entry.temperature !== null && entry.temperature !== undefined && entry.temperature !== "")
+      .forEach(entry => {
+        const temp = Number(entry.temperature);
+        lines.push(`${formatDateShortGerman(entry.date)} ${entry.time || "--:--"} Uhr · ${temp.toFixed(1)} °C · ${feverAssessment(temp)}`);
+      });
+    lines.push("");
+  }
+
+  if (stats.symptoms.length) {
+    lines.push("Symptome nach Tagen");
+    lines.push("-------------------");
+    const grouped = stats.entries.reduce((acc, entry) => {
+      const list = symptomNames(entry);
+      if (!list.length) return acc;
+      if (!acc[entry.date]) acc[entry.date] = [];
+      acc[entry.date].push(`${entry.time || "--:--"} Uhr · ${list.join(", ")}`);
+      return acc;
+    }, {});
+    Object.entries(grouped).forEach(([date, rows]) => {
+      lines.push(formatDateShortGerman(date));
+      rows.forEach(row => lines.push(`- ${row}`));
+    });
+    lines.push("");
+  }
+
+  if (stats.medications.length) {
+    lines.push("Medikamente");
+    lines.push("------------");
+    stats.medications.forEach(entry => {
+      lines.push(`${formatDateShortGerman(entry.date)} ${entry.time || "--:--"} Uhr · ${entry.medication}`);
+    });
+    lines.push("");
+  }
+
+  const relevantNotes = stats.entries.filter(entry => entry.notes || entry.food || entry.sleep || entry.diaper_or_toilet || entry.mood);
+  if (relevantNotes.length) {
+    lines.push("Weitere Beobachtungen");
+    lines.push("---------------------");
+    relevantNotes.forEach(entry => {
+      const parts = [];
+      if (entry.mood) parts.push(`Stimmung: ${entry.mood}`);
+      if (entry.food) parts.push(`Essen: ${entry.food}`);
+      if (entry.sleep) parts.push(`Schlaf: ${entry.sleep}`);
+      if (entry.diaper_or_toilet) parts.push(`Windel/Toilette: ${entry.diaper_or_toilet}`);
+      if (entry.notes) parts.push(`Notiz: ${entry.notes}`);
+      lines.push(`${formatDateShortGerman(entry.date)} ${entry.time || "--:--"} Uhr · ${parts.join(" · ")}`);
+    });
+    lines.push("");
+  }
+
+  lines.push("Hinweis");
+  lines.push("-------");
+  lines.push("Dieser Bericht ist eine private Dokumentation und ersetzt keine ärztliche Einschätzung.");
+
+  return lines.join("\\n");
+}
+
+function openDoctorReport() {
+  const text = buildDoctorReportText();
+  state.lastDoctorReport = text;
+  $("doctorReportText").value = text;
+  openView("doctorReportView");
+  requestAnimationFrame(() => {
+    $("doctorReportText").scrollTop = 0;
+  });
+}
+
+function selectDoctorReportText() {
+  const textarea = $("doctorReportText");
+  if (!textarea) return;
+  textarea.focus();
+  textarea.select();
+  textarea.setSelectionRange(0, textarea.value.length);
+  showToast("Text markiert");
+}
+
+function downloadDoctorReport() {
+  const text = $("doctorReportText")?.value || state.lastDoctorReport || buildDoctorReportText();
+  const range = illnessDateRange();
+  downloadTextFile(`arztbericht-${range.start}-bis-${range.end}.txt`, text);
+}
+
 function dateInRange(date, from, to) {
   if (!date) return false;
   if (from && date < from) return false;
@@ -3853,6 +4115,10 @@ async function init() {
     showToast("Theme geändert");
   });
 
+  $("menuIllnessButton").addEventListener("click", () => {
+    closeTopMenu();
+    openIllnessView();
+  });
   $("menuStorageButton").addEventListener("click", () => {
     closeTopMenu();
     openStorageView();
@@ -3869,13 +4135,22 @@ async function init() {
 
 
 
+  $("startIllnessButton").addEventListener("click", startIllness);
+  $("endIllnessButton").addEventListener("click", endIllness);
+  $("clearIllnessButton").addEventListener("click", clearIllness);
+  $("illnessDoctorReportButton").addEventListener("click", openDoctorReport);
+  $("copyDoctorReportButton").addEventListener("click", selectDoctorReportText);
+  $("downloadDoctorReportButton").addEventListener("click", downloadDoctorReport);
   $("refreshStorageButton").addEventListener("click", loadStorageView);
   $("storageImageDeleteSelected").addEventListener("click", deleteSelectedStorageImages);
   document.querySelectorAll(".close-view").forEach(btn => btn.addEventListener("click", closeViews));
 
   try {
     await loadConfig();
-    if (!state.config.pin_required || state.pin) await loadState();
+    if (!state.config.pin_required || state.pin) {
+      await loadState();
+      loadActiveIllness();
+    }
   } catch (err) {
     if (String(err.message).includes("PIN")) showPin(err.message);
     else showToast(err.message);
