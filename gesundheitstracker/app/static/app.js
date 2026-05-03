@@ -2491,6 +2491,13 @@ function renderIllnessStatus() {
       <div><span>Bilder</span><strong>${stats.imageCount}</strong></div>
     </div>
   `;
+
+  const toggle = $("toggleIllnessButton");
+  if (toggle) {
+    toggle.textContent = illness ? "Infekt stoppen" : "Infekt starten";
+    toggle.classList.toggle("danger", Boolean(illness));
+    toggle.classList.toggle("primary", !illness);
+  }
 }
 
 function openIllnessView() {
@@ -2509,27 +2516,37 @@ function startIllness() {
     end: "",
     created_at: new Date().toISOString()
   });
-  $("illnessEndDate").value = today();
+  if ($("illnessEndDate")) $("illnessEndDate").value = today();
   renderIllnessStatus();
   showToast("Infekt gestartet");
 }
 
-function endIllness() {
+function stopIllness() {
   if (!state.activeIllness) {
-    showToast("Kein aktiver Infekt");
+    renderIllnessStatus();
     return;
   }
+
   const end = $("illnessEndDate")?.value || today();
-  saveActiveIllness({ ...state.activeIllness, end, ended_at: new Date().toISOString() });
+  const stopped = {
+    ...state.activeIllness,
+    end,
+    ended_at: new Date().toISOString()
+  };
+
+  // Stoppen bedeutet: laufenden Status entfernen. Die Daten bleiben erhalten,
+  // der Zeitraum bleibt aber in den Datumsfeldern stehen, damit der Arztbericht direkt erstellt werden kann.
+  saveActiveIllness(null);
+  if ($("illnessStartDate")) $("illnessStartDate").value = stopped.start || state.selectedDate || today();
+  if ($("illnessEndDate")) $("illnessEndDate").value = stopped.end || today();
+  if ($("illnessTitleInput")) $("illnessTitleInput").value = stopped.title || "";
   renderIllnessStatus();
-  showToast("Infekt beendet");
+  showToast("Infekt gestoppt");
 }
 
-function clearIllness() {
-  if (!confirm("Aktiven Infekt-Zeitraum zurücksetzen? Die Einträge bleiben erhalten.")) return;
-  saveActiveIllness(null);
-  renderIllnessStatus();
-  showToast("Infekt zurückgesetzt");
+function toggleIllness() {
+  if (state.activeIllness) stopIllness();
+  else startIllness();
 }
 
 function feverAssessment(value) {
@@ -4135,9 +4152,7 @@ async function init() {
 
 
 
-  $("startIllnessButton").addEventListener("click", startIllness);
-  $("endIllnessButton").addEventListener("click", endIllness);
-  $("clearIllnessButton").addEventListener("click", clearIllness);
+  $("toggleIllnessButton").addEventListener("click", toggleIllness);
   $("illnessDoctorReportButton").addEventListener("click", openDoctorReport);
   $("copyDoctorReportButton").addEventListener("click", selectDoctorReportText);
   $("downloadDoctorReportButton").addEventListener("click", downloadDoctorReport);

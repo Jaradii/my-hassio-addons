@@ -11937,3 +11937,19 @@ button.compact-day-tile strong {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* v1.0.81-test: Infekt-Steuerung als einzelner Start/Stop-Button */
+.illness-actions.single {
+  grid-template-columns: 1fr !important;
+}
+
+#toggleIllnessButton.danger {
+  background: color-mix(in srgb, var(--danger) 88%, #111 12%) !important;
+  color: white !important;
+  border-color: color-mix(in srgb, var(--danger) 80%, transparent) !important;
+}
+
+#toggleIllnessButton.danger:active {
+  transform: scale(0.99);
+}

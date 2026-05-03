@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.80
+- Basis ist die funktionierende Version 1.0.81
 
 
 ## Änderungen in 1.0.10
@@ -601,3 +601,12 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Arztbericht aus dem Infekt-Zeitraum erstellen
 - Arztbericht als Text markieren oder als TXT speichern
 - Bestehende Einträge werden nicht verändert; der Infekt-Zeitraum wird lokal in der App gespeichert
+
+
+## Änderungen in 1.0.81-test
+
+- Infekt-Steuerung auf einen einzigen Button umgebaut
+- Wenn kein Infekt läuft: `Infekt starten`
+- Wenn ein Infekt läuft: roter Button `Infekt stoppen`
+- Stop-Logik repariert: aktiver Infekt wird sauber beendet und der Zeitraum bleibt für den Arztbericht in den Feldern stehen
+- Alte Buttons `Infekt beenden` und `Zurücksetzen` entfernt
