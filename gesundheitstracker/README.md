@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.1.07
+- Basis ist die funktionierende Version 1.1.08
 
 
 ## Änderungen in 1.0.10
@@ -823,3 +823,13 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Bilder bekommen explizite Klassen und Größenattribute
 - Große Fotos werden für den PDF-Druck als normale Block-Bilder gerendert
 - Hinweis im HTML-Bericht ergänzt, falls Safari Bilder erst verzögert in die Druckvorschau übernimmt
+
+
+## Änderungen in 1.1.08-test
+
+- Speicherverwaltung erkennt jetzt verwaiste Bilder, also Uploads ohne Eintragsverknüpfung
+- Verwaiste Bilder können über `Speicher → Verwaiste Bilder → Anzeigen` geöffnet, markiert und gelöscht werden
+- Auswertung zeigt kleine Diagramme für Temperaturverlauf und Flüssigkeit pro Tag
+- Bei `Alle Einträge` werden Temperatur- und Flüssigkeitsdiagramm zusammen angezeigt, sofern Daten vorhanden sind
+- Arztbericht nutzt jetzt `Bericht öffnen` als Hauptbutton für den HTML-Bericht mit Bildern
+- TXT bleibt als Zusatzoption erhalten

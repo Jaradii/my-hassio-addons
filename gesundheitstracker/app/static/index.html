@@ -372,6 +372,7 @@
             <select id="analysisCategory">
               <option value="temperature">Fieber / Temperatur</option>
               <option value="fluids">Flüssigkeit</option>
+              <option value="fluid_level">Trinkmenge</option>
               <option value="symptoms">Symptome</option>
               <option value="mood">Stimmung</option>
               <option value="medication">Medikamente</option>
@@ -384,6 +385,7 @@
           </label>
         </div>
         <div id="analysisSummary" class="analysis-summary"></div>
+        <div id="analysisCharts" class="analysis-charts"></div>
         <div id="analysisResults" class="analysis-results"></div>
       </div>
     </section>
@@ -578,9 +580,9 @@
           <button class="round-btn close-view">×</button>
         </div>
         <div class="doctor-report-actions">
-          <button id="copyDoctorReportButton" type="button" class="btn secondary">Text markieren</button>
+          <button id="downloadDoctorReportHtmlButton" type="button" class="btn primary">Bericht öffnen</button>
           <button id="downloadDoctorReportButton" type="button" class="btn secondary">TXT speichern</button>
-          <button id="downloadDoctorReportHtmlButton" type="button" class="btn primary">HTML mit Bildern</button>
+          <button id="copyDoctorReportButton" type="button" class="btn secondary">Text markieren</button>
         </div>
         <textarea id="doctorReportText" class="doctor-report-text" readonly></textarea>
       </div>

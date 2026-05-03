@@ -14,6 +14,7 @@ const state = {
   imagePreviewItems: [],
   imagePreviewIndex: 0,
   storageUploads: [],
+  orphanUploads: [],
   activeIllness: null,
   illnessHistory: [],
   selectedIllnessForReport: null,
@@ -3636,7 +3637,7 @@ async function buildDoctorReportHtml(selectedIllness = null) {
 
 async function downloadDoctorReportHtml() {
   const illness = state.selectedIllnessForReport || null;
-  showToast("HTML-Bericht wird vorbereitet...");
+  showToast("Bericht wird vorbereitet...");
   const html = await buildDoctorReportHtml(illness);
   const range = illness ? { start: illness.start || state.selectedDate || today(), end: illness.end || today() } : illnessDateRange();
   const blob = new Blob([html], { type: "text/html;charset=utf-8" });
@@ -4129,17 +4130,101 @@ function updateStorageImageSelectionState() {
     button.classList.toggle("hidden", !selected.length);
     button.textContent = selected.length ? `${selected.length} löschen` : "Auswahl löschen";
   }
-  if (count && state.storageUploads) {
-    count.textContent = `${state.storageUploads.length} Bild${state.storageUploads.length === 1 ? "" : "er"}${selected.length ? ` · ${selected.length} markiert` : ""}`;
+  if (count) {
+    const uploads = storageImageManagerUploads();
+    count.textContent = `${uploads.length} Bild${uploads.length === 1 ? "" : "er"}${selected.length ? ` · ${selected.length} markiert` : ""}`;
   }
+}
+
+
+function storageImageManagerMode() {
+  return state.storageImageManagerMode || "all";
+}
+
+function storageImageManagerUploads() {
+  return storageImageManagerMode() === "orphans"
+    ? normalizeStorageUploads(state.orphanUploads || [])
+    : normalizeStorageUploads(state.storageUploads || []);
+}
+
+function referencedImageFilenamesFromEntries() {
+  const names = new Set();
+  (state.data.entries || []).forEach(entry => {
+    normalizeSymptomImages(entry.symptom_images || []).forEach(image => {
+      const value = image.filename || image.url || "";
+      const clean = String(value).split("?", 1)[0].split("#", 1)[0].replace(/\/+$/, "");
+      const name = clean.split("/").pop();
+      if (name) names.add(name);
+    });
+  });
+  return names;
+}
+
+function calculateOrphanUploadsClient() {
+  const referenced = referencedImageFilenamesFromEntries();
+  return normalizeStorageUploads(state.storageUploads || []).filter(item => item.filename && !referenced.has(item.filename));
+}
+
+function chartMax(values) {
+  const max = Math.max(...values.filter(value => Number.isFinite(value)), 0);
+  return max <= 0 ? 1 : max;
+}
+
+function renderMiniBarChart(rows, options = {}) {
+  const valid = rows.filter(row => Number.isFinite(row.value));
+  if (!valid.length) return "";
+  const max = chartMax(valid.map(row => row.value));
+  return `
+    <div class="mini-chart-card">
+      <div class="mini-chart-head">
+        <strong>${escapeHtml(options.title || "Verlauf")}</strong>
+        <span>${escapeHtml(options.subtitle || "")}</span>
+      </div>
+      <div class="mini-chart-bars">
+        ${valid.map(row => {
+          const pct = Math.max(4, Math.round((row.value / max) * 100));
+          return `
+            <div class="mini-chart-row">
+              <span>${escapeHtml(row.label)}</span>
+              <div class="mini-chart-track"><i style="width:${pct}%"></i></div>
+              <strong>${escapeHtml(row.display)}</strong>
+            </div>
+          `;
+        }).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderTemperatureMiniChart(entries) {
+  const rows = entries
+    .filter(entry => entry.temperature !== null && entry.temperature !== undefined && entry.temperature !== "")
+    .map(entry => ({ label: `${formatDateShortGerman(entry.date)} ${entry.time || ""}`.trim(), value: Number(entry.temperature), display: `${Number(entry.temperature).toFixed(1)} °C` }))
+    .filter(row => !Number.isNaN(row.value));
+  return renderMiniBarChart(rows, { title: "Temperaturverlauf", subtitle: "Messwerte im Zeitraum" });
+}
+
+function renderFluidsMiniChart(entries) {
+  const grouped = entries.reduce((acc, entry) => {
+    if (!entry.date || !entry.fluids_ml) return acc;
+    acc[entry.date] = (acc[entry.date] || 0) + (Number(entry.fluids_ml) || 0);
+    return acc;
+  }, {});
+  const rows = Object.entries(grouped).sort(([a], [b]) => a.localeCompare(b)).map(([date, value]) => ({
+    label: formatDateShortGerman(date),
+    value: Number(value),
+    display: `${value} ml`
+  }));
+  return renderMiniBarChart(rows, { title: "Flüssigkeit pro Tag", subtitle: "Summe im Zeitraum" });
 }
 
 function renderStorageImageManager() {
   const container = $("storageImageManagerContent");
   if (!container) return;
 
-  const uploads = normalizeStorageUploads(state.storageUploads || []);
+  const uploads = storageImageManagerUploads();
   if ($("storageImageManagerCount")) $("storageImageManagerCount").textContent = `${uploads.length} Bild${uploads.length === 1 ? "" : "er"}`;
+  if ($("storageImageManagerTitle")) $("storageImageManagerTitle").textContent = storageImageManagerMode() === "orphans" ? "Verwaiste Bilder" : "Gespeicherte Bilder";
 
   if (!uploads.length) {
     container.innerHTML = `<div class="storage-manager-empty">Keine Bilder gespeichert.</div>`;
@@ -4178,8 +4263,10 @@ function renderStorageImageManager() {
   updateStorageImageSelectionState();
 }
 
-function openStorageImageManager() {
+function openStorageImageManager(mode = "all") {
+  state.storageImageManagerMode = mode;
   state.storageUploads = normalizeStorageUploads(state.storageUploads || []);
+  state.orphanUploads = normalizeStorageUploads(state.orphanUploads || []);
   openView("storageImageManagerView");
   renderStorageImageManager();
 }
@@ -4200,6 +4287,7 @@ async function deleteSelectedStorageImages() {
   await loadStorageView();
 
   state.storageUploads = normalizeStorageUploads(state.storageUploads || []);
+  state.orphanUploads = calculateOrphanUploadsClient();
   renderStorageImageManager();
   renderDay();
 
@@ -4239,10 +4327,13 @@ async function loadStorageView() {
   try {
     const data = await api("./api/storage");
     state.storageUploads = normalizeStorageUploads(data.uploads || []);
+    state.orphanUploads = normalizeStorageUploads(data.orphan_uploads || calculateOrphanUploadsClient());
     const total = Number(data.total_bytes) || 0;
     const diary = Number(data.diary_bytes) || 0;
     const uploads = Number(data.uploads_bytes) || 0;
     const other = Math.max(0, total - diary - uploads);
+    const orphanCount = Number(data.orphan_uploads_count || state.orphanUploads.length || 0);
+    const orphanBytes = Number(data.orphan_uploads_bytes || 0);
 
     const rows = [
       ["Datenbank", diary, "diary.json", "Einträge, Profil, Historie und Bild-Verweise"],
@@ -4255,6 +4346,15 @@ async function loadStorageView() {
         <span>Gesamt</span>
         <strong>${formatBytes(total)}</strong>
         <small>${data.entries_count || 0} Einträge · ${data.image_refs_count || 0} Bild-Verweise</small>
+      </div>
+
+      <div class="storage-orphan-card ${orphanCount ? "" : "muted"}">
+        <div>
+          <span>Verwaiste Bilder</span>
+          <strong>${orphanCount} Datei${orphanCount === 1 ? "" : "en"}</strong>
+          <small>${orphanCount ? `${formatBytes(orphanBytes)} · keinem Eintrag zugeordnet` : "Keine verwaisten Bilder gefunden"}</small>
+        </div>
+        <button type="button" id="openOrphanImagesButton" class="btn secondary" ${orphanCount ? "" : "disabled"}>Anzeigen</button>
       </div>
 
       <div class="storage-bars">
@@ -4285,6 +4385,7 @@ async function loadStorageView() {
     `;
 
     if ($("storageImagesToggle")) $("storageImagesToggle").addEventListener("click", toggleStorageImages);
+    if ($("openOrphanImagesButton")) $("openOrphanImagesButton").addEventListener("click", () => openStorageImageManager("orphans"));
     bindSymptomImageOpeners(container);
   } catch (err) {
     container.innerHTML = `<p class="storage-error">${escapeHtml(err.message || "Speicher konnte nicht geladen werden.")}</p>`;
@@ -4761,11 +4862,30 @@ function renderAnalysis() {
     .sort((a, b) => analysisEntryTimestamp(a).localeCompare(analysisEntryTimestamp(b)));
 
   const summary = $("analysisSummary");
+  const charts = $("analysisCharts");
   const results = $("analysisResults");
   if (!summary || !results) return;
+  if (charts) charts.innerHTML = "";
 
   if (category === "temperature") {
     summary.innerHTML = renderTemperatureAnalysis(entries);
+    if (charts) charts.innerHTML = renderTemperatureMiniChart(entries);
+  } else if (category === "fluids") {
+    summary.innerHTML = `
+      <div class="analysis-simple-summary">
+        <span>${escapeHtml(analysisCategoryLabel(category))}</span>
+        <strong>${entries.length} Treffer</strong>
+      </div>
+    `;
+    if (charts) charts.innerHTML = renderFluidsMiniChart(entries);
+  } else if (category === "all") {
+    summary.innerHTML = `
+      <div class="analysis-simple-summary">
+        <span>${escapeHtml(analysisCategoryLabel(category))}</span>
+        <strong>${entries.length} Treffer</strong>
+      </div>
+    `;
+    if (charts) charts.innerHTML = [renderTemperatureMiniChart(entries), renderFluidsMiniChart(entries)].filter(Boolean).join("");
   } else if (category === "symptoms") {
     summary.innerHTML = renderSymptomTrendAnalysis(entries);
   } else {

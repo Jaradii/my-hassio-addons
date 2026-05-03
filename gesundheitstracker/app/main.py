@@ -682,10 +682,16 @@ def api_storage(request: Request):
     deleted_entries = store.get("deleted_entries", [])
 
     image_refs = 0
+    referenced_upload_filenames = set()
     if isinstance(entries, list):
         for entry in entries:
             if isinstance(entry, dict) and isinstance(entry.get("symptom_images"), list):
-                image_refs += len(entry.get("symptom_images") or [])
+                refs = entry.get("symptom_images") or []
+                image_refs += len(refs)
+                for ref in refs:
+                    name = upload_filename_from_ref(ref)
+                    if name:
+                        referenced_upload_filenames.add(name)
 
     uploads = []
     if UPLOAD_DIR.exists():
@@ -708,6 +714,13 @@ def api_storage(request: Request):
             except Exception:
                 pass
 
+    orphan_uploads = []
+    for item in uploads:
+        if item.get("filename") not in referenced_upload_filenames:
+            orphan_uploads.append(item)
+
+    orphan_uploads_bytes = sum(int(item.get("size_bytes") or 0) for item in orphan_uploads)
+
     return {
         "total_bytes": data_dir_size,
         "diary_bytes": diary_size,
@@ -716,6 +729,9 @@ def api_storage(request: Request):
         "entries_count": len(entries) if isinstance(entries, list) else 0,
         "deleted_entries_count": len(deleted_entries) if isinstance(deleted_entries, list) else 0,
         "image_refs_count": image_refs,
+        "orphan_uploads_count": len(orphan_uploads),
+        "orphan_uploads_bytes": orphan_uploads_bytes,
+        "orphan_uploads": orphan_uploads,
         "data_path": str(DATA_PATH),
         "uploads_path": str(UPLOAD_DIR),
         "uploads": uploads,

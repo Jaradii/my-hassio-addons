@@ -12541,3 +12541,129 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
     grid-template-columns: 1fr !important;
   }
 }
+
+
+/* v1.1.08-test: Verwaiste Bilder, Diagramme, Bericht als Hauptoption */
+.storage-orphan-card {
+  border: 1px solid color-mix(in srgb, var(--kg-border) 62%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--kg-soft) 45%, var(--card) 55%);
+  padding: 12px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.storage-orphan-card.muted {
+  opacity: 0.72;
+}
+
+.storage-orphan-card span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.storage-orphan-card strong {
+  display: block;
+  color: var(--text);
+  font-size: 0.96rem;
+  font-weight: 1000;
+  margin-top: 2px;
+}
+
+.storage-orphan-card small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  margin-top: 2px;
+}
+
+.analysis-charts {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.mini-chart-card {
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 62%, transparent);
+  background: color-mix(in srgb, var(--card) 92%, var(--kg-soft) 8%);
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.mini-chart-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.mini-chart-head strong {
+  color: var(--text);
+  font-size: 0.92rem;
+  font-weight: 1000;
+}
+
+.mini-chart-head span {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 850;
+}
+
+.mini-chart-bars {
+  display: grid;
+  gap: 7px;
+}
+
+.mini-chart-row {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr) 62px;
+  gap: 8px;
+  align-items: center;
+}
+
+.mini-chart-row span,
+.mini-chart-row strong {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.mini-chart-row strong {
+  text-align: right;
+  color: var(--text);
+}
+
+.mini-chart-track {
+  height: 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--kg-soft) 70%, var(--card) 30%);
+  overflow: hidden;
+}
+
+.mini-chart-track i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--primary) 72%, var(--text) 8%);
+}
+
+@media (max-width: 560px) {
+  .storage-orphan-card {
+    grid-template-columns: 1fr;
+  }
+
+  .mini-chart-row {
+    grid-template-columns: 74px minmax(0, 1fr) 54px;
+  }
+}
