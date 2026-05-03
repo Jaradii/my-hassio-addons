@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.99
+- Basis ist die funktionierende Version 1.1.00
 
 
 ## Änderungen in 1.0.10
@@ -757,3 +757,10 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Datumsformat in der Suche wieder auf `DD.MM.YYYY` zurückgestellt
 - Datumsüberschrift in der Suche als eigener Balken gestaltet
 - Optik stärker an die Auswertung angepasst
+
+
+## Änderungen in 1.1.00-test
+
+- Reihenfolge der Kopfzeilen-Buttons geändert
+- Neue Reihenfolge: Infekt → Profil → Suche → Drei-Punkt-Menü
+- Keine funktionalen Änderungen
