@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.66
+- Basis ist die funktionierende Version 1.0.67
 
 
 ## Änderungen in 1.0.10
@@ -508,3 +508,12 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Foto-Anhang bleibt weiterhin als eigener Chip darunter sichtbar
 - Bild-Popup bleibt unverändert
 - Nur JavaScript minimal geändert
+
+
+## Änderungen in 1.0.67-test
+
+- Backup erweitert auf ZIP-Backup
+- ZIP enthält `diary.json`, `backup-info.json` und den kompletten Ordner `uploads/` mit Symptom-Bildern
+- Backup-Button nutzt jetzt `/api/backup`
+- Restore kann neue ZIP-Backups mit Bildern importieren
+- Alte JSON-Backups bleiben weiterhin importierbar

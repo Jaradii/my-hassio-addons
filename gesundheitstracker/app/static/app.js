@@ -3495,9 +3495,36 @@ async function init() {
   $("importFile").addEventListener("change", async event => {
     const file = event.target.files?.[0];
     if (!file) return;
-    if (!confirm("Import überschreibt die aktuellen Daten. Fortfahren?")) return;
-    const data = JSON.parse(await file.text());
-    await api("./api/import", { method: "POST", body: JSON.stringify(data) });
+    if (!confirm("Import überschreibt die aktuellen Daten. Fortfahren?")) {
+      event.target.value = "";
+      return;
+    }
+
+    if (file.name.toLowerCase().endsWith(".zip") || file.type === "application/zip") {
+      const headers = {};
+      if (state.pin) headers["x-kindgesund-pin"] = state.pin;
+      const res = await fetch("./api/import", {
+        method: "POST",
+        headers: {
+          ...headers,
+          "content-type": "application/zip"
+        },
+        body: await file.arrayBuffer()
+      });
+
+      if (!res.ok) {
+        let message = `Fehler ${res.status}`;
+        try {
+          const body = await res.json();
+          message = body.detail || message;
+        } catch {}
+        throw new Error(message);
+      }
+    } else {
+      const data = JSON.parse(await file.text());
+      await api("./api/import", { method: "POST", body: JSON.stringify(data) });
+    }
+
     await loadState();
     showToast("Import abgeschlossen");
     event.target.value = "";

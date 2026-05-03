@@ -1,7 +1,9 @@
 import base64
+import io
 import json
 import os
 import uuid
+import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -368,19 +370,83 @@ def api_export(request: Request):
     check_pin(request)
     return JSONResponse(
         read_store(),
-        headers={"Content-Disposition": 'attachment; filename="kindgesund-export.json"'},
+        headers={"Content-Disposition": 'attachment; filename="gesundheitstracker-export.json"'},
+    )
+
+
+@app.get("/api/backup")
+def api_backup(request: Request):
+    check_pin(request)
+    store = read_store()
+
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr("diary.json", json.dumps(store, ensure_ascii=False, indent=2))
+
+        if UPLOAD_DIR.exists():
+            for path in UPLOAD_DIR.rglob("*"):
+                if path.is_file():
+                    archive.write(path, f"uploads/{path.name}")
+
+        archive.writestr(
+            "backup-info.json",
+            json.dumps(
+                {
+                    "app": "Gesundheitstracker",
+                    "created_at": utc_now(),
+                    "format": "gesundheitstracker-zip-backup",
+                    "contains": ["diary.json", "uploads"],
+                },
+                ensure_ascii=False,
+                indent=2,
+            ),
+        )
+
+    buffer.seek(0)
+    filename = f"gesundheitstracker-backup-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}.zip"
+    return Response(
+        buffer.getvalue(),
+        media_type="application/zip",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
 
 
 @app.post("/api/import")
 async def api_import(request: Request):
     check_pin(request)
-    try:
-        data = await request.json()
-    except Exception:
-        raise HTTPException(status_code=400, detail="Ungültige JSON-Datei.")
+
+    content_type = (request.headers.get("content-type") or "").lower()
+    raw = await request.body()
+
+    if "application/zip" in content_type or raw[:4] == b"PK\x03\x04":
+        try:
+          with zipfile.ZipFile(io.BytesIO(raw), "r") as archive:
+              if "diary.json" not in archive.namelist():
+                  raise HTTPException(status_code=400, detail="ZIP-Backup enthält keine diary.json.")
+
+              data = json.loads(archive.read("diary.json").decode("utf-8"))
+
+              UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+              for name in archive.namelist():
+                  if not name.startswith("uploads/") or name.endswith("/"):
+                      continue
+                  safe_name = Path(name).name
+                  if not safe_name:
+                      continue
+                  (UPLOAD_DIR / safe_name).write_bytes(archive.read(name))
+        except HTTPException:
+          raise
+        except Exception as exc:
+          raise HTTPException(status_code=400, detail=f"ZIP-Backup konnte nicht gelesen werden: {exc}")
+    else:
+        try:
+          data = json.loads(raw.decode("utf-8"))
+        except Exception:
+            raise HTTPException(status_code=400, detail="Ungültige JSON-Datei.")
+
     if not isinstance(data, dict) or "entries" not in data:
-        raise HTTPException(status_code=400, detail="Die Datei sieht nicht wie ein KindGesund-Export aus.")
+        raise HTTPException(status_code=400, detail="Die Datei sieht nicht wie ein Gesundheitstracker-Export aus.")
+
     data.setdefault("profile", default_store()["profile"])
     data.setdefault("created_at", utc_now())
     data["updated_at"] = utc_now()
