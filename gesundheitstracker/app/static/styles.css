@@ -12794,3 +12794,67 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
   font-weight: 900;
   vertical-align: middle;
 }
+
+
+/* v1.1.13-test: Markierungen besser platziert */
+.summary-info-item {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+}
+
+.summary-info-item > p {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.summary-row-actions {
+  align-self: start;
+  flex-shrink: 0;
+}
+
+.summary-flag-button {
+  opacity: 0.72;
+}
+
+.summary-flag-button.active {
+  opacity: 1;
+  background: color-mix(in srgb, var(--primary) 16%, var(--card) 84%) !important;
+  border-color: color-mix(in srgb, var(--primary) 42%, var(--kg-border) 58%) !important;
+}
+
+.summary-row-flags {
+  display: none !important;
+}
+
+.summary-flag-line {
+  grid-column: 2 / 4;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 7px;
+  padding-left: 0;
+}
+
+.summary-flag-line span {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 12%, var(--card) 88%);
+  border: 1px solid color-mix(in srgb, var(--primary) 26%, var(--kg-border) 74%);
+  color: var(--text);
+  padding: 3px 8px;
+  font-size: 0.68rem;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+@media (max-width: 560px) {
+  .summary-info-item {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .summary-flag-line {
+    grid-column: 1 / -1;
+    margin-left: 0;
+  }
+}

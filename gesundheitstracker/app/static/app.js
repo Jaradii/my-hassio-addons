@@ -972,12 +972,13 @@ function renderSummaryTextBlocks(summary) {
   const renderItem = (group, entry, hidden = false) => `
     <div class="summary-info-item category-compact-item ${group.key === "temperature" ? feverClass(entry.temperature) : ""} ${entry.is_overnight_carry ? "overnight-carry-item" : ""} ${hidden ? "category-extra-item category-extra-hidden" : ""}">
       <span class="summary-info-time">${escapeHtml(entry.time || "--:--")}</span>
-      <p>${escapeHtml(summaryDisplayValue(entry, group.key))}${group.key === "symptoms" ? renderCompactSymptomImages(entry.symptom_images || []) : ""}${normalizeEntryFlags(entry.entry_flags).length && group.key !== "entry_flags" ? `<span class="summary-row-flags">${escapeHtml(entryFlagsText(entry.entry_flags))}</span>` : ""}</p>
+      <p>${escapeHtml(summaryDisplayValue(entry, group.key))}${group.key === "symptoms" ? renderCompactSymptomImages(entry.symptom_images || []) : ""}</p>
       <div class="summary-row-actions">
-        <button type="button" class="summary-edit-button summary-flag-button" data-id="${entry.original_id || entry.id}" aria-label="Markierungen bearbeiten">🏷️</button>
+        <button type="button" class="summary-edit-button summary-flag-button ${normalizeEntryFlags(entry.entry_flags).length ? "active" : ""}" data-id="${entry.original_id || entry.id}" aria-label="Markierungen bearbeiten">🏷️</button>
         <button type="button" class="summary-edit-button summary-history-button" data-id="${entry.original_id || entry.id}" aria-label="Historie anzeigen">↻</button>
         <button type="button" class="summary-edit-button edit-summary-field" data-id="${entry.original_id || entry.id}" data-field="${group.key}" aria-label="${group.title} bearbeiten">✎</button>
       </div>
+      ${normalizeEntryFlags(entry.entry_flags).length && group.key !== "entry_flags" ? `<div class="summary-flag-line">${normalizeEntryFlags(entry.entry_flags).map(flag => `<span>${escapeHtml(entryFlagLabel(flag))}</span>`).join("")}</div>` : ""}
     </div>
   `;
 

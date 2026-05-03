@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.1.12
+- Basis ist die funktionierende Version 1.1.13
 
 
 ## Änderungen in 1.0.10
@@ -865,3 +865,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Speichern von Markierungen repariert
 - Fehler behoben: Markierungs-Popup hat kein freies Textfeld, der Speichern-Code wollte aber trotzdem `fieldEditValue` auslesen
 - Markierungen sollten jetzt gespeichert, angezeigt und in der Historie geführt werden
+
+
+## Änderungen in 1.1.13-test
+
+- Markierungen werden nicht mehr direkt im Text der Eintragszeile angezeigt
+- Markierungen erscheinen jetzt als eigene kleine Chip-Zeile unter dem Eintrag
+- Der `🏷️`-Button wird bei vorhandenen Markierungen nur optisch hervorgehoben
+- Layout stabilisiert, damit Markierungen und Buttons keine Inhalte mehr überdecken
