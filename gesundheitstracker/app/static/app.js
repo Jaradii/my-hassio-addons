@@ -661,6 +661,10 @@ function renderDay() {
     btn.addEventListener("click", () => declineSymptomFollowUp(btn.dataset.id));
   });
 
+  container.querySelectorAll(".followup-undo").forEach(btn => {
+    btn.addEventListener("click", () => undoSymptomFollowUp(btn.dataset.id));
+  });
+
   container.querySelectorAll(".edit-summary-field").forEach(btn => {
     btn.addEventListener("click", () => openFieldEdit(btn.dataset.id, btn.dataset.field));
   });
@@ -815,34 +819,84 @@ function followUpDismissKey(entryId, targetDate) {
   return `gesundheitstracker_followup_${targetDate}_${entryId}`;
 }
 
-function followUpIsDismissed(entryId, targetDate) {
+function followUpState(entryId, targetDate) {
   try {
-    return localStorage.getItem(followUpDismissKey(entryId, targetDate)) === "1";
+    const raw = localStorage.getItem(followUpDismissKey(entryId, targetDate));
+    if (!raw) return "";
+    if (raw === "1") return "no";
+    return raw;
   } catch {
-    return false;
+    return "";
   }
 }
 
-function dismissFollowUp(entryId, targetDate) {
+function setFollowUpState(entryId, targetDate, value) {
   try {
-    localStorage.setItem(followUpDismissKey(entryId, targetDate), "1");
+    if (!value) {
+      localStorage.removeItem(followUpDismissKey(entryId, targetDate));
+      return;
+    }
+    localStorage.setItem(followUpDismissKey(entryId, targetDate), value);
   } catch {
     // ignore localStorage failures
   }
 }
 
-function markedSymptomFollowUpsForDate(date) {
+function followUpIsAnswered(entryId, targetDate) {
+  return Boolean(followUpState(entryId, targetDate));
+}
+
+function dismissFollowUp(entryId, targetDate) {
+  setFollowUpState(entryId, targetDate, "no");
+}
+
+function restoreFollowUp(entryId, targetDate) {
+  setFollowUpState(entryId, targetDate, "");
+}
+
+function allSymptomFollowUpsForDate(date) {
   const previous = addDays(date, -1);
   return (state.data.entries || [])
     .filter(entry => entry.date === previous)
     .filter(entry => analysisValue(entry, "symptoms"))
-    .filter(entry => !followUpIsDismissed(entry.id, date))
     .sort((a, b) => (a.time || "").localeCompare(b.time || ""));
+}
+
+function markedSymptomFollowUpsForDate(date) {
+  return allSymptomFollowUpsForDate(date).filter(entry => !followUpIsAnswered(entry.id, date));
+}
+
+function answeredSymptomFollowUpsForDate(date) {
+  return allSymptomFollowUpsForDate(date).filter(entry => followUpIsAnswered(entry.id, date));
+}
+
+function renderFollowUpEntry(entry, answered = false, date = state.selectedDate) {
+  const stateValue = followUpState(entry.id, date);
+  const stateLabel = stateValue === "yes" ? "Als weiterhin vorhanden eingetragen" : "Als nicht mehr vorhanden markiert";
+  return `
+    <article class="followup-item ${answered ? "answered" : ""}">
+      <div>
+        <span>${escapeHtml(entry.time || "--:--")} Uhr${entryFlagsText(entry.entry_flags) ? ` · ${escapeHtml(entryFlagsText(entry.entry_flags))}` : ""}</span>
+        <strong>${escapeHtml(analysisValue(entry, "symptoms"))}</strong>
+        ${answered ? `<small>${escapeHtml(stateLabel)}</small>` : ""}
+      </div>
+      <div class="followup-actions">
+        ${answered ? `
+          <button type="button" class="followup-undo btn secondary" data-id="${escapeHtml(entry.id)}">Rückgängig</button>
+          <button type="button" class="followup-yes btn primary" data-id="${escapeHtml(entry.id)}">Doch ja</button>
+        ` : `
+          <button type="button" class="followup-yes btn primary" data-id="${escapeHtml(entry.id)}">Ja</button>
+          <button type="button" class="followup-no btn secondary" data-id="${escapeHtml(entry.id)}">Nein</button>
+        `}
+      </div>
+    </article>
+  `;
 }
 
 function renderMarkedSymptomFollowUps(date) {
   const followUps = markedSymptomFollowUpsForDate(date);
-  if (!followUps.length) return "";
+  const answered = answeredSymptomFollowUpsForDate(date);
+  if (!followUps.length && !answered.length) return "";
 
   return `
     <section class="followup-card">
@@ -853,20 +907,19 @@ function renderMarkedSymptomFollowUps(date) {
           <p>Diese Symptome waren gestern dokumentiert. Sind sie heute noch da?</p>
         </div>
       </div>
-      <div class="followup-list">
-        ${followUps.map(entry => `
-          <article class="followup-item">
-            <div>
-              <span>${escapeHtml(entry.time || "--:--")} Uhr${entryFlagsText(entry.entry_flags) ? ` · ${escapeHtml(entryFlagsText(entry.entry_flags))}` : ""}</span>
-              <strong>${escapeHtml(analysisValue(entry, "symptoms"))}</strong>
-            </div>
-            <div class="followup-actions">
-              <button type="button" class="followup-yes btn primary" data-id="${escapeHtml(entry.id)}">Ja</button>
-              <button type="button" class="followup-no btn secondary" data-id="${escapeHtml(entry.id)}">Nein</button>
-            </div>
-          </article>
-        `).join("")}
-      </div>
+      ${followUps.length ? `
+        <div class="followup-list">
+          ${followUps.map(entry => renderFollowUpEntry(entry, false, date)).join("")}
+        </div>
+      ` : ""}
+      ${answered.length ? `
+        <details class="followup-answered">
+          <summary>${answered.length} beantwortete Nachfrage${answered.length === 1 ? "" : "n"} anzeigen</summary>
+          <div class="followup-list">
+            ${answered.map(entry => renderFollowUpEntry(entry, true, date)).join("")}
+          </div>
+        </details>
+      ` : ""}
     </section>
   `;
 }
@@ -896,7 +949,7 @@ async function confirmSymptomFollowUp(entryId) {
   };
 
   await api("./api/entries", { method: "POST", body: JSON.stringify(payload) });
-  dismissFollowUp(entryId, state.selectedDate);
+  setFollowUpState(entryId, state.selectedDate, "yes");
   await loadState();
   showToast("Nachkontrolle eingetragen");
 }
@@ -904,7 +957,13 @@ async function confirmSymptomFollowUp(entryId) {
 async function declineSymptomFollowUp(entryId) {
   dismissFollowUp(entryId, state.selectedDate);
   renderDay();
-  showToast("Nachfrage ausgeblendet");
+  showToast("Nachfrage als Nein markiert");
+}
+
+function undoSymptomFollowUp(entryId) {
+  restoreFollowUp(entryId, state.selectedDate);
+  renderDay();
+  showToast("Nachfrage wieder geöffnet");
 }
 
 function renderDaySummaryCard(entries) {

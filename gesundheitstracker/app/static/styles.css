@@ -13061,3 +13061,39 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
 .calendar-day.has-marked-symptoms {
   padding-bottom: 11px;
 }
+
+
+/* v1.1.25-test: Nachkontrolle rückgängig machbar */
+.followup-item.answered {
+  opacity: 0.82;
+  background: color-mix(in srgb, var(--kg-soft) 34%, var(--card) 66%);
+}
+
+.followup-item small {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-weight: 850;
+}
+
+.followup-answered {
+  border-top: 1px solid color-mix(in srgb, var(--kg-border) 55%, transparent);
+  padding-top: 8px;
+}
+
+.followup-answered summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 950;
+  list-style: none;
+}
+
+.followup-answered summary::-webkit-details-marker {
+  display: none;
+}
+
+.followup-answered summary::before {
+  content: "↳ ";
+}

@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.1.24
+- Basis ist die funktionierende Version 1.1.25
 
 
 ## Änderungen in 1.0.10
@@ -959,3 +959,12 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - `📷` markiert Tage, an denen Bilder hinterlegt wurden
 - `🏷️` markiert Tage, an denen Symptome eine Markierung haben
 - Kalender-ARIA-Labels wurden entsprechend ergänzt
+
+
+## Änderungen in 1.1.25-test
+
+- Nachkontrolle ist jetzt fehlertoleranter
+- `Nein` blendet eine Nachfrage nicht mehr endgültig aus, sondern legt sie unter `beantwortete Nachfragen` ab
+- Beantwortete Nachfragen können über `Rückgängig` wieder geöffnet werden
+- Bei versehentlichem `Nein` kann man danach doch noch `Ja` wählen
+- Bei `Ja` wird die Nachfrage als erledigt markiert und bleibt ebenfalls im beantworteten Bereich sichtbar
