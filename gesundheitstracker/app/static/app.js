@@ -3259,7 +3259,7 @@ function buildDoctorReportText(selectedIllness = null) {
   reportSection(lines, "Hinweis");
   lines.push("Dieser Bericht ist eine private Dokumentation und ersetzt keine ärztliche Einschätzung.");
 
-  return lines.join("\\n");
+  return lines.join("\n");
 }
 
 function openDoctorReport() {

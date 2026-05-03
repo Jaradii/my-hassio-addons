@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.1.01
+- Basis ist die funktionierende Version 1.1.02
 
 
 ## Änderungen in 1.0.10
@@ -774,3 +774,10 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Tagesverlauf übersichtlicher gruppiert
 - Separate Abschnitte für Temperatur, Symptome, Medikamente, Flüssigkeit/Trinkmenge und Beobachtungen
 - Bericht bleibt als kopierbarer Text/TXT exportierbar
+
+
+## Änderungen in 1.1.02-test
+
+- TXT-Arztbericht repariert
+- Bericht nutzt jetzt echte Zeilenumbrüche statt literalem `\\n`
+- Abschnitte, Leerzeilen und Überschriften erscheinen in der TXT-Datei wieder strukturiert
