@@ -11290,3 +11290,54 @@ button.compact-day-tile small {
   font-size: 0.76rem;
   font-weight: 750;
 }
+
+
+/* v1.0.72-test: Teilen entfernt, Kacheln luftiger */
+#shareImagePreview,
+#openImageExternal,
+.image-share-fallback {
+  display: none !important;
+}
+
+/* Mehr Abstand innerhalb der Tageskacheln zwischen Icon, Überschrift und Wert */
+.compact-day-tile,
+.day-tile,
+button.compact-day-tile,
+button.day-tile {
+  gap: 6px !important;
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+}
+
+.compact-day-tile .tile-icon,
+.day-tile .tile-icon,
+.compact-day-tile > span:first-child,
+.day-tile > span:first-child {
+  margin-bottom: 2px !important;
+}
+
+.compact-day-tile .tile-label,
+.day-tile .tile-label,
+button.day-tile .tile-label,
+button.compact-day-tile .tile-label {
+  margin-top: 2px !important;
+  margin-bottom: 2px !important;
+}
+
+.compact-day-tile strong,
+.day-tile strong,
+button.day-tile strong,
+button.compact-day-tile strong {
+  margin-top: 1px !important;
+}
+
+@media (max-width: 430px) {
+  .compact-day-tile,
+  .day-tile,
+  button.compact-day-tile,
+  button.day-tile {
+    gap: 5px !important;
+    padding-top: 9px !important;
+    padding-bottom: 9px !important;
+  }
+}

@@ -120,8 +120,6 @@ function setImagePreviewIndex(index) {
   if (prev) prev.classList.toggle("hidden", state.imagePreviewItems.length <= 1);
   if (next) next.classList.toggle("hidden", state.imagePreviewItems.length <= 1);
 
-  hideImageShareFallback();
-
   if (thumbs) {
     thumbs.innerHTML = state.imagePreviewItems.length > 1 ? state.imagePreviewItems.map((itemUrl, idx) => `
       <button type="button" class="${idx === state.imagePreviewIndex ? "active" : ""}" data-index="${idx}" aria-label="Bild ${idx + 1} öffnen">
@@ -159,7 +157,6 @@ function closeImagePreviewPopup() {
   animateHide(popup, "closing", () => {
     if (img) img.src = "";
     if ($("imagePreviewThumbs")) $("imagePreviewThumbs").innerHTML = "";
-    hideImageShareFallback();
     state.imagePreviewItems = [];
     state.imagePreviewIndex = 0;
   });
@@ -185,114 +182,11 @@ function bindSymptomImageOpeners(root = document) {
   });
 }
 
-function currentImageAbsoluteUrl() {
-  const url = state.imagePreviewItems[state.imagePreviewIndex];
-  if (!url) return "";
-  return new URL(url, window.location.href).toString();
-}
 
-function showImageShareFallback() {
-  const box = $("imageShareFallback");
-  const input = $("imageShareLink");
-  const url = currentImageAbsoluteUrl();
-  if (!box || !input || !url) return;
 
-  input.value = url;
-  box.classList.remove("hidden");
-  requestAnimationFrame(() => {
-    input.focus();
-    input.select();
-    input.setSelectionRange(0, input.value.length);
-  });
-}
 
-function hideImageShareFallback() {
-  if ($("imageShareFallback")) $("imageShareFallback").classList.add("hidden");
-  if ($("imageShareLink")) $("imageShareLink").value = "";
-}
 
-function openCurrentImageExternal() {
-  const url = currentImageAbsoluteUrl();
-  if (!url) return;
-  const win = window.open(url, "_blank");
-  if (!win) {
-    showImageShareFallback();
-    showToast("Link markiert");
-  }
-}
 
-async function shareCurrentImagePreview() {
-  const absoluteUrl = currentImageAbsoluteUrl();
-  if (!absoluteUrl) return;
-
-  try {
-    const response = await fetch(absoluteUrl);
-    const blob = await response.blob();
-    const filename = absoluteUrl.split("/").pop()?.split("?")[0] || "symptom-foto.jpg";
-    const file = new File([blob], filename, { type: blob.type || "image/jpeg" });
-
-    if (navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
-      await navigator.share({
-        files: [file],
-        title: "Symptom-Foto",
-        text: "Symptom-Foto aus dem Gesundheitstracker"
-      });
-      return;
-    }
-  } catch {
-    // Falls Datei-Teilen nicht erlaubt ist, versuchen wir danach Link-Teilen.
-  }
-
-  try {
-    if (navigator.share) {
-      await navigator.share({
-        title: "Symptom-Foto",
-        text: "Symptom-Foto aus dem Gesundheitstracker",
-        url: absoluteUrl
-      });
-      return;
-    }
-  } catch {
-    // WebView kann natives Teilen komplett blockieren.
-  }
-
-  showImageShareFallback();
-  showToast("Teilen nicht verfügbar, Link markiert");
-}
-
-function renderCompactSymptomImages(images) {
-  const normalized = normalizeSymptomImages(images);
-  if (!normalized.length) return "";
-  const urls = normalized.map(uploadUrlFromImage).filter(Boolean);
-  if (!urls.length) return "";
-  const count = urls.length;
-
-  return `
-    <div class="symptom-image-attachment-row">
-      <button type="button" class="symptom-image-open symptom-image-attachment-chip" data-url="${escapeHtml(urls[0])}" data-images="${escapeHtml(JSON.stringify(urls))}" data-index="0" aria-label="Symptom-Fotos öffnen">
-        <span>📷</span>
-        <strong>${count} Foto${count === 1 ? "" : "s"} ansehen</strong>
-      </button>
-    </div>
-  `;
-}
-
-function renderSymptomImages(images) {
-  const normalized = normalizeSymptomImages(images);
-  if (!normalized.length) return "";
-  const urls = normalized.map(uploadUrlFromImage).filter(Boolean);
-  if (!urls.length) return "";
-
-  return `
-    <div class="symptom-image-strip">
-      ${urls.map((url, index) => `
-        <button type="button" class="symptom-image-open" data-url="${escapeHtml(url)}" data-images="${escapeHtml(JSON.stringify(urls))}" data-index="${index}" aria-label="Symptom-Foto öffnen">
-          <img src="${escapeHtml(url)}" alt="Symptom-Foto" loading="lazy" />
-        </button>
-      `).join("")}
-    </div>
-  `;
-}
 
 function renderPendingSymptomImages(targetId, images, target = "main") {
   const el = $(targetId);
@@ -3474,8 +3368,6 @@ async function init() {
   $("imagePreviewBackdrop").addEventListener("click", closeImagePreviewPopup);
   $("imagePreviewPrev").addEventListener("click", () => setImagePreviewIndex(state.imagePreviewIndex - 1));
   $("imagePreviewNext").addEventListener("click", () => setImagePreviewIndex(state.imagePreviewIndex + 1));
-  $("shareImagePreview").addEventListener("click", shareCurrentImagePreview);
-  $("openImageExternal").addEventListener("click", openCurrentImageExternal);
   $("closeFieldEdit").addEventListener("click", closeFieldEdit);
   $("fieldEditBackdrop").addEventListener("click", closeFieldEdit);
   $("fieldEditForm").addEventListener("submit", saveFieldEdit);

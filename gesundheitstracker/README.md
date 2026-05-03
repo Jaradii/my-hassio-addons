@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.71
+- Basis ist die funktionierende Version 1.0.72
 
 
 ## Änderungen in 1.0.10
@@ -541,3 +541,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Danach wird natives Link-Teilen versucht
 - Wenn die Home-Assistant-WebView Teilen blockiert, wird ein Link-Fallback angezeigt und markiert
 - Zusätzlicher Button zum externen Öffnen des Bildes ergänzt
+
+
+## Änderungen in 1.0.72-test
+
+- Teilen-Funktion aus der Bildgalerie wieder entfernt
+- Extern-öffnen-Button und Teilen-Fallback entfernt
+- Bildgalerie bleibt mit Vor/Zurück und Miniaturleiste erhalten
+- Mehr Abstand innerhalb der Tageskacheln zwischen Icon, Überschrift und Hauptwert
