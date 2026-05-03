@@ -1,3 +1,4 @@
+import base64
 import json
 import os
 import uuid
@@ -5,7 +6,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from fastapi import FastAPI, HTTPException, Request, UploadFile, File
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -205,7 +206,7 @@ class HealthEntryIn(BaseModel):
     sleep: str = Field(default="", max_length=1000)
     diaper_or_toilet: str = Field(default="", max_length=1000)
     notes: str = Field(default="", max_length=4000)
-    symptom_images: List[str] = Field(default_factory=list)
+    symptom_images: List[Dict[str, Any]] = Field(default_factory=list)
 
 
 class HealthEntry(HealthEntryIn):
@@ -387,11 +388,17 @@ async def api_import(request: Request):
     return {"ok": True}
 
 
-@app.post("/api/uploads")
-async def api_upload_image(request: Request, file: UploadFile = File(...)):
+class ImageUploadIn(BaseModel):
+    name: str = Field(default="foto.jpg", max_length=200)
+    content_type: str = Field(default="image/jpeg", max_length=80)
+    data_url: str = Field(..., max_length=14_000_000)
+
+
+@app.post("/api/uploads/json")
+def api_upload_image_json(payload: ImageUploadIn, request: Request):
     check_pin(request)
 
-    content_type = (file.content_type or "").lower()
+    content_type = (payload.content_type or "").lower()
     allowed = {
         "image/jpeg": ".jpg",
         "image/jpg": ".jpg",
@@ -404,7 +411,15 @@ async def api_upload_image(request: Request, file: UploadFile = File(...)):
     if not suffix:
         raise HTTPException(status_code=400, detail="Nur Bilddateien sind erlaubt.")
 
-    data = await file.read()
+    data_url = payload.data_url or ""
+    if "," in data_url:
+        data_url = data_url.split(",", 1)[1]
+
+    try:
+        data = base64.b64decode(data_url, validate=False)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Bild konnte nicht gelesen werden.")
+
     max_bytes = 8 * 1024 * 1024
     if len(data) > max_bytes:
         raise HTTPException(status_code=400, detail="Bild ist zu groß. Maximal 8 MB.")
@@ -441,16 +456,6 @@ def api_get_upload(filename: str, request: Request):
     }.get(suffix, "application/octet-stream")
 
     return Response(path.read_bytes(), media_type=media_type, headers={"Cache-Control": "private, max-age=3600"})
-
-
-@app.delete("/api/uploads/{filename}")
-def api_delete_upload(filename: str, request: Request):
-    check_pin(request)
-    safe_name = Path(filename).name
-    path = UPLOAD_DIR / safe_name
-    if path.exists() and path.is_file():
-        path.unlink()
-    return {"ok": True}
 
 
 @app.get("/health")

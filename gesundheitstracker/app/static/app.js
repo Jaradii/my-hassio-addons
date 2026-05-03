@@ -7,7 +7,9 @@ const state = {
   selectedDate: today(),
   calendarMonth: today().slice(0, 7),
   dayExpanded: false,
-  editingExistingEntry: false
+  editingExistingEntry: false,
+  pendingSymptomImages: [],
+  pendingQuickSymptomImages: []
 };
 
 const $ = (id) => document.getElementById(id);
@@ -56,6 +58,104 @@ function headers() {
   const h = { "Content-Type": "application/json" };
   if (state.pin) h["x-kindgesund-pin"] = state.pin;
   return h;
+}
+
+
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(new Error("Datei konnte nicht gelesen werden."));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function apiUploadImage(file) {
+  const dataUrl = await fileToDataUrl(file);
+  return api("./api/uploads/json", {
+    method: "POST",
+    body: JSON.stringify({
+      name: file.name || "foto.jpg",
+      content_type: file.type || "image/jpeg",
+      data_url: dataUrl
+    })
+  });
+}
+
+function uploadUrlFromImage(image) {
+  if (!image) return "";
+  if (typeof image === "string") return image;
+  return image.url || (image.filename ? `./api/uploads/${image.filename}` : "");
+}
+
+function normalizeSymptomImages(images) {
+  if (!Array.isArray(images)) return [];
+  return images
+    .map(item => {
+      if (typeof item === "string") return { url: item, filename: item.split("/").pop() || item };
+      if (item && typeof item === "object") return item;
+      return null;
+    })
+    .filter(Boolean);
+}
+
+function renderSymptomImages(images) {
+  const normalized = normalizeSymptomImages(images);
+  if (!normalized.length) return "";
+  return `
+    <div class="symptom-image-strip">
+      ${normalized.map(image => {
+        const url = uploadUrlFromImage(image);
+        return `<a href="${escapeHtml(url)}" target="_blank" rel="noopener"><img src="${escapeHtml(url)}" alt="Symptom-Foto" loading="lazy" /></a>`;
+      }).join("")}
+    </div>
+  `;
+}
+
+function renderPendingSymptomImages(targetId, images, target = "main") {
+  const el = $(targetId);
+  if (!el) return;
+  const normalized = normalizeSymptomImages(images);
+  el.innerHTML = normalized.length ? `
+    ${normalized.map((image, index) => `
+      <div class="symptom-image-pending">
+        <img src="${escapeHtml(uploadUrlFromImage(image))}" alt="Ausgewähltes Foto" />
+        <button type="button" data-index="${index}" aria-label="Foto entfernen">×</button>
+      </div>
+    `).join("")}
+  ` : "";
+
+  el.querySelectorAll("button[data-index]").forEach(button => {
+    button.addEventListener("click", () => {
+      const idx = Number(button.dataset.index);
+      if (target === "quick") {
+        state.pendingQuickSymptomImages.splice(idx, 1);
+        renderPendingSymptomImages(targetId, state.pendingQuickSymptomImages, "quick");
+      } else {
+        state.pendingSymptomImages.splice(idx, 1);
+        renderPendingSymptomImages(targetId, state.pendingSymptomImages, "main");
+      }
+    });
+  });
+}
+
+async function handleSymptomImageFiles(files, target = "main") {
+  const list = [...(files || [])].filter(file => file && file.type && file.type.startsWith("image/"));
+  if (!list.length) {
+    showToast("Keine Bilddatei ausgewählt");
+    return;
+  }
+
+  showToast("Foto wird hochgeladen...");
+  for (const file of list) {
+    const uploaded = await apiUploadImage(file);
+    if (target === "quick") state.pendingQuickSymptomImages.push(uploaded);
+    else state.pendingSymptomImages.push(uploaded);
+  }
+
+  if (target === "quick") renderPendingSymptomImages("quickSymptomImagePreview", state.pendingQuickSymptomImages, "quick");
+  else renderPendingSymptomImages("symptomImagePreview", state.pendingSymptomImages, "main");
+  showToast(list.length === 1 ? "Foto hinzugefügt" : "Fotos hinzugefügt");
 }
 
 async function api(path, options = {}) {
@@ -1168,8 +1268,8 @@ function quickDefinition(kind) {
     </div>
     <label class="field quick-field"><span>Weitere Symptome</span><input id="quickCustomSymptoms" type="text" placeholder="optional"></label>
     <div class="symptom-photo-box visible-symptom-photo-box">
-      <button id="quickSymptomImageButton" type="button" class="symptom-photo-button">📷 Foto hinzufügen</button>
       <input id="quickSymptomImageInput" type="file" accept="image/*" multiple />
+      <button id="quickSymptomImageButton" type="button" class="symptom-photo-button">📷 Foto hinzufügen</button>
       <div id="quickSymptomImagePreview" class="symptom-image-preview"></div>
     </div>
   `;
@@ -1200,7 +1300,7 @@ function openQuickEntry(kind) {
   sheet.setAttribute("aria-hidden", "false");
   bindQuickControls(kind);
   state.pendingQuickSymptomImages = [];
-  renderPendingSymptomImages("quickSymptomImagePreview", state.pendingQuickSymptomImages);
+  renderPendingSymptomImages("quickSymptomImagePreview", state.pendingQuickSymptomImages, "quick");
   if ($("quickSymptomImageButton")) $("quickSymptomImageButton").addEventListener("click", () => $("quickSymptomImageInput").click());
   if ($("quickSymptomImageInput")) {
     $("quickSymptomImageInput").addEventListener("change", async event => {
@@ -1357,7 +1457,7 @@ function resetEntryForm() {
   $("diaperOrToilet").value = "";
   $("notes").value = "";
   state.pendingSymptomImages = [];
-  renderPendingSymptomImages("symptomImagePreview", state.pendingSymptomImages);
+  renderPendingSymptomImages("symptomImagePreview", state.pendingSymptomImages, "main");
   if ($("symptomImageInput")) $("symptomImageInput").value = "";
   $("deleteCurrent").classList.add("hidden");
   document.querySelectorAll("#symptomChips input").forEach(i => i.checked = false);
@@ -1742,7 +1842,8 @@ function formEntry() {
     food: $("food").value.trim(),
     sleep: buildSleepText($("sleep").value, $("sleepStart")?.value || "", $("sleepEnd")?.value || ""),
     diaper_or_toilet: $("diaperOrToilet").value.trim(),
-    notes: $("notes").value.trim()
+    notes: $("notes").value.trim(),
+    symptom_images: [...state.pendingSymptomImages]
   };
 }
 
@@ -2072,7 +2173,7 @@ function editEntry(id) {
   $("diaperOrToilet").value = entry.diaper_or_toilet || "";
   $("notes").value = entry.notes || "";
   state.pendingSymptomImages = normalizeSymptomImages(entry.symptom_images || []);
-  renderPendingSymptomImages("symptomImagePreview", state.pendingSymptomImages);
+  renderPendingSymptomImages("symptomImagePreview", state.pendingSymptomImages, "main");
   if ($("symptomImageInput")) $("symptomImageInput").value = "";
   $("deleteCurrent").classList.remove("hidden");
   document.querySelectorAll("#symptomChips input").forEach(i => i.checked = (entry.symptoms || []).includes(i.value));

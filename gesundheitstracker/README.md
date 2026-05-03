@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.55
+- Basis ist die funktionierende Version 1.0.56
 
 
 ## Änderungen in 1.0.10
@@ -418,20 +418,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Nur CSS geändert
 
 
-## Änderungen in 1.0.54-test
+## Änderungen in 1.0.56-test
 
-- Testversion für Symptom-Fotos
-- Bilder können im normalen Symptome-Bereich und in der Symptome-Schnelleingabe hinzugefügt werden
-- Uploads werden unter `/data/uploads` persistent gespeichert
-- Einträge speichern Bild-Referenzen in `symptom_images`
-- Bilder werden in Tagesübersicht und Detailansicht als Vorschau angezeigt
-- Backend-Endpunkte `/api/uploads` ergänzt
-- Achtung: Backup/Restore mit Bildern ist noch nicht vollständig finalisiert
-
-
-## Änderungen in 1.0.55-test
-
-- Foto-hinzufügen Button deutlich sichtbarer gemacht
-- Button ist jetzt ein echter Button statt Label-Styling
-- Foto-Button im normalen Symptome-Bereich repariert
-- Foto-Button in der Symptome-Schnelleingabe ergänzt/repariert
+- Symptom-Foto-Testversion sauber neu auf Basis von 1.0.53 aufgebaut
+- Kein `python-multipart`, kein FormData-Upload, dadurch weniger Build-/Runtime-Risiko in HA OS
+- Upload läuft über JSON/Base64 an `/api/uploads/json`
+- Foto-Button im normalen Symptome-Bereich und in der Symptome-Schnelleingabe
+- Heutige Einträge sollten wieder normal geladen werden, da die Version auf der stabilen 1.0.53 basiert
+- Bilder werden unter `/data/uploads` gespeichert und in `symptom_images` referenziert
