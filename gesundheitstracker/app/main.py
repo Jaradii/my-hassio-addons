@@ -280,6 +280,18 @@ def api_create_entry(entry: HealthEntryIn, request: Request):
     return item
 
 
+def delete_removed_uploads(old_entry: Dict[str, Any], new_entry: Dict[str, Any]) -> None:
+    old_names = {upload_filename_from_ref(ref) for ref in (old_entry.get("symptom_images") or []) if upload_filename_from_ref(ref)}
+    new_names = {upload_filename_from_ref(ref) for ref in (new_entry.get("symptom_images") or []) if upload_filename_from_ref(ref)}
+    for filename in old_names - new_names:
+        path = UPLOAD_DIR / filename
+        try:
+            if path.exists() and path.is_file():
+                path.unlink()
+        except Exception:
+            pass
+
+
 @app.put("/api/entries/{entry_id}")
 def api_update_entry(entry_id: str, entry: HealthEntryIn, request: Request):
     check_pin(request)
@@ -323,11 +335,48 @@ def api_update_entry(entry_id: str, entry: HealthEntryIn, request: Request):
                     },
                 ],
             ).model_dump()
+            delete_removed_uploads(existing, updated)
             store["entries"][idx] = updated
             store["entries"].sort(key=lambda e: (e.get("date", ""), e.get("time", "")), reverse=True)
             write_store(store)
             return updated
     raise HTTPException(status_code=404, detail="Eintrag nicht gefunden.")
+
+
+def upload_filename_from_ref(ref: Any) -> Optional[str]:
+    if isinstance(ref, str):
+        value = ref
+    elif isinstance(ref, dict):
+        value = str(ref.get("filename") or ref.get("url") or "")
+    else:
+        return None
+
+    if not value:
+        return None
+
+    # Accept both raw filenames and URLs like ./api/uploads/file.jpg
+    name = Path(value.split("?")[0]).name
+    if not name or name in {".", ".."}:
+        return None
+    return name
+
+
+def delete_uploads_for_entry(entry: Dict[str, Any]) -> None:
+    images = entry.get("symptom_images") or []
+    if not isinstance(images, list):
+        return
+
+    for ref in images:
+        filename = upload_filename_from_ref(ref)
+        if not filename:
+            continue
+        path = UPLOAD_DIR / filename
+        try:
+            if path.exists() and path.is_file():
+                path.unlink()
+        except Exception:
+            # Deleting the entry should not fail only because a file could not be removed.
+            pass
 
 
 @app.delete("/api/entries/{entry_id}")
@@ -358,6 +407,10 @@ def api_delete_entry(entry_id: str, request: Request):
         ],
     }
     deleted_entries.append(deleted_snapshot)
+
+    # Remove physical symptom image files as well.
+    # The deleted entry snapshot keeps the metadata/history, but the images themselves are removed.
+    delete_uploads_for_entry(existing)
 
     store["deleted_entries"] = deleted_entries[-200:]
     store["entries"] = [e for e in entries if e.get("id") != entry_id]

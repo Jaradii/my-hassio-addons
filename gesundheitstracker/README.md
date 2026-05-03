@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.67
+- Basis ist die funktionierende Version 1.0.68
 
 
 ## Änderungen in 1.0.10
@@ -517,3 +517,10 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Backup-Button nutzt jetzt `/api/backup`
 - Restore kann neue ZIP-Backups mit Bildern importieren
 - Alte JSON-Backups bleiben weiterhin importierbar
+
+
+## Änderungen in 1.0.68-test
+
+- Beim Löschen eines Eintrags werden zugehörige Symptom-Bilddateien aus `/data/uploads` entfernt
+- Beim Bearbeiten werden entfernte Bilder ebenfalls physisch gelöscht
+- Der gelöschte Eintrag bleibt weiterhin als Historien-Snapshot erhalten, aber ohne die Bilddateien auf der Platte zu behalten
