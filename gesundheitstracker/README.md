@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.62
+- Basis ist die funktionierende Version 1.0.63
 
 
 ## Änderungen in 1.0.10
@@ -475,3 +475,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Uhrzeit-Spalte leicht verbreitert
 - Foto-Chip bleibt einzeilig
 - Nur CSS geändert
+
+
+## Änderungen in 1.0.63-test
+
+- Fotos können jetzt auch beim nachträglichen Bearbeiten eines Symptom-Eintrags hinzugefügt werden
+- Vorhandene Symptom-Fotos werden im Bearbeiten-Popup angezeigt
+- Fotos können dort entfernt oder ergänzt werden
+- Speichern aktualisiert `symptom_images` am bestehenden Eintrag

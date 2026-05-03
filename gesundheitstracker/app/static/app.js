@@ -9,7 +9,8 @@ const state = {
   dayExpanded: false,
   editingExistingEntry: false,
   pendingSymptomImages: [],
-  pendingQuickSymptomImages: []
+  pendingQuickSymptomImages: [],
+  pendingFieldEditSymptomImages: []
 };
 
 const $ = (id) => document.getElementById(id);
@@ -186,6 +187,9 @@ function renderPendingSymptomImages(targetId, images, target = "main") {
       if (target === "quick") {
         state.pendingQuickSymptomImages.splice(idx, 1);
         renderPendingSymptomImages(targetId, state.pendingQuickSymptomImages, "quick");
+      } else if (target === "field") {
+        state.pendingFieldEditSymptomImages.splice(idx, 1);
+        renderPendingSymptomImages(targetId, state.pendingFieldEditSymptomImages, "field");
       } else {
         state.pendingSymptomImages.splice(idx, 1);
         renderPendingSymptomImages(targetId, state.pendingSymptomImages, "main");
@@ -205,10 +209,12 @@ async function handleSymptomImageFiles(files, target = "main") {
   for (const file of list) {
     const uploaded = await apiUploadImage(file);
     if (target === "quick") state.pendingQuickSymptomImages.push(uploaded);
+    else if (target === "field") state.pendingFieldEditSymptomImages.push(uploaded);
     else state.pendingSymptomImages.push(uploaded);
   }
 
   if (target === "quick") renderPendingSymptomImages("quickSymptomImagePreview", state.pendingQuickSymptomImages, "quick");
+  else if (target === "field") renderPendingSymptomImages("fieldEditSymptomImagePreview", state.pendingFieldEditSymptomImages, "field");
   else renderPendingSymptomImages("symptomImagePreview", state.pendingSymptomImages, "main");
   showToast(list.length === 1 ? "Foto hinzugefügt" : "Fotos hinzugefügt");
 }
@@ -2063,7 +2069,19 @@ function openFieldEdit(entryId, field) {
         <span>Weitere Symptome</span>
         <textarea id="fieldEditValue" rows="2" placeholder="Weitere Symptome, durch Komma getrennt">${escapeHtml(entry.custom_symptoms || "")}</textarea>
       </label>
+      <div class="symptom-photo-box visible-symptom-photo-box field-edit-photo-box">
+        <input id="fieldEditSymptomImageInput" type="file" accept="image/*" multiple />
+        <button id="fieldEditSymptomImageButton" type="button" class="symptom-photo-button">📷 Foto hinzufügen</button>
+        <div id="fieldEditSymptomImagePreview" class="symptom-image-preview"></div>
+      </div>
     `;
+    state.pendingFieldEditSymptomImages = normalizeSymptomImages(entry.symptom_images || []);
+    renderPendingSymptomImages("fieldEditSymptomImagePreview", state.pendingFieldEditSymptomImages, "field");
+    $("fieldEditSymptomImageButton").addEventListener("click", () => $("fieldEditSymptomImageInput").click());
+    $("fieldEditSymptomImageInput").addEventListener("change", async event => {
+      await handleSymptomImageFiles(event.target.files, "field");
+      event.target.value = "";
+    });
   } else if (field === "sleep") {
     const range = extractSleepRange(value);
     const cleanSleepText = stripGeneratedSleepDuration(value);
@@ -2136,6 +2154,7 @@ function closeFieldEdit() {
     $("fieldEditContent").innerHTML = "";
     $("fieldEditEntryId").value = "";
     $("fieldEditKey").value = "";
+    state.pendingFieldEditSymptomImages = [];
   });
 }
 
@@ -2171,7 +2190,8 @@ async function saveFieldEdit(event) {
     food: entry.food || "",
     sleep: entry.sleep || "",
     diaper_or_toilet: entry.diaper_or_toilet || "",
-    notes: entry.notes || ""
+    notes: entry.notes || "",
+    symptom_images: normalizeSymptomImages(entry.symptom_images || [])
   };
 
   const rawValue = $("fieldEditValue").value.trim();
@@ -2186,6 +2206,7 @@ async function saveFieldEdit(event) {
     payload.symptoms = selectedSymptoms;
     payload.symptom_intensity = intensity;
     payload.custom_symptoms = rawValue;
+    payload.symptom_images = [...state.pendingFieldEditSymptomImages];
   } else if (field === "fluids_ml") {
     payload[field] = rawValue === "" ? null : Number(rawValue);
   } else if (field === "temperature") {

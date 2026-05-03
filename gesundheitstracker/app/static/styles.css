@@ -11076,3 +11076,13 @@ button.compact-day-tile strong {
     max-width: 46px !important;
   }
 }
+
+
+/* v1.0.63-test: Fotos auch beim nachträglichen Bearbeiten von Symptomen */
+.field-edit-photo-box {
+  margin-top: 8px !important;
+}
+
+.field-edit-photo-box .symptom-image-preview {
+  margin-top: 4px;
+}
