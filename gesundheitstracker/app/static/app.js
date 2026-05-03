@@ -2943,7 +2943,21 @@ async function openIllnessView() {
 
 async function startIllness() {
   const start = $("illnessStartDate")?.value || state.selectedDate || today();
-  const title = $("illnessTitleInput")?.value.trim() || `Infekt ab ${formatDateShortGerman(start)}`;
+  const suggestedTitle = $("illnessTitleInput")?.value.trim() || `Infekt ab ${formatDateShortGerman(start)}`;
+  const enteredTitle = window.prompt("Wie soll der Infekt heißen?", suggestedTitle);
+
+  if (enteredTitle === null) {
+    return;
+  }
+
+  const title = enteredTitle.trim();
+  if (!title) {
+    showToast("Bitte eine Bezeichnung eingeben");
+    return;
+  }
+
+  if ($("illnessTitleInput")) $("illnessTitleInput").value = title;
+
   await saveActiveIllness({
     id: `illness_${Date.now()}`,
     title,
