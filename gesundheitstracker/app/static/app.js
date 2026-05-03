@@ -182,11 +182,74 @@ function bindSymptomImageOpeners(root = document) {
   });
 }
 
+async function shareCurrentImagePreview() {
+  const url = state.imagePreviewItems[state.imagePreviewIndex];
+  if (!url) return;
 
+  try {
+    const absoluteUrl = new URL(url, window.location.href).toString();
+    const response = await fetch(absoluteUrl);
+    const blob = await response.blob();
+    const filename = absoluteUrl.split("/").pop()?.split("?")[0] || "symptom-foto.jpg";
+    const file = new File([blob], filename, { type: blob.type || "image/jpeg" });
 
+    if (navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
+      await navigator.share({
+        files: [file],
+        title: "Symptom-Foto",
+        text: "Symptom-Foto aus dem Gesundheitstracker"
+      });
+      return;
+    }
 
+    if (navigator.share) {
+      await navigator.share({
+        title: "Symptom-Foto",
+        text: "Symptom-Foto aus dem Gesundheitstracker",
+        url: absoluteUrl
+      });
+      return;
+    }
 
+    showToast("Teilen wird hier nicht unterstützt");
+  } catch (err) {
+    showToast("Teilen nicht möglich");
+  }
+}
 
+function renderCompactSymptomImages(images) {
+  const normalized = normalizeSymptomImages(images);
+  if (!normalized.length) return "";
+  const urls = normalized.map(uploadUrlFromImage).filter(Boolean);
+  if (!urls.length) return "";
+  const count = urls.length;
+
+  return `
+    <div class="symptom-image-attachment-row">
+      <button type="button" class="symptom-image-open symptom-image-attachment-chip" data-url="${escapeHtml(urls[0])}" data-images="${escapeHtml(JSON.stringify(urls))}" data-index="0" aria-label="Symptom-Fotos öffnen">
+        <span>📷</span>
+        <strong>${count} Foto${count === 1 ? "" : "s"} ansehen</strong>
+      </button>
+    </div>
+  `;
+}
+
+function renderSymptomImages(images) {
+  const normalized = normalizeSymptomImages(images);
+  if (!normalized.length) return "";
+  const urls = normalized.map(uploadUrlFromImage).filter(Boolean);
+  if (!urls.length) return "";
+
+  return `
+    <div class="symptom-image-strip">
+      ${urls.map((url, index) => `
+        <button type="button" class="symptom-image-open" data-url="${escapeHtml(url)}" data-images="${escapeHtml(JSON.stringify(urls))}" data-index="${index}" aria-label="Symptom-Foto öffnen">
+          <img src="${escapeHtml(url)}" alt="Symptom-Foto" loading="lazy" />
+        </button>
+      `).join("")}
+    </div>
+  `;
+}
 
 function renderPendingSymptomImages(targetId, images, target = "main") {
   const el = $(targetId);

@@ -11259,47 +11259,14 @@ button.compact-day-tile small {
 }
 
 
-/* v1.0.71-test: Teilen-Fallback für HA/iPhone-WebView */
-.image-share-fallback {
-  border-top: 1px solid color-mix(in srgb, var(--kg-border) 52%, transparent);
-  padding: 9px 10px 10px 10px;
-  display: grid;
-  gap: 6px;
-}
-
-.image-share-fallback.hidden {
-  display: none !important;
-}
-
-.image-share-fallback p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.74rem;
-  line-height: 1.35;
-  font-weight: 800;
-}
-
-.image-share-fallback input {
-  width: 100%;
-  min-height: 34px;
-  border-radius: 10px;
-  border: 1px solid color-mix(in srgb, var(--kg-border) 70%, transparent);
-  background: var(--card);
-  color: var(--text);
-  padding: 7px 9px;
-  font-size: 0.76rem;
-  font-weight: 750;
-}
-
-
-/* v1.0.72-test: Teilen entfernt, Kacheln luftiger */
+/* v1.0.73-test: Teilen-Button entfernt, Galerie bleibt stabil */
 #shareImagePreview,
 #openImageExternal,
 .image-share-fallback {
   display: none !important;
 }
 
-/* Mehr Abstand innerhalb der Tageskacheln zwischen Icon, Überschrift und Wert */
+/* Mehr Abstand innerhalb der Tageskacheln zwischen Icon, Überschrift und Hauptwert */
 .compact-day-tile,
 .day-tile,
 button.compact-day-tile,
