@@ -31,6 +31,7 @@
           <button id="moreMenuButton" class="icon-btn" aria-label="Menü öffnen" title="Menü">⋯</button>
           <div id="topMenuDropdown" class="top-menu-dropdown hidden" aria-hidden="true">
             <button id="menuSearchButton" type="button"><span>🔍</span><strong>Auswertung</strong></button>
+            <button id="menuGlobalSearchButton" type="button"><span>🔎</span><strong>Suche</strong></button>
             <button id="menuExportButton" type="button"><span>📤</span><strong>Export</strong></button>
             <button id="menuDarkModeButton" type="button"><span id="menuDarkModeIcon">🌙</span><strong id="menuDarkModeText">Dark Mode</strong></button>
             <button id="menuThemeButton" type="button"><span>🎨</span><strong>Theme</strong></button>
@@ -485,6 +486,24 @@
     </section>
 
 
+
+
+    <section id="globalSearchView" class="modal-view hidden">
+      <div class="view-card global-search-card">
+        <div class="sheet-head">
+          <h2>Suche</h2>
+          <button class="round-btn close-view">×</button>
+        </div>
+
+        <label class="field global-search-field">
+          <span>Alles durchsuchen</span>
+          <input id="globalSearchInput" type="search" placeholder="z. B. Nurofen, Husten, 39,2, Ausschlag..." autocomplete="off" />
+        </label>
+
+        <div id="globalSearchMeta" class="global-search-meta">Suchbegriff eingeben.</div>
+        <div id="globalSearchResults" class="global-search-results"></div>
+      </div>
+    </section>
 
     <section id="illnessView" class="modal-view hidden">
       <div class="view-card illness-view-card">

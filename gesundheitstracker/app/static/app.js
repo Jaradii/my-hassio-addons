@@ -2376,6 +2376,158 @@ function setDate(date) {
   renderDay();
 }
 
+
+function normalizeSearchText(value) {
+  return String(value ?? "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/ß/g, "ss")
+    .replace(/,/g, ".")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function entrySearchText(entry) {
+  const parts = [];
+  parts.push(entry.date || "");
+  parts.push(formatDateShortGerman(entry.date || ""));
+  parts.push(entry.time || "");
+
+  if (entry.temperature !== null && entry.temperature !== undefined && entry.temperature !== "") {
+    const temp = Number(entry.temperature);
+    if (!Number.isNaN(temp)) {
+      parts.push(`${temp.toFixed(1)} ${String(temp.toFixed(1)).replace(".", ",")} fieber temperatur`);
+    }
+  }
+
+  if (entry.fluids_ml) parts.push(`${entry.fluids_ml} ml fluessigkeit trinken getrunken`);
+  if (entry.mood) parts.push(`stimmung ${entry.mood}`);
+  if (entry.medication) parts.push(`medikament medis ${entry.medication}`);
+  if (entry.food) parts.push(`essen mahlzeit ${entry.food}`);
+  if (entry.sleep) parts.push(`schlaf ${entry.sleep}`);
+  if (entry.diaper_or_toilet) parts.push(`windel toilette ${entry.diaper_or_toilet}`);
+  if (entry.notes) parts.push(`notiz notizen ${entry.notes}`);
+
+  const intensityMap = entry.symptom_intensity || {};
+  (entry.symptoms || []).forEach(symptom => {
+    parts.push(`symptom symptome ${symptom} ${intensityMap[symptom] || ""}`);
+  });
+  if (entry.custom_symptoms) parts.push(`symptom symptome ${entry.custom_symptoms}`);
+
+  normalizeSymptomImages(entry.symptom_images || []).forEach(image => {
+    parts.push(`bild foto ${image.filename || ""} ${image.url || ""}`);
+  });
+
+  const illness = findIllnessById(entry.illness_id);
+  if (illness) parts.push(`infekt ${illness.title || ""}`);
+
+  return normalizeSearchText(parts.join(" "));
+}
+
+function entrySearchSummary(entry) {
+  const parts = [];
+  const symptoms = analysisValue(entry, "symptoms");
+  if (symptoms) parts.push(`Symptome: ${symptoms}`);
+  if (entry.temperature !== null && entry.temperature !== undefined && entry.temperature !== "") parts.push(`Temperatur: ${Number(entry.temperature).toFixed(1)} °C`);
+  if (entry.medication) parts.push(`Medis: ${entry.medication}`);
+  if (entry.notes) parts.push(`Notiz: ${entry.notes}`);
+  if (entry.food) parts.push(`Essen: ${entry.food}`);
+  if (entry.sleep) parts.push(`Schlaf: ${entry.sleep}`);
+  if (entry.fluids_ml) parts.push(`Flüssigkeit: ${entry.fluids_ml} ml`);
+  if (entry.diaper_or_toilet) parts.push(`Windel/Toilette: ${entry.diaper_or_toilet}`);
+  if (entry.mood) parts.push(`Stimmung: ${entry.mood}`);
+  const imageCount = normalizeSymptomImages(entry.symptom_images || []).length;
+  if (imageCount) parts.push(`${imageCount} Foto${imageCount === 1 ? "" : "s"}`);
+  return parts.length ? parts.join(" · ") : "Eintrag";
+}
+
+function renderGlobalSearchResults() {
+  const input = $("globalSearchInput");
+  const results = $("globalSearchResults");
+  const meta = $("globalSearchMeta");
+  if (!input || !results || !meta) return;
+
+  const queryRaw = input.value || "";
+  const query = normalizeSearchText(queryRaw);
+  if (!query) {
+    meta.textContent = "Suchbegriff eingeben.";
+    results.innerHTML = "";
+    return;
+  }
+
+  const terms = query.split(" ").filter(Boolean);
+  const matches = (state.data.entries || [])
+    .filter(entry => {
+      const text = entrySearchText(entry);
+      return terms.every(term => text.includes(term));
+    })
+    .sort((a, b) => analysisEntryTimestamp(b).localeCompare(analysisEntryTimestamp(a)));
+
+  meta.textContent = `${matches.length} Treffer für „${queryRaw.trim()}“`;
+
+  if (!matches.length) {
+    results.innerHTML = `<div class="global-search-empty">Keine Treffer gefunden.</div>`;
+    return;
+  }
+
+  const grouped = matches.reduce((acc, entry) => {
+    const date = entry.date || "Ohne Datum";
+    if (!acc[date]) acc[date] = [];
+    acc[date].push(entry);
+    return acc;
+  }, {});
+
+  results.innerHTML = Object.entries(grouped).map(([date, entries]) => `
+    <section class="global-search-day">
+      <h3>${escapeHtml(date === "Ohne Datum" ? date : formatDateShortGerman(date))}</h3>
+      <div class="global-search-list">
+        ${entries.map(entry => `
+          <article class="global-search-result">
+            <button type="button" class="global-search-open" data-date="${escapeHtml(entry.date || "")}" data-id="${escapeHtml(entry.id || "")}">
+              <span>${escapeHtml(entry.time || "--:--")}</span>
+              <strong>${escapeHtml(entrySearchSummary(entry))}</strong>
+            </button>
+            <div class="global-search-actions">
+              <button type="button" class="global-search-history" data-id="${escapeHtml(entry.id || "")}">Historie</button>
+              <button type="button" class="global-search-edit" data-id="${escapeHtml(entry.id || "")}">Bearbeiten</button>
+            </div>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+  `).join("");
+
+  results.querySelectorAll(".global-search-open").forEach(button => {
+    button.addEventListener("click", () => {
+      if (button.dataset.date) setDate(button.dataset.date);
+      closeViews();
+      requestAnimationFrame(() => {
+        const entryId = String(button.dataset.id || "");
+        const el = [...document.querySelectorAll("[data-id]")].find(node => node.dataset.id === entryId);
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+    });
+  });
+
+  results.querySelectorAll(".global-search-history").forEach(button => {
+    button.addEventListener("click", () => openEntryHistoryPopup(button.dataset.id));
+  });
+  results.querySelectorAll(".global-search-edit").forEach(button => {
+    button.addEventListener("click", () => editEntry(button.dataset.id));
+  });
+}
+
+function openGlobalSearchView() {
+  openView("globalSearchView");
+  requestAnimationFrame(() => {
+    if ($("globalSearchInput")) {
+      $("globalSearchInput").focus();
+      renderGlobalSearchResults();
+    }
+  });
+}
+
 function openView(id) {
   document.body.classList.add("modal-open");
   document.querySelectorAll(".modal-view").forEach(v => {
@@ -4405,6 +4557,10 @@ async function init() {
     closeTopMenu();
     openAnalysisView();
   });
+  $("menuGlobalSearchButton").addEventListener("click", () => {
+    closeTopMenu();
+    openGlobalSearchView();
+  });
   $("menuExportButton").addEventListener("click", () => {
     closeTopMenu();
     openExportView();
@@ -4451,6 +4607,7 @@ async function init() {
   $("downloadDoctorReportButton").addEventListener("click", downloadDoctorReport);
   $("saveIllnessEditButton").addEventListener("click", saveIllnessEdit);
   $("reportIllnessEditButton").addEventListener("click", () => openDoctorReportForIllness($("illnessEditId").value));
+  $("globalSearchInput").addEventListener("input", renderGlobalSearchResults);
   $("refreshStorageButton").addEventListener("click", loadStorageView);
   $("storageImageDeleteSelected").addEventListener("click", deleteSelectedStorageImages);
   document.querySelectorAll(".close-view").forEach(btn => btn.addEventListener("click", closeViews));

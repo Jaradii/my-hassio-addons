@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.85
+- Basis ist die funktionierende Version 1.0.86
 
 
 ## Änderungen in 1.0.10
@@ -649,3 +649,12 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Infekt-Liste hat jetzt pro Infekt einen `Löschen`-Button
 - Gelöschte Infekte entfernen nur die Infekt-Zuordnung, die Einträge bleiben erhalten
 - Backend-Endpunkt `DELETE /api/illness/{illness_id}` ergänzt
+
+
+## Änderungen in 1.0.86-test
+
+- Neuer Menüpunkt `Suche`
+- Einfache globale Volltextsuche ohne Datums- oder Kategoriepflicht
+- Durchsucht Symptome, Notizen, Medikamente, Essen, Schlaf, Windel/Toilette, Stimmung, Temperatur, Flüssigkeit, Bilder und Infekt-Namen
+- Treffer werden nach Tagen gruppiert
+- Treffer können geöffnet, bearbeitet oder in der Historie angesehen werden

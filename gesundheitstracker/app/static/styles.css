@@ -12309,3 +12309,122 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
     grid-template-columns: 1fr 1fr 1fr !important;
   }
 }
+
+
+/* v1.0.86-test: globale Volltextsuche */
+.global-search-card {
+  max-width: 880px !important;
+}
+
+.global-search-field {
+  margin-bottom: 8px;
+}
+
+.global-search-meta {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 850;
+  margin-bottom: 10px;
+}
+
+.global-search-results {
+  display: grid;
+  gap: 12px;
+  max-height: min(68vh, 720px);
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.global-search-day {
+  display: grid;
+  gap: 7px;
+}
+
+.global-search-day h3 {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.global-search-list {
+  display: grid;
+  gap: 7px;
+}
+
+.global-search-result {
+  border-radius: 13px;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 62%, transparent);
+  background: color-mix(in srgb, var(--card) 94%, var(--kg-soft) 6%);
+  padding: 8px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.global-search-open {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  text-align: left;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 9px;
+  align-items: baseline;
+  min-width: 0;
+}
+
+.global-search-open span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.global-search-open strong {
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 850;
+  line-height: 1.35;
+}
+
+.global-search-actions {
+  display: inline-flex;
+  gap: 5px;
+}
+
+.global-search-actions button {
+  border: 1px solid color-mix(in srgb, var(--kg-border) 62%, transparent);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--text);
+  min-height: 28px;
+  padding: 4px 8px;
+  font-size: 0.68rem;
+  font-weight: 950;
+}
+
+.global-search-empty {
+  border-radius: 12px;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--kg-soft) 42%, var(--card) 58%);
+  font-size: 0.82rem;
+  font-weight: 850;
+  padding: 12px;
+}
+
+@media (max-width: 560px) {
+  .global-search-result {
+    grid-template-columns: 1fr;
+  }
+
+  .global-search-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}
