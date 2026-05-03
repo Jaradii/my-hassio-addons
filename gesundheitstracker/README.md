@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.77
+- Basis ist die funktionierende Version 1.0.78
 
 
 ## Änderungen in 1.0.10
@@ -577,3 +577,9 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Nach dem Löschen werden App-Daten und Speicheransicht neu geladen
 - Foto-Chip zeigt danach die korrekte Anzahl, z. B. 2 statt 3 Fotos
 - Gelöschte Bilder sollten nicht mehr als kaputte Vorschau/Fragezeichen erscheinen
+
+
+## Änderungen in 1.0.78-test
+
+- Icon des Menüpunktes `Speicher` auf 📊 geändert
+- Sonst keine funktionalen Änderungen
