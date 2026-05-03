@@ -3350,7 +3350,7 @@ async function buildDoctorReportHtml(selectedIllness = null) {
           <article class="report-entry">
             <strong>${escapeHtml(entryTimeLabel(entry))}</strong>
             <span>${parts.length ? parts.join(" · ") : "Eintrag"}</span>
-            ${images.length ? `<div class="report-entry-photos">${images.map(image => `<img src="${escapeHtml(image.embedded_url || image.url)}" alt="Foto zum Eintrag" />`).join("")}</div>` : ""}
+            ${images.length ? `<div class="report-entry-photos">${images.map(image => `<img class="report-thumb-img" src="${escapeHtml(image.embedded_url || image.url)}" alt="Foto zum Eintrag" width="160" height="160" loading="eager" />`).join("")}</div>` : ""}
           </article>
         `;
       }).join("")}
@@ -3363,7 +3363,7 @@ async function buildDoctorReportHtml(selectedIllness = null) {
       <div class="report-photo-grid">
         ${photoEntries.flatMap(entry => (embeddedImagesByEntryId[entry.id || `${entry.date}-${entry.time}`] || []).map((image, index) => `
           <figure>
-            <img src="${escapeHtml(image.embedded_url || image.url)}" alt="Foto ${index + 1}" />
+            <img class="report-large-img" src="${escapeHtml(image.embedded_url || image.url)}" alt="Foto ${index + 1}" width="720" loading="eager" />
             <figcaption>${escapeHtml(formatReportDate(entry.date))} · ${escapeHtml(entryTimeLabel(entry))}</figcaption>
           </figure>
         `)).join("")}
@@ -3471,12 +3471,14 @@ async function buildDoctorReportHtml(selectedIllness = null) {
     object-fit: cover;
     display: block;
   }
+  .report-large-img,
   .report-photo-grid figure img {
     width: 100%;
-    height: 240px;
-    min-height: 180px;
+    height: auto;
+    max-height: none;
     object-fit: contain;
     background: #fff;
+    display: block;
   }
   figcaption {
     padding: 8px 10px;
@@ -3493,60 +3495,88 @@ async function buildDoctorReportHtml(selectedIllness = null) {
   @media print {
     @page {
       size: A4;
-      margin: 14mm;
+      margin: 12mm;
     }
 
-    body {
-      background: #fff;
-      padding: 0;
+    html, body {
+      background: #fff !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
 
     .report {
-      box-shadow: none;
-      border-radius: 0;
-      padding: 0;
-      max-width: none;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      padding: 0 !important;
+      max-width: none !important;
+      width: 100% !important;
+      background: #fff !important;
     }
 
     .report-section,
     .report-day,
     .report-entry,
     .report-entry-photos,
-    .report-photo-grid,
     figure {
       break-inside: avoid;
       page-break-inside: avoid;
     }
 
+    .report-entry-photos {
+      display: block !important;
+    }
+
+    .report-thumb-img,
     .report-entry-photos img {
-      width: 38mm;
-      height: 38mm;
-      object-fit: contain;
-      background: #fff;
+      width: 32mm !important;
+      height: auto !important;
+      max-height: 32mm !important;
+      object-fit: contain !important;
+      background: #fff !important;
+      display: inline-block !important;
+      vertical-align: top !important;
+      margin: 2mm 2mm 0 0 !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
     }
 
     .report-photo-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8mm;
-      align-items: start;
+      display: block !important;
     }
 
     .report-photo-grid figure {
-      break-inside: avoid;
-      page-break-inside: avoid;
-      display: block;
-      margin: 0 0 8mm 0;
+      display: block !important;
+      width: 100% !important;
+      margin: 0 0 10mm 0 !important;
+      padding: 0 !important;
+      border: 1px solid #e1e7ef !important;
+      border-radius: 8px !important;
+      overflow: visible !important;
+      background: #fff !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
     }
 
+    .report-large-img,
     .report-photo-grid figure img {
-      width: 100%;
-      height: 82mm;
-      max-height: 82mm;
-      min-height: 55mm;
-      object-fit: contain;
-      background: #fff;
-      display: block;
+      display: block !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      height: auto !important;
+      max-height: 170mm !important;
+      object-fit: contain !important;
+      background: #fff !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+
+    figcaption {
+      display: block !important;
+      background: #fff !important;
+      color: #667085 !important;
+      padding: 3mm !important;
     }
 
     h2, h3 {
@@ -3596,7 +3626,7 @@ async function buildDoctorReportHtml(selectedIllness = null) {
 
   ${photosHtml}
 
-  <p class="hint">Hinweis: Dieser Bericht ist eine private Dokumentation und ersetzt keine ärztliche Einschätzung.</p>
+  <p class="hint"><strong>Safari-Hinweis:</strong> Für PDF bitte über Teilen → Drucken → Vorschau öffnen → Teilen → In Dateien sichern. Falls Bilder fehlen, die HTML-Datei erneut öffnen und kurz warten, bis alle Fotos sichtbar geladen sind.</p>\n  <p class="hint">Hinweis: Dieser Bericht ist eine private Dokumentation und ersetzt keine ärztliche Einschätzung.</p>
 </main>
 </body>
 </html>`;

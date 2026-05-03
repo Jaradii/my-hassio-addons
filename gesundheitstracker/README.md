@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.1.06
+- Basis ist die funktionierende Version 1.1.07
 
 
 ## Änderungen in 1.0.10
@@ -814,3 +814,12 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Kleine Bilder im Tagesverlauf bleiben klein
 - Fotoübersicht bekommt eigene Bildgrößen für Bildschirm und PDF/Druck
 - Seitenumbruch-Schutz bleibt erhalten, ohne die große Fotoübersicht auszublenden
+
+
+## Änderungen in 1.1.07-test
+
+- PDF-Erzeugung aus dem HTML-Arztbericht für Safari/iOS robuster gemacht
+- Fotoübersicht nutzt im Druckmodus kein CSS-Grid mehr, sondern einfache Bildblöcke
+- Bilder bekommen explizite Klassen und Größenattribute
+- Große Fotos werden für den PDF-Druck als normale Block-Bilder gerendert
+- Hinweis im HTML-Bericht ergänzt, falls Safari Bilder erst verzögert in die Druckvorschau übernimmt
