@@ -617,6 +617,13 @@ function renderDay() {
     btn.addEventListener("click", () => openFieldEdit(btn.dataset.id, "entry_flags"));
   });
 
+  container.querySelectorAll(".followup-yes").forEach(btn => {
+    btn.addEventListener("click", () => confirmSymptomFollowUp(btn.dataset.id));
+  });
+  container.querySelectorAll(".followup-no").forEach(btn => {
+    btn.addEventListener("click", () => declineSymptomFollowUp(btn.dataset.id));
+  });
+
   container.querySelectorAll(".edit-summary-field").forEach(btn => {
     btn.addEventListener("click", () => openFieldEdit(btn.dataset.id, btn.dataset.field));
   });
@@ -766,6 +773,104 @@ function tileTempText(entry) {
   return `${Number(entry.temperature).toFixed(1)} °C`;
 }
 
+
+function followUpDismissKey(entryId, targetDate) {
+  return `gesundheitstracker_followup_${targetDate}_${entryId}`;
+}
+
+function followUpIsDismissed(entryId, targetDate) {
+  try {
+    return localStorage.getItem(followUpDismissKey(entryId, targetDate)) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function dismissFollowUp(entryId, targetDate) {
+  try {
+    localStorage.setItem(followUpDismissKey(entryId, targetDate), "1");
+  } catch {
+    // ignore localStorage failures
+  }
+}
+
+function markedSymptomFollowUpsForDate(date) {
+  const previous = addDays(date, -1);
+  return (state.data.entries || [])
+    .filter(entry => entry.date === previous)
+    .filter(entry => analysisValue(entry, "symptoms"))
+    .filter(entry => normalizeEntryFlags(entry.entry_flags || []).length)
+    .filter(entry => !followUpIsDismissed(entry.id, date))
+    .sort((a, b) => (a.time || "").localeCompare(b.time || ""));
+}
+
+function renderMarkedSymptomFollowUps(date) {
+  const followUps = markedSymptomFollowUpsForDate(date);
+  if (!followUps.length) return "";
+
+  return `
+    <section class="followup-card">
+      <div class="followup-head">
+        <span>↪</span>
+        <div>
+          <strong>Nachkontrolle</strong>
+          <p>Diese markierten Symptome waren gestern dokumentiert. Sind sie heute noch da?</p>
+        </div>
+      </div>
+      <div class="followup-list">
+        ${followUps.map(entry => `
+          <article class="followup-item">
+            <div>
+              <span>${escapeHtml(entry.time || "--:--")} Uhr · ${escapeHtml(entryFlagsText(entry.entry_flags))}</span>
+              <strong>${escapeHtml(analysisValue(entry, "symptoms"))}</strong>
+            </div>
+            <div class="followup-actions">
+              <button type="button" class="followup-yes btn primary" data-id="${escapeHtml(entry.id)}">Ja</button>
+              <button type="button" class="followup-no btn secondary" data-id="${escapeHtml(entry.id)}">Nein</button>
+            </div>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
+async function confirmSymptomFollowUp(entryId) {
+  const source = (state.data.entries || []).find(entry => entry.id === entryId);
+  if (!source) return;
+
+  const payload = {
+    date: state.selectedDate,
+    time: nowTime(),
+    temperature: null,
+    mood: "",
+    symptoms: [...(source.symptoms || [])],
+    symptom_intensity: { ...(source.symptom_intensity || {}) },
+    custom_symptoms: source.custom_symptoms || "",
+    medication: "",
+    fluids_ml: null,
+    fluid_level: "",
+    food: "",
+    sleep: "",
+    diaper_or_toilet: "",
+    notes: "Nachkontrolle: Symptome weiterhin vorhanden",
+    symptom_images: [],
+    illness_id: currentActiveIllnessIdForDate(state.selectedDate),
+    entry_flags: normalizeEntryFlags(source.entry_flags || [])
+  };
+
+  await api("./api/entries", { method: "POST", body: JSON.stringify(payload) });
+  dismissFollowUp(entryId, state.selectedDate);
+  await loadState();
+  showToast("Nachkontrolle eingetragen");
+}
+
+async function declineSymptomFollowUp(entryId) {
+  dismissFollowUp(entryId, state.selectedDate);
+  renderDay();
+  showToast("Nachfrage ausgeblendet");
+}
+
 function renderDaySummaryCard(entries) {
   const summary = buildDaySummary(entries);
   const latestTempText = summary.latestTempEntry
@@ -795,6 +900,8 @@ function renderDaySummaryCard(entries) {
         </div>
         ${""}
       </div>
+
+      ${renderMarkedSymptomFollowUps(state.selectedDate)}
 
       <div class="day-tile-grid compact-day-tile-grid">
         <button type="button" class="day-tile quick-tile compact-day-tile" data-quick="fluids" aria-label="Flüssigkeit eintragen">

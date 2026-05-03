@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.1.21
+- Basis ist die funktionierende Version 1.1.22
 
 
 ## Änderungen in 1.0.10
@@ -934,3 +934,12 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Auswertung zeigt bei `Symptome` jetzt nur noch eine einfache Treffer-Zusammenfassung
 - Konkrete Symptom-Einträge bleiben darunter weiterhin nach Datum gruppiert sichtbar
 - Infekt-Verläufe sollen künftig über Infekt-Funktion und Arztbericht bewertet werden
+
+
+## Änderungen in 1.1.22-test
+
+- Nachkontrolle für markierte Symptome ergänzt
+- Wenn ein Symptom-Eintrag mit `Wichtig`, `Arzt-relevant` oder `Kontrollieren` markiert ist, erscheint am nächsten Tag eine Nachfrage-Karte
+- `Ja` erstellt einen neuen Eintrag für heute mit denselben Symptomen und Markierungen
+- `Nein` blendet die Nachfrage für diesen Eintrag aus
+- Die Nachfrage ist eine In-App-Erinnerung beim Öffnen/Ansehen des Tages, keine Push-Benachrichtigung

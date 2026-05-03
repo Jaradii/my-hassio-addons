@@ -12912,3 +12912,102 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
   z-index: 0 !important;
   white-space: nowrap !important;
 }
+
+
+/* v1.1.22-test: Nachkontrolle markierter Symptome */
+.followup-card {
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--primary) 26%, var(--kg-border) 74%);
+  background: color-mix(in srgb, var(--primary) 8%, var(--card) 92%);
+  padding: 12px;
+  margin: 10px 0 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.followup-head {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 9px;
+  align-items: start;
+}
+
+.followup-head > span {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--kg-soft) 68%, var(--card) 32%);
+  font-weight: 1000;
+}
+
+.followup-head strong {
+  display: block;
+  color: var(--text);
+  font-size: 0.92rem;
+  font-weight: 1000;
+}
+
+.followup-head p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 850;
+  line-height: 1.35;
+}
+
+.followup-list {
+  display: grid;
+  gap: 7px;
+}
+
+.followup-item {
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--kg-border) 56%, transparent);
+  background: var(--card);
+  padding: 9px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.followup-item span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 900;
+  margin-bottom: 3px;
+}
+
+.followup-item strong {
+  display: block;
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 950;
+  line-height: 1.35;
+}
+
+.followup-actions {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.followup-actions .btn {
+  min-height: 30px;
+  padding: 4px 10px;
+  border-radius: 10px;
+  font-size: 0.72rem;
+}
+
+@media (max-width: 560px) {
+  .followup-item {
+    grid-template-columns: 1fr;
+  }
+
+  .followup-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}
