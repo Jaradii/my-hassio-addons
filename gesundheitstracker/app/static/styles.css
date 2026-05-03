@@ -12529,3 +12529,15 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
   font-size: 0.8rem !important;
   tab-size: 2;
 }
+
+
+/* v1.1.03-test: Arztbericht HTML mit Bildern */
+.doctor-report-actions {
+  grid-template-columns: 1fr 1fr 1fr !important;
+}
+
+@media (max-width: 560px) {
+  .doctor-report-actions {
+    grid-template-columns: 1fr !important;
+  }
+}

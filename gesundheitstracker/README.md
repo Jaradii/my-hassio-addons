@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.1.02
+- Basis ist die funktionierende Version 1.1.03
 
 
 ## Änderungen in 1.0.10
@@ -781,3 +781,12 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - TXT-Arztbericht repariert
 - Bericht nutzt jetzt echte Zeilenumbrüche statt literalem `\\n`
 - Abschnitte, Leerzeilen und Überschriften erscheinen in der TXT-Datei wieder strukturiert
+
+
+## Änderungen in 1.1.03-test
+
+- Neuer Button `HTML mit Bildern` im Infekt-Arztbericht
+- HTML-Bericht enthält hochgeladene Fotos als echte Bilder
+- Fotos erscheinen direkt bei den passenden Tagesverlauf-Einträgen und zusätzlich in einer Fotoübersicht
+- HTML-Datei kann in Safari geöffnet und dort als PDF gesichert/gedruckt werden
+- TXT-Bericht bleibt unverändert ohne Bilder

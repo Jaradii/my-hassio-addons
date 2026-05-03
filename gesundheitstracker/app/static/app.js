@@ -3261,6 +3261,264 @@ function buildDoctorReportText(selectedIllness = null) {
 
   return lines.join("\n");
 }
+function reportImageRefsForEntry(entry) {
+  return normalizeSymptomImages(entry.symptom_images || []).filter(image => image && image.url);
+}
+
+function buildDoctorReportHtml(selectedIllness = null) {
+  const range = selectedIllness
+    ? { start: selectedIllness.start || state.selectedDate || today(), end: selectedIllness.end || today() }
+    : illnessDateRange();
+
+  const stats = buildIllnessStats(range.start, range.end);
+  const entries = stats.entries || [];
+  const title = selectedIllness?.title || $("illnessTitleInput")?.value.trim() || state.activeIllness?.title || "Infekt";
+  const childName = state.data?.profile?.child_name || state.config?.child_name || "Kind";
+  const startLabel = formatReportDate(range.start);
+  const endLabel = formatReportDate(range.end);
+  const temperatures = entries
+    .filter(entry => entry.temperature !== null && entry.temperature !== undefined && entry.temperature !== "")
+    .map(entry => ({ ...entry, temp: Number(entry.temperature) }))
+    .filter(entry => !Number.isNaN(entry.temp));
+  const maxTempEntry = temperatures.length
+    ? [...temperatures].sort((a, b) => b.temp - a.temp || analysisEntryTimestamp(b).localeCompare(analysisEntryTimestamp(a)))[0]
+    : null;
+  const medicationEntries = entries.filter(entry => String(entry.medication || "").trim());
+  const fluidEntries = entries.filter(entry => entry.fluids_ml || entry.fluid_level);
+  const photoEntries = entries.filter(entry => reportImageRefsForEntry(entry).length);
+  const imageCount = photoEntries.reduce((sum, entry) => sum + reportImageRefsForEntry(entry).length, 0);
+
+  const groupedByDay = entries.reduce((acc, entry) => {
+    const date = entry.date || "Ohne Datum";
+    if (!acc[date]) acc[date] = [];
+    acc[date].push(entry);
+    return acc;
+  }, {});
+
+  const dayHtml = Object.entries(groupedByDay).map(([date, dayEntries]) => `
+    <section class="report-day">
+      <h3>${escapeHtml(formatReportDate(date))}</h3>
+      ${dayEntries.sort((a, b) => (a.time || "").localeCompare(b.time || "")).map(entry => {
+        const parts = [];
+        const symptoms = symptomNames(entry);
+        if (entry.temperature !== null && entry.temperature !== undefined && entry.temperature !== "") parts.push(`${Number(entry.temperature).toFixed(1)} °C`);
+        if (symptoms.length) parts.push(`Symptome: ${escapeHtml(symptoms.join(", "))}`);
+        if (entry.medication) parts.push(`Medikament: ${escapeHtml(entry.medication)}`);
+        if (entry.fluids_ml) parts.push(`Flüssigkeit: ${entry.fluids_ml} ml`);
+        if (entry.fluid_level) parts.push(`Trinkmenge: ${escapeHtml(fluidLevelLabel(entry.fluid_level))}`);
+        if (entry.mood) parts.push(`Stimmung: ${escapeHtml(entry.mood)}`);
+        if (entry.food) parts.push(`Essen: ${escapeHtml(entry.food)}`);
+        if (entry.sleep) parts.push(`Schlaf: ${escapeHtml(entry.sleep)}`);
+        if (entry.diaper_or_toilet) parts.push(`Windel/Toilette: ${escapeHtml(entry.diaper_or_toilet)}`);
+        if (entry.notes) parts.push(`Notiz: ${escapeHtml(entry.notes)}`);
+        const images = reportImageRefsForEntry(entry);
+        return `
+          <article class="report-entry">
+            <strong>${escapeHtml(entryTimeLabel(entry))}</strong>
+            <span>${parts.length ? parts.join(" · ") : "Eintrag"}</span>
+            ${images.length ? `<div class="report-entry-photos">${images.map(image => `<img src="${escapeHtml(image.url)}" alt="Foto zum Eintrag" />`).join("")}</div>` : ""}
+          </article>
+        `;
+      }).join("")}
+    </section>
+  `).join("");
+
+  const photosHtml = photoEntries.length ? `
+    <section class="report-section">
+      <h2>Fotos</h2>
+      <div class="report-photo-grid">
+        ${photoEntries.flatMap(entry => reportImageRefsForEntry(entry).map((image, index) => `
+          <figure>
+            <img src="${escapeHtml(image.url)}" alt="Foto ${index + 1}" />
+            <figcaption>${escapeHtml(formatReportDate(entry.date))} · ${escapeHtml(entryTimeLabel(entry))}</figcaption>
+          </figure>
+        `)).join("")}
+      </div>
+    </section>
+  ` : "";
+
+  const html = `<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arztbericht ${escapeHtml(title)}</title>
+<style>
+  :root { color-scheme: light; }
+  body {
+    margin: 0;
+    padding: 24px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f4f6f8;
+    color: #17202a;
+  }
+  .report {
+    max-width: 920px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 18px;
+    padding: 26px;
+    box-shadow: 0 10px 32px rgba(0,0,0,.08);
+  }
+  h1 { margin: 0 0 4px; font-size: 28px; }
+  .subtitle { margin: 0 0 22px; color: #637083; }
+  .meta, .stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin: 18px 0;
+  }
+  .box {
+    border: 1px solid #e1e7ef;
+    background: #f8fafc;
+    border-radius: 14px;
+    padding: 12px;
+  }
+  .box span { display: block; font-size: 12px; color: #667085; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
+  .box strong { display: block; margin-top: 4px; font-size: 16px; }
+  .report-section {
+    margin-top: 24px;
+    border-top: 2px solid #eef2f6;
+    padding-top: 18px;
+  }
+  h2 { margin: 0 0 12px; font-size: 20px; }
+  h3 {
+    margin: 18px 0 8px;
+    padding: 9px 12px;
+    border-radius: 12px;
+    background: #edf2f7;
+    font-size: 15px;
+  }
+  .summary {
+    line-height: 1.55;
+    background: #f8fafc;
+    border: 1px solid #e1e7ef;
+    border-radius: 14px;
+    padding: 14px;
+  }
+  .report-entry {
+    display: grid;
+    grid-template-columns: 76px minmax(0, 1fr);
+    gap: 10px;
+    border-bottom: 1px solid #edf2f7;
+    padding: 9px 0;
+  }
+  .report-entry strong { font-size: 13px; color: #475467; }
+  .report-entry span { line-height: 1.45; }
+  .report-entry-photos {
+    grid-column: 2;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .report-entry-photos img {
+    width: 92px;
+    height: 92px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid #d8dee8;
+  }
+  .report-photo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 14px;
+  }
+  figure {
+    margin: 0;
+    border: 1px solid #e1e7ef;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #f8fafc;
+  }
+  figure img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    display: block;
+  }
+  figcaption {
+    padding: 8px 10px;
+    font-size: 12px;
+    color: #667085;
+    font-weight: 700;
+  }
+  .hint {
+    margin-top: 24px;
+    color: #667085;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+  @media print {
+    body { background: #fff; padding: 0; }
+    .report { box-shadow: none; border-radius: 0; }
+    figure, .report-entry { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<main class="report">
+  <h1>Arztbericht</h1>
+  <p class="subtitle">Gesundheitstracker · ${escapeHtml(new Date().toLocaleString("de-DE"))}</p>
+
+  <section class="meta">
+    <div class="box"><span>Name</span><strong>${escapeHtml(childName)}</strong></div>
+    <div class="box"><span>Infekt</span><strong>${escapeHtml(title)}</strong></div>
+    <div class="box"><span>Zeitraum</span><strong>${escapeHtml(startLabel)} bis ${escapeHtml(endLabel)}</strong></div>
+    <div class="box"><span>Fotos</span><strong>${imageCount}</strong></div>
+  </section>
+
+  <section class="report-section">
+    <h2>Kurzzusammenfassung</h2>
+    <div class="summary">
+      ${entries.length ? `
+        ${entries.length} dokumentierte Einträge.
+        ${stats.symptoms.length ? `Dokumentierte Symptome: ${escapeHtml(stats.symptoms.join(", "))}.` : ""}
+        ${maxTempEntry ? `Höchste Temperatur: ${maxTempEntry.temp.toFixed(1)} °C am ${escapeHtml(formatReportDate(maxTempEntry.date))} um ${escapeHtml(entryTimeLabel(maxTempEntry))}.` : ""}
+        ${medicationEntries.length ? `${medicationEntries.length} Medikamenten-Eintrag${medicationEntries.length === 1 ? "" : "e"}.` : ""}
+        ${fluidEntries.length ? `${fluidEntries.length} Flüssigkeits-/Trinkmengen-Eintrag${fluidEntries.length === 1 ? "" : "e"}.` : ""}
+        ${imageCount ? `${imageCount} Foto${imageCount === 1 ? "" : "s"} dokumentiert.` : ""}
+      ` : "Im gewählten Zeitraum sind keine Einträge dokumentiert."}
+    </div>
+  </section>
+
+  <section class="stats">
+    <div class="box"><span>Einträge</span><strong>${entries.length}</strong></div>
+    <div class="box"><span>Höchste Temperatur</span><strong>${maxTempEntry ? `${maxTempEntry.temp.toFixed(1)} °C` : "Keine Messung"}</strong></div>
+    <div class="box"><span>Medikamente</span><strong>${medicationEntries.length}</strong></div>
+    <div class="box"><span>Flüssigkeit gesamt</span><strong>${stats.fluids ? `${stats.fluids} ml` : "nicht dokumentiert"}</strong></div>
+  </section>
+
+  <section class="report-section">
+    <h2>Tagesverlauf</h2>
+    ${dayHtml || "<p>Keine Einträge vorhanden.</p>"}
+  </section>
+
+  ${photosHtml}
+
+  <p class="hint">Hinweis: Dieser Bericht ist eine private Dokumentation und ersetzt keine ärztliche Einschätzung.</p>
+</main>
+</body>
+</html>`;
+
+  return html;
+}
+
+function downloadDoctorReportHtml() {
+  const illness = state.selectedIllnessForReport || null;
+  const html = buildDoctorReportHtml(illness);
+  const range = illness ? { start: illness.start || state.selectedDate || today(), end: illness.end || today() } : illnessDateRange();
+  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `arztbericht-${range.start}-bis-${range.end}-mit-bildern.html`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 
 function openDoctorReport() {
   const text = buildDoctorReportText();
@@ -4778,6 +5036,7 @@ async function init() {
   $("illnessDoctorReportButton").addEventListener("click", openDoctorReport);
   $("copyDoctorReportButton").addEventListener("click", selectDoctorReportText);
   $("downloadDoctorReportButton").addEventListener("click", downloadDoctorReport);
+  $("downloadDoctorReportHtmlButton").addEventListener("click", downloadDoctorReportHtml);
   $("saveIllnessEditButton").addEventListener("click", saveIllnessEdit);
   $("reportIllnessEditButton").addEventListener("click", () => openDoctorReportForIllness($("illnessEditId").value));
   $("globalSearchInput").addEventListener("input", renderGlobalSearchResults);
