@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.86
+- Basis ist die funktionierende Version 1.0.87
 
 
 ## Änderungen in 1.0.10
@@ -658,3 +658,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Durchsucht Symptome, Notizen, Medikamente, Essen, Schlaf, Windel/Toilette, Stimmung, Temperatur, Flüssigkeit, Bilder und Infekt-Namen
 - Treffer werden nach Tagen gruppiert
 - Treffer können geöffnet, bearbeitet oder in der Historie angesehen werden
+
+
+## Änderungen in 1.0.87-test
+
+- Suche aus dem Drei-Punkt-Menü entfernt
+- Suche als eigener Button `🔎` oben in der Kopfzeile ergänzt
+- Auswertung bleibt im Drei-Punkt-Menü, bekommt aber das Statistik-Icon `📈`
+- Volltextsuche selbst bleibt unverändert

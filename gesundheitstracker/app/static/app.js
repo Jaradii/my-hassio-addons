@@ -4557,10 +4557,6 @@ async function init() {
     closeTopMenu();
     openAnalysisView();
   });
-  $("menuGlobalSearchButton").addEventListener("click", () => {
-    closeTopMenu();
-    openGlobalSearchView();
-  });
   $("menuExportButton").addEventListener("click", () => {
     closeTopMenu();
     openExportView();
@@ -4580,6 +4576,7 @@ async function init() {
     showToast("Theme geändert");
   });
 
+  $("quickSearchButton").addEventListener("click", openGlobalSearchView);
   $("quickIllnessButton").addEventListener("click", openIllnessView);
   $("menuIllnessButton").addEventListener("click", () => {
     closeTopMenu();

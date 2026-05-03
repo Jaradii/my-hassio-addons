@@ -12428,3 +12428,9 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+
+/* v1.0.87-test: Suche als direkter Kopfzeilen-Button */
+.search-quick-btn {
+  position: relative;
+}
