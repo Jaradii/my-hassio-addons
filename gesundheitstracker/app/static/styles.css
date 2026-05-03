@@ -10976,3 +10976,73 @@ button.compact-day-tile strong {
     font-size: 0.68rem !important;
   }
 }
+
+
+/* v1.0.61-test: Foto-Chip einzeilig, kein Umbruch bei „1 Foto ansehen“ */
+.category-compact-item:has(.symptom-image-attachment-row) {
+  grid-template-columns: 42px minmax(0, 1fr) max-content !important;
+  column-gap: 6px !important;
+}
+
+.symptom-image-attachment-row {
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+}
+
+.symptom-image-attachment-chip {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  width: auto !important;
+  min-width: max-content !important;
+  max-width: 100% !important;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  overflow-wrap: normal !important;
+  gap: 5px !important;
+  padding: 5px 8px !important;
+}
+
+.symptom-image-attachment-chip span,
+.symptom-image-attachment-chip strong {
+  display: inline-block !important;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  overflow-wrap: normal !important;
+  flex: 0 0 auto !important;
+}
+
+.category-compact-item:has(.symptom-image-attachment-row) > p {
+  min-width: 0 !important;
+  overflow: visible !important;
+}
+
+.category-compact-item:has(.symptom-image-attachment-row) > .summary-row-actions {
+  min-width: max-content !important;
+}
+
+@media (max-width: 430px) {
+  .category-compact-item:has(.symptom-image-attachment-row) {
+    grid-template-columns: 40px minmax(0, 1fr) max-content !important;
+    column-gap: 5px !important;
+  }
+
+  .symptom-image-attachment-chip {
+    min-height: 26px !important;
+    padding: 4px 7px !important;
+    gap: 4px !important;
+  }
+
+  .symptom-image-attachment-chip span {
+    font-size: 0.76rem !important;
+  }
+
+  .symptom-image-attachment-chip strong {
+    font-size: 0.66rem !important;
+  }
+}
