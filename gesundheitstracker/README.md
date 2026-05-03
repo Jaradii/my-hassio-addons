@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.73
+- Basis ist die funktionierende Version 1.0.74
 
 
 ## Änderungen in 1.0.10
@@ -541,3 +541,12 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Galerie bleibt erhalten: Vor/Zurück, Miniaturleiste und Zähler
 - `renderCompactSymptomImages` bleibt korrekt definiert
 - Mehr Abstand innerhalb der Tageskacheln zwischen Icon, Überschrift und Hauptwert
+
+
+## Änderungen in 1.0.74-test
+
+- Neuer Menüpunkt `Speicherbelegung`
+- Backend-Endpunkt `/api/storage` ergänzt
+- Anzeige von Gesamtgröße, Datenbankgröße, Bildergröße und sonstigen Dateien
+- Anzeige von Anzahl Einträge, Bild-Verweisen und Upload-Dateien
+- Button zum Aktualisieren und Backup erstellen ergänzt

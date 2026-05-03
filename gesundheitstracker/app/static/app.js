@@ -2802,6 +2802,80 @@ function buildSymptomExportText() {
   return lines.join("\n");
 }
 
+
+function formatBytes(bytes) {
+  const value = Number(bytes) || 0;
+  if (value < 1024) return `${value} B`;
+  if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`;
+  if (value < 1024 * 1024 * 1024) return `${(value / 1024 / 1024).toFixed(1)} MB`;
+  return `${(value / 1024 / 1024 / 1024).toFixed(2)} GB`;
+}
+
+function storagePercent(part, total) {
+  const p = Number(part) || 0;
+  const t = Number(total) || 0;
+  if (!t) return 0;
+  return Math.max(0, Math.min(100, Math.round((p / t) * 100)));
+}
+
+async function loadStorageView() {
+  const container = $("storageContent");
+  if (!container) return;
+  container.innerHTML = `<p class="storage-loading">Speicher wird geladen...</p>`;
+
+  try {
+    const data = await api("./api/storage");
+    const total = Number(data.total_bytes) || 0;
+    const diary = Number(data.diary_bytes) || 0;
+    const uploads = Number(data.uploads_bytes) || 0;
+    const other = Math.max(0, total - diary - uploads);
+
+    const rows = [
+      ["Datenbank", diary, "diary.json", "Einträge, Profil, Historie und Bild-Verweise"],
+      ["Bilder", uploads, `${data.uploads_count || 0} Datei${Number(data.uploads_count) === 1 ? "" : "en"}`, "Hochgeladene Symptom-Fotos"],
+      ["Sonstiges", other, "Add-on-Datenordner", "Sonstige Dateien im Datenordner"]
+    ];
+
+    container.innerHTML = `
+      <div class="storage-total-card">
+        <span>Gesamt</span>
+        <strong>${formatBytes(total)}</strong>
+        <small>${data.entries_count || 0} Einträge · ${data.image_refs_count || 0} Bild-Verweise</small>
+      </div>
+
+      <div class="storage-bars">
+        ${rows.map(([label, value, meta, desc]) => `
+          <div class="storage-row">
+            <div class="storage-row-head">
+              <strong>${escapeHtml(label)}</strong>
+              <span>${formatBytes(value)}</span>
+            </div>
+            <div class="storage-bar"><i style="width:${storagePercent(value, total)}%"></i></div>
+            <div class="storage-row-foot">
+              <span>${escapeHtml(meta)}</span>
+              <small>${escapeHtml(desc)}</small>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+
+      <div class="storage-paths">
+        <div><strong>Datenbank</strong><span>${escapeHtml(data.data_path || "/data/diary.json")}</span></div>
+        <div><strong>Bilder</strong><span>${escapeHtml(data.uploads_path || "/data/uploads")}</span></div>
+      </div>
+
+      <p class="storage-hint">Hinweis: Am meisten Speicher belegen normalerweise die hochgeladenen Bilder. Ein ZIP-Backup enthält sowohl die Datenbank als auch den Bilderordner.</p>
+    `;
+  } catch (err) {
+    container.innerHTML = `<p class="storage-error">${escapeHtml(err.message || "Speicher konnte nicht geladen werden.")}</p>`;
+  }
+}
+
+function openStorageView() {
+  openView("storageView");
+  loadStorageView();
+}
+
 function downloadTextFile(filename, text) {
   const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
   const url = URL.createObjectURL(blob);
@@ -3651,6 +3725,10 @@ async function init() {
     showToast("Theme geändert");
   });
 
+  $("menuStorageButton").addEventListener("click", () => {
+    closeTopMenu();
+    openStorageView();
+  });
   $("menuBackupButton").addEventListener("click", () => {
     closeTopMenu();
     openView("backupView");
@@ -3663,6 +3741,10 @@ async function init() {
 
 
 
+  $("refreshStorageButton").addEventListener("click", loadStorageView);
+  $("storageBackupButton").addEventListener("click", () => {
+    window.location.href = "./api/backup";
+  });
   document.querySelectorAll(".close-view").forEach(btn => btn.addEventListener("click", closeViews));
 
   try {

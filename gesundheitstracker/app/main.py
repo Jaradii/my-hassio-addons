@@ -427,6 +427,64 @@ def api_export(request: Request):
     )
 
 
+def folder_size_bytes(path: Path) -> int:
+    if not path.exists():
+        return 0
+    total = 0
+    for item in path.rglob("*"):
+        try:
+            if item.is_file():
+                total += item.stat().st_size
+        except Exception:
+            pass
+    return total
+
+
+def folder_file_count(path: Path) -> int:
+    if not path.exists():
+        return 0
+    count = 0
+    for item in path.rglob("*"):
+        try:
+            if item.is_file():
+                count += 1
+        except Exception:
+            pass
+    return count
+
+
+@app.get("/api/storage")
+def api_storage(request: Request):
+    check_pin(request)
+
+    diary_size = DATA_PATH.stat().st_size if DATA_PATH.exists() else 0
+    uploads_size = folder_size_bytes(UPLOAD_DIR)
+    uploads_count = folder_file_count(UPLOAD_DIR)
+    data_dir_size = folder_size_bytes(DATA_PATH.parent)
+
+    store = read_store()
+    entries = store.get("entries", [])
+    deleted_entries = store.get("deleted_entries", [])
+
+    image_refs = 0
+    if isinstance(entries, list):
+        for entry in entries:
+            if isinstance(entry, dict) and isinstance(entry.get("symptom_images"), list):
+                image_refs += len(entry.get("symptom_images") or [])
+
+    return {
+        "total_bytes": data_dir_size,
+        "diary_bytes": diary_size,
+        "uploads_bytes": uploads_size,
+        "uploads_count": uploads_count,
+        "entries_count": len(entries) if isinstance(entries, list) else 0,
+        "deleted_entries_count": len(deleted_entries) if isinstance(deleted_entries, list) else 0,
+        "image_refs_count": image_refs,
+        "data_path": str(DATA_PATH),
+        "uploads_path": str(UPLOAD_DIR),
+    }
+
+
 @app.get("/api/backup")
 def api_backup(request: Request):
     check_pin(request)

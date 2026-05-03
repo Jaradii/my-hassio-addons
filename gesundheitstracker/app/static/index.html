@@ -33,6 +33,7 @@
             <button id="menuExportButton" type="button"><span>📤</span><strong>Export</strong></button>
             <button id="menuDarkModeButton" type="button"><span id="menuDarkModeIcon">🌙</span><strong id="menuDarkModeText">Dark Mode</strong></button>
             <button id="menuThemeButton" type="button"><span>🎨</span><strong>Theme</strong></button>
+            <button id="menuStorageButton" type="button"><span>💽</span><strong>Speicherbelegung</strong></button>
             <button id="menuBackupButton" type="button"><span>💾</span><strong>Backup</strong></button>
           </div>
         </div>
@@ -476,6 +477,23 @@
               
           </select>
         </label>
+      </div>
+    </section>
+
+
+    <section id="storageView" class="modal-view hidden">
+      <div class="view-card storage-view-card">
+        <div class="sheet-head">
+          <h2>Speicherbelegung</h2>
+          <button class="round-btn close-view">×</button>
+        </div>
+        <div id="storageContent" class="storage-content">
+          <p class="storage-loading">Speicher wird geladen...</p>
+        </div>
+        <div class="storage-actions">
+          <button id="refreshStorageButton" type="button" class="btn secondary">Aktualisieren</button>
+          <button id="storageBackupButton" type="button" class="btn primary">Backup erstellen</button>
+        </div>
       </div>
     </section>
 
