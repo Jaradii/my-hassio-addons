@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.1.03
+- Basis ist die funktionierende Version 1.1.04
 
 
 ## Änderungen in 1.0.10
@@ -790,3 +790,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Fotos erscheinen direkt bei den passenden Tagesverlauf-Einträgen und zusätzlich in einer Fotoübersicht
 - HTML-Datei kann in Safari geöffnet und dort als PDF gesichert/gedruckt werden
 - TXT-Bericht bleibt unverändert ohne Bilder
+
+
+## Änderungen in 1.1.04-test
+
+- HTML-Arztbericht mit Bildern repariert
+- Bilder werden jetzt vor dem Speichern als Base64 direkt in die HTML-Datei eingebettet
+- Dadurch sollten die Bilder auch beim lokalen Öffnen in Safari sichtbar sein
+- Falls ein Bild nicht gelesen werden kann, bleibt der ursprüngliche Link als Fallback erhalten

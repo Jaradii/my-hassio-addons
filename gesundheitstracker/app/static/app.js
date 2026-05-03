@@ -3265,13 +3265,47 @@ function reportImageRefsForEntry(entry) {
   return normalizeSymptomImages(entry.symptom_images || []).filter(image => image && image.url);
 }
 
-function buildDoctorReportHtml(selectedIllness = null) {
+
+async function imageUrlToDataUrl(url) {
+  if (!url) return "";
+  try {
+    const response = await fetch(url, { cache: "no-store" });
+    if (!response.ok) return url;
+    const blob = await response.blob();
+    return await new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result || ""));
+      reader.onerror = () => resolve(url);
+      reader.readAsDataURL(blob);
+    });
+  } catch {
+    return url;
+  }
+}
+
+async function embeddedReportImageRefsForEntry(entry) {
+  const refs = reportImageRefsForEntry(entry);
+  const converted = [];
+  for (const image of refs) {
+    converted.push({
+      ...image,
+      embedded_url: await imageUrlToDataUrl(image.url)
+    });
+  }
+  return converted;
+}
+
+async function buildDoctorReportHtml(selectedIllness = null) {
   const range = selectedIllness
     ? { start: selectedIllness.start || state.selectedDate || today(), end: selectedIllness.end || today() }
     : illnessDateRange();
 
   const stats = buildIllnessStats(range.start, range.end);
   const entries = stats.entries || [];
+  const embeddedImagesByEntryId = {};
+  for (const entry of entries) {
+    embeddedImagesByEntryId[entry.id || `${entry.date}-${entry.time}`] = await embeddedReportImageRefsForEntry(entry);
+  }
   const title = selectedIllness?.title || $("illnessTitleInput")?.value.trim() || state.activeIllness?.title || "Infekt";
   const childName = state.data?.profile?.child_name || state.config?.child_name || "Kind";
   const startLabel = formatReportDate(range.start);
@@ -3311,12 +3345,12 @@ function buildDoctorReportHtml(selectedIllness = null) {
         if (entry.sleep) parts.push(`Schlaf: ${escapeHtml(entry.sleep)}`);
         if (entry.diaper_or_toilet) parts.push(`Windel/Toilette: ${escapeHtml(entry.diaper_or_toilet)}`);
         if (entry.notes) parts.push(`Notiz: ${escapeHtml(entry.notes)}`);
-        const images = reportImageRefsForEntry(entry);
+        const images = embeddedImagesByEntryId[entry.id || `${entry.date}-${entry.time}`] || [];
         return `
           <article class="report-entry">
             <strong>${escapeHtml(entryTimeLabel(entry))}</strong>
             <span>${parts.length ? parts.join(" · ") : "Eintrag"}</span>
-            ${images.length ? `<div class="report-entry-photos">${images.map(image => `<img src="${escapeHtml(image.url)}" alt="Foto zum Eintrag" />`).join("")}</div>` : ""}
+            ${images.length ? `<div class="report-entry-photos">${images.map(image => `<img src="${escapeHtml(image.embedded_url || image.url)}" alt="Foto zum Eintrag" />`).join("")}</div>` : ""}
           </article>
         `;
       }).join("")}
@@ -3327,9 +3361,9 @@ function buildDoctorReportHtml(selectedIllness = null) {
     <section class="report-section">
       <h2>Fotos</h2>
       <div class="report-photo-grid">
-        ${photoEntries.flatMap(entry => reportImageRefsForEntry(entry).map((image, index) => `
+        ${photoEntries.flatMap(entry => (embeddedImagesByEntryId[entry.id || `${entry.date}-${entry.time}`] || []).map((image, index) => `
           <figure>
-            <img src="${escapeHtml(image.url)}" alt="Foto ${index + 1}" />
+            <img src="${escapeHtml(image.embedded_url || image.url)}" alt="Foto ${index + 1}" />
             <figcaption>${escapeHtml(formatReportDate(entry.date))} · ${escapeHtml(entryTimeLabel(entry))}</figcaption>
           </figure>
         `)).join("")}
@@ -3504,9 +3538,10 @@ function buildDoctorReportHtml(selectedIllness = null) {
   return html;
 }
 
-function downloadDoctorReportHtml() {
+async function downloadDoctorReportHtml() {
   const illness = state.selectedIllnessForReport || null;
-  const html = buildDoctorReportHtml(illness);
+  showToast("HTML-Bericht wird vorbereitet...");
+  const html = await buildDoctorReportHtml(illness);
   const range = illness ? { start: illness.start || state.selectedDate || today(), end: illness.end || today() } : illnessDateRange();
   const blob = new Blob([html], { type: "text/html;charset=utf-8" });
   const url = URL.createObjectURL(blob);
@@ -5036,7 +5071,7 @@ async function init() {
   $("illnessDoctorReportButton").addEventListener("click", openDoctorReport);
   $("copyDoctorReportButton").addEventListener("click", selectDoctorReportText);
   $("downloadDoctorReportButton").addEventListener("click", downloadDoctorReport);
-  $("downloadDoctorReportHtmlButton").addEventListener("click", downloadDoctorReportHtml);
+  $("downloadDoctorReportHtmlButton").addEventListener("click", () => downloadDoctorReportHtml().catch(err => showToast(err.message || "HTML-Bericht konnte nicht erstellt werden")));
   $("saveIllnessEditButton").addEventListener("click", saveIllnessEdit);
   $("reportIllnessEditButton").addEventListener("click", () => openDoctorReportForIllness($("illnessEditId").value));
   $("globalSearchInput").addEventListener("input", renderGlobalSearchResults);
