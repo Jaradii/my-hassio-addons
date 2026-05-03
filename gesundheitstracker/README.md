@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.1.10
+- Basis ist die funktionierende Version 1.1.11
 
 
 ## Änderungen in 1.0.10
@@ -851,3 +851,10 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Markierungen werden in Suche und Arztbericht berücksichtigt
 - Arztbericht-Popup zeigt jetzt eine strukturierte Vorschau statt nur Rohtext
 - Export des HTML-Berichts bleibt über `Bericht exportieren` erhalten
+
+
+## Änderungen in 1.1.11-test
+
+- Direkter `🏷️`-Button an jedem Eintrag in der Tagesübersicht ergänzt
+- Darüber können Markierungen erstmalig gesetzt und später geändert werden
+- Markierte Einträge zeigen ihre Markierungen zusätzlich direkt in der Zeile an

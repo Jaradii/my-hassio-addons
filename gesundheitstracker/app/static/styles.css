@@ -12775,3 +12775,22 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* v1.1.11-test: Direkter Markierungsbutton */
+.summary-flag-button {
+  font-size: 0.78rem;
+}
+
+.summary-row-flags {
+  display: inline-flex;
+  margin-left: 7px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 13%, var(--card) 87%);
+  border: 1px solid color-mix(in srgb, var(--primary) 28%, var(--kg-border) 72%);
+  color: var(--text);
+  font-size: 0.68rem;
+  font-weight: 900;
+  vertical-align: middle;
+}
