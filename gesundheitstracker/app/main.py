@@ -284,6 +284,49 @@ async def api_set_illness(request: Request):
     return {"active_illness": store.get("active_illness")}
 
 
+@app.delete("/api/illness/{illness_id}")
+def api_delete_illness(illness_id: str, request: Request):
+    check_pin(request)
+    store = read_store()
+    removed = False
+
+    active = store.get("active_illness")
+    if isinstance(active, dict) and str(active.get("id") or "") == illness_id:
+        store["active_illness"] = None
+        removed = True
+
+    history = store.get("illness_history", [])
+    if not isinstance(history, list):
+        history = []
+
+    next_history = []
+    for illness in history:
+        if isinstance(illness, dict) and str(illness.get("id") or "") == illness_id:
+            removed = True
+            continue
+        next_history.append(illness)
+
+    # Die Einträge selbst bleiben erhalten. Nur die Zuordnung zum gelöschten Infekt wird entfernt.
+    affected_entries = 0
+    for entry in store.get("entries", []):
+        if isinstance(entry, dict) and str(entry.get("illness_id") or "") == illness_id:
+            entry["illness_id"] = ""
+            affected_entries += 1
+
+    store["illness_history"] = next_history
+
+    if not removed:
+        raise HTTPException(status_code=404, detail="Infekt nicht gefunden.")
+
+    write_store(store)
+    return {
+        "ok": True,
+        "active_illness": store.get("active_illness"),
+        "illness_history": store.get("illness_history", []),
+        "affected_entries": affected_entries,
+    }
+
+
 @app.put("/api/illness/{illness_id}")
 async def api_update_illness(illness_id: str, request: Request):
     check_pin(request)

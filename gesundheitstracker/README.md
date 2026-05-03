@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.84
+- Basis ist die funktionierende Version 1.0.85
 
 
 ## Änderungen in 1.0.10
@@ -640,3 +640,12 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Infekte können bearbeitet werden: Titel, Startdatum, Enddatum
 - Bericht kann direkt aus der Liste oder aus dem Bearbeiten-Popup erzeugt werden
 - Backend-Endpunkt `PUT /api/illness/{illness_id}` ergänzt
+
+
+## Änderungen in 1.0.85-test
+
+- Direkter Infekt-Button `🩺` oben in der Kopfzeile ergänzt
+- Infekt-Menü ist nicht mehr nur über das Drei-Punkt-Menü erreichbar
+- Infekt-Liste hat jetzt pro Infekt einen `Löschen`-Button
+- Gelöschte Infekte entfernen nur die Infekt-Zuordnung, die Einträge bleiben erhalten
+- Backend-Endpunkt `DELETE /api/illness/{illness_id}` ergänzt

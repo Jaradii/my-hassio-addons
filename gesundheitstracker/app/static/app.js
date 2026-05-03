@@ -2643,6 +2643,7 @@ function renderIllnessList() {
             <div class="illness-list-actions">
               <button type="button" class="illness-list-report" data-id="${escapeHtml(item.id || "")}">Bericht</button>
               <button type="button" class="illness-list-edit" data-id="${escapeHtml(item.id || "")}">Bearbeiten</button>
+              <button type="button" class="illness-list-delete" data-id="${escapeHtml(item.id || "")}">Löschen</button>
             </div>
           </article>
         `;
@@ -2658,6 +2659,9 @@ function renderIllnessList() {
   });
   container.querySelectorAll(".illness-list-edit").forEach(button => {
     button.addEventListener("click", () => openIllnessEdit(button.dataset.id));
+  });
+  container.querySelectorAll(".illness-list-delete").forEach(button => {
+    button.addEventListener("click", () => deleteIllness(button.dataset.id));
   });
 }
 
@@ -2705,6 +2709,27 @@ async function saveIllnessEdit() {
   openIllnessView();
   renderActiveIllnessBanner();
   showToast("Infekt gespeichert");
+}
+
+
+async function deleteIllness(id) {
+  const illness = findIllnessById(id);
+  if (!illness) return;
+
+  const label = illness.title || "Infekt";
+  if (!confirm(`Infekt „${label}“ löschen? Die Einträge bleiben erhalten, nur die Infekt-Zuordnung wird entfernt.`)) return;
+
+  const data = await api(`./api/illness/${encodeURIComponent(id)}`, { method: "DELETE" });
+  state.activeIllness = data.active_illness || null;
+  state.illnessHistory = data.illness_history || [];
+  state.data.active_illness = state.activeIllness;
+  state.data.illness_history = state.illnessHistory;
+
+  await loadState();
+  renderIllnessStatus();
+  renderIllnessList();
+  renderActiveIllnessBanner();
+  showToast("Infekt gelöscht");
 }
 
 function openDoctorReportForIllness(id) {
@@ -4399,6 +4424,7 @@ async function init() {
     showToast("Theme geändert");
   });
 
+  $("quickIllnessButton").addEventListener("click", openIllnessView);
   $("menuIllnessButton").addEventListener("click", () => {
     closeTopMenu();
     openIllnessView();

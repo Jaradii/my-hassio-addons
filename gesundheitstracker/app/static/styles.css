@@ -12279,3 +12279,33 @@ button.compact-day-tile strong {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+
+/* v1.0.85-test: Infekt schneller erreichbar und löschbar */
+.illness-quick-btn {
+  position: relative;
+}
+
+body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
+  content: "";
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--danger);
+  border: 2px solid var(--card);
+}
+
+.illness-list-delete {
+  color: white !important;
+  background: color-mix(in srgb, var(--danger) 86%, #111 14%) !important;
+  border-color: color-mix(in srgb, var(--danger) 76%, transparent) !important;
+}
+
+@media (max-width: 560px) {
+  .illness-list-actions {
+    grid-template-columns: 1fr 1fr 1fr !important;
+  }
+}
