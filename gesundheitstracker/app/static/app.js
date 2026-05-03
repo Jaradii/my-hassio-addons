@@ -2861,13 +2861,15 @@ function renderStorageImageManager() {
     <div class="storage-manager-grid">
       ${uploads.map((image, index) => `
         <article class="storage-manager-item">
-          <button type="button" class="storage-manager-image symptom-image-open" data-url="${escapeHtml(image.url)}" data-images="${escapeHtml(JSON.stringify(urls))}" data-index="${index}" aria-label="Bild groß anzeigen">
-            <img src="${escapeHtml(image.url)}" alt="Gespeichertes Bild" loading="lazy" />
-          </button>
-          <label class="storage-manager-select">
-            <input class="storage-manager-check" type="checkbox" value="${escapeHtml(image.filename)}" />
-            <span>Markieren</span>
-          </label>
+          <div class="storage-manager-image-wrap">
+            <button type="button" class="storage-manager-image symptom-image-open" data-url="${escapeHtml(image.url)}" data-images="${escapeHtml(JSON.stringify(urls))}" data-index="${index}" aria-label="Bild groß anzeigen">
+              <img src="${escapeHtml(image.url)}" alt="Gespeichertes Bild" loading="lazy" />
+            </button>
+            <label class="storage-manager-select-overlay" aria-label="Bild markieren">
+              <input class="storage-manager-check" type="checkbox" value="${escapeHtml(image.filename)}" />
+              <span>✓</span>
+            </label>
+          </div>
           <div class="storage-manager-meta">
             <strong>${escapeHtml(formatBytes(image.size_bytes || 0))}</strong>
             <small>${escapeHtml(image.filename)}</small>

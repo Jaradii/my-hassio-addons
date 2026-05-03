@@ -11708,3 +11708,88 @@ button.compact-day-tile strong {
     height: 104px;
   }
 }
+
+
+/* v1.0.79-test: Markieren-Checkbox als Overlay oben rechts auf dem Bild */
+.storage-manager-image-wrap {
+  position: relative;
+  width: 100%;
+  height: 112px;
+}
+
+.storage-manager-image-wrap .storage-manager-image {
+  height: 112px !important;
+}
+
+.storage-manager-select {
+  display: none !important;
+}
+
+.storage-manager-select-overlay {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  z-index: 3;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.storage-manager-select-overlay input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.storage-manager-select-overlay span {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  border: 2px solid rgba(255,255,255,0.88);
+  background: rgba(0,0,0,0.42);
+  color: transparent;
+  font-size: 0.88rem;
+  font-weight: 1000;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.24);
+  backdrop-filter: blur(6px);
+}
+
+.storage-manager-select-overlay input:checked + span {
+  background: var(--primary);
+  border-color: color-mix(in srgb, white 78%, var(--primary) 22%);
+  color: white;
+}
+
+.storage-manager-item:has(.storage-manager-check:checked) {
+  outline: 2px solid color-mix(in srgb, var(--primary) 68%, transparent);
+  outline-offset: 2px;
+}
+
+.storage-manager-item:has(.storage-manager-check:checked) .storage-manager-image img {
+  filter: saturate(1.05) brightness(0.92);
+}
+
+@media (max-width: 430px) {
+  .storage-manager-image-wrap,
+  .storage-manager-image-wrap .storage-manager-image {
+    height: 104px !important;
+  }
+
+  .storage-manager-select-overlay {
+    top: 6px;
+    right: 6px;
+    width: 27px;
+    height: 27px;
+  }
+
+  .storage-manager-select-overlay span {
+    width: 27px;
+    height: 27px;
+  }
+}

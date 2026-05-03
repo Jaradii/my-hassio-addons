@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.78
+- Basis ist die funktionierende Version 1.0.79
 
 
 ## Änderungen in 1.0.10
@@ -582,4 +582,12 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 ## Änderungen in 1.0.78-test
 
 - Icon des Menüpunktes `Speicher` auf 📊 geändert
+- Sonst keine funktionalen Änderungen
+
+
+## Änderungen in 1.0.79-test
+
+- Markieren-Feld in der Bilderverwaltung als Overlay oben rechts auf das Bild gesetzt
+- Separate Markieren-Zeile unter dem Bild entfernt
+- Markierte Bilder bekommen eine dezente Umrandung
 - Sonst keine funktionalen Änderungen
