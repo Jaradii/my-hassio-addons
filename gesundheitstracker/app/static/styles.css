@@ -12462,3 +12462,9 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
 #fieldEditFluidLevel {
   width: 100%;
 }
+
+
+/* v1.0.94-test: Trinkmenge als eigener Anzeige-Punkt */
+.category-compact-card[data-category="fluid_level"] {
+  display: block;
+}

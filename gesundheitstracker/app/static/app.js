@@ -713,6 +713,7 @@ function buildDaySummary(entries) {
   );
 
   const fluidEntries = entries.filter(e => e.fluids_ml);
+  const fluidLevelEntries = entries.filter(e => e.fluid_level);
   const temperatureEntries = entries.filter(e => e.temperature !== null && e.temperature !== undefined && e.temperature !== "");
   const moods = entries.filter(e => e.mood);
   const medications = entries.filter(e => e.medication);
@@ -731,6 +732,7 @@ function buildDaySummary(entries) {
     symptoms,
     symptomEntries,
     fluidEntries,
+    fluidLevelEntries,
     temperatureEntries,
     moods,
     medications,
@@ -864,15 +866,13 @@ function fluidLevelLabel(value) {
 }
 
 function fluidDisplayValue(entry) {
-  const parts = [];
-  if (entry.fluids_ml !== null && entry.fluids_ml !== undefined && entry.fluids_ml !== "") parts.push(`${entry.fluids_ml} ml`);
-  const level = fluidLevelLabel(entry.fluid_level);
-  if (level) parts.push(level);
-  return parts.join(" · ");
+  if (entry.fluids_ml !== null && entry.fluids_ml !== undefined && entry.fluids_ml !== "") return `${entry.fluids_ml} ml`;
+  return "";
 }
 
 function summaryDisplayValue(entry, key) {
   if (key === "fluids_ml") return fluidDisplayValue(entry);
+  if (key === "fluid_level") return fluidLevelLabel(entry.fluid_level);
   if (key === "temperature") return `${Number(entry.temperature).toFixed(1)} °C`;
   if (key === "symptoms") {
     const intensityMap = entry.symptom_intensity || {};
@@ -892,6 +892,7 @@ function renderSummaryTextBlocks(summary) {
   const groups = [
     { items: summary.symptomEntries, key: "symptoms", icon: "🤧", title: "Symptome" },
     { items: summary.fluidEntries, key: "fluids_ml", icon: "💧", title: "Flüssigkeit" },
+    { items: summary.fluidLevelEntries || [], key: "fluid_level", icon: "🥤", title: "Trinkmenge" },
     { items: summary.temperatureEntries, key: "temperature", icon: "🌡️", title: "Temperatur / Fieber" },
     { items: summary.moods, key: "mood", icon: "🙂", title: "Stimmung" },
     { items: summary.medications, key: "medication", icon: "💊", title: "Medikamente" },
@@ -2479,7 +2480,8 @@ function entrySearchSummary(entry) {
   if (entry.notes) parts.push(`Notiz: ${entry.notes}`);
   if (entry.food) parts.push(`Essen: ${entry.food}`);
   if (entry.sleep) parts.push(`Schlaf: ${entry.sleep}`);
-  if (entry.fluids_ml || entry.fluid_level) parts.push(`Flüssigkeit: ${fluidDisplayValue(entry)}`);
+  if (entry.fluids_ml) parts.push(`Flüssigkeit: ${fluidDisplayValue(entry)}`);
+  if (entry.fluid_level) parts.push(`Trinkmenge: ${fluidLevelLabel(entry.fluid_level)}`);
   if (entry.diaper_or_toilet) parts.push(`Windel/Toilette: ${entry.diaper_or_toilet}`);
   if (entry.mood) parts.push(`Stimmung: ${entry.mood}`);
   const imageCount = normalizeSymptomImages(entry.symptom_images || []).length;
@@ -3115,13 +3117,14 @@ function buildDoctorReportText(selectedIllness = null) {
     lines.push("");
   }
 
-  const relevantNotes = stats.entries.filter(entry => entry.notes || entry.food || entry.sleep || entry.diaper_or_toilet || entry.mood);
+  const relevantNotes = stats.entries.filter(entry => entry.notes || entry.food || entry.sleep || entry.diaper_or_toilet || entry.mood || entry.fluid_level);
   if (relevantNotes.length) {
     lines.push("Weitere Beobachtungen");
     lines.push("---------------------");
     relevantNotes.forEach(entry => {
       const parts = [];
       if (entry.mood) parts.push(`Stimmung: ${entry.mood}`);
+      if (entry.fluid_level) parts.push(`Trinkmenge: ${fluidLevelLabel(entry.fluid_level)}`);
       if (entry.food) parts.push(`Essen: ${entry.food}`);
       if (entry.sleep) parts.push(`Schlaf: ${entry.sleep}`);
       if (entry.diaper_or_toilet) parts.push(`Windel/Toilette: ${entry.diaper_or_toilet}`);
@@ -3182,6 +3185,9 @@ function analysisValue(entry, category) {
   if (category === "fluids") {
     return fluidDisplayValue(entry);
   }
+  if (category === "fluid_level") {
+    return fluidLevelLabel(entry.fluid_level);
+  }
   if (category === "symptoms") {
     const intensityMap = entry.symptom_intensity || {};
     const parts = (entry.symptoms || []).map(symptom => {
@@ -3202,7 +3208,8 @@ function analysisValue(entry, category) {
   if (category === "all") {
     const parts = [];
     if (entry.temperature !== null && entry.temperature !== undefined && entry.temperature !== "") parts.push(`🌡️ ${Number(entry.temperature).toFixed(1)} °C`);
-    if (entry.fluids_ml || entry.fluid_level) parts.push(`💧 ${fluidDisplayValue(entry)}`);
+    if (entry.fluids_ml) parts.push(`💧 ${fluidDisplayValue(entry)}`);
+    if (entry.fluid_level) parts.push(`🥤 ${fluidLevelLabel(entry.fluid_level)}`);
     if (entry.mood) parts.push(`🙂 ${entry.mood}`);
     const symptoms = analysisValue(entry, "symptoms");
     if (symptoms) parts.push(`🤧 ${symptoms}`);
@@ -3220,6 +3227,7 @@ function analysisCategoryLabel(category) {
   const labels = {
     temperature: "Fieber / Temperatur",
     fluids: "Flüssigkeit",
+    fluid_level: "Trinkmenge",
     symptoms: "Symptome",
     mood: "Stimmung",
     medication: "Medikamente",

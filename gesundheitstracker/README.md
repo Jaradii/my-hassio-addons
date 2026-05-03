@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.93
+- Basis ist die funktionierende Version 1.0.94
 
 
 ## Änderungen in 1.0.10
@@ -713,3 +713,12 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Ergänzt im Schnell-Eintrag Flüssigkeit
 - Ergänzt beim Bearbeiten eines Flüssigkeits-Eintrags
 - Anzeige, Historie, Auswertung, Export und Volltextsuche berücksichtigen die Einschätzung
+
+
+## Änderungen in 1.0.94-test
+
+- Trinkmenge wird jetzt als eigener Punkt neben der ml-Menge behandelt
+- Tagesübersicht zeigt `Flüssigkeit` und `Trinkmenge` getrennt
+- Historie führt `Trinkmenge` als eigenes Feld
+- Auswertung und Export können `Trinkmenge` separat anzeigen
+- Volltextsuche zeigt `Trinkmenge` separat im Treffertext
