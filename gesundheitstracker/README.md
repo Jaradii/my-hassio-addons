@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.97
+- Basis ist die funktionierende Version 1.0.98
 
 
 ## Änderungen in 1.0.10
@@ -743,3 +743,10 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Im Suche-Popup wurden die Buttons `Historie` und `Bearbeiten` entfernt
 - Suchtreffer bleiben weiterhin antippbar und springen zum passenden Tag/Eintrag
+
+
+## Änderungen in 1.0.98-test
+
+- Datum in der Volltextsuche besser lesbar gemacht
+- Suchtreffer-Gruppen zeigen jetzt ausgeschriebene Datumsüberschriften, z. B. `Montag, 03. Mai 2026`
+- Darstellung stärker an die Auswertungsansicht angepasst

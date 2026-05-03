@@ -12492,3 +12492,12 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
 .global-search-actions {
   display: none !important;
 }
+
+
+/* v1.0.98-test: Suchdatum besser lesbar */
+.global-search-day h3 {
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  font-size: 0.86rem !important;
+  color: var(--text) !important;
+}
