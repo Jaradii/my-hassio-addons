@@ -3060,100 +3060,203 @@ function feverAssessment(value) {
   return "erhöht/normal";
 }
 
+function formatReportDate(date) {
+  if (!date) return "";
+  const parsed = new Date(`${date}T12:00:00`);
+  if (Number.isNaN(parsed.getTime())) return formatDateShortGerman(date);
+  return parsed.toLocaleDateString("de-DE", {
+    weekday: "short",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric"
+  });
+}
+
+function reportLine(label, value) {
+  const clean = String(value || "").trim();
+  return clean ? `${label.padEnd(22, " ")} ${clean}` : `${label.padEnd(22, " ")} -`;
+}
+
+function reportSection(lines, title) {
+  lines.push("");
+  lines.push(title);
+  lines.push("=".repeat(title.length));
+}
+
+function reportSubsection(lines, title) {
+  lines.push("");
+  lines.push(title);
+  lines.push("-".repeat(title.length));
+}
+
+function entryTimeLabel(entry) {
+  return `${entry.time || "--:--"} Uhr`;
+}
+
 function buildDoctorReportText(selectedIllness = null) {
-  const range = selectedIllness ? { start: selectedIllness.start || state.selectedDate || today(), end: selectedIllness.end || today() } : illnessDateRange();
+  const range = selectedIllness
+    ? { start: selectedIllness.start || state.selectedDate || today(), end: selectedIllness.end || today() }
+    : illnessDateRange();
+
   const stats = buildIllnessStats(range.start, range.end);
+  const entries = stats.entries || [];
   const lines = [];
-  const title = selectedIllness?.title || $("illnessTitleInput")?.value.trim() || state.activeIllness?.title || "Infektbericht";
+  const title = selectedIllness?.title || $("illnessTitleInput")?.value.trim() || state.activeIllness?.title || "Infekt";
+  const childName = state.data?.profile?.child_name || state.config?.child_name || "Kind";
+  const startLabel = formatReportDate(range.start);
+  const endLabel = formatReportDate(range.end);
+  const days = Math.max(1, Math.round((new Date(`${range.end}T12:00:00`) - new Date(`${range.start}T12:00:00`)) / 86400000) + 1);
 
-  lines.push("Gesundheitstracker Arztbericht");
-  lines.push("==============================");
+  const temperatures = entries
+    .filter(entry => entry.temperature !== null && entry.temperature !== undefined && entry.temperature !== "")
+    .map(entry => ({ ...entry, temp: Number(entry.temperature) }))
+    .filter(entry => !Number.isNaN(entry.temp));
+
+  const maxTempEntry = temperatures.length
+    ? [...temperatures].sort((a, b) => b.temp - a.temp || analysisEntryTimestamp(b).localeCompare(analysisEntryTimestamp(a)))[0]
+    : null;
+
+  const medicationEntries = entries.filter(entry => String(entry.medication || "").trim());
+  const symptomEntries = entries.filter(entry => symptomNames(entry).length);
+  const fluidEntries = entries.filter(entry => entry.fluids_ml || entry.fluid_level);
+  const imageCount = entries.reduce((sum, entry) => sum + (Array.isArray(entry.symptom_images) ? entry.symptom_images.length : 0), 0);
+
+  lines.push("ARZTBERICHT");
+  lines.push("Gesundheitstracker");
   lines.push("");
-  lines.push(`Bezeichnung: ${title}`);
-  lines.push(`Zeitraum: ${formatDateShortGerman(range.start)} bis ${formatDateShortGerman(range.end)}`);
-  lines.push(`Erstellt: ${new Date().toLocaleString("de-DE")}`);
+  lines.push(reportLine("Name", childName));
+  lines.push(reportLine("Infekt", title));
+  lines.push(reportLine("Zeitraum", `${startLabel} bis ${endLabel} (${days} Tag${days === 1 ? "" : "e"})`));
+  lines.push(reportLine("Erstellt", new Date().toLocaleString("de-DE")));
   lines.push("");
 
-  lines.push("Kurzüberblick");
-  lines.push("-------------");
-  if (stats.entries.length) {
-    const narrative = [];
-    narrative.push(`Im Zeitraum wurden ${stats.entries.length} Einträge dokumentiert.`);
-    if (stats.symptoms.length) narrative.push(`Dokumentierte Symptome: ${stats.symptoms.join(", ")}.`);
-    if (stats.maxTemp !== null) narrative.push(`Die höchste Temperatur lag bei ${stats.maxTemp.toFixed(1)} °C (${feverAssessment(stats.maxTemp)}).`);
-    if (stats.medications.length) narrative.push(`Es gibt ${stats.medications.length} Medikamenten-Einträge.`);
-    if (stats.imageCount) narrative.push(`${stats.imageCount} Bild${stats.imageCount === 1 ? "" : "er"} wurden dokumentiert.`);
-    lines.push(narrative.join(" "));
-  } else {
+  reportSection(lines, "Kurzzusammenfassung");
+  if (!entries.length) {
     lines.push("Im gewählten Zeitraum sind keine Einträge dokumentiert.");
+  } else {
+    const summaryBits = [];
+    summaryBits.push(`${entries.length} dokumentierte Einträge`);
+    if (stats.symptoms.length) summaryBits.push(`Symptome: ${stats.symptoms.slice(0, 8).join(", ")}${stats.symptoms.length > 8 ? " ..." : ""}`);
+    if (maxTempEntry) summaryBits.push(`höchste Temperatur ${maxTempEntry.temp.toFixed(1)} °C am ${formatReportDate(maxTempEntry.date)} um ${entryTimeLabel(maxTempEntry)}`);
+    if (medicationEntries.length) summaryBits.push(`${medicationEntries.length} Medikamenten-Eintrag${medicationEntries.length === 1 ? "" : "e"}`);
+    if (fluidEntries.length) summaryBits.push(`${fluidEntries.length} Flüssigkeits-/Trinkmengen-Eintrag${fluidEntries.length === 1 ? "" : "e"}`);
+    if (imageCount) summaryBits.push(`${imageCount} Foto${imageCount === 1 ? "" : "s"}`);
+    lines.push(summaryBits.join(" · "));
   }
-  lines.push("");
-  lines.push(`Einträge: ${stats.entries.length}`);
-  lines.push(`Symptome: ${stats.symptoms.length ? stats.symptoms.join(", ") : "Keine dokumentiert"}`);
-  lines.push(`Temperaturmessungen: ${stats.tempCount}`);
-  lines.push(`Höchste Temperatur: ${stats.maxTemp !== null ? `${stats.maxTemp.toFixed(1)} °C (${feverAssessment(stats.maxTemp)})` : "Keine Messung"}`);
-  lines.push(`Medikamenten-Einträge: ${stats.medications.length}`);
-  lines.push(`Flüssigkeit gesamt im Zeitraum: ${stats.fluids ? `${stats.fluids} ml` : "nicht dokumentiert"}`);
-  lines.push(`Dokumentierte Bilder: ${stats.imageCount}`);
-  lines.push("");
 
-  if (stats.temperatures.length) {
-    lines.push("Temperaturverlauf");
-    lines.push("-----------------");
-    stats.entries
-      .filter(entry => entry.temperature !== null && entry.temperature !== undefined && entry.temperature !== "")
+  lines.push("");
+  lines.push(reportLine("Einträge", entries.length));
+  lines.push(reportLine("Symptome", stats.symptoms.length ? stats.symptoms.join(", ") : "keine dokumentiert"));
+  lines.push(reportLine("Temperaturmessungen", stats.tempCount || 0));
+  lines.push(reportLine("Höchste Temperatur", maxTempEntry ? `${maxTempEntry.temp.toFixed(1)} °C (${feverAssessment(maxTempEntry.temp)})` : "keine Messung"));
+  lines.push(reportLine("Medikamente", medicationEntries.length));
+  lines.push(reportLine("Flüssigkeit gesamt", stats.fluids ? `${stats.fluids} ml` : "nicht dokumentiert"));
+  lines.push(reportLine("Fotos", imageCount));
+
+  reportSection(lines, "Tagesverlauf");
+  const groupedByDay = entries.reduce((acc, entry) => {
+    const date = entry.date || "Ohne Datum";
+    if (!acc[date]) acc[date] = [];
+    acc[date].push(entry);
+    return acc;
+  }, {});
+
+  if (!Object.keys(groupedByDay).length) {
+    lines.push("Keine Einträge vorhanden.");
+  } else {
+    Object.entries(groupedByDay).forEach(([date, dayEntries]) => {
+      reportSubsection(lines, formatReportDate(date));
+      dayEntries
+        .sort((a, b) => (a.time || "").localeCompare(b.time || ""))
+        .forEach(entry => {
+          const parts = [];
+          const symptoms = symptomNames(entry);
+          if (entry.temperature !== null && entry.temperature !== undefined && entry.temperature !== "") parts.push(`${Number(entry.temperature).toFixed(1)} °C`);
+          if (symptoms.length) parts.push(`Symptome: ${symptoms.join(", ")}`);
+          if (entry.medication) parts.push(`Medikament: ${entry.medication}`);
+          if (entry.fluids_ml) parts.push(`Flüssigkeit: ${entry.fluids_ml} ml`);
+          if (entry.fluid_level) parts.push(`Trinkmenge: ${fluidLevelLabel(entry.fluid_level)}`);
+          if (entry.mood) parts.push(`Stimmung: ${entry.mood}`);
+          if (entry.food) parts.push(`Essen: ${entry.food}`);
+          if (entry.sleep) parts.push(`Schlaf: ${entry.sleep}`);
+          if (entry.diaper_or_toilet) parts.push(`Windel/Toilette: ${entry.diaper_or_toilet}`);
+          if (entry.notes) parts.push(`Notiz: ${entry.notes}`);
+          const photos = Array.isArray(entry.symptom_images) ? entry.symptom_images.length : 0;
+          if (photos) parts.push(`${photos} Foto${photos === 1 ? "" : "s"}`);
+          lines.push(`${entryTimeLabel(entry)}  ${parts.length ? parts.join(" · ") : "Eintrag"}`);
+        });
+    });
+  }
+
+  reportSection(lines, "Temperatur");
+  if (!temperatures.length) {
+    lines.push("Keine Temperaturwerte dokumentiert.");
+  } else {
+    temperatures
+      .sort((a, b) => analysisEntryTimestamp(a).localeCompare(analysisEntryTimestamp(b)))
       .forEach(entry => {
-        const temp = Number(entry.temperature);
-        lines.push(`${formatDateShortGerman(entry.date)} ${entry.time || "--:--"} Uhr · ${temp.toFixed(1)} °C · ${feverAssessment(temp)}`);
+        lines.push(`${formatReportDate(entry.date)} · ${entryTimeLabel(entry)} · ${entry.temp.toFixed(1)} °C · ${feverAssessment(entry.temp)}`);
       });
-    lines.push("");
   }
 
-  if (stats.symptoms.length) {
-    lines.push("Symptome nach Tagen");
-    lines.push("-------------------");
-    const grouped = stats.entries.reduce((acc, entry) => {
-      const list = symptomNames(entry);
-      if (!list.length) return acc;
-      if (!acc[entry.date]) acc[entry.date] = [];
-      acc[entry.date].push(`${entry.time || "--:--"} Uhr · ${list.join(", ")}`);
-      return acc;
-    }, {});
-    Object.entries(grouped).forEach(([date, rows]) => {
-      lines.push(formatDateShortGerman(date));
-      rows.forEach(row => lines.push(`- ${row}`));
-    });
-    lines.push("");
+  reportSection(lines, "Symptome");
+  if (!symptomEntries.length) {
+    lines.push("Keine Symptome dokumentiert.");
+  } else {
+    symptomEntries
+      .sort((a, b) => analysisEntryTimestamp(a).localeCompare(analysisEntryTimestamp(b)))
+      .forEach(entry => {
+        lines.push(`${formatReportDate(entry.date)} · ${entryTimeLabel(entry)} · ${symptomNames(entry).join(", ")}`);
+      });
   }
 
-  if (stats.medications.length) {
-    lines.push("Medikamente");
-    lines.push("------------");
-    stats.medications.forEach(entry => {
-      lines.push(`${formatDateShortGerman(entry.date)} ${entry.time || "--:--"} Uhr · ${entry.medication}`);
-    });
-    lines.push("");
+  reportSection(lines, "Medikamente");
+  if (!medicationEntries.length) {
+    lines.push("Keine Medikamente dokumentiert.");
+  } else {
+    medicationEntries
+      .sort((a, b) => analysisEntryTimestamp(a).localeCompare(analysisEntryTimestamp(b)))
+      .forEach(entry => {
+        lines.push(`${formatReportDate(entry.date)} · ${entryTimeLabel(entry)} · ${entry.medication}`);
+      });
   }
 
-  const relevantNotes = stats.entries.filter(entry => entry.notes || entry.food || entry.sleep || entry.diaper_or_toilet || entry.mood || entry.fluid_level);
-  if (relevantNotes.length) {
-    lines.push("Weitere Beobachtungen");
-    lines.push("---------------------");
-    relevantNotes.forEach(entry => {
-      const parts = [];
-      if (entry.mood) parts.push(`Stimmung: ${entry.mood}`);
-      if (entry.fluid_level) parts.push(`Trinkmenge: ${fluidLevelLabel(entry.fluid_level)}`);
-      if (entry.food) parts.push(`Essen: ${entry.food}`);
-      if (entry.sleep) parts.push(`Schlaf: ${entry.sleep}`);
-      if (entry.diaper_or_toilet) parts.push(`Windel/Toilette: ${entry.diaper_or_toilet}`);
-      if (entry.notes) parts.push(`Notiz: ${entry.notes}`);
-      lines.push(`${formatDateShortGerman(entry.date)} ${entry.time || "--:--"} Uhr · ${parts.join(" · ")}`);
-    });
-    lines.push("");
+  reportSection(lines, "Flüssigkeit und Trinkmenge");
+  if (!fluidEntries.length) {
+    lines.push("Keine Flüssigkeit oder Trinkmenge dokumentiert.");
+  } else {
+    fluidEntries
+      .sort((a, b) => analysisEntryTimestamp(a).localeCompare(analysisEntryTimestamp(b)))
+      .forEach(entry => {
+        const parts = [];
+        if (entry.fluids_ml) parts.push(`${entry.fluids_ml} ml`);
+        if (entry.fluid_level) parts.push(fluidLevelLabel(entry.fluid_level));
+        lines.push(`${formatReportDate(entry.date)} · ${entryTimeLabel(entry)} · ${parts.join(" · ")}`);
+      });
   }
 
-  lines.push("Hinweis");
-  lines.push("-------");
+  const observationEntries = entries.filter(entry =>
+    entry.notes || entry.food || entry.sleep || entry.diaper_or_toilet || entry.mood
+  );
+
+  reportSection(lines, "Weitere Beobachtungen");
+  if (!observationEntries.length) {
+    lines.push("Keine weiteren Beobachtungen dokumentiert.");
+  } else {
+    observationEntries
+      .sort((a, b) => analysisEntryTimestamp(a).localeCompare(analysisEntryTimestamp(b)))
+      .forEach(entry => {
+        const parts = [];
+        if (entry.mood) parts.push(`Stimmung: ${entry.mood}`);
+        if (entry.food) parts.push(`Essen: ${entry.food}`);
+        if (entry.sleep) parts.push(`Schlaf: ${entry.sleep}`);
+        if (entry.diaper_or_toilet) parts.push(`Windel/Toilette: ${entry.diaper_or_toilet}`);
+        if (entry.notes) parts.push(`Notiz: ${entry.notes}`);
+        lines.push(`${formatReportDate(entry.date)} · ${entryTimeLabel(entry)} · ${parts.join(" · ")}`);
+      });
+  }
+
+  reportSection(lines, "Hinweis");
   lines.push("Dieser Bericht ist eine private Dokumentation und ersetzt keine ärztliche Einschätzung.");
 
   return lines.join("\\n");

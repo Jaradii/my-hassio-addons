@@ -12521,3 +12521,11 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
 .global-search-day {
   gap: 8px !important;
 }
+
+
+/* v1.1.01-test: besser lesbarer Infekt-Arztbericht */
+.doctor-report-text {
+  line-height: 1.52 !important;
+  font-size: 0.8rem !important;
+  tab-size: 2;
+}

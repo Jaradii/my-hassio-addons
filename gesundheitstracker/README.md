@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.1.00
+- Basis ist die funktionierende Version 1.1.01
 
 
 ## Änderungen in 1.0.10
@@ -764,3 +764,13 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Reihenfolge der Kopfzeilen-Buttons geändert
 - Neue Reihenfolge: Infekt → Profil → Suche → Drei-Punkt-Menü
 - Keine funktionalen Änderungen
+
+
+## Änderungen in 1.1.01-test
+
+- Infekt-Arztbericht komplett neu strukturiert
+- Klare Kopfzeile mit Name, Infekt, Zeitraum und Erstellzeit
+- Kurzzusammenfassung verbessert
+- Tagesverlauf übersichtlicher gruppiert
+- Separate Abschnitte für Temperatur, Symptome, Medikamente, Flüssigkeit/Trinkmenge und Beobachtungen
+- Bericht bleibt als kopierbarer Text/TXT exportierbar
