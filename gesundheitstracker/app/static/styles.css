@@ -12482,3 +12482,13 @@ body:has(.active-illness-banner:not(.hidden)) .illness-quick-btn::after {
   width: 100%;
   min-height: 42px;
 }
+
+
+/* v1.0.97-test: Suche ohne Historie-/Bearbeiten-Buttons */
+.global-search-result {
+  grid-template-columns: 1fr !important;
+}
+
+.global-search-actions {
+  display: none !important;
+}

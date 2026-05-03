@@ -2557,10 +2557,7 @@ function renderGlobalSearchResults() {
               <span>${escapeHtml(entry.time || "--:--")}</span>
               <strong>${escapeHtml(entrySearchSummary(entry))}</strong>
             </button>
-            <div class="global-search-actions">
-              <button type="button" class="global-search-history" data-id="${escapeHtml(entry.id || "")}">Historie</button>
-              <button type="button" class="global-search-edit" data-id="${escapeHtml(entry.id || "")}">Bearbeiten</button>
-            </div>
+
           </article>
         `).join("")}
       </div>
@@ -2577,13 +2574,6 @@ function renderGlobalSearchResults() {
         if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
       });
     });
-  });
-
-  results.querySelectorAll(".global-search-history").forEach(button => {
-    button.addEventListener("click", () => openEntryHistoryPopup(button.dataset.id));
-  });
-  results.querySelectorAll(".global-search-edit").forEach(button => {
-    button.addEventListener("click", () => editEntry(button.dataset.id));
   });
 }
 

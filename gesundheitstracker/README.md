@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.96
+- Basis ist die funktionierende Version 1.0.97
 
 
 ## Änderungen in 1.0.10
@@ -737,3 +737,9 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Bearbeiten-Popup für `Trinkmenge` zeigt jetzt erzwungen ein Dropdown
 - Auswahl: Keine Einschätzung, Wenig, Mittel, Viel
 - Freies Textfeld für `Trinkmenge` wird nicht mehr gerendert
+
+
+## Änderungen in 1.0.97-test
+
+- Im Suche-Popup wurden die Buttons `Historie` und `Bearbeiten` entfernt
+- Suchtreffer bleiben weiterhin antippbar und springen zum passenden Tag/Eintrag
