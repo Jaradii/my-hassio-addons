@@ -345,20 +345,28 @@ def api_update_entry(entry_id: str, entry: HealthEntryIn, request: Request):
 
 def upload_filename_from_ref(ref: Any) -> Optional[str]:
     if isinstance(ref, str):
-        value = ref
+        candidates = [ref]
     elif isinstance(ref, dict):
-        value = str(ref.get("filename") or ref.get("url") or "")
+        candidates = [
+            str(ref.get("filename") or ""),
+            str(ref.get("url") or ""),
+            str(ref.get("path") or ""),
+        ]
     else:
         return None
 
-    if not value:
-        return None
+    for value in candidates:
+        value = (value or "").strip()
+        if not value:
+            continue
 
-    # Accept both raw filenames and URLs like ./api/uploads/file.jpg
-    name = Path(value.split("?")[0]).name
-    if not name or name in {".", ".."}:
-        return None
-    return name
+        # Accept raw filenames, ./api/uploads/file.jpg, /api/uploads/file.jpg and URLs.
+        clean = value.split("?", 1)[0].split("#", 1)[0].rstrip("/")
+        name = Path(clean).name
+        if name and name not in {".", ".."}:
+            return name
+
+    return None
 
 
 def delete_uploads_for_entry(entry: Dict[str, Any]) -> None:
@@ -664,29 +672,41 @@ def api_delete_upload(filename: str, request: Request):
         raise HTTPException(status_code=400, detail="Ungültiger Dateiname.")
 
     path = UPLOAD_DIR / safe_name
+    file_deleted = False
     if path.exists() and path.is_file():
         try:
             path.unlink()
+            file_deleted = True
         except Exception as exc:
             raise HTTPException(status_code=500, detail=f"Bild konnte nicht gelöscht werden: {exc}")
 
     store = read_store()
     changed = False
+    affected_entries = 0
 
     for entry in store.get("entries", []):
         if isinstance(entry, dict):
-            changed = remove_upload_reference_from_entry(entry, safe_name) or changed
+            entry_changed = remove_upload_reference_from_entry(entry, safe_name)
+            changed = entry_changed or changed
+            if entry_changed:
+                affected_entries += 1
 
     for entry in store.get("deleted_entries", []):
         if isinstance(entry, dict):
-            changed = remove_upload_reference_from_entry(entry, safe_name) or changed
+            entry_changed = remove_upload_reference_from_entry(entry, safe_name)
+            changed = entry_changed or changed
 
     if changed:
         store["updated_at"] = utc_now()
         write_store(store)
 
-    return {"ok": True}
-
+    return {
+        "ok": True,
+        "filename": safe_name,
+        "file_deleted": file_deleted,
+        "references_removed": changed,
+        "affected_entries": affected_entries,
+    }
 
 @app.get("/api/uploads/{filename}")
 def api_get_upload(filename: str, request: Request):

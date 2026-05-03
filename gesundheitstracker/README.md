@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.0.76
+- Basis ist die funktionierende Version 1.0.77
 
 
 ## Änderungen in 1.0.10
@@ -568,3 +568,12 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Markierte Bilder können gelöscht werden
 - Beim Löschen werden die Dateien aus `/data/uploads` entfernt und Bild-Verweise aus Einträgen bereinigt
 - Großansicht der Bilder läuft weiterhin über die bestehende Galerie
+
+
+## Änderungen in 1.0.77-test
+
+- Löschen von Bildern über `Speicher → Bilder` repariert
+- Bild-Verweise werden robuster aus aktiven Einträgen und gelöschten Historien-Einträgen entfernt
+- Nach dem Löschen werden App-Daten und Speicheransicht neu geladen
+- Foto-Chip zeigt danach die korrekte Anzahl, z. B. 2 statt 3 Fotos
+- Gelöschte Bilder sollten nicht mehr als kaputte Vorschau/Fragezeichen erscheinen

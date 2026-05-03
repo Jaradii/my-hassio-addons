@@ -2901,8 +2901,14 @@ async function deleteSelectedStorageImages() {
   }
 
   state.storageUploads = (state.storageUploads || []).filter(item => !selected.includes(item.filename));
-  renderStorageImageManager();
+
+  await loadState();
   await loadStorageView();
+
+  state.storageUploads = normalizeStorageUploads(state.storageUploads || []);
+  renderStorageImageManager();
+  renderDay();
+
   showToast(selected.length === 1 ? "Bild gelöscht" : "Bilder gelöscht");
 }
 
