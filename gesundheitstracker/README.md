@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.1.32
+- Basis ist die funktionierende Version 1.1.27
 
 
 ## Änderungen in 1.0.10
@@ -985,13 +985,3 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Wenn man danach `Nein` wählt, wird der automatisch durch `Ja` erzeugte Nachkontroll-Eintrag wieder gelöscht
 - `Doch ja` erscheint nur noch bei Nachfragen, die vorher mit `Nein` beantwortet wurden
 - `Rückgängig` entfernt bei vorherigem `Ja` ebenfalls den automatisch erzeugten Nachkontroll-Eintrag
-
-
-## Änderungen in 1.1.32-test
-
-- Stabiler Sync-API-Stand aus v1.1.27-Basis.
-- Direkter Port `8099/tcp` freigegeben.
-- `GET /api/sync/state` ergänzt.
-- `POST /api/sync/upsert-entry` ergänzt.
-- `POST /api/entries` akzeptiert externe iOS-IDs und Zeitstempel.
-- `DELETE /api/entries/{id}` ist idempotent für Offline-Client-Sync.

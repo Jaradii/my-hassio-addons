@@ -1,5 +1,5 @@
 name: "Gesundheitstracker"
-version: "1.1.32"
+version: "1.1.27"
 slug: gesundheitstracker
 description: "Gesundheitstracker für Home Assistant"
 url: "https://github.com/Jaradii/my-hassio-addons"
@@ -17,10 +17,8 @@ panel_title: "Gesundheitstracker"
 panel_admin: false
 homeassistant_api: false
 host_network: false
-ports:
-  8099/tcp: 8099
-ports_description:
-  8099/tcp: "Gesundheitstracker Web/API"
+ports: {}
+ports_description: {}
 options:
   app_title: "Gesundheitstracker"
   child_name: ""

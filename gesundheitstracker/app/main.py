@@ -203,9 +203,6 @@ class Profile(BaseModel):
 
 
 class HealthEntryIn(BaseModel):
-    id: Optional[str] = Field(default=None, max_length=120)
-    created_at: Optional[str] = Field(default=None, max_length=80)
-    updated_at: Optional[str] = Field(default=None, max_length=80)
     date: str = Field(..., max_length=20)
     time: str = Field(default="", max_length=10)
     temperature: Optional[float] = None
@@ -255,32 +252,6 @@ def api_config():
 def api_state(request: Request):
     check_pin(request)
     return read_store()
-
-
-@app.get("/api/sync/state")
-def api_sync_state(request: Request):
-    check_pin(request)
-    store = read_store()
-    return {
-        "profile": store.get("profile", {}),
-        "entries": store.get("entries", []),
-        "deleted_entries": store.get("deleted_entries", []),
-        "active_illness": store.get("active_illness"),
-        "illness_history": store.get("illness_history", []),
-        "created_at": store.get("created_at"),
-        "updated_at": store.get("updated_at"),
-    }
-
-
-@app.post("/api/sync/upsert-entry")
-async def api_sync_upsert_entry(request: Request):
-    check_pin(request)
-    try:
-        payload = await request.json()
-    except Exception:
-        raise HTTPException(status_code=400, detail="Ungültige Sync-Daten.")
-    entry = HealthEntryIn(**payload)
-    return api_create_entry(entry, request)
 
 
 @app.put("/api/profile")
@@ -492,76 +463,28 @@ def api_create_entry(entry: HealthEntryIn, request: Request):
     store = read_store()
     user = get_ha_user(request)
     now = utc_now()
-    raw = entry.model_dump()
-    incoming_id = str(raw.pop("id", "") or "").strip()
-    incoming_created_at = raw.pop("created_at", None)
-    incoming_updated_at = raw.pop("updated_at", None)
-    entry_id = incoming_id or str(uuid.uuid4())
-
-    entries = store.setdefault("entries", [])
-    existing_idx = next((idx for idx, item in enumerate(entries) if item.get("id") == entry_id), None)
-
-    if existing_idx is not None:
-        existing = entries[existing_idx]
-        existing_updated = str(existing.get("updated_at") or "")
-        if incoming_updated_at and existing_updated and incoming_updated_at < existing_updated:
-            return existing
-
-        entry_data = raw
-        if not entry_data.get("illness_id"):
-            entry_data["illness_id"] = existing.get("illness_id", "")
-        entry_data = assign_active_illness_if_needed(store, entry_data)
-        changes = detailed_changes(existing, entry_data)
-        fields = [change["field"] for change in changes]
-        existing_history = existing.get("history", [])
-        if not isinstance(existing_history, list):
-            existing_history = []
-
-        updated = HealthEntry(
-            **entry_data,
-            id=entry_id,
-            created_at=incoming_created_at or existing.get("created_at", now),
-            updated_at=incoming_updated_at or now,
-            created_by=existing.get("created_by", {}),
-            updated_by=user,
-            history=[
-                *existing_history,
-                {
-                    "action": "sync_updated",
-                    "at": incoming_updated_at or now,
-                    "by": user,
-                    "fields": fields,
-                    "changes": changes,
-                },
-            ] if changes else existing_history,
-        ).model_dump()
-        delete_removed_uploads(existing, updated)
-        entries[existing_idx] = updated
-        entries.sort(key=lambda e: (e.get("date", ""), e.get("time", "")), reverse=True)
-        write_store(store)
-        return updated
-
-    entry_data = assign_active_illness_if_needed(store, raw)
+    entry_data = assign_active_illness_if_needed(store, entry.model_dump())
     item = HealthEntry(
         **entry_data,
-        id=entry_id,
-        created_at=incoming_created_at or now,
-        updated_at=incoming_updated_at or now,
+        id=str(uuid.uuid4()),
+        created_at=now,
+        updated_at=now,
         created_by=user,
         updated_by=user,
         history=[
             {
-                "action": "sync_created" if incoming_id else "created",
-                "at": incoming_created_at or now,
+                "action": "created",
+                "at": now,
                 "by": user,
                 "fields": [],
             }
         ],
     ).model_dump()
-    entries.append(item)
-    entries.sort(key=lambda e: (e.get("date", ""), e.get("time", "")), reverse=True)
+    store["entries"].append(item)
+    store["entries"].sort(key=lambda e: (e.get("date", ""), e.get("time", "")), reverse=True)
     write_store(store)
     return item
+
 
 def delete_removed_uploads(old_entry: Dict[str, Any], new_entry: Dict[str, Any]) -> None:
     old_names = {upload_filename_from_ref(ref) for ref in (old_entry.get("symptom_images") or []) if upload_filename_from_ref(ref)}
@@ -583,11 +506,7 @@ def api_update_entry(entry_id: str, entry: HealthEntryIn, request: Request):
     for idx, existing in enumerate(store["entries"]):
         if existing.get("id") == entry_id:
             now = utc_now()
-            raw = entry.model_dump()
-            raw.pop("id", None)
-            incoming_created_at = raw.pop("created_at", None)
-            incoming_updated_at = raw.pop("updated_at", None)
-            entry_data = raw
+            entry_data = entry.model_dump()
             if not entry_data.get("illness_id"):
                 entry_data["illness_id"] = existing.get("illness_id", "")
             entry_data = assign_active_illness_if_needed(store, entry_data)
@@ -596,6 +515,7 @@ def api_update_entry(entry_id: str, entry: HealthEntryIn, request: Request):
             existing_history = existing.get("history", [])
             if not isinstance(existing_history, list):
                 existing_history = []
+
             if not existing_history:
                 existing_history = [
                     {
@@ -609,20 +529,20 @@ def api_update_entry(entry_id: str, entry: HealthEntryIn, request: Request):
             updated = HealthEntry(
                 **entry_data,
                 id=entry_id,
-                created_at=incoming_created_at or existing.get("created_at", now),
-                updated_at=incoming_updated_at or now,
+                created_at=existing.get("created_at", now),
+                updated_at=now,
                 created_by=existing.get("created_by", {}),
                 updated_by=user,
                 history=[
                     *existing_history,
                     {
-                        "action": "sync_updated" if incoming_updated_at else "updated",
-                        "at": incoming_updated_at or now,
+                        "action": "updated",
+                        "at": now,
                         "by": user,
                         "fields": fields,
                         "changes": changes,
                     },
-                ] if changes else existing_history,
+                ],
             ).model_dump()
             delete_removed_uploads(existing, updated)
             store["entries"][idx] = updated
@@ -630,6 +550,7 @@ def api_update_entry(entry_id: str, entry: HealthEntryIn, request: Request):
             write_store(store)
             return updated
     raise HTTPException(status_code=404, detail="Eintrag nicht gefunden.")
+
 
 def upload_filename_from_ref(ref: Any) -> Optional[str]:
     if isinstance(ref, str):
@@ -683,7 +604,7 @@ def api_delete_entry(entry_id: str, request: Request):
     entries = store.get("entries", [])
     existing = next((e for e in entries if e.get("id") == entry_id), None)
     if not existing:
-        return {"ok": True, "already_deleted": True}
+        raise HTTPException(status_code=404, detail="Eintrag nicht gefunden.")
 
     deleted_entries = store.get("deleted_entries", [])
     if not isinstance(deleted_entries, list):
@@ -903,7 +824,6 @@ class ImageUploadIn(BaseModel):
     name: str = Field(default="foto.jpg", max_length=200)
     content_type: str = Field(default="image/jpeg", max_length=80)
     data_url: str = Field(..., max_length=14_000_000)
-    preferred_filename: Optional[str] = Field(default=None, max_length=220)
 
 
 @app.post("/api/uploads/json")
