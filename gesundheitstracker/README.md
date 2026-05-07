@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.1.30
+- Basis ist die funktionierende Version 1.1.31
 
 
 ## Änderungen in 1.0.10
@@ -1010,3 +1010,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - DELETE `/api/entries/{id}` ist jetzt sync-freundlich/idempotent
 - Wiederholtes Löschen eines bereits entfernten Eintrags gilt als erfolgreich
 - Verbessert iOS → HA Lösch-Synchronisierung
+
+
+## Änderungen in 1.1.31-test
+
+- Neuer Bulk-Merge-Endpunkt `POST /api/sync/push`
+- iOS kann kompletten lokalen Stand plus Löschmarker senden
+- HA merged serverseitig mit `updated_at`: neuere Version gewinnt
+- Antwort ist direkt der zusammengeführte Gesamtstand

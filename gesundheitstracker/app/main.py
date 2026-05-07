@@ -236,6 +236,11 @@ class HealthEntry(HealthEntryIn):
     history: List[Dict[str, Any]] = Field(default_factory=list)
 
 
+class SyncPushIn(BaseModel):
+    entries: List[HealthEntryIn] = Field(default_factory=list)
+    deleted_entry_ids: List[str] = Field(default_factory=list)
+
+
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
     response = await call_next(request)
@@ -258,6 +263,122 @@ def api_state(request: Request):
     check_pin(request)
     return read_store()
 
+
+
+
+def sync_upsert_entry_into_store(store: Dict[str, Any], entry: HealthEntryIn, user: Dict[str, str]) -> Dict[str, Any]:
+    now = utc_now()
+    raw = entry.model_dump()
+    incoming_id = str(raw.pop("id", "") or "").strip()
+    incoming_created_at = raw.pop("created_at", None)
+    incoming_updated_at = raw.pop("updated_at", None)
+    entry_id = incoming_id or str(uuid.uuid4())
+
+    deleted_entries = store.get("deleted_entries", [])
+    if isinstance(deleted_entries, list):
+        if any(str(d.get("id") or "") == entry_id for d in deleted_entries if isinstance(d, dict)):
+            return {"id": entry_id, "skipped": True, "reason": "deleted"}
+
+    entries = store.setdefault("entries", [])
+    existing_idx = next((idx for idx, item in enumerate(entries) if item.get("id") == entry_id), None)
+    incoming_updated_sort = incoming_updated_at or now
+
+    if existing_idx is not None:
+        existing = entries[existing_idx]
+        existing_updated = str(existing.get("updated_at") or "")
+        # Server-side conflict rule: newer updated_at wins. Equal means incoming may refresh images etc.
+        if existing_updated and incoming_updated_sort < existing_updated:
+            return existing
+
+        entry_data = raw
+        if not entry_data.get("illness_id"):
+            entry_data["illness_id"] = existing.get("illness_id", "")
+        entry_data = assign_active_illness_if_needed(store, entry_data)
+        changes = detailed_changes(existing, entry_data)
+        fields = [change["field"] for change in changes]
+        existing_history = existing.get("history", [])
+        if not isinstance(existing_history, list):
+            existing_history = []
+
+        updated = HealthEntry(
+            **entry_data,
+            id=entry_id,
+            created_at=incoming_created_at or existing.get("created_at", now),
+            updated_at=incoming_updated_at or now,
+            created_by=existing.get("created_by", {}),
+            updated_by=user,
+            history=[
+                *existing_history,
+                {
+                    "action": "sync_updated",
+                    "at": incoming_updated_at or now,
+                    "by": user,
+                    "fields": fields,
+                    "changes": changes,
+                },
+            ] if changes else existing_history,
+        ).model_dump()
+        delete_removed_uploads(existing, updated)
+        entries[existing_idx] = updated
+        return updated
+
+    entry_data = assign_active_illness_if_needed(store, raw)
+    item = HealthEntry(
+        **entry_data,
+        id=entry_id,
+        created_at=incoming_created_at or now,
+        updated_at=incoming_updated_at or now,
+        created_by=user,
+        updated_by=user,
+        history=[
+            {
+                "action": "sync_created",
+                "at": incoming_created_at or now,
+                "by": user,
+                "fields": [],
+            }
+        ],
+    ).model_dump()
+    entries.append(item)
+    return item
+
+
+def sync_delete_entry_from_store(store: Dict[str, Any], entry_id: str, user: Dict[str, str]) -> None:
+    entry_id = str(entry_id or "").strip()
+    if not entry_id:
+        return
+
+    entries = store.get("entries", [])
+    existing = next((e for e in entries if e.get("id") == entry_id), None)
+    deleted_entries = store.get("deleted_entries", [])
+    if not isinstance(deleted_entries, list):
+        deleted_entries = []
+
+    if existing:
+        existing_history = existing.get("history", [])
+        if not isinstance(existing_history, list):
+            existing_history = []
+        deleted_snapshot = {
+            **existing,
+            "deleted_at": utc_now(),
+            "deleted_by": user,
+            "history": [
+                *existing_history,
+                history_event("deleted", user),
+            ],
+        }
+        deleted_entries.append(deleted_snapshot)
+        delete_uploads_for_entry(existing)
+        store["entries"] = [e for e in entries if e.get("id") != entry_id]
+    elif not any(str(d.get("id") or "") == entry_id for d in deleted_entries if isinstance(d, dict)):
+        deleted_entries.append({
+            "id": entry_id,
+            "deleted_at": utc_now(),
+            "deleted_by": user,
+            "history": [history_event("deleted", user)],
+        })
+
+    store["deleted_entries"] = deleted_entries[-500:]
 
 @app.get("/api/sync/state")
 def api_sync_state(request: Request):
@@ -288,6 +409,41 @@ async def api_sync_upsert_entry(request: Request):
     if entry_id and any(e.get("id") == entry_id for e in read_store().get("entries", [])):
         return api_update_entry(entry_id, entry, request)
     return api_create_entry(entry, request)
+
+
+@app.post("/api/sync/push")
+def api_sync_push(payload: SyncPushIn, request: Request):
+    """Merge a complete iOS sync package into the HA store and return the merged state."""
+    check_pin(request)
+    store = read_store()
+    user = get_ha_user(request)
+
+    for entry_id in payload.deleted_entry_ids:
+        sync_delete_entry_from_store(store, entry_id, user)
+
+    deleted_ids = {
+        str(item.get("id") or "")
+        for item in store.get("deleted_entries", [])
+        if isinstance(item, dict)
+    }
+
+    for entry in payload.entries:
+        entry_id = str(entry.id or "").strip()
+        if entry_id and entry_id in deleted_ids:
+            continue
+        sync_upsert_entry_into_store(store, entry, user)
+
+    store["entries"].sort(key=lambda e: (e.get("date", ""), e.get("time", "")), reverse=True)
+    write_store(store)
+    return {
+        "profile": store.get("profile", {}),
+        "entries": store.get("entries", []),
+        "deleted_entries": store.get("deleted_entries", []),
+        "active_illness": store.get("active_illness"),
+        "illness_history": store.get("illness_history", []),
+        "created_at": store.get("created_at"),
+        "updated_at": store.get("updated_at"),
+    }
 
 
 @app.put("/api/profile")
