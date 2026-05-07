@@ -686,7 +686,9 @@ def api_delete_entry(entry_id: str, request: Request):
     entries = store.get("entries", [])
     existing = next((e for e in entries if e.get("id") == entry_id), None)
     if not existing:
-        raise HTTPException(status_code=404, detail="Eintrag nicht gefunden.")
+        # Sync-safe/idempotent delete: if a client repeats a deletion, treat it as successful
+        # when the entry is already gone.
+        return {"ok": True, "already_deleted": True}
 
     deleted_entries = store.get("deleted_entries", [])
     if not isinstance(deleted_entries, list):
