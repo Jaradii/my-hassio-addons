@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.1.28
+- Basis ist die funktionierende Version 1.1.29
 
 
 ## Änderungen in 1.0.10
@@ -995,3 +995,11 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Neuer Sync-Endpunkt `GET /api/sync/state`
 - Neuer Sync-Endpunkt `POST /api/sync/upsert-entry`
 - Bild-Upload kann optional einen bevorzugten Dateinamen erhalten
+
+
+## Änderungen in 1.1.29-test
+
+- Direkter Add-on-Port `8099/tcp` freigegeben
+- Gesundheitstracker bleibt weiterhin über Home Assistant Ingress erreichbar
+- Zusätzlich ist die Web/API jetzt direkt erreichbar über `http://<home-assistant-ip>:8099`
+- iOS-Sync kann damit `http://<home-assistant-ip>:8099` als Basis-URL verwenden
