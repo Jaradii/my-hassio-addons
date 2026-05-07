@@ -76,7 +76,7 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 
 - Rollback auf den letzten stabilen Stand vor 1.0.8
 - Die Heute-Button-Änderung aus 1.0.8 wurde entfernt
-- Basis ist die funktionierende Version 1.1.27
+- Basis ist die funktionierende Version 1.1.28
 
 
 ## Änderungen in 1.0.10
@@ -985,3 +985,13 @@ Die Daten werden im Add-on-Datenbereich gespeichert.
 - Wenn man danach `Nein` wählt, wird der automatisch durch `Ja` erzeugte Nachkontroll-Eintrag wieder gelöscht
 - `Doch ja` erscheint nur noch bei Nachfragen, die vorher mit `Nein` beantwortet wurden
 - `Rückgängig` entfernt bei vorherigem `Ja` ebenfalls den automatisch erzeugten Nachkontroll-Eintrag
+
+
+## Änderungen in 1.1.28-test
+
+- Home-Assistant-Sync vorbereitet
+- `POST /api/entries` akzeptiert jetzt externe IDs und Zeitstempel
+- `PUT /api/entries/{id}` kann Sync-Zeitstempel übernehmen
+- Neuer Sync-Endpunkt `GET /api/sync/state`
+- Neuer Sync-Endpunkt `POST /api/sync/upsert-entry`
+- Bild-Upload kann optional einen bevorzugten Dateinamen erhalten
